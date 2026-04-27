@@ -1,0 +1,362 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USERS, ROLES, PERMISSIONS
+// ============================================================================
+
+model Role {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  module      String
+  action      String
+  description String?
+
+  roles RolePermission[]
+
+  @@unique([module, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model User {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String   @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  phoneNumber   String?
+  roleId        String   @db.Uuid
+  status        String   @default("active") // active, inactive, suspended
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  role       Role        @relation(fields: [roleId], references: [id])
+  auditLogs  AuditLog[]
+  sessions   Session[]   @relation("OpenedBy")
+  sessionsClosed Session[] @relation("ClosedBy")
+  customers  Customer[]
+  bookings   Booking[]
+  payments   Payment[]
+  barOrders  BarOrder[]
+  invoices   Invoice[]
+
+  @@map("users")
+}
+
+// ============================================================================
+// CUSTOMERS
+// ============================================================================
+
+model Customer {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName              String
+  phoneNumber           String
+  phoneNumberSecondary  String?
+  email                 String?
+  address               String?
+  customerType          String   // student, employee, trainer, parent, visitor
+  college               String?  // for students
+  studyLevel            String?  // for students
+  specialization        String?  // for students
+  employerName          String?  // for employees
+  jobTitle              String?  // for employees
+  notes                 String?
+  status                String   @default("active") // active, inactive, blacklisted
+  firstVisitAt          DateTime?
+  lastVisitAt           DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdByUserId       String   @db.Uuid
+
+  createdByUser User      @relation(fields: [createdByUserId], references: [id])
+  sessions      Session[]
+  bookings      Booking[]
+  barOrders     BarOrder[]
+  invoices      Invoice[]
+
+  @@index([phoneNumber])
+  @@index([fullName])
+  @@index([customerType])
+  @@map("customers")
+}
+
+// ============================================================================
+// ROOMS
+// ============================================================================
+
+model Room {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  roomType     String   // coworking, study, meeting, hall
+  capacity     Int
+  features     String[] // projector, whiteboard, wifi, ac
+  hourlyRate   Decimal? @db.Decimal(10, 2)
+  dailyRate    Decimal? @db.Decimal(10, 2)
+  status       String   @default("available") // available, occupied, booked_soon, under_prep, out_of_service
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions Session[]
+  bookings Booking[]
+
+  @@index([roomType])
+  @@index([status])
+  @@map("rooms")
+}
+
+// ============================================================================
+// SESSIONS
+// ============================================================================
+
+model Session {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId      String   @db.Uuid
+  sessionType     String   // hourly, daily, package, booking_linked
+  roomId          String?  @db.Uuid
+  startTime       DateTime
+  endTime         DateTime?
+  durationMinutes Int?
+  status          String   @default("active") // active, suspended, closed, cancelled
+  chargeAmount    Decimal? @db.Decimal(10, 2)
+  notes           String?
+  openedByUserId  String   @db.Uuid
+  closedByUserId  String?  @db.Uuid
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer      Customer   @relation(fields: [customerId], references: [id])
+  room          Room?      @relation(fields: [roomId], references: [id])
+  openedByUser  User       @relation("OpenedBy", fields: [openedByUserId], references: [id])
+  closedByUser  User?      @relation("ClosedBy", fields: [closedByUserId], references: [id])
+  barOrders     BarOrder[]
+  invoice       Invoice?
+
+  @@index([customerId])
+  @@index([status])
+  @@index([startTime])
+  @@index([customerId, status])
+  @@map("sessions")
+}
+
+// ============================================================================
+// BOOKINGS
+// ============================================================================
+
+model Booking {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId       String   @db.Uuid
+  roomId           String   @db.Uuid
+  bookingType      String   // meeting, training, event, private
+  startTime        DateTime
+  endTime          DateTime
+  participantCount Int?
+  totalAmount      Decimal  @db.Decimal(10, 2)
+  depositAmount    Decimal? @db.Decimal(10, 2)
+  notes            String?
+  status           String   @default("confirmed") // draft, confirmed, completed, cancelled
+  createdByUserId  String   @db.Uuid
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  customer      Customer @relation(fields: [customerId], references: [id])
+  room          Room     @relation(fields: [roomId], references: [id])
+  createdByUser User     @relation(fields: [createdByUserId], references: [id])
+
+  @@index([customerId])
+  @@index([roomId])
+  @@index([startTime])
+  @@map("bookings")
+}
+
+// ============================================================================
+// PRODUCTS
+// ============================================================================
+
+model Product {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  category      String
+  price         Decimal  @db.Decimal(10, 2)
+  description   String?
+  availability  Boolean  @default(true)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  barOrderItems BarOrderItem[]
+
+  @@index([category])
+  @@map("products")
+}
+
+// ============================================================================
+// BAR ORDERS
+// ============================================================================
+
+model BarOrder {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId       String?  @db.Uuid
+  customerId      String?  @db.Uuid
+  createdByUserId String   @db.Uuid
+  status          String   @default("new") // new, in_preparation, ready, delivered, cancelled
+  totalAmount     Decimal? @db.Decimal(10, 2)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  session Session?          @relation(fields: [sessionId], references: [id])
+  customer Customer?        @relation(fields: [customerId], references: [id])
+  createdByUser User        @relation(fields: [createdByUserId], references: [id])
+  items   BarOrderItem[]
+  invoiceItems InvoiceItem[]
+
+  @@index([sessionId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("bar_orders")
+}
+
+model BarOrderItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String   @db.Uuid
+  productId String   @db.Uuid
+  quantity  Int
+  unitPrice Decimal  @db.Decimal(10, 2)
+  subtotal  Decimal  @db.Decimal(10, 2)
+
+  order   BarOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product  @relation(fields: [productId], references: [id])
+
+  @@map("bar_order_items")
+}
+
+// ============================================================================
+// INVOICES
+// ============================================================================
+
+model Invoice {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId        String   @db.Uuid
+  sessionId         String?  @db.Uuid @unique
+  invoiceNumber     String   @unique
+  subtotal          Decimal  @default(0) @db.Decimal(10, 2)
+  discountAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  taxAmount         Decimal  @default(0) @db.Decimal(10, 2)
+  totalAmount       Decimal  @db.Decimal(10, 2)
+  amountPaid        Decimal  @default(0) @db.Decimal(10, 2)
+  remainingAmount   Decimal  @db.Decimal(10, 2)
+  paymentStatus     String   @default("unpaid") // unpaid, partially_paid, paid, refunded
+  notes             String?
+  issuedAt          DateTime @default(now())
+  dueAt             DateTime?
+  createdByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  session       Session?        @relation(fields: [sessionId], references: [id])
+  createdByUser User            @relation(fields: [createdByUserId], references: [id])
+  items         InvoiceItem[]
+  payments      Payment[]
+
+  @@index([customerId])
+  @@index([paymentStatus])
+  @@index([issuedAt])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId   String   @db.Uuid
+  itemType    String   // session, booking, bar_order, service, discount
+  itemId      String?  @db.Uuid
+  description String?
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  total       Decimal  @db.Decimal(10, 2)
+
+  invoice  Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  barOrder BarOrder? @relation(fields: [itemId], references: [id])
+
+  @@map("invoice_items")
+}
+
+// ============================================================================
+// PAYMENTS
+// ============================================================================
+
+model Payment {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId       String   @db.Uuid
+  paymentMethod   String   // cash, bank_transfer, card, mixed
+  amount          Decimal  @db.Decimal(10, 2)
+  notes           String?
+  recordedByUserId String  @db.Uuid
+  paidAt          DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  invoice       Invoice @relation(fields: [invoiceId], references: [id])
+  recordedByUser User    @relation(fields: [recordedByUserId], references: [id])
+
+  @@index([invoiceId])
+  @@index([paidAt])
+  @@map("payments")
+}
+
+// ============================================================================
+// AUDIT LOGS
+// ============================================================================
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  action    String
+  entityType String
+  entityId  String   @db.Uuid
+  oldValue  Json?
+  newValue  Json?
+  timestamp DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([timestamp])
+  @@map("audit_logs")
+}

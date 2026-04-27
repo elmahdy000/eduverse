@@ -1,0 +1,433 @@
+import { CreateBookingDto, UpdateBookingDto, BookingConflictQueryDto } from './dto/booking.dto';
+import { BookingsService } from './bookings.service';
+export declare class BookingsController {
+    private bookingsService;
+    constructor(bookingsService: BookingsService);
+    createBooking(createBookingDto: CreateBookingDto, req: any): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            createdByUserId: string;
+            endTime: Date;
+            customerId: string;
+            roomId: string;
+            startTime: Date;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
+            bookingType: string;
+            participantCount: number | null;
+            depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+        };
+        timestamp: string;
+    }>;
+    checkConflicts(query: BookingConflictQueryDto): Promise<{
+        success: boolean;
+        data: {
+            hasConflict: boolean;
+            bookingConflict: ({
+                customer: {
+                    id: string;
+                    createdAt: Date;
+                    email: string | null;
+                    phoneNumber: string;
+                    status: string;
+                    updatedAt: Date;
+                    employerName: string | null;
+                    college: string | null;
+                    fullName: string;
+                    phoneNumberSecondary: string | null;
+                    address: string | null;
+                    customerType: string;
+                    studyLevel: string | null;
+                    specialization: string | null;
+                    jobTitle: string | null;
+                    notes: string | null;
+                    firstVisitAt: Date | null;
+                    lastVisitAt: Date | null;
+                    createdByUserId: string;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                createdByUserId: string;
+                endTime: Date;
+                customerId: string;
+                roomId: string;
+                startTime: Date;
+                totalAmount: import("@prisma/client/runtime/library").Decimal;
+                bookingType: string;
+                participantCount: number | null;
+                depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+            }) | null;
+            activeSessionConflict: ({
+                customer: {
+                    id: string;
+                    createdAt: Date;
+                    email: string | null;
+                    phoneNumber: string;
+                    status: string;
+                    updatedAt: Date;
+                    employerName: string | null;
+                    college: string | null;
+                    fullName: string;
+                    phoneNumberSecondary: string | null;
+                    address: string | null;
+                    customerType: string;
+                    studyLevel: string | null;
+                    specialization: string | null;
+                    jobTitle: string | null;
+                    notes: string | null;
+                    firstVisitAt: Date | null;
+                    lastVisitAt: Date | null;
+                    createdByUserId: string;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                endTime: Date | null;
+                customerId: string;
+                sessionType: string;
+                roomId: string | null;
+                startTime: Date;
+                durationMinutes: number | null;
+                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+                openedByUserId: string;
+                closedByUserId: string | null;
+            }) | null;
+        };
+        timestamp: string;
+    }>;
+    getBooking(bookingId: string): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            createdByUser: {
+                id: string;
+                email: string;
+                firstName: string | null;
+                lastName: string | null;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            createdByUserId: string;
+            endTime: Date;
+            customerId: string;
+            roomId: string;
+            startTime: Date;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
+            bookingType: string;
+            participantCount: number | null;
+            depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+        };
+        timestamp: string;
+    }>;
+    listBookings(page?: string, limit?: string, status?: string, roomId?: string, customerId?: string, fromDate?: string, toDate?: string): Promise<{
+        success: boolean;
+        data: {
+            data: ({
+                customer: {
+                    id: string;
+                    createdAt: Date;
+                    email: string | null;
+                    phoneNumber: string;
+                    status: string;
+                    updatedAt: Date;
+                    employerName: string | null;
+                    college: string | null;
+                    fullName: string;
+                    phoneNumberSecondary: string | null;
+                    address: string | null;
+                    customerType: string;
+                    studyLevel: string | null;
+                    specialization: string | null;
+                    jobTitle: string | null;
+                    notes: string | null;
+                    firstVisitAt: Date | null;
+                    lastVisitAt: Date | null;
+                    createdByUserId: string;
+                };
+                room: {
+                    id: string;
+                    name: string;
+                    createdAt: Date;
+                    status: string;
+                    updatedAt: Date;
+                    notes: string | null;
+                    roomType: string;
+                    capacity: number;
+                    features: string[];
+                    hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                    dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                createdByUserId: string;
+                endTime: Date;
+                customerId: string;
+                roomId: string;
+                startTime: Date;
+                totalAmount: import("@prisma/client/runtime/library").Decimal;
+                bookingType: string;
+                participantCount: number | null;
+                depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+            })[];
+            total: number;
+            page: number;
+            limit: number;
+            hasMore: boolean;
+        };
+        timestamp: string;
+    }>;
+    updateBooking(bookingId: string, updateBookingDto: UpdateBookingDto): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            createdByUserId: string;
+            endTime: Date;
+            customerId: string;
+            roomId: string;
+            startTime: Date;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
+            bookingType: string;
+            participantCount: number | null;
+            depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+        };
+        timestamp: string;
+    }>;
+    cancelBooking(bookingId: string, reason?: string): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            createdByUserId: string;
+            endTime: Date;
+            customerId: string;
+            roomId: string;
+            startTime: Date;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
+            bookingType: string;
+            participantCount: number | null;
+            depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+        };
+        message: string;
+        timestamp: string;
+    }>;
+    completeBooking(bookingId: string): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            createdByUserId: string;
+            endTime: Date;
+            customerId: string;
+            roomId: string;
+            startTime: Date;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
+            bookingType: string;
+            participantCount: number | null;
+            depositAmount: import("@prisma/client/runtime/library").Decimal | null;
+        };
+        message: string;
+        timestamp: string;
+    }>;
+}

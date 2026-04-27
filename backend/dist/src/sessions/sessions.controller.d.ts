@@ -1,0 +1,263 @@
+import { SessionsService } from './sessions.service';
+import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
+export declare class SessionsController {
+    private sessionsService;
+    constructor(sessionsService: SessionsService);
+    openSession(createSessionDto: CreateSessionDto, req: any): Promise<{
+        success: boolean;
+        data: {
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            } | null;
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            endTime: Date | null;
+            customerId: string;
+            sessionType: string;
+            roomId: string | null;
+            startTime: Date;
+            durationMinutes: number | null;
+            chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            openedByUserId: string;
+            closedByUserId: string | null;
+        };
+        timestamp: string;
+    }>;
+    getSession(sessionId: string): Promise<{
+        success: boolean;
+        data: {
+            barOrders: {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                createdByUserId: string;
+                customerId: string | null;
+                sessionId: string | null;
+                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            }[];
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+            room: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                roomType: string;
+                capacity: number;
+                features: string[];
+                hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+            } | null;
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            endTime: Date | null;
+            customerId: string;
+            sessionType: string;
+            roomId: string | null;
+            startTime: Date;
+            durationMinutes: number | null;
+            chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            openedByUserId: string;
+            closedByUserId: string | null;
+        };
+        timestamp: string;
+    }>;
+    listActiveSessions(page?: number, limit?: number): Promise<{
+        success: boolean;
+        data: {
+            data: ({
+                customer: {
+                    id: string;
+                    createdAt: Date;
+                    email: string | null;
+                    phoneNumber: string;
+                    status: string;
+                    updatedAt: Date;
+                    employerName: string | null;
+                    college: string | null;
+                    fullName: string;
+                    phoneNumberSecondary: string | null;
+                    address: string | null;
+                    customerType: string;
+                    studyLevel: string | null;
+                    specialization: string | null;
+                    jobTitle: string | null;
+                    notes: string | null;
+                    firstVisitAt: Date | null;
+                    lastVisitAt: Date | null;
+                    createdByUserId: string;
+                };
+                room: {
+                    id: string;
+                    name: string;
+                    createdAt: Date;
+                    status: string;
+                    updatedAt: Date;
+                    notes: string | null;
+                    roomType: string;
+                    capacity: number;
+                    features: string[];
+                    hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
+                    dailyRate: import("@prisma/client/runtime/library").Decimal | null;
+                } | null;
+            } & {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                endTime: Date | null;
+                customerId: string;
+                sessionType: string;
+                roomId: string | null;
+                startTime: Date;
+                durationMinutes: number | null;
+                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+                openedByUserId: string;
+                closedByUserId: string | null;
+            })[];
+            total: number;
+            page: number;
+            limit: number;
+            hasMore: boolean;
+        };
+        timestamp: string;
+    }>;
+    closeSession(sessionId: string, closeSessionDto: CloseSessionDto, req: any): Promise<{
+        success: boolean;
+        data: {
+            barOrders: {
+                id: string;
+                createdAt: Date;
+                status: string;
+                updatedAt: Date;
+                notes: string | null;
+                createdByUserId: string;
+                customerId: string | null;
+                sessionId: string | null;
+                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            }[];
+            customer: {
+                id: string;
+                createdAt: Date;
+                email: string | null;
+                phoneNumber: string;
+                status: string;
+                updatedAt: Date;
+                employerName: string | null;
+                college: string | null;
+                fullName: string;
+                phoneNumberSecondary: string | null;
+                address: string | null;
+                customerType: string;
+                studyLevel: string | null;
+                specialization: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdByUserId: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            endTime: Date | null;
+            customerId: string;
+            sessionType: string;
+            roomId: string | null;
+            startTime: Date;
+            durationMinutes: number | null;
+            chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            openedByUserId: string;
+            closedByUserId: string | null;
+        };
+        message: string;
+        timestamp: string;
+    }>;
+    cancelSession(sessionId: string, req: any): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            createdAt: Date;
+            status: string;
+            updatedAt: Date;
+            notes: string | null;
+            endTime: Date | null;
+            customerId: string;
+            sessionType: string;
+            roomId: string | null;
+            startTime: Date;
+            durationMinutes: number | null;
+            chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            openedByUserId: string;
+            closedByUserId: string | null;
+        };
+        message: string;
+        timestamp: string;
+    }>;
+}

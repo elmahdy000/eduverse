@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,10 +13,10 @@ import { Alert, Btn, EmptyState, FormField, Panel, SectionTitle, StatCard } from
 const CATEGORIES = [
   { value: "", label: "الكل" },
   { value: "coffee",   label: "☕ قهوة" },
-  { value: "tea",      label: "🍵 شاي" },
+  { value: "tea",      label: " شاي" },
   { value: "juice",    label: "🧃 عصير" },
-  { value: "snack",    label: "🍿 سناك" },
-  { value: "dessert",  label: "🍰 حلويات" },
+  { value: "snack",    label: " سناك" },
+  { value: "dessert",  label: " حلويات" },
   { value: "sandwich", label: "🥪 ساندويتش" },
   { value: "other",    label: "📦 أخرى" },
 ];
@@ -40,7 +40,7 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
           <p className="text-lg font-bold text-emerald-700">{money(product.price)}</p>
           <div className="mt-1 flex flex-col gap-1 items-end">
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.active ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-              {product.active ? "شغال" : "موقوف"}
+              {product.active ? "شغال" : "موقو"}
             </span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.availability ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
               {product.availability ? "متاح" : "مش متاح"}
@@ -55,11 +55,11 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
         </button>
         <button onClick={onToggleAvail} disabled={busy} className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
           {product.availability ? <EyeOff size={11} /> : <Eye size={11} />}
-          {product.availability ? "اوقف الإتاحة" : "افتح الإتاحة"}
+          {product.availability ? "اوق الإتاحة" : "اتح الإتاحة"}
         </button>
         <button onClick={onToggleActive} disabled={busy} className={`flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
           {product.active ? <PowerOff size={11} /> : <Power size={11} />}
-          {product.active ? "إيقاف" : "تفعيل"}
+          {product.active ? "إيقا" : "تعيل"}
         </button>
       </div>
     </div>
@@ -107,7 +107,7 @@ export default function ProductsPage() {
     mutationFn: () => api.post("/products", { name, category, price: Number(price), description: description || undefined }),
     onSuccess: () => {
       setName(""); setCategory("other"); setPrice("0"); setDescription(""); setShowForm(false);
-      setMessage({ text: "المنتج اتضاف بنجاح! ✓", ok: true });
+      setMessage({ text: "المنتج اتضا بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (err: unknown) => {
@@ -117,13 +117,19 @@ export default function ProductsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: () => {
-      if (!editingProduct) return Promise.resolve();
-      return api.put(`/products/${editingProduct.id}`, { name: editName, category: editCategory, price: Number(editPrice), description: editDescription || undefined, availability: editAvailability });
+    mutationFn: async () => {
+      if (!editingProduct) return;
+      await api.put(`/products/${editingProduct.id}`, {
+        name: editName,
+        category: editCategory,
+        price: Number(editPrice),
+        description: editDescription || undefined,
+        availability: editAvailability,
+      });
     },
     onSuccess: () => {
       setEditingProduct(null);
-      setMessage({ text: "التعديل اتحفظ. ✓", ok: true });
+      setMessage({ text: "التعديل اتحظ. ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (err: unknown) => {
@@ -164,7 +170,7 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <SectionTitle
         title="المنتجات"
-        subtitle="إدارة منتجات البار — ضيف، عدّل، وتحكم في الإتاحة على طول."
+        subtitle="إدارة منتجات البار — ضي، عدّل، وتحكم ي الإتاحة على طول."
         icon={<ShoppingBag size={20} />}
         action={
           <Btn size="sm" onClick={() => setShowForm(!showForm)} icon={<Plus size={14} />}>
@@ -179,13 +185,13 @@ export default function ProductsPage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard label="إجمالي المنتجات" value={total} icon={<Package size={18} />} />
         <StatCard label="شغالة" value={active} tone="success" icon={<Power size={18} />} />
-        <StatCard label="متاحة الآن" value={available} tone="info" icon={<Coffee size={18} />} sub="نشطة وإتاحتها مفتوحة" />
+        <StatCard label="متاحة الآن" value={available} tone="info" icon={<Coffee size={18} />} sub="نشطة وإتاحتها متوحة" />
       </div>
 
       {/* Add form */}
       {showForm && (
-        <Panel title="إضافة منتج جديد" icon={<Plus size={15} />} action={
-          <Btn size="xs" variant="ghost" onClick={() => setShowForm(false)}>✕ إغلاق</Btn>
+        <Panel title="إضاة منتج جديد" icon={<Plus size={15} />} action={
+          <Btn size="sm" variant="ghost" onClick={() => setShowForm(false)}>✕ إغلاق</Btn>
         }>
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); createMutation.mutate(); }}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -193,7 +199,7 @@ export default function ProductsPage() {
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كابوتشينو" required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="التصنيف">
+              <FormField label="التصني">
                 <select value={category} onChange={e => setCategory(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900">
                   {CATEGORIES.filter(c => c.value).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -203,13 +209,13 @@ export default function ProductsPage() {
                 <input type="number" min={0} step={0.5} value={price} onChange={e => setPrice(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="وصف مختصر">
+              <FormField label="وص مختصر">
                 <input value={description} onChange={e => setDescription(e.target.value)} placeholder="اختياري"
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
             </div>
-            <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضافة..." icon={<Plus size={14} />}>
-              ضيف المنتج
+            <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضاة..." icon={<Plus size={14} />}>
+              ضي المنتج
             </Btn>
           </form>
         </Panel>
@@ -218,7 +224,7 @@ export default function ProductsPage() {
       {/* Edit form */}
       {editingProduct && (
         <Panel title={`تعديل: ${editingProduct.name}`} icon={<Pencil size={15} />} action={
-          <Btn size="xs" variant="ghost" onClick={() => setEditingProduct(null)}>✕ إغلاق</Btn>
+          <Btn size="sm" variant="ghost" onClick={() => setEditingProduct(null)}>✕ إغلاق</Btn>
         }>
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -226,7 +232,7 @@ export default function ProductsPage() {
                 <input value={editName} onChange={e => setEditName(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="التصنيف">
+              <FormField label="التصني">
                 <select value={editCategory} onChange={e => setEditCategory(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900">
                   {CATEGORIES.filter(c => c.value).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -244,12 +250,12 @@ export default function ProductsPage() {
                 </select>
               </FormField>
             </div>
-            <FormField label="الوصف">
+            <FormField label="الوص">
               <input value={editDescription} onChange={e => setEditDescription(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
             </FormField>
             <div className="flex gap-2">
-              <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحفظ..." icon={<Pencil size={14} />}>احفظ التعديل</Btn>
+              <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحظ..." icon={<Pencil size={14} />}>احظ التعديل</Btn>
               <Btn type="button" variant="ghost" onClick={() => setEditingProduct(null)}>إلغاء</Btn>
             </div>
           </form>
@@ -261,8 +267,8 @@ export default function ProductsPage() {
         <div className="flex gap-2">
           <select value={activeFilter} onChange={e => setActiveFilter(e.target.value)}
             className="rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 outline-none">
-            <option value="true">شغالة فقط</option>
-            <option value="false">موقوفة فقط</option>
+            <option value="true">شغالة قط</option>
+            <option value="false">موقوة قط</option>
             <option value="all">الكل</option>
           </select>
         </div>
@@ -288,7 +294,7 @@ export default function ProductsPage() {
         {productsQuery.isLoading ? (
           <div className="flex justify-center py-10"><RefreshCw size={20} className="animate-spin text-slate-400" /></div>
         ) : products.length === 0 ? (
-          <EmptyState icon={<Package size={36} />} title="مفيش منتجات" sub="ضيف أول منتج من الأعلى." />
+          <EmptyState icon={<Package size={36} />} title="ميش منتجات" sub="ضي أول منتج من الأعلى." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map(product => (

@@ -32,7 +32,7 @@ export function AuthGate({
       return;
     }
 
-    if (isAuthenticated && publicOnly && pathname !== "/login") {
+    if (isAuthenticated && publicOnly) {
       window.location.href = destination;
     }
   }, [destination, isAuthenticated, mounted, publicOnly, pathname]);
@@ -45,7 +45,7 @@ export function AuthGate({
     return <div className="p-8 text-sm text-slate-600">جاري التحويل إلى صفحة تسجيل الدخول...</div>;
   }
 
-  if (isAuthenticated && publicOnly && pathname !== "/login") {
+  if (isAuthenticated && publicOnly) {
     return <div className="p-8 text-sm text-slate-600">جاري التحويل إلى لوحة التحكم...</div>;
   }
 

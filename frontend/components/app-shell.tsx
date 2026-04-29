@@ -22,6 +22,7 @@ import {
   Settings,
   TrendingUp,
   BarChart3,
+  Activity,
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
 import { roleHomePath, roleLabel } from "../lib/api";
@@ -118,6 +119,12 @@ const navGroups: NavGroup[] = [
         href: "/reports",
         roles: ["Owner", "Operations Manager"],
         icon: <BarChart3 size={14} />,
+      },
+      {
+        label: "عمليات السيستم",
+        href: "/system-operations",
+        roles: ["Owner"],
+        icon: <Activity size={14} />,
       },
     ],
   },

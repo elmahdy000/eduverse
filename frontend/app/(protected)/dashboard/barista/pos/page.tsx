@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -146,7 +146,7 @@ export default function BaristaPOSPage() {
       }));
       await api.post("/bar-orders", {
         sessionId: sessionId || undefined,
-        customerId: selectedCustomer?.id || customerId || undefined,
+        customerId: selectedCustomer?.id,
         items,
         notes: notes || undefined,
       });
@@ -158,6 +158,7 @@ export default function BaristaPOSPage() {
       setNotes("");
       setSelectedCustomer(null);
       setMessage({ type: "success", text: "تم تسجيل الطلب بنجاح! ✓" });
+      queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
       queryClient.invalidateQueries({ queryKey: ["bar-orders", "recent"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
       setTimeout(() => setMessage(null), 3000);
@@ -174,6 +175,7 @@ export default function BaristaPOSPage() {
       await api.put(`/bar-orders/${id}/status`, { status });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
       queryClient.invalidateQueries({ queryKey: ["bar-orders", "recent"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
     },
@@ -267,8 +269,8 @@ export default function BaristaPOSPage() {
 
   const submitOrder = () => {
     if (cart.length === 0) return;
-    if (!selectedCustomer?.id && !sessionId) {
-      setMessage({ type: "error", text: "يجب اختيار عميل أو مدة قبل إنشاء الطلب" });
+    if (!selectedCustomer?.id) {
+      setMessage({ type: "error", text: "يجب اختيار عميل قبل إنشاء الطلب" });
       setTimeout(() => setMessage(null), 3000);
       return;
     }
@@ -293,6 +295,7 @@ export default function BaristaPOSPage() {
             <button
               onClick={() => {
                 queryClient.invalidateQueries({ queryKey: ["products", "pos"] });
+                queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
                 queryClient.invalidateQueries({ queryKey: ["bar-orders", "recent"] });
               }}
               className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
@@ -333,7 +336,7 @@ export default function BaristaPOSPage() {
             <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-emerald-50 to-white p-4">
               <div className="flex items-center gap-2 text-emerald-600">
                 <Sparkles size={16} />
-                <span className="text-xs">المفضلة</span>
+                <span className="text-xs">المضلة</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-emerald-700">{favorites.size}</p>
             </div>
@@ -363,7 +366,7 @@ export default function BaristaPOSPage() {
                   )}
                 >
                   <Heart size={14} className={showFavorites ? "fill-current" : ""} />
-                  <span>المفضلة</span>
+                  <span>المضلة</span>
                   {favorites.size > 0 && (
                     <span className="rounded-full bg-rose-200 px-1.5 py-0.5 text-[10px] font-bold text-rose-800">
                       {favorites.size}
@@ -396,7 +399,7 @@ export default function BaristaPOSPage() {
                 <RefreshCw size={24} className="animate-spin text-slate-400" />
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-10 text-slate-500">مفيش منتجات متاحة</div>
+              <div className="text-center py-10 text-slate-500">ميش منتجات متاحة</div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredProducts.map((product) => (
@@ -438,7 +441,7 @@ export default function BaristaPOSPage() {
                     <p className="mt-2 text-lg font-bold text-slate-900">{money(Number(product.price))}</p>
                     <div className="mt-3 flex items-center justify-center rounded-lg bg-gradient-to-r from-slate-900 to-slate-800 px-3 py-2 opacity-0 transition-all duration-200 group-hover:opacity-100 shadow-lg">
                       <Plus size={16} className="text-white" />
-                      <span className="mr-1 text-xs font-medium text-white">ضيف للسلة</span>
+                      <span className="mr-1 text-xs font-medium text-white">ضي للسلة</span>
                     </div>
                     {cart.find((item) => item.productId === product.id) && (
                       <div className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white text-xs font-bold shadow-lg animate-bounce">
@@ -475,8 +478,8 @@ export default function BaristaPOSPage() {
             {cart.length === 0 ? (
               <div className="py-8 text-center">
                 <ShoppingCart size={32} className="mx-auto mb-2 text-slate-300" />
-                <p className="text-sm text-slate-500">السلة فاضية</p>
-                <p className="text-xs text-slate-400">اضغط على منتج للإضافة</p>
+                <p className="text-sm text-slate-500">السلة اضية</p>
+                <p className="text-xs text-slate-400">اضغط على منتج للإضاة</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -654,7 +657,7 @@ export default function BaristaPOSPage() {
             ) : recentOrdersQuery.data?.data?.length === 0 ? (
               <div className="py-8 text-center">
                 <Clock size={32} className="mx-auto mb-2 text-slate-300" />
-                <p className="text-sm text-slate-500">مفيش طلبات في الطابور</p>
+                <p className="text-sm text-slate-500">ميش طلبات ي الطابور</p>
                 <p className="text-xs text-slate-400">ORDER QUEUE EMPTY</p>
               </div>
             ) : (
@@ -678,7 +681,7 @@ export default function BaristaPOSPage() {
                           #{order.id.slice(0, 6)}
                         </p>
                         <p className="text-xs text-slate-500">
-                          {order.customer?.fullName || "ضيف"}
+                          {order.customer?.fullName || "ضي"}
                         </p>
                       </div>
                       <Badge
@@ -764,3 +767,4 @@ export default function BaristaPOSPage() {
     </div>
   );
 }
+

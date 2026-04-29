@@ -1,14 +1,14 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Calendar, Clock, User, MapPin, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Clock, User, MapPin, Plus, RefreshCw, X } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import type { Booking, Customer, Paginated, Room } from "../../../lib/types";
-import { DataTable, Panel, SectionTitle, Badge } from "../../../components/ui";
+import { Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Panel, SectionTitle, StatCard } from "../../../components/ui";
 
 function toIso(datetimeLocal: string) {
   return new Date(datetimeLocal).toISOString();
@@ -108,7 +108,7 @@ export default function BookingsPage() {
       return response.data.data as { hasConflict: boolean };
     },
     onSuccess: (result) => {
-      setMessage(result.hasConflict ? "في تعارض على الغرفة في الميعاد ده." : "تمام، مفيش تعارض.");
+      setMessage(result.hasConflict ? "ي تعارض على الغرة ي الميعاد ده." : "تمام، ميش تعارض.");
     },
     onError: (error: unknown) => {
       const apiMessage =
@@ -173,6 +173,12 @@ export default function BookingsPage() {
     [bookingsQuery.data?.data],
   );
 
+  const bookings = bookingsQuery.data?.data ?? [];
+  const totalBookings = bookings.length;
+  const confirmedBookings = bookings.filter((b) => b.status === "confirmed").length;
+  const draftBookings = bookings.filter((b) => b.status === "draft").length;
+  const cancelledBookings = bookings.filter((b) => b.status === "cancelled").length;
+
   // Get week dates
   const weekDates = useMemo(() => {
     const dates = [];
@@ -223,7 +229,7 @@ export default function BookingsPage() {
   };
 
   const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const arabicMonths = ['يناير', 'براير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نومبر', 'ديسمبر'];
 
   const getBookingColor = (status: string) => {
     switch (status) {
@@ -242,8 +248,30 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <SectionTitle title="الحجوزات" subtitle="اعمل حجز جديد، افحص التعارض، وكمل إجراءات الحجز من هنا." />
+    <div className="space-y-5" dir="rtl">
+      <SectionTitle
+        title="الحجوزات"
+        subtitle="إنشاء، متابعة، وتحديث الحجوزات من شاشة واحدة."
+        icon={<Calendar size={20} />}
+        action={
+          <Btn size="sm" variant="secondary" icon={<RefreshCw size={12} />} onClick={() => bookingsQuery.refetch()}>
+            تحديث
+          </Btn>
+        }
+      />
+
+      {message ? (
+        <Alert tone={message.includes("نجاح") || message.includes("تمام") ? "success" : "danger"}>
+          {message}
+        </Alert>
+      ) : null}
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="إجمالي الحجوزات" value={totalBookings} icon={<Calendar size={18} />} />
+        <StatCard label="متأكدة" value={confirmedBookings} tone="success" icon={<Clock size={18} />} />
+        <StatCard label="مسودات" value={draftBookings} tone="info" icon={<Plus size={18} />} />
+        <StatCard label="ملغية" value={cancelledBookings} tone="danger" icon={<X size={18} />} />
+      </div>
 
       {/* View Mode Toggle */}
       <div className="flex items-center justify-between">
@@ -392,7 +420,7 @@ export default function BookingsPage() {
               <option value="cancelled">اتلغى</option>
             </select>
           </div>
-          <DataTable headers={["المعرف", "العميل", "الغرفة", "البداية", "النهاية", "الحالة", "العدد", "الإجمالي"]} rows={rows} />
+          <DataTable headers={["المعر", "العميل", "الغرة", "البداية", "النهاية", "الحالة", "العدد", "الإجمالي"]} rows={rows} />
         </Panel>
       )}
 
@@ -409,7 +437,7 @@ export default function BookingsPage() {
           </select>
 
           <select value={roomId} onChange={(event) => setRoomId(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2" required>
-            <option value="">اختار الغرفة</option>
+            <option value="">اختار الغرة</option>
             {roomsQuery.data?.data?.map((room) => (
               <option key={room.id} value={room.id}>
                 {room.name}
@@ -422,27 +450,26 @@ export default function BookingsPage() {
           <select value={bookingType} onChange={(event) => setBookingType(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2">
             <option value="meeting">اجتماع</option>
             <option value="training">تدريب</option>
-            <option value="event">إيفنت</option>
+            <option value="event">إينت</option>
             <option value="private">خاص</option>
           </select>
 
           <input type="number" min={0} step={0.01} value={totalAmount} onChange={(event) => setTotalAmount(event.target.value)} placeholder="إجمالي المبلغ" className="rounded-lg border border-slate-300 px-3 py-2" required />
-          <input type="datetime-local" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2" required />
-          <input type="datetime-local" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2" required />
+          <DateTimeInput value={startTime} onChange={(event) => setStartTime(event.target.value)} required />
+          <DateTimeInput value={endTime} onChange={(event) => setEndTime(event.target.value)} required />
           <input type="number" min={1} value={participantCount} onChange={(event) => setParticipantCount(event.target.value)} placeholder="عدد الحضور" className="rounded-lg border border-slate-300 px-3 py-2" />
           <input type="number" min={0} step={0.01} value={depositAmount} onChange={(event) => setDepositAmount(event.target.value)} placeholder="العربون" className="rounded-lg border border-slate-300 px-3 py-2" />
           <input value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="ملاحظات (اختياري)" className="rounded-lg border border-slate-300 px-3 py-2 md:col-span-2 lg:col-span-3" />
 
           <div className="flex gap-2">
             <button type="button" onClick={() => checkConflictMutation.mutate()} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium" disabled={!roomId || !startTime || !endTime || checkConflictMutation.isPending}>
-              فحص التعارض
+              حص التعارض
             </button>
             <button type="submit" className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white" disabled={createMutation.isPending}>
               {createMutation.isPending ? "بنسجل الحجز..." : "سجل الحجز"}
             </button>
           </div>
         </form>
-        {message ? <p className="mt-3 text-sm text-slate-700">{message}</p> : null}
       </Panel>
 
       {selectedBookingId ? (() => {
@@ -481,7 +508,7 @@ export default function BookingsPage() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600">الغرفة:</span>
+                      <span className="text-slate-600">الغرة:</span>
                       <span className="font-medium">{selectedBooking.room?.name}</span>
                     </div>
                     <div className="flex justify-between">
@@ -588,7 +615,7 @@ export default function BookingsPage() {
                 <h2 className="text-xl font-bold text-slate-900">
                   {arabicDays[new Date(selectedDate).getDay()]} - {new Date(selectedDate).getDate()} {arabicMonths[new Date(selectedDate).getMonth()]} {new Date(selectedDate).getFullYear()}
                 </h2>
-                <p className="text-sm text-slate-600">جميع الحجوزات في هذا اليوم</p>
+                <p className="text-sm text-slate-600">جميع الحجوزات ي هذا اليوم</p>
               </div>
               <button
                 onClick={() => setSelectedDate(null)}
@@ -600,10 +627,7 @@ export default function BookingsPage() {
 
             <div className="p-6 max-h-[60vh] overflow-y-auto">
               {bookingsByDay[selectedDate]?.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar size={48} className="mx-auto mb-4 text-slate-300" />
-                  <p className="text-slate-500">لا توجد حجوزات في هذا اليوم</p>
-                </div>
+                <EmptyState icon={<Calendar size={40} />} title="لا توجد حجوزات ي اليوم ده" />
               ) : (
                 <div className="space-y-4">
                   {bookingsByDay[selectedDate]?.map((booking) => (
@@ -640,7 +664,7 @@ export default function BookingsPage() {
                             </div>
                             {booking.bookingType && (
                               <div className="text-sm text-slate-600">
-                                النوع: {booking.bookingType === 'meeting' ? 'اجتماع' : booking.bookingType === 'training' ? 'تدريب' : booking.bookingType === 'event' ? 'إيفنت' : 'خاص'}
+                                النوع: {booking.bookingType === 'meeting' ? 'اجتماع' : booking.bookingType === 'training' ? 'تدريب' : booking.bookingType === 'event' ? 'إينت' : 'خاص'}
                               </div>
                             )}
                             {booking.participantCount && (
@@ -697,3 +721,4 @@ export default function BookingsPage() {
     </div>
   );
 }
+

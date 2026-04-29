@@ -4,8 +4,19 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { dateTime } from "../../../lib/format";
-import type { AuditLogRecord, Paginated } from "../../../lib/types";
+import type { Paginated } from "../../../lib/types";
 import { DataTable, Panel, SectionTitle } from "../../../components/ui";
+
+interface AuditLogRecord {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId?: string | null;
+  userId: string;
+  timestamp: string;
+  ipAddress?: string | null;
+  user?: { email?: string | null } | null;
+}
 
 export default function AuditLogsPage() {
   const [entityType, setEntityType] = useState("");

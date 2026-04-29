@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { RoleGuard } from '../auth/role.guard';
+import { OwnerGuard, RoleGuard } from '../auth/role.guard';
 import { DashboardsService } from './dashboards.service';
 
 @ApiTags('dashboards')
@@ -61,6 +61,22 @@ export class DashboardsController {
   async getBaristaDashboard() {
     try {
       const data = await this.dashboardsService.getBaristaDashboard();
+      return {
+        success: true,
+        data,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('operations-by-role')
+  @ApiOperation({ summary: 'Operations by role report for Owner' })
+  @UseGuards(JwtAuthGuard, OwnerGuard)
+  async getOperationsByRole() {
+    try {
+      const data = await this.dashboardsService.getOperationsByRole();
       return {
         success: true,
         data,

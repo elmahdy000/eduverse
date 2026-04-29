@@ -31,6 +31,7 @@ class CreateBarOrderDto {
     customerId;
     items;
     notes;
+    guestCode;
 }
 exports.CreateBarOrderDto = CreateBarOrderDto;
 __decorate([
@@ -39,7 +40,6 @@ __decorate([
     __metadata("design:type", String)
 ], CreateBarOrderDto.prototype, "sessionId", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateBarOrderDto.prototype, "customerId", void 0);
@@ -54,6 +54,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateBarOrderDto.prototype, "notes", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateBarOrderDto.prototype, "guestCode", void 0);
 class UpdateBarOrderStatusDto {
     status;
 }

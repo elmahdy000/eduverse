@@ -14,11 +14,11 @@ export declare class AuditLogsController {
         } & {
             id: string;
             action: string;
-            timestamp: Date;
             entityType: string;
             entityId: string;
             oldValue: import("@prisma/client/runtime/library").JsonValue | null;
             newValue: import("@prisma/client/runtime/library").JsonValue | null;
+            timestamp: Date;
             ipAddress: string | null;
             userAgent: string | null;
             userId: string;
@@ -38,11 +38,11 @@ export declare class AuditLogsController {
             } & {
                 id: string;
                 action: string;
-                timestamp: Date;
                 entityType: string;
                 entityId: string;
                 oldValue: import("@prisma/client/runtime/library").JsonValue | null;
                 newValue: import("@prisma/client/runtime/library").JsonValue | null;
+                timestamp: Date;
                 ipAddress: string | null;
                 userAgent: string | null;
                 userId: string;

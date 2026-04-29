@@ -2,6 +2,7 @@
 
 import { PropsWithChildren, ReactNode, useState, useMemo } from "react";
 import clsx from "clsx";
+import { CalendarClock } from "lucide-react";
 
 /* ── Badge ── */
 type BadgeTone = "default" | "success" | "warn" | "danger" | "info" | "neutral";
@@ -170,6 +171,28 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
         className,
       )}
     />
+  );
+}
+
+/* —— DateTimeInput —— */
+export function DateTimeInput({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className="group relative">
+      <CalendarClock
+        size={14}
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition group-focus-within:text-slate-700"
+      />
+      <input
+        {...props}
+        type="datetime-local"
+        className={clsx(
+          "w-full rounded-xl border border-slate-300 bg-gradient-to-br from-white to-slate-50 py-2.5 pr-9 pl-3 text-right text-sm text-slate-900 outline-none transition",
+          "focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10",
+          "[color-scheme:light]",
+          className,
+        )}
+      />
+    </div>
   );
 }
 
@@ -408,3 +431,38 @@ export function DataTable({ headers, rows, sortable = false, filterable = false,
     </div>
   );
 }
+
+/* ── Modal ── */
+export function Modal({ isOpen, onClose, title, children, size = "md" }: { isOpen: boolean; onClose: () => void; title?: string; children: ReactNode; size?: "sm" | "md" | "lg" | "xl" | "full" }) {
+  if (!isOpen) return null;
+
+  const sizes: Record<string, string> = {
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+    full: "max-w-[95vw]",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className={clsx("relative w-full overflow-hidden rounded-3xl bg-white shadow-2xl transition-all", sizes[size])} dir="rtl">
+        {title && (
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+            <button onClick={onClose} className="rounded-xl p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+              <XCircle size={20} />
+            </button>
+          </div>
+        )}
+        <div className="max-h-[85vh] overflow-y-auto p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+import { XCircle } from "lucide-react";
+

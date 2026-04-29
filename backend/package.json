@@ -23,7 +23,9 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:reset": "prisma migrate reset",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "simulate:roles": "ts-node scripts/role-simulation.ts",
+    "simulate:journey": "ts-node scripts/customer-journey-simulation.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -32,8 +34,10 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.22",
     "@nestjs/swagger": "^7.1.0",
     "@nestjs/throttler": "^6.5.0",
+    "@nestjs/websockets": "^10.4.22",
     "@prisma/client": "^5.9.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
@@ -44,6 +48,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {

@@ -4,9 +4,10 @@ export declare class CreateBarOrderItemDto {
 }
 export declare class CreateBarOrderDto {
     sessionId?: string;
-    customerId?: string;
+    customerId: string;
     items: CreateBarOrderItemDto[];
     notes?: string;
+    guestCode?: string;
 }
 export declare class UpdateBarOrderStatusDto {
     status: string;

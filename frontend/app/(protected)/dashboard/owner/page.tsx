@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, TrendingDown, Users, DoorOpen, Calendar, Coffee, Receipt, Banknote, AlertTriangle, BarChart3, Crown, RefreshCw, UserPlus, Clock, Flame, Minus } from "lucide-react";
@@ -27,6 +27,29 @@ interface OwnerData {
   operationalAlerts: string[];
 }
 
+interface OperationsByRoleData {
+  operationsByRole: Array<{
+    role: string;
+    userCount: number;
+    totalOperations: number;
+    actionCounts: Record<string, number>;
+    recentLogs: Array<{
+      id: string;
+      action: string;
+      entityType: string;
+      entityId: string;
+      timestamp: string;
+      user: {
+        id: string;
+        email: string;
+        firstName: string | null;
+        lastName: string | null;
+      };
+    }>;
+  }>;
+  totalOperationsToday: number;
+}
+
 function TrendChip({ pct }: { pct: number | null }) {
   if (pct === null) return <span className="text-xs text-slate-400">لا مقارنة</span>;
   const up = pct >= 0;
@@ -45,6 +68,12 @@ export default function OwnerDashboardPage() {
     refetchInterval: 60000,
   });
 
+  const { data: opsData, isLoading: opsLoading } = useQuery({
+    queryKey: ["dashboard", "operations-by-role"],
+    queryFn: async () => { const r = await api.get("/dashboards/operations-by-role"); return r.data.data as OperationsByRoleData; },
+    refetchInterval: 60000,
+  });
+
   const now = new Date();
   const greeting = now.getHours() < 12 ? "صباح الخير" : now.getHours() < 17 ? "النهارده إيه أخباره" : "مساء الخير";
 
@@ -60,7 +89,7 @@ export default function OwnerDashboardPage() {
     <div className="space-y-6">
       <SectionTitle
         title={`${greeting}، يا مالك 👑`}
-        subtitle="ملخص تنفيذي لأداء النهارده وحالة التشغيل اللحظية."
+        subtitle="ملخص تنيذي لأداء النهارده وحالة التشغيل اللحظية."
         icon={<Crown size={20} />}
         action={
           <button onClick={() => refetch()} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
@@ -88,7 +117,7 @@ export default function OwnerDashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="داخل المكان دلوقتي" value={data.activeCustomersNow} icon={<Users size={18} />} tone="info" sub="عميل نشط" />
         <StatCard label="جلسات شغالة" value={data.activeSessionsNow} icon={<Clock size={18} />} tone="info" />
-        <StatCard label="غرف مشغولة" value={data.occupiedRoomsNow} icon={<DoorOpen size={18} />} tone={data.occupiedRoomsNow > 0 ? "warn" : "default"} />
+        <StatCard label="غر مشغولة" value={data.occupiedRoomsNow} icon={<DoorOpen size={18} />} tone={data.occupiedRoomsNow > 0 ? "warn" : "default"} />
         <StatCard label="طلبات بار معلقة" value={data.currentBarOrders} icon={<Coffee size={18} />} tone={data.currentBarOrders > 10 ? "warn" : "default"} />
       </div>
 
@@ -110,7 +139,7 @@ export default function OwnerDashboardPage() {
 
       {/* Secondary KPIs */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="فواتير النهارده" value={data.invoicesToday} icon={<Receipt size={18} />} />
+        <StatCard label="واتير النهارده" value={data.invoicesToday} icon={<Receipt size={18} />} />
         <StatCard label="حجوزات النهارده" value={data.todayBookings} icon={<Calendar size={18} />} />
         <StatCard label="عملاء جدد النهارده" value={data.newCustomersToday} tone="success" icon={<UserPlus size={18} />} />
         <StatCard label="متوسط مدة المدة" value={data.avgSessionMinutes != null ? `${data.avgSessionMinutes} د` : "—"} icon={<Clock size={18} />} sub="المدد المغلقة النهارده" />
@@ -124,7 +153,7 @@ export default function OwnerDashboardPage() {
               { label: "المحصّل النهارده",    value: money(data.paymentsTodayAmount), color: "text-emerald-700 font-bold" },
               { label: "إيراد امبارح",         value: money(data.yesterdayRevenue),   color: "text-slate-900" },
               { label: "إيراد الأسبوع",         value: money(data.weekRevenue),        color: "text-slate-900" },
-              { label: "فواتير صادرة النهارده", value: data.invoicesToday,             color: "text-slate-900" },
+              { label: "واتير صادرة النهارده", value: data.invoicesToday,             color: "text-slate-900" },
               { label: "إجمالي العملاء",         value: data.totalCustomers,            color: "text-blue-700 font-semibold" },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex items-center justify-between py-2.5">
@@ -136,9 +165,9 @@ export default function OwnerDashboardPage() {
         </Panel>
 
         {/* Top products */}
-        <Panel title="الأكتر مبيعاً في البار" icon={<BarChart3 size={16} />}>
+        <Panel title="الأكتر مبيعاً ي البار" icon={<BarChart3 size={16} />}>
           {data.topProducts.length === 0 ? (
-            <EmptyState icon={<BarChart3 size={36} />} title="مفيش مبيعات لحد دلوقتي" />
+            <EmptyState icon={<BarChart3 size={36} />} title="ميش مبيعات لحد دلوقتي" />
           ) : (
             <div className="space-y-3">
               {data.topProducts.map((item, i) => {
@@ -166,6 +195,47 @@ export default function OwnerDashboardPage() {
           )}
         </Panel>
       </div>
+
+      {/* Operations by Role */}
+      <Panel title="العمليات حسب الدور" icon={<Users size={16} />}>
+        {opsLoading ? (
+          <p className="text-sm text-slate-500">جاري التحميل...</p>
+        ) : !opsData ? (
+          <EmptyState icon={<Users size={36} />} title="لا توجد بيانات" />
+        ) : (
+          <div className="space-y-4">
+            <p className="text-xs text-slate-500">نشاط الريق النهارده</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {opsData.operationsByRole.map((roleData) => (
+                <div key={roleData.role} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-700">{roleData.role}</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">{roleData.totalOperations}</p>
+                  <p className="text-xs text-slate-500">عملية اليوم</p>
+                  <p className="mt-1 text-xs text-slate-400">{roleData.userCount} مستخدم نشط</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-semibold text-slate-600">آخر العمليات</p>
+              <div className="space-y-2">
+                {opsData.operationsByRole.flatMap((r) => r.recentLogs).slice(0, 10).map((log) => (
+                  <div key={log.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs">
+                    <div>
+                      <p className="font-medium text-slate-900">{log.action}</p>
+                      <p className="text-slate-500">{log.entityType}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-slate-500">{new Date(log.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-slate-400">{log.user.firstName || log.user.email}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Panel>
     </div>
   );
 }
+

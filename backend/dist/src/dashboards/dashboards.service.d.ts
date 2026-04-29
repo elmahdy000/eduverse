@@ -70,13 +70,14 @@ export declare class DashboardsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            endTime: Date | null;
-            customerId: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
+            endTime: Date | null;
             durationMinutes: number | null;
+            guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         })[];
@@ -137,13 +138,13 @@ export declare class DashboardsService {
             updatedAt: Date;
             notes: string | null;
             createdByUserId: string;
+            startTime: Date;
             endTime: Date;
             customerId: string;
             roomId: string;
-            startTime: Date;
-            totalAmount: import("@prisma/client/runtime/library").Decimal;
             bookingType: string;
             participantCount: number | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
             depositAmount: import("@prisma/client/runtime/library").Decimal | null;
         })[];
         pendingBarOrders: ({
@@ -167,7 +168,7 @@ export declare class DashboardsService {
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
                 createdByUserId: string;
-            } | null;
+            };
             items: ({
                 product: {
                     id: string;
@@ -182,11 +183,11 @@ export declare class DashboardsService {
                 };
             } & {
                 id: string;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
-                productId: string;
                 quantity: number;
                 unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
                 orderId: string;
+                productId: string;
             })[];
         } & {
             id: string;
@@ -194,10 +195,11 @@ export declare class DashboardsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            createdByUserId: string;
-            customerId: string | null;
-            sessionId: string | null;
+            createdByUserId: string | null;
+            guestCode: string | null;
+            customerId: string;
             totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            sessionId: string | null;
         })[];
         urgentOrderMinutes: number | null;
         alerts: string[];
@@ -241,13 +243,14 @@ export declare class DashboardsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            endTime: Date | null;
-            customerId: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
+            endTime: Date | null;
             durationMinutes: number | null;
+            guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         })[];
@@ -277,7 +280,7 @@ export declare class DashboardsService {
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
                 createdByUserId: string;
-            } | null;
+            };
             items: ({
                 product: {
                     id: string;
@@ -292,11 +295,11 @@ export declare class DashboardsService {
                 };
             } & {
                 id: string;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
-                productId: string;
                 quantity: number;
                 unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
                 orderId: string;
+                productId: string;
             })[];
         } & {
             id: string;
@@ -304,10 +307,11 @@ export declare class DashboardsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            createdByUserId: string;
-            customerId: string | null;
-            sessionId: string | null;
+            createdByUserId: string | null;
+            guestCode: string | null;
+            customerId: string;
             totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            sessionId: string | null;
         })[];
         deliveredTodayCount: number;
         counts: {
@@ -315,5 +319,29 @@ export declare class DashboardsService {
             inPreparation: number;
             ready: number;
         };
+    }>;
+    getOperationsByRole(): Promise<{
+        operationsByRole: {
+            role: string;
+            userCount: number;
+            totalOperations: number;
+            actionCounts: Record<string, number>;
+            recentLogs: {
+                id: string;
+                action: string;
+                entityType: string;
+                entityId: string;
+                oldValue: import("@prisma/client/runtime/library").JsonValue;
+                newValue: import("@prisma/client/runtime/library").JsonValue;
+                timestamp: Date;
+                user: {
+                    id: string;
+                    email: string;
+                    firstName: string | null;
+                    lastName: string | null;
+                };
+            }[];
+        }[];
+        totalOperationsToday: number;
     }>;
 }

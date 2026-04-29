@@ -9,7 +9,7 @@ import {
 export class BarOrdersService {
   constructor(private prisma: PrismaService) {}
 
-  async createOrder(createBarOrderDto: CreateBarOrderDto, userId: string) {
+  async createOrder(createBarOrderDto: CreateBarOrderDto, userId?: string) {
     if (!createBarOrderDto.customerId && !createBarOrderDto.sessionId) {
       throw new Error('Either customerId or sessionId is required');
     }
@@ -62,6 +62,7 @@ export class BarOrdersService {
         sessionId: createBarOrderDto.sessionId,
         customerId,
         createdByUserId: userId,
+        guestCode: createBarOrderDto.guestCode,
         status: 'new',
         totalAmount,
         notes: createBarOrderDto.notes,
@@ -76,6 +77,25 @@ export class BarOrdersService {
 
     return order;
   }
+
+  async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[]) {
+    const session = await this.prisma.session.findFirst({
+      where: { guestCode, status: 'active' },
+    });
+
+    if (!session) {
+      throw new Error('Guest code is invalid or session has ended');
+    }
+
+    return this.createOrder({
+      sessionId: session.id,
+      customerId: session.customerId,
+      items,
+      guestCode,
+      notes: `طلب عبر الجوال (Guest Code: ${guestCode})`,
+    });
+  }
+
 
   async getOrder(orderId: string) {
     const order = await this.prisma.barOrder.findUnique({
@@ -96,7 +116,8 @@ export class BarOrdersService {
   async listOrders(
     page = 1,
     limit = 20,
-    filters?: { status?: string; sessionId?: string; customerId?: string },
+    filters?: { status?: string; sessionId?: string; customerId?: string; guestCode?: string },
+
   ) {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     const safePage = Math.max(page, 1);
@@ -109,6 +130,8 @@ export class BarOrdersService {
     }
     if (filters?.sessionId) where.sessionId = filters.sessionId;
     if (filters?.customerId) where.customerId = filters.customerId;
+    if (filters?.guestCode) where.guestCode = filters.guestCode;
+
 
     const [orders, total] = await Promise.all([
       this.prisma.barOrder.findMany({
@@ -155,22 +178,16 @@ export class BarOrdersService {
           })
         : null;
 
-      if (activeSession) {
-        const currentCharge = Number(activeSession.chargeAmount || 0);
-        const orderTotal = Number(order.totalAmount || 0);
-        await this.prisma.session.update({
-          where: { id: activeSession.id },
-          data: { chargeAmount: currentCharge + orderTotal },
-        });
-      } else {
-        // Create a standalone invoice for the bar order
+      if (!activeSession) {
+        // Create a standalone invoice for the bar order if there is no active session
         const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
         const invoice = await this.prisma.invoice.create({
           data: {
             customerId: order.customerId,
             invoiceNumber,
-            createdByUserId: order.createdByUserId,
+            createdByUserId: order.createdByUserId || order.customer.createdByUserId, // Fallback to customer creator if guest
             totalAmount: Number(order.totalAmount),
+
             amountPaid: 0,
             remainingAmount: Number(order.totalAmount),
             paymentStatus: 'unpaid',
@@ -186,7 +203,7 @@ export class BarOrdersService {
             },
           },
         });
-        // Link invoice to order if field exists
+        
         try {
           await this.prisma.barOrder.update({
             where: { id: orderId },

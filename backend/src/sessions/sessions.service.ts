@@ -6,6 +6,20 @@ import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 export class SessionsService {
   constructor(private prisma: PrismaService) {}
 
+  private async generateUniqueGuestCode(): Promise<string> {
+    let code = '';
+    let exists = true;
+    while (exists) {
+      code = Math.floor(100000 + Math.random() * 900000).toString();
+      const existing = await this.prisma.session.findUnique({
+        where: { guestCode: code },
+      });
+      if (!existing) exists = false;
+    }
+    return code;
+  }
+
+
   async openSession(createSessionDto: CreateSessionDto, userId: string) {
     // Check if customer already has active session
     const existingSession = await this.prisma.session.findFirst({
@@ -28,18 +42,22 @@ export class SessionsService {
       throw new Error('Customer not found');
     }
 
+    const guestCode = await this.generateUniqueGuestCode();
+
     const session = await this.prisma.session.create({
       data: {
         ...createSessionDto,
         startTime: new Date(),
         openedByUserId: userId,
         status: 'active',
+        guestCode,
       },
       include: {
         customer: true,
         room: true,
       },
     });
+
 
     // Update customer's last visit
     await this.prisma.customer.update({
@@ -53,6 +71,7 @@ export class SessionsService {
   async closeSession(sessionId: string, closeSessionDto: CloseSessionDto, userId: string) {
     const session = await this.prisma.session.findUnique({
       where: { id: sessionId },
+      include: { room: true },
     });
 
     if (!session) {
@@ -68,6 +87,20 @@ export class SessionsService {
       (endTime.getTime() - session.startTime.getTime()) / 60000,
     );
 
+    // Calculate charge if not already set manually
+    let chargeAmount = Number(session.chargeAmount || 0);
+
+    if (chargeAmount === 0) {
+      if (session.sessionType === 'hourly') {
+        const rate = Number(session.room?.hourlyRate || 10); // Default to 10 EGP/hour
+        const hours = Math.ceil(durationMinutes / 60);
+        chargeAmount = hours * rate;
+      } else if (session.sessionType === 'daily' && session.room?.dailyRate) {
+        chargeAmount = Number(session.room.dailyRate);
+      }
+    }
+
+
     const closedSession = await this.prisma.session.update({
       where: { id: sessionId },
       data: {
@@ -75,13 +108,16 @@ export class SessionsService {
         durationMinutes,
         status: 'closed',
         closedByUserId: userId,
+        chargeAmount,
         notes: closeSessionDto.notes,
+        guestCode: null, // End of validity
       },
       include: {
         customer: true,
         barOrders: true,
       },
     });
+
 
     return closedSession;
   }

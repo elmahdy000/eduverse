@@ -24,9 +24,8 @@ export class CreateBarOrderDto {
   @IsUUID()
   sessionId?: string;
 
-  @IsOptional()
   @IsUUID()
-  customerId?: string;
+  customerId: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -36,7 +35,12 @@ export class CreateBarOrderDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  guestCode?: string;
 }
+
 
 export class UpdateBarOrderStatusDto {
   @IsEnum(['new', 'in_preparation', 'ready', 'delivered', 'cancelled'])

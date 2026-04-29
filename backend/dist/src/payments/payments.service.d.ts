@@ -8,10 +8,10 @@ export declare class PaymentsService {
         id: string;
         createdAt: Date;
         notes: string | null;
-        paidAt: Date;
         invoiceId: string;
         paymentMethod: string;
         amount: import("@prisma/client/runtime/library").Decimal;
+        paidAt: Date;
         recordedByUserId: string;
     }>;
     listPayments(page?: number, limit?: number, filters?: {
@@ -27,17 +27,17 @@ export declare class PaymentsService {
                 updatedAt: Date;
                 notes: string | null;
                 createdByUserId: string;
-                issuedAt: Date;
                 customerId: string;
+                totalAmount: import("@prisma/client/runtime/library").Decimal;
                 sessionId: string | null;
-                invoiceNumber: string;
                 subtotal: import("@prisma/client/runtime/library").Decimal;
+                invoiceNumber: string;
                 discountAmount: import("@prisma/client/runtime/library").Decimal;
                 taxAmount: import("@prisma/client/runtime/library").Decimal;
-                totalAmount: import("@prisma/client/runtime/library").Decimal;
                 amountPaid: import("@prisma/client/runtime/library").Decimal;
                 remainingAmount: import("@prisma/client/runtime/library").Decimal;
                 paymentStatus: string;
+                issuedAt: Date;
                 dueAt: Date | null;
             };
             recordedByUser: {
@@ -50,10 +50,10 @@ export declare class PaymentsService {
             id: string;
             createdAt: Date;
             notes: string | null;
-            paidAt: Date;
             invoiceId: string;
             paymentMethod: string;
             amount: import("@prisma/client/runtime/library").Decimal;
+            paidAt: Date;
             recordedByUserId: string;
         })[];
         total: number;
@@ -65,10 +65,10 @@ export declare class PaymentsService {
         id: string;
         createdAt: Date;
         notes: string | null;
-        paidAt: Date;
         invoiceId: string;
         paymentMethod: string;
         amount: import("@prisma/client/runtime/library").Decimal;
+        paidAt: Date;
         recordedByUserId: string;
     }>;
 }

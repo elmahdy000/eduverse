@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { ConciergeBell, Users, Receipt, TrendingUp, Clock, RefreshCw, UserPlus, Timer, BookOpen, Coffee, X, Package, User, MapPin } from "lucide-react";
@@ -27,7 +27,7 @@ const ctypeColors: Record<string, string> = {
 };
 
 const ctypeIcons: Record<string, string> = {
-  student: "🎓", employee: "💼", trainer: "🏋️", parent: "👨‍👧", visitor: "🚶",
+  student: "🎓", employee: "💼", trainer: "", parent: "👨👧", visitor: "🚶",
 };
 
 function minutesSince(iso: string) {
@@ -67,7 +67,7 @@ export default function ReceptionDashboardPage() {
     <div className="space-y-6">
       <SectionTitle
         title="لوحة الاستقبال"
-        subtitle="كل اللي محتاجه في دقيقة واحدة — الموجودين والداتا والاختصارات."
+        subtitle="كل اللي محتاجه ي دقيقة واحدة — الموجودين والداتا والاختصارات."
         icon={<ConciergeBell size={20} />}
         action={
           <button onClick={() => refetch()} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
@@ -79,7 +79,7 @@ export default function ReceptionDashboardPage() {
       {/* KPIs */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="موجودين دلوقتي" value={data.activeSessionCount} tone="info" icon={<Timer size={18} />} sub="مدة نشطة" />
-        <StatCard label="فواتير النهارده" value={data.todayInvoicesCount} icon={<Receipt size={18} />} />
+        <StatCard label="واتير النهارده" value={data.todayInvoicesCount} icon={<Receipt size={18} />} />
         <StatCard label="محصّل النهارده" value={money(data.todayRevenuePartial)} tone="success" icon={<TrendingUp size={18} />} />
         <StatCard label="طلبات البار النهارده" value={data.todayBarOrders} icon={<Coffee size={18} />} />
         <StatCard label="آخر عملاء مسجلين" value={data.recentCustomers.length} icon={<UserPlus size={18} />} />
@@ -98,7 +98,7 @@ export default function ReceptionDashboardPage() {
                 </div>
                 <div className="min-w-0 flex-1 text-right">
                   <p className="truncate text-sm font-semibold text-slate-900">{s.customer?.fullName ?? "—"}</p>
-                  <p className="text-[10px] text-slate-500">{s.room?.name ?? "بدون غرفة"}</p>
+                  <p className="text-[10px] text-slate-500">{s.room?.name ?? "بدون غرة"}</p>
                   <p className="text-[10px] font-medium text-blue-600">جوا من {minutesSince(s.startTime)}</p>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function ReceptionDashboardPage() {
       {/* Recent customers */}
       <Panel title="آخر العملاء المسجلين" icon={<Users size={15} />}>
         {data.recentCustomers.length === 0 ? (
-          <EmptyState icon={<Users size={36} />} title="مفيش عملاء لحد دلوقتي" sub="سجّل أول عميل من صفحة العملاء." />
+          <EmptyState icon={<Users size={36} />} title="ميش عملاء لحد دلوقتي" sub="سجّل أول عميل من صحة العملاء." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.recentCustomers.map((c) => (
@@ -134,7 +134,7 @@ export default function ReceptionDashboardPage() {
       {/* Bar orders */}
       <Panel title="طلبات البار المنتهية" icon={<Coffee size={15} />}>
         {barOrdersQuery.data?.data?.length === 0 ? (
-          <EmptyState icon={<Coffee size={36} />} title="مفيش طلبات بار منتهية" sub="الطلبات المنتهية هتظهر هنا." />
+          <EmptyState icon={<Coffee size={36} />} title="ميش طلبات بار منتهية" sub="الطلبات المنتهية هتظهر هنا." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {barOrdersQuery.data?.data?.map((order) => (
@@ -160,7 +160,7 @@ export default function ReceptionDashboardPage() {
                     </div>
                   )}
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                    <span className="text-xs text-slate-600">{order.items?.length || 0} صنف</span>
+                    <span className="text-xs text-slate-600">{order.items?.length || 0} صن</span>
                     <span className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</span>
                   </div>
                 </div>
@@ -174,10 +174,10 @@ export default function ReceptionDashboardPage() {
       <Panel title="اختصارات سريعة" icon={<ConciergeBell size={15} />}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "سجّل عميل جديد",  href: "/customers",  desc: "ضيف عميل للنظام",        color: "border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700",    icon: "👤" },
-            { label: "افتح مدة",        href: "/sessions",   desc: "ابدأ مدة لعميل موجود",  color: "border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700", icon: "▶" },
-            { label: "حجز جديد",         href: "/bookings",   desc: "سجّل حجز غرفة",          color: "border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700", icon: "📅" },
-            { label: "إصدار فاتورة",     href: "/billing",    desc: "اعمل فاتورة أو سجّل دفع", color: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700",   icon: "🧾" },
+            { label: "سجّل عميل جديد",  href: "/customers",  desc: "ضي عميل للنظام",        color: "border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700",    icon: "👤" },
+            { label: "اتح مدة",        href: "/sessions",   desc: "ابدأ مدة لعميل موجود",  color: "border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700", icon: "▶" },
+            { label: "حجز جديد",         href: "/bookings",   desc: "سجّل حجز غرة",          color: "border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700", icon: "📅" },
+            { label: "إصدار اتورة",     href: "/billing",    desc: "اعمل اتورة أو سجّل دع", color: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700",   icon: "🧾" },
           ].map((item) => (
             <a key={item.href} href={item.href} className={`block rounded-xl border p-4 text-right transition ${item.color}`}>
               <p className="text-xl mb-1">{item.icon}</p>
@@ -194,7 +194,7 @@ export default function ReceptionDashboardPage() {
           <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 p-6">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">تفاصيل طلب البار #{selectedBarOrder.id.slice(0, 8)}</h2>
+                <h2 className="text-xl font-bold text-slate-900">تاصيل طلب البار #{selectedBarOrder.id.slice(0, 8)}</h2>
                 <p className="text-sm text-slate-600">{new Date(selectedBarOrder.createdAt).toLocaleString('ar-EG')}</p>
               </div>
               <button
@@ -225,7 +225,7 @@ export default function ReceptionDashboardPage() {
 
                 {/* Order Items */}
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold text-slate-600 mb-2">الأصناف</p>
+                  <p className="text-xs font-semibold text-slate-600 mb-2">الأصنا</p>
                   <div className="space-y-2">
                     {selectedBarOrder.items?.map((item, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
@@ -261,3 +261,4 @@ export default function ReceptionDashboardPage() {
     </div>
   );
 }
+

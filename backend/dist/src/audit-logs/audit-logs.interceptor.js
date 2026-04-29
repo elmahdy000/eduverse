@@ -28,14 +28,24 @@ let AuditLogsInterceptor = class AuditLogsInterceptor {
         return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
     }
     resolveEntityType(baseUrl) {
-        const clean = String(baseUrl || '').replace(/^\/+/, '');
-        return clean ? clean.split('/')[0].replace(/-/g, '_') : null;
+        const segments = String(baseUrl || '')
+            .replace(/^\/+/, '')
+            .split('/')
+            .filter(Boolean);
+        if (!segments.length)
+            return null;
+        const moduleSegment = segments[0] === 'api' ? segments[1] : segments[0];
+        return moduleSegment ? moduleSegment.replace(/-/g, '_') : null;
     }
     resolveEntityTypeFromUrl(url) {
         const clean = String(url || '')
             .replace(/\?.*$/, '')
             .replace(/^\/+/, '');
-        return clean ? clean.split('/')[0].replace(/-/g, '_') : null;
+        const segments = clean.split('/').filter(Boolean);
+        if (!segments.length)
+            return null;
+        const moduleSegment = segments[0] === 'api' ? segments[1] : segments[0];
+        return moduleSegment ? moduleSegment.replace(/-/g, '_') : null;
     }
     resolveEntityId(request, responseBody) {
         const pathId = request?.params?.id;

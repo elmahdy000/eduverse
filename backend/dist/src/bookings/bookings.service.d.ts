@@ -35,13 +35,13 @@ export declare class BookingsService {
             updatedAt: Date;
             notes: string | null;
             createdByUserId: string;
+            startTime: Date;
             endTime: Date;
             customerId: string;
             roomId: string;
-            startTime: Date;
-            totalAmount: import("@prisma/client/runtime/library").Decimal;
             bookingType: string;
             participantCount: number | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
             depositAmount: import("@prisma/client/runtime/library").Decimal | null;
         }) | null;
         activeSessionConflict: ({
@@ -72,13 +72,14 @@ export declare class BookingsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            endTime: Date | null;
-            customerId: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
+            endTime: Date | null;
             durationMinutes: number | null;
+            guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         }) | null;
@@ -125,13 +126,13 @@ export declare class BookingsService {
         updatedAt: Date;
         notes: string | null;
         createdByUserId: string;
+        startTime: Date;
         endTime: Date;
         customerId: string;
         roomId: string;
-        startTime: Date;
-        totalAmount: import("@prisma/client/runtime/library").Decimal;
         bookingType: string;
         participantCount: number | null;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
         depositAmount: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     getBooking(bookingId: string): Promise<{
@@ -182,13 +183,13 @@ export declare class BookingsService {
         updatedAt: Date;
         notes: string | null;
         createdByUserId: string;
+        startTime: Date;
         endTime: Date;
         customerId: string;
         roomId: string;
-        startTime: Date;
-        totalAmount: import("@prisma/client/runtime/library").Decimal;
         bookingType: string;
         participantCount: number | null;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
         depositAmount: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     listBookings(page?: number, limit?: number, filters?: {
@@ -240,13 +241,13 @@ export declare class BookingsService {
             updatedAt: Date;
             notes: string | null;
             createdByUserId: string;
+            startTime: Date;
             endTime: Date;
             customerId: string;
             roomId: string;
-            startTime: Date;
-            totalAmount: import("@prisma/client/runtime/library").Decimal;
             bookingType: string;
             participantCount: number | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal;
             depositAmount: import("@prisma/client/runtime/library").Decimal | null;
         })[];
         total: number;
@@ -296,13 +297,13 @@ export declare class BookingsService {
         updatedAt: Date;
         notes: string | null;
         createdByUserId: string;
+        startTime: Date;
         endTime: Date;
         customerId: string;
         roomId: string;
-        startTime: Date;
-        totalAmount: import("@prisma/client/runtime/library").Decimal;
         bookingType: string;
         participantCount: number | null;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
         depositAmount: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     cancelBooking(bookingId: string, reason?: string): Promise<{
@@ -347,13 +348,13 @@ export declare class BookingsService {
         updatedAt: Date;
         notes: string | null;
         createdByUserId: string;
+        startTime: Date;
         endTime: Date;
         customerId: string;
         roomId: string;
-        startTime: Date;
-        totalAmount: import("@prisma/client/runtime/library").Decimal;
         bookingType: string;
         participantCount: number | null;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
         depositAmount: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     completeBooking(bookingId: string): Promise<{
@@ -398,13 +399,13 @@ export declare class BookingsService {
         updatedAt: Date;
         notes: string | null;
         createdByUserId: string;
+        startTime: Date;
         endTime: Date;
         customerId: string;
         roomId: string;
-        startTime: Date;
-        totalAmount: import("@prisma/client/runtime/library").Decimal;
         bookingType: string;
         participantCount: number | null;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
         depositAmount: import("@prisma/client/runtime/library").Decimal | null;
     }>;
 }

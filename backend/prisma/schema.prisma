@@ -150,6 +150,7 @@ model Session {
   endTime         DateTime?
   durationMinutes Int?
   status          String   @default("active") // active, suspended, closed, cancelled
+  guestCode       String?  @unique
   chargeAmount    Decimal? @db.Decimal(10, 2)
   notes           String?
   openedByUserId  String   @db.Uuid
@@ -229,8 +230,9 @@ model Product {
 model BarOrder {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   sessionId       String?  @db.Uuid
-  customerId      String?  @db.Uuid
-  createdByUserId String   @db.Uuid
+  customerId      String   @db.Uuid
+  createdByUserId String?  @db.Uuid
+  guestCode       String?
   status          String   @default("new") // new, in_preparation, ready, delivered, cancelled
   totalAmount     Decimal? @db.Decimal(10, 2)
   notes           String?
@@ -238,8 +240,8 @@ model BarOrder {
   updatedAt       DateTime @updatedAt
 
   session Session?          @relation(fields: [sessionId], references: [id])
-  customer Customer?        @relation(fields: [customerId], references: [id])
-  createdByUser User        @relation(fields: [createdByUserId], references: [id])
+  customer Customer         @relation(fields: [customerId], references: [id])
+  createdByUser User?        @relation(fields: [createdByUserId], references: [id])
   items   BarOrderItem[]
   invoiceItems InvoiceItem[]
 
@@ -249,6 +251,7 @@ model BarOrder {
   @@index([createdAt])
   @@map("bar_orders")
 }
+
 
 model BarOrderItem {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

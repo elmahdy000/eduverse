@@ -72,6 +72,19 @@ let DashboardsController = class DashboardsController {
             throw new common_1.BadRequestException(error.message);
         }
     }
+    async getOperationsByRole() {
+        try {
+            const data = await this.dashboardsService.getOperationsByRole();
+            return {
+                success: true,
+                data,
+                timestamp: new Date().toISOString(),
+            };
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(error.message);
+        }
+    }
 };
 exports.DashboardsController = DashboardsController;
 __decorate([
@@ -102,6 +115,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], DashboardsController.prototype, "getBaristaDashboard", null);
+__decorate([
+    (0, common_1.Get)('operations-by-role'),
+    (0, swagger_1.ApiOperation)({ summary: 'Operations by role report for Owner' }),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, role_guard_1.OwnerGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], DashboardsController.prototype, "getOperationsByRole", null);
 exports.DashboardsController = DashboardsController = __decorate([
     (0, swagger_1.ApiTags)('dashboards'),
     (0, swagger_1.ApiBearerAuth)(),

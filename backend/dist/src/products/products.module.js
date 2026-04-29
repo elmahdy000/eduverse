@@ -19,6 +19,7 @@ exports.ProductsModule = ProductsModule = __decorate([
         imports: [prisma_module_1.PrismaModule],
         controllers: [products_controller_1.ProductsController],
         providers: [products_service_1.ProductsService],
+        exports: [products_service_1.ProductsService],
     })
 ], ProductsModule);
 //# sourceMappingURL=products.module.js.map

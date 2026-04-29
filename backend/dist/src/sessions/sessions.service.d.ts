@@ -3,6 +3,7 @@ import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 export declare class SessionsService {
     private prisma;
     constructor(prisma: PrismaService);
+    private generateUniqueGuestCode;
     openSession(createSessionDto: CreateSessionDto, userId: string): Promise<{
         customer: {
             id: string;
@@ -44,13 +45,14 @@ export declare class SessionsService {
         status: string;
         updatedAt: Date;
         notes: string | null;
-        endTime: Date | null;
-        customerId: string;
         sessionType: string;
-        roomId: string | null;
         startTime: Date;
+        endTime: Date | null;
         durationMinutes: number | null;
+        guestCode: string | null;
         chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+        customerId: string;
+        roomId: string | null;
         openedByUserId: string;
         closedByUserId: string | null;
     }>;
@@ -61,10 +63,11 @@ export declare class SessionsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            createdByUserId: string;
-            customerId: string | null;
-            sessionId: string | null;
+            createdByUserId: string | null;
+            guestCode: string | null;
+            customerId: string;
             totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            sessionId: string | null;
         }[];
         customer: {
             id: string;
@@ -93,13 +96,14 @@ export declare class SessionsService {
         status: string;
         updatedAt: Date;
         notes: string | null;
-        endTime: Date | null;
-        customerId: string;
         sessionType: string;
-        roomId: string | null;
         startTime: Date;
+        endTime: Date | null;
         durationMinutes: number | null;
+        guestCode: string | null;
         chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+        customerId: string;
+        roomId: string | null;
         openedByUserId: string;
         closedByUserId: string | null;
     }>;
@@ -110,10 +114,11 @@ export declare class SessionsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            createdByUserId: string;
-            customerId: string | null;
-            sessionId: string | null;
+            createdByUserId: string | null;
+            guestCode: string | null;
+            customerId: string;
             totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            sessionId: string | null;
         }[];
         customer: {
             id: string;
@@ -155,13 +160,14 @@ export declare class SessionsService {
         status: string;
         updatedAt: Date;
         notes: string | null;
-        endTime: Date | null;
-        customerId: string;
         sessionType: string;
-        roomId: string | null;
         startTime: Date;
+        endTime: Date | null;
         durationMinutes: number | null;
+        guestCode: string | null;
         chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+        customerId: string;
+        roomId: string | null;
         openedByUserId: string;
         closedByUserId: string | null;
     }>;
@@ -207,13 +213,14 @@ export declare class SessionsService {
             status: string;
             updatedAt: Date;
             notes: string | null;
-            endTime: Date | null;
-            customerId: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
+            endTime: Date | null;
             durationMinutes: number | null;
+            guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         })[];
@@ -228,13 +235,14 @@ export declare class SessionsService {
         status: string;
         updatedAt: Date;
         notes: string | null;
-        endTime: Date | null;
-        customerId: string;
         sessionType: string;
-        roomId: string | null;
         startTime: Date;
+        endTime: Date | null;
         durationMinutes: number | null;
+        guestCode: string | null;
         chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+        customerId: string;
+        roomId: string | null;
         openedByUserId: string;
         closedByUserId: string | null;
     }>;

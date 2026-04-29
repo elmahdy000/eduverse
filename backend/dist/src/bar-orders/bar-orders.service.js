@@ -66,6 +66,7 @@ let BarOrdersService = class BarOrdersService {
                 sessionId: createBarOrderDto.sessionId,
                 customerId,
                 createdByUserId: userId,
+                guestCode: createBarOrderDto.guestCode,
                 status: 'new',
                 totalAmount,
                 notes: createBarOrderDto.notes,
@@ -78,6 +79,21 @@ let BarOrdersService = class BarOrdersService {
             },
         });
         return order;
+    }
+    async createOrderByGuestCode(guestCode, items) {
+        const session = await this.prisma.session.findFirst({
+            where: { guestCode, status: 'active' },
+        });
+        if (!session) {
+            throw new Error('Guest code is invalid or session has ended');
+        }
+        return this.createOrder({
+            sessionId: session.id,
+            customerId: session.customerId,
+            items,
+            guestCode,
+            notes: `طلب عبر الجوال (Guest Code: ${guestCode})`,
+        });
     }
     async getOrder(orderId) {
         const order = await this.prisma.barOrder.findUnique({
@@ -108,6 +124,8 @@ let BarOrdersService = class BarOrdersService {
             where.sessionId = filters.sessionId;
         if (filters?.customerId)
             where.customerId = filters.customerId;
+        if (filters?.guestCode)
+            where.guestCode = filters.guestCode;
         const [orders, total] = await Promise.all([
             this.prisma.barOrder.findMany({
                 where,
@@ -146,21 +164,13 @@ let BarOrdersService = class BarOrdersService {
                     where: { id: order.sessionId, status: 'active' },
                 })
                 : null;
-            if (activeSession) {
-                const currentCharge = Number(activeSession.chargeAmount || 0);
-                const orderTotal = Number(order.totalAmount || 0);
-                await this.prisma.session.update({
-                    where: { id: activeSession.id },
-                    data: { chargeAmount: currentCharge + orderTotal },
-                });
-            }
-            else {
+            if (!activeSession) {
                 const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
                 const invoice = await this.prisma.invoice.create({
                     data: {
                         customerId: order.customerId,
                         invoiceNumber,
-                        createdByUserId: order.createdByUserId,
+                        createdByUserId: order.createdByUserId || order.customer.createdByUserId,
                         totalAmount: Number(order.totalAmount),
                         amountPaid: 0,
                         remainingAmount: Number(order.totalAmount),

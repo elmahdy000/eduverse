@@ -37,9 +37,16 @@ export interface Customer {
   phoneNumber: string;
   phoneNumberSecondary?: string | null;
   email?: string | null;
+  address?: string | null;
   notes?: string | null;
   customerType: string;
+  college?: string | null;
+  studyLevel?: string | null;
+  specialization?: string | null;
+  employerName?: string | null;
+  jobTitle?: string | null;
   status: string;
+  firstVisitAt?: string | null;
   createdAt?: string;
   lastVisitAt?: string | null;
 }
@@ -109,6 +116,7 @@ export interface Invoice {
   remainingAmount: string | number;
   issuedAt: string;
   customerId?: string;
+  customer?: Customer;
   sessionId?: string | null;
   notes?: string | null;
   items?: Array<{

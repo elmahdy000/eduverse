@@ -336,4 +336,70 @@ export class DashboardsService {
       },
     };
   }
+
+  async getOperationsByRole() {
+    const today = this.getTodayRange();
+
+    // Get all users with their roles
+    const users = await this.prisma.user.findMany({
+      include: { role: true },
+    });
+
+    // Filter by the three roles
+    const targetRoles = ['Operations Manager', 'Receptionist', 'Barista'];
+    const targetUsers = users.filter((u) => targetRoles.includes(u.role.name));
+
+    const userIds = targetUsers.map((u) => u.id);
+
+    // Get audit logs for these users today
+    const auditLogs = await this.prisma.auditLog.findMany({
+      where: {
+        userId: { in: userIds },
+        timestamp: { gte: today.start, lte: today.end },
+      },
+      include: { user: { include: { role: true } } },
+      orderBy: { timestamp: 'desc' },
+      take: 100,
+    });
+
+    // Group by role
+    const operationsByRole = targetRoles.map((roleName) => {
+      const roleUsers = targetUsers.filter((u) => u.role.name === roleName);
+      const roleUserIds = roleUsers.map((u) => u.id);
+      const roleLogs = auditLogs.filter((log) => roleUserIds.includes(log.userId));
+
+      // Count operations by action type
+      const actionCounts = roleLogs.reduce((acc, log) => {
+        acc[log.action] = (acc[log.action] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      return {
+        role: roleName,
+        userCount: roleUsers.length,
+        totalOperations: roleLogs.length,
+        actionCounts,
+        recentLogs: roleLogs.slice(0, 10).map((log) => ({
+          id: log.id,
+          action: log.action,
+          entityType: log.entityType,
+          entityId: log.entityId,
+          oldValue: log.oldValue,
+          newValue: log.newValue,
+          timestamp: log.timestamp,
+          user: {
+            id: log.user.id,
+            email: log.user.email,
+            firstName: log.user.firstName,
+            lastName: log.user.lastName,
+          },
+        })),
+      };
+    });
+
+    return {
+      operationsByRole,
+      totalOperationsToday: auditLogs.length,
+    };
+  }
 }

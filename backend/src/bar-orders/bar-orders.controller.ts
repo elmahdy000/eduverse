@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -18,13 +19,36 @@ import {
   UpdateBarOrderStatusDto,
 } from './dto/bar-order.dto';
 import { BarOrdersService } from './bar-orders.service';
+import { BarOrdersGateway } from './bar-orders.gateway';
+import { PrismaService } from '../common/prisma/prisma.service';
 
 @ApiTags('bar-orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('bar-orders')
 export class BarOrdersController {
-  constructor(private barOrdersService: BarOrdersService) {}
+  constructor(
+    private barOrdersService: BarOrdersService,
+    private barOrdersGateway: BarOrdersGateway,
+    private prisma: PrismaService,
+  ) {}
+
+  private async assertCanMutateOrder(user: any) {
+    if (!user?.roleId) {
+      throw new ForbiddenException('User role not found');
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: user.roleId },
+      select: { name: true },
+    });
+
+    if (role?.name === 'Operations Manager') {
+      throw new ForbiddenException(
+        'Operations Manager can view bar orders but cannot change order status',
+      );
+    }
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a new bar order' })
@@ -34,6 +58,9 @@ export class BarOrdersController {
         createBarOrderDto,
         req.user.userId,
       );
+      // Emit real-time event
+      this.barOrdersGateway.emitNewOrder(order);
+      this.barOrdersGateway.emitDashboardRefresh();
       return {
         success: true,
         data: order,
@@ -93,12 +120,17 @@ export class BarOrdersController {
   async updateStatus(
     @Param('id') orderId: string,
     @Body() updateStatusDto: UpdateBarOrderStatusDto,
+    @Request() req: any,
   ) {
     try {
+      await this.assertCanMutateOrder(req.user);
       const order = await this.barOrdersService.updateOrderStatus(
         orderId,
         updateStatusDto,
       );
+      // Emit real-time event
+      this.barOrdersGateway.emitOrderStatusUpdate(order);
+      this.barOrdersGateway.emitDashboardRefresh();
       return {
         success: true,
         data: order,
@@ -112,9 +144,17 @@ export class BarOrdersController {
 
   @Put(':id/cancel')
   @ApiOperation({ summary: 'Cancel bar order' })
-  async cancelOrder(@Param('id') orderId: string, @Body('reason') reason?: string) {
+  async cancelOrder(
+    @Param('id') orderId: string,
+    @Body('reason') reason?: string,
+    @Request() req?: any,
+  ) {
     try {
+      await this.assertCanMutateOrder(req?.user);
       const order = await this.barOrdersService.cancelOrder(orderId, reason);
+      // Emit real-time event
+      this.barOrdersGateway.emitOrderStatusUpdate(order);
+      this.barOrdersGateway.emitDashboardRefresh();
       return {
         success: true,
         data: order,

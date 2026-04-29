@@ -11,14 +11,18 @@ const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../common/prisma/prisma.module");
 const bar_orders_service_1 = require("./bar-orders.service");
 const bar_orders_controller_1 = require("./bar-orders.controller");
+const guest_orders_controller_1 = require("./guest-orders.controller");
+const products_module_1 = require("../products/products.module");
+const bar_orders_gateway_1 = require("./bar-orders.gateway");
 let BarOrdersModule = class BarOrdersModule {
 };
 exports.BarOrdersModule = BarOrdersModule;
 exports.BarOrdersModule = BarOrdersModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
-        controllers: [bar_orders_controller_1.BarOrdersController],
-        providers: [bar_orders_service_1.BarOrdersService],
+        imports: [prisma_module_1.PrismaModule, products_module_1.ProductsModule],
+        controllers: [bar_orders_controller_1.BarOrdersController, guest_orders_controller_1.GuestOrdersController],
+        providers: [bar_orders_service_1.BarOrdersService, bar_orders_gateway_1.BarOrdersGateway],
+        exports: [bar_orders_service_1.BarOrdersService, bar_orders_gateway_1.BarOrdersGateway],
     })
 ], BarOrdersModule);
 //# sourceMappingURL=bar-orders.module.js.map

@@ -8,7 +8,7 @@ import { translateApiError } from "../../../lib/errors";
 import { money } from "../../../lib/format";
 import { translateRoomType, translateStatus } from "../../../lib/labels";
 import type { Paginated, Room } from "../../../lib/types";
-import { Alert, Badge, Btn, DataTable, EmptyState, FormField, Input, Panel, SectionTitle, Select, StatCard, statusBadgeTone } from "../../../components/ui";
+import { Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, FormField, Input, Panel, SectionTitle, Select, StatCard, statusBadgeTone } from "../../../components/ui";
 import clsx from "clsx";
 
 type RoomWithRates = Room & {
@@ -401,20 +401,10 @@ export default function RoomsPage() {
       <Panel title="فحص إتاحة الغرف" icon={<Clock size={15} />}>
         <div className="grid gap-4 md:grid-cols-3">
           <FormField label="من">
-            <input
-              type="datetime-local"
-              value={availabilityStart}
-              onChange={(e) => setAvailabilityStart(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-slate-900"
-            />
+            <DateTimeInput value={availabilityStart} onChange={(e) => setAvailabilityStart(e.target.value)} />
           </FormField>
           <FormField label="إلى">
-            <input
-              type="datetime-local"
-              value={availabilityEnd}
-              onChange={(e) => setAvailabilityEnd(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-slate-900"
-            />
+            <DateTimeInput value={availabilityEnd} onChange={(e) => setAvailabilityEnd(e.target.value)} />
           </FormField>
           <div className="flex items-end">
             <Btn

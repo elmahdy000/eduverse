@@ -25,15 +25,23 @@ export class AuditLogsInterceptor implements NestInterceptor {
   }
 
   private resolveEntityType(baseUrl: string | undefined) {
-    const clean = String(baseUrl || '').replace(/^\/+/, '');
-    return clean ? clean.split('/')[0].replace(/-/g, '_') : null;
+    const segments = String(baseUrl || '')
+      .replace(/^\/+/, '')
+      .split('/')
+      .filter(Boolean);
+    if (!segments.length) return null;
+    const moduleSegment = segments[0] === 'api' ? segments[1] : segments[0];
+    return moduleSegment ? moduleSegment.replace(/-/g, '_') : null;
   }
 
   private resolveEntityTypeFromUrl(url: string | undefined) {
     const clean = String(url || '')
       .replace(/\?.*$/, '')
       .replace(/^\/+/, '');
-    return clean ? clean.split('/')[0].replace(/-/g, '_') : null;
+    const segments = clean.split('/').filter(Boolean);
+    if (!segments.length) return null;
+    const moduleSegment = segments[0] === 'api' ? segments[1] : segments[0];
+    return moduleSegment ? moduleSegment.replace(/-/g, '_') : null;
   }
 
   private resolveEntityId(request: any, responseBody: any) {

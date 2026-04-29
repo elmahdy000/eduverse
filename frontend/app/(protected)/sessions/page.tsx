@@ -2,13 +2,15 @@
 
 import { FormEvent, useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen, Timer, RefreshCw, Zap } from "lucide-react";
+import { Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen, Timer, RefreshCw, Zap, History, X, CheckCircle2 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
 import { translateSessionType, translateStatus } from "../../../lib/labels";
-import type { Customer, Paginated, Room, Session } from "../../../lib/types";
-import { Alert, Badge, Btn, DataTable, EmptyState, FormField, Panel, SectionTitle, Select, StatCard, statusBadgeTone } from "../../../components/ui";
+import type { Customer, Paginated, Room, Session, Invoice } from "../../../lib/types";
+import { Alert, Badge, Btn, DataTable, EmptyState, FormField, Panel, SectionTitle, Select, StatCard, statusBadgeTone, Modal, Input } from "../../../components/ui";
+import { InvoiceReceipt } from "../../../components/InvoiceReceipt";
+import { CreditCard, Banknote } from "lucide-react";
 import clsx from "clsx";
 
 function useSessionTimer(startTime: string | null) {
@@ -55,6 +57,9 @@ function ActiveSessionRow({
       <td className="py-2 pr-3 font-medium text-slate-900">{session.customer?.fullName ?? session.customerId.slice(0, 8)}</td>
       <td className="py-2 pr-3 text-xs text-slate-600">{translateSessionType(session.sessionType)}</td>
       <td className="py-2 pr-3 text-xs text-slate-600">{session.room?.name ?? <span className="text-slate-400">—</span>}</td>
+      <td className="py-2 pr-3">
+        <Badge tone="info">{session.guestCode ?? "—"}</Badge>
+      </td>
       <td className="py-2 pr-3 text-xs text-slate-500">{dateTime(session.startTime)}</td>
       <td className="py-2 pr-3">
         <span className={clsx("font-mono text-xs font-bold", isLong ? "text-amber-600" : "text-emerald-600")}>
@@ -72,6 +77,7 @@ function ActiveSessionRow({
         </div>
       </td>
     </tr>
+
   );
 }
 
@@ -83,6 +89,12 @@ export default function SessionsPage() {
   const [roomId, setRoomId] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  // Quick Payment State
+  const [payAmount, setPayAmount] = useState("");
+  const [payMethod, setPayMethod] = useState("cash");
+  const [payNotes, setPayNotes] = useState("");
 
   const sessionsQuery = useQuery({
     queryKey: ["sessions"],
@@ -138,7 +150,9 @@ export default function SessionsPage() {
       setMessage({ text: "تم إغلاق المدة وجاري إنشاء الفاتورة...", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       try {
-        await api.post("/invoices", { sessionId });
+        const response = await api.post("/invoices", { sessionId });
+        const invoice = response.data.data;
+        setSelectedInvoice(invoice);
         setMessage({ text: "تم إغلاق المدة وإنشاء الفاتورة بنجاح!", ok: true });
         queryClient.invalidateQueries({ queryKey: ["invoices"] });
       } catch {
@@ -165,6 +179,27 @@ export default function SessionsPage() {
     },
   });
 
+  const payMutation = useMutation({
+    mutationFn: () => api.post("/payments", { 
+      invoiceId: selectedInvoice?.id, 
+      paymentMethod: payMethod, 
+      amount: Number(payAmount || selectedInvoice?.remainingAmount), 
+      notes: payNotes || undefined 
+    }),
+    onSuccess: (res) => {
+      setPayAmount(""); setPayNotes("");
+      setMessage({ text: "تم تسجيل الدفع بنجاح! ✓", ok: true });
+      setSelectedInvoice(res.data.data.invoice);
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    },
+    onError: (err: unknown) => {
+      const m = (err as any)?.response?.data?.message;
+      setMessage({ text: translateApiError(m), ok: false });
+    },
+  });
+
+
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage(null);
@@ -181,6 +216,7 @@ export default function SessionsPage() {
       s.customer?.fullName ?? "—",
       translateSessionType(s.sessionType),
       s.room?.name ?? "—",
+      <Badge key="gc" tone="info">{s.guestCode ?? "—"}</Badge>,
       <Badge key="st" tone={statusBadgeTone(s.status)}>{translateStatus(s.status)}</Badge>,
       <span key="t" className="text-xs text-slate-500">{dateTime(s.startTime)}</span>,
     ]),
@@ -275,7 +311,7 @@ export default function SessionsPage() {
             <table className="w-full text-right text-sm">
               <thead>
                 <tr className="border-b border-slate-100">
-                  {["العميل", "النوع", "الغرفة", "من", "المدة", "المبلغ", "إجراء"].map((h) => (
+                  {["العميل", "النوع", "الغرفة", "كود الطلب", "من", "المدة", "المبلغ", "إجراء"].map((h) => (
                     <th key={h} className="py-2 pr-3 text-xs font-semibold text-slate-500 last:text-left">{h}</th>
                   ))}
                 </tr>
@@ -310,13 +346,74 @@ export default function SessionsPage() {
         ) : sessions.length === 0 ? (
           <EmptyState icon={<Clock size={36} />} title="لا توجد مدد" sub="سيظهر هنا كل سجل المدد." />
         ) : (
-          <DataTable
-            headers={["العميل", "النوع", "الغرفة", "الحالة", "وقت البدء"]}
-            rows={allRows}
-            filterable
-          />
+          <Panel title="سجل الجلسات (اليوم)" icon={<History size={16} />} className="overflow-hidden">
+            <DataTable
+              headers={["العميل", "النوع", "المكان", "كود الطلب", "الحالة", "وقت البدء"]}
+              rows={allRows}
+            />
+          </Panel>
         )}
       </Panel>
+      {/* Invoice Modal */}
+      <Modal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} size="lg">
+        {selectedInvoice && (
+          <div className="space-y-6">
+            <InvoiceReceipt 
+              invoice={selectedInvoice} 
+              onPrint={() => window.print()} 
+            />
+            
+            {selectedInvoice.paymentStatus !== "paid" && (
+              <Panel title="تحصيل سريع للمبلغ" icon={<CreditCard size={16} />} className="border-emerald-100 bg-emerald-50/10">
+                <form 
+                  className="space-y-4" 
+                  onSubmit={(e) => { 
+                    e.preventDefault(); 
+                    payMutation.mutate(); 
+                  }}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField label="طريقة الدفع">
+                      <Select value={payMethod} onChange={e => setPayMethod(e.target.value)}>
+                        <option value="cash">💵 نقدي (كاش)</option>
+                        <option value="card">💳 بطاقة بنكية</option>
+                        <option value="bank_transfer">تحويل بنكي</option>
+                      </Select>
+                    </FormField>
+                    <FormField label="المبلغ (جنيه)">
+                      <Input 
+                        type="number" min={0.01} step={0.01} 
+                        value={payAmount || selectedInvoice.remainingAmount} 
+                        onChange={e => setPayAmount(e.target.value)} 
+                        placeholder={String(selectedInvoice.remainingAmount)}
+                        required 
+                      />
+                    </FormField>
+                  </div>
+                  <Btn 
+                    type="submit" 
+                    loading={payMutation.isPending} 
+                    loadingText="جاري التحصيل..." 
+                    icon={<Banknote size={16} />} 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    تأكيد تحصيل {money(payAmount || selectedInvoice.remainingAmount)}
+                  </Btn>
+                </form>
+              </Panel>
+            )}
+            
+            {selectedInvoice.paymentStatus === "paid" && (
+              <Alert tone="success">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">✅</span>
+                  <span>تم سداد هذه الفاتورة بالكامل.</span>
+                </div>
+              </Alert>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

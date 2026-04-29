@@ -19,14 +19,34 @@ const jwt_guard_1 = require("../auth/jwt.guard");
 const role_guard_1 = require("../auth/role.guard");
 const bar_order_dto_1 = require("./dto/bar-order.dto");
 const bar_orders_service_1 = require("./bar-orders.service");
+const bar_orders_gateway_1 = require("./bar-orders.gateway");
+const prisma_service_1 = require("../common/prisma/prisma.service");
 let BarOrdersController = class BarOrdersController {
     barOrdersService;
-    constructor(barOrdersService) {
+    barOrdersGateway;
+    prisma;
+    constructor(barOrdersService, barOrdersGateway, prisma) {
         this.barOrdersService = barOrdersService;
+        this.barOrdersGateway = barOrdersGateway;
+        this.prisma = prisma;
+    }
+    async assertCanMutateOrder(user) {
+        if (!user?.roleId) {
+            throw new common_1.ForbiddenException('User role not found');
+        }
+        const role = await this.prisma.role.findUnique({
+            where: { id: user.roleId },
+            select: { name: true },
+        });
+        if (role?.name === 'Operations Manager') {
+            throw new common_1.ForbiddenException('Operations Manager can view bar orders but cannot change order status');
+        }
     }
     async createOrder(createBarOrderDto, req) {
         try {
             const order = await this.barOrdersService.createOrder(createBarOrderDto, req.user.userId);
+            this.barOrdersGateway.emitNewOrder(order);
+            this.barOrdersGateway.emitDashboardRefresh();
             return {
                 success: true,
                 data: order,
@@ -67,9 +87,12 @@ let BarOrdersController = class BarOrdersController {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async updateStatus(orderId, updateStatusDto) {
+    async updateStatus(orderId, updateStatusDto, req) {
         try {
+            await this.assertCanMutateOrder(req.user);
             const order = await this.barOrdersService.updateOrderStatus(orderId, updateStatusDto);
+            this.barOrdersGateway.emitOrderStatusUpdate(order);
+            this.barOrdersGateway.emitDashboardRefresh();
             return {
                 success: true,
                 data: order,
@@ -81,9 +104,12 @@ let BarOrdersController = class BarOrdersController {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async cancelOrder(orderId, reason) {
+    async cancelOrder(orderId, reason, req) {
         try {
+            await this.assertCanMutateOrder(req?.user);
             const order = await this.barOrdersService.cancelOrder(orderId, reason);
+            this.barOrdersGateway.emitOrderStatusUpdate(order);
+            this.barOrdersGateway.emitDashboardRefresh();
             return {
                 success: true,
                 data: order,
@@ -131,8 +157,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update bar order status' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, bar_order_dto_1.UpdateBarOrderStatusDto]),
+    __metadata("design:paramtypes", [String, bar_order_dto_1.UpdateBarOrderStatusDto, Object]),
     __metadata("design:returntype", Promise)
 ], BarOrdersController.prototype, "updateStatus", null);
 __decorate([
@@ -140,8 +167,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Cancel bar order' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('reason')),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], BarOrdersController.prototype, "cancelOrder", null);
 exports.BarOrdersController = BarOrdersController = __decorate([
@@ -149,6 +177,8 @@ exports.BarOrdersController = BarOrdersController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, role_guard_1.RoleGuard),
     (0, common_1.Controller)('bar-orders'),
-    __metadata("design:paramtypes", [bar_orders_service_1.BarOrdersService])
+    __metadata("design:paramtypes", [bar_orders_service_1.BarOrdersService,
+        bar_orders_gateway_1.BarOrdersGateway,
+        prisma_service_1.PrismaService])
 ], BarOrdersController);
 //# sourceMappingURL=bar-orders.controller.js.map

@@ -122,6 +122,11 @@ async function main() {
             action: 'view_barista',
             description: 'View barista dashboard',
         },
+        {
+            module: 'dashboards',
+            action: 'view_operations_by_role',
+            description: 'View operations by role report',
+        },
         { module: 'users', action: 'manage', description: 'Manage users' },
         { module: 'roles', action: 'manage', description: 'Manage roles' },
     ];

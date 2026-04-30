@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: eduverse-backend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start:prod
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://postgres:pass1234@127.0.0.1:5432/postgres

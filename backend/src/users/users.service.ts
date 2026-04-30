@@ -72,8 +72,10 @@ export class UsersService {
     return this.formatUserResponse(user);
   }
 
-  async listUsers(page: number = 1, limit: number = 20, filter?: any) {
-    const skip = (page - 1) * limit;
+  async listUsers(page: any = 1, limit: any = 20, filter?: any) {
+    const p = Math.max(1, parseInt(String(page)) || 1);
+    const l = Math.max(1, parseInt(String(limit)) || 20);
+    const skip = (p - 1) * l;
 
     const where: any = {};
     if (filter?.email) {
@@ -95,7 +97,7 @@ export class UsersService {
           },
         },
         skip,
-        take: limit,
+        take: l,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.user.count({ where }),
@@ -106,8 +108,8 @@ export class UsersService {
     return {
       data: users.map((user) => this.formatUserResponse(user)),
       total,
-      page,
-      limit,
+      page: p,
+      limit: l,
       hasMore,
     };
   }

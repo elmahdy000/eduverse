@@ -13,4 +13,4 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        value: postgresql://postgres:pass1234@127.0.0.1:5432/postgres
+        value: postgresql://postgres:testGoogle124G%23@db.ldoouldwvxiwbbiaynex.supabase.co:5432/postgres

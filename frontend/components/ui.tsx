@@ -14,9 +14,9 @@ const badgeStyles: Record<BadgeTone, string> = {
   info: "bg-blue-50 text-blue-700 border-blue-200",
   neutral: "bg-slate-50 text-slate-500 border-slate-200",
 };
-export function Badge({ children, tone = "default" }: PropsWithChildren<{ tone?: BadgeTone }>) {
+export function Badge({ children, tone = "default", className }: PropsWithChildren<{ tone?: BadgeTone; className?: string }>) {
   return (
-    <span className={clsx("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4", badgeStyles[tone])}>
+    <span className={clsx("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4", badgeStyles[tone], className)}>
       {children}
     </span>
   );
@@ -162,7 +162,23 @@ export function FormField({ label, children, hint }: PropsWithChildren<{ label: 
 }
 
 /* ── Input ── */
-export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+export function Input({ className, icon, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { icon?: ReactNode }) {
+  if (icon) {
+    return (
+      <div className="group relative">
+        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition group-focus-within:text-slate-700">
+          {icon}
+        </div>
+        <input
+          {...props}
+          className={clsx(
+            "w-full rounded-xl border border-slate-300 bg-white py-2.5 pr-9 pl-3 text-right text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10",
+            className,
+          )}
+        />
+      </div>
+    );
+  }
   return (
     <input
       {...props}

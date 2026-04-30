@@ -47,7 +47,7 @@ function WaitBadge({ minutes }: { minutes?: number }) {
   );
 }
 
-function OrderCard({ order, onAdvance, advanceLabel, advanceTone }: {
+function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unreadCount }: {
   order: BarOrder;
   onAdvance?: () => void;
   advanceLabel?: string;

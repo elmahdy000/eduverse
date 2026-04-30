@@ -18,6 +18,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AuditLogsInterceptor } from './audit-logs/audit-logs.interceptor';
 import { DashboardsModule } from './dashboards/dashboards.module';
+import { ExpensesModule } from './expenses/expenses.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { DashboardsModule } from './dashboards/dashboards.module';
     PaymentsModule,
     AuditLogsModule,
     DashboardsModule,
+    ExpensesModule,
   ],
   controllers: [AppController],
   providers: [

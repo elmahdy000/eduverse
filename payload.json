@@ -1,0 +1,32 @@
+{
+  "type": "web_service",
+  "name": "eduverse-backend",
+  "ownerId": "tea-d7pc15t7vvec739ku5tg",
+  "repo": "https://github.com/elmahdy000/eduverse",
+  "autoDeploy": "yes",
+  "branch": "master",
+  "rootDir": "backend",
+  "serviceDetails": {
+    "env": "node",
+    "plan": "free",
+    "region": "oregon",
+    "envSpecificDetails": {
+      "buildCommand": "npm install && npx prisma generate && npm run build",
+      "startCommand": "npm run start:prod"
+    },
+    "envVars": [
+      {
+        "key": "NODE_ENV",
+        "value": "production"
+      },
+      {
+        "key": "JWT_SECRET",
+        "value": "your_production_jwt_secret_here"
+      },
+      {
+        "key": "DATABASE_URL",
+        "value": "postgresql://postgres:pass1234@127.0.0.1:5432/postgres"
+      }
+    ]
+  }
+}

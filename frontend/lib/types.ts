@@ -66,6 +66,7 @@ export interface Session {
   } | null;
   chargeAmount?: string | number | null;
   customer?: Customer;
+  guestCode?: string | null;
 }
 
 export interface Booking {

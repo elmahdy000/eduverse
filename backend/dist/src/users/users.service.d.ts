@@ -7,7 +7,7 @@ export declare class UsersService {
     constructor(prisma: PrismaService, passwordService: PasswordService);
     createUser(createUserDto: CreateUserDto): Promise<any>;
     getUser(userId: string): Promise<any>;
-    listUsers(page?: number, limit?: number, filter?: any): Promise<{
+    listUsers(page?: any, limit?: any, filter?: any): Promise<{
         data: any[];
         total: number;
         page: number;

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Cairo, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../components/providers";
@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "منصة إدارة تشغيل القاعات والخدمات",
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Toaster richColors position="top-center" dir="rtl" />
+        </Providers>
       </body>
     </html>
   );

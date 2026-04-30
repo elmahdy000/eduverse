@@ -27,6 +27,7 @@ const payments_module_1 = require("./payments/payments.module");
 const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 const audit_logs_interceptor_1 = require("./audit-logs/audit-logs.interceptor");
 const dashboards_module_1 = require("./dashboards/dashboards.module");
+const expenses_module_1 = require("./expenses/expenses.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,6 +62,7 @@ exports.AppModule = AppModule = __decorate([
             payments_module_1.PaymentsModule,
             audit_logs_module_1.AuditLogsModule,
             dashboards_module_1.DashboardsModule,
+            expenses_module_1.ExpensesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

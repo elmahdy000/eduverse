@@ -170,6 +170,24 @@ export class UsersController {
     }
   }
 
+  @Delete(':id/hard')
+  @UseGuards(OwnerGuard)
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Permanently delete user (Owner only)' })
+  async deleteUser(@Param('id') userId: string) {
+    try {
+      const result = await this.usersService.deleteUser(userId);
+      return {
+        success: true,
+        message: result.message,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Post(':id/reactivate')
   @UseGuards(OwnerGuard)
   @HttpCode(200)

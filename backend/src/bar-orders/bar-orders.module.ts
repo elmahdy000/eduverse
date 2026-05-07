@@ -5,9 +5,10 @@ import { BarOrdersController } from './bar-orders.controller';
 import { GuestOrdersController } from './guest-orders.controller';
 import { ProductsModule } from '../products/products.module';
 import { BarOrdersGateway } from './bar-orders.gateway';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-  imports: [PrismaModule, ProductsModule],
+  imports: [PrismaModule, ProductsModule, InventoryModule],
   controllers: [BarOrdersController, GuestOrdersController],
   providers: [BarOrdersService, BarOrdersGateway],
   exports: [BarOrdersService, BarOrdersGateway],

@@ -19,6 +19,9 @@ export declare class UsersService {
         message: string;
     }>;
     deactivateUser(userId: string): Promise<any>;
+    deleteUser(userId: string): Promise<{
+        message: string;
+    }>;
     reactivateUser(userId: string): Promise<any>;
     listRoles(): Promise<{
         id: string;

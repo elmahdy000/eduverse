@@ -21,7 +21,7 @@ async function main() {
   console.log('👥 Creating roles...');
   const roleNames = ['Owner', 'Operations Manager', 'Barista', 'Receptionist'];
   const roles: Record<string, any> = {};
-  
+
   for (const name of roleNames) {
     roles[name] = await prisma.role.create({
       data: { name, description: `${name} role for bar operations` },
@@ -62,11 +62,11 @@ async function main() {
     await prisma.rolePermission.create({ data: { roleId: roles['Operations Manager'].id, permissionId: perm.id } });
 
     // Barista & Receptionist get core operational permissions
-    const isOperational = ['read', 'create'].includes(perm.action) || 
-                         perm.module === 'dashboards' || 
-                         perm.module === 'sessions' ||
-                         (perm.module === 'bar_orders' && perm.action === 'update');
-                         
+    const isOperational = ['read', 'create'].includes(perm.action) ||
+      perm.module === 'dashboards' ||
+      perm.module === 'sessions' ||
+      (perm.module === 'bar_orders' && perm.action === 'update');
+
     if (isOperational) {
       await prisma.rolePermission.create({ data: { roleId: roles['Barista'].id, permissionId: perm.id } });
       await prisma.rolePermission.create({ data: { roleId: roles['Receptionist'].id, permissionId: perm.id } });
@@ -76,7 +76,7 @@ async function main() {
   // 5. Create Default Users (Password: 123456)
   console.log('👤 Creating default users...');
   const passwordHash = await bcrypt.hash('123456', 10);
-  
+
   const defaultUsers = [
     { email: 'owner@eduvers.com', role: 'Owner', name: 'Owner' },
     { email: 'ops@eduvers.com', role: 'Operations Manager', name: 'Ops Manager' },

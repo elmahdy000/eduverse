@@ -56,6 +56,11 @@ export declare class UsersController {
         message: string;
         timestamp: string;
     }>;
+    deleteUser(userId: string): Promise<{
+        success: boolean;
+        message: string;
+        timestamp: string;
+    }>;
     reactivateUser(userId: string): Promise<{
         success: boolean;
         data: any;

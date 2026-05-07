@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BarOrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../common/prisma/prisma.service");
+const inventory_service_1 = require("../inventory/inventory.service");
 let BarOrdersService = class BarOrdersService {
     prisma;
-    constructor(prisma) {
+    inventoryService;
+    constructor(prisma, inventoryService) {
         this.prisma = prisma;
+        this.inventoryService = inventoryService;
     }
     async createOrder(createBarOrderDto, userId) {
         if (!createBarOrderDto.customerId && !createBarOrderDto.sessionId) {
@@ -238,6 +241,14 @@ let BarOrdersService = class BarOrdersService {
                 items: { include: { product: true } },
             },
         });
+        if (updateStatusDto.status === 'delivered') {
+            try {
+                await this.inventoryService.deductStockForOrder(orderId, updated.createdByUserId || updated.customer.createdByUserId);
+            }
+            catch (err) {
+                console.error('Failed to deduct inventory:', err.message);
+            }
+        }
         return updated;
     }
     async cancelOrder(orderId, _reason) {
@@ -300,6 +311,7 @@ let BarOrdersService = class BarOrdersService {
 exports.BarOrdersService = BarOrdersService;
 exports.BarOrdersService = BarOrdersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        inventory_service_1.InventoryService])
 ], BarOrdersService);
 //# sourceMappingURL=bar-orders.service.js.map

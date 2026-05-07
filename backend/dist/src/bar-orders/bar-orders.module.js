@@ -14,12 +14,13 @@ const bar_orders_controller_1 = require("./bar-orders.controller");
 const guest_orders_controller_1 = require("./guest-orders.controller");
 const products_module_1 = require("../products/products.module");
 const bar_orders_gateway_1 = require("./bar-orders.gateway");
+const inventory_module_1 = require("../inventory/inventory.module");
 let BarOrdersModule = class BarOrdersModule {
 };
 exports.BarOrdersModule = BarOrdersModule;
 exports.BarOrdersModule = BarOrdersModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, products_module_1.ProductsModule],
+        imports: [prisma_module_1.PrismaModule, products_module_1.ProductsModule, inventory_module_1.InventoryModule],
         controllers: [bar_orders_controller_1.BarOrdersController, guest_orders_controller_1.GuestOrdersController],
         providers: [bar_orders_service_1.BarOrdersService, bar_orders_gateway_1.BarOrdersGateway],
         exports: [bar_orders_service_1.BarOrdersService, bar_orders_gateway_1.BarOrdersGateway],

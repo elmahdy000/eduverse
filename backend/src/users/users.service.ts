@@ -205,6 +205,31 @@ export class UsersService {
     return this.formatUserResponse(updatedUser);
   }
 
+  async deleteUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if user has orders before deleting
+    const hasOrders = await this.prisma.barOrder.findFirst({
+      where: { createdByUserId: userId }
+    });
+
+    if (hasOrders) {
+      throw new Error('Cannot delete user with existing orders. Deactivate instead.');
+    }
+
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return { message: 'User deleted successfully' };
+  }
+
   async reactivateUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

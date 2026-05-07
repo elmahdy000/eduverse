@@ -149,6 +149,21 @@ let UsersController = class UsersController {
             throw new common_1.BadRequestException(error.message);
         }
     }
+    async deleteUser(userId) {
+        try {
+            const result = await this.usersService.deleteUser(userId);
+            return {
+                success: true,
+                message: result.message,
+                timestamp: new Date().toISOString(),
+            };
+        }
+        catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
+            throw new common_1.BadRequestException(error.message);
+        }
+    }
     async reactivateUser(userId) {
         try {
             const user = await this.usersService.reactivateUser(userId);
@@ -244,6 +259,16 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deactivateUser", null);
+__decorate([
+    (0, common_1.Delete)(':id/hard'),
+    (0, common_1.UseGuards)(role_guard_1.OwnerGuard),
+    (0, common_1.HttpCode)(200),
+    (0, swagger_1.ApiOperation)({ summary: 'Permanently delete user (Owner only)' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "deleteUser", null);
 __decorate([
     (0, common_1.Post)(':id/reactivate'),
     (0, common_1.UseGuards)(role_guard_1.OwnerGuard),

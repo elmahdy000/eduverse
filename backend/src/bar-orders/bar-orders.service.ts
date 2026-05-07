@@ -4,10 +4,14 @@ import {
   CreateBarOrderDto,
   UpdateBarOrderStatusDto,
 } from './dto/bar-order.dto';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class BarOrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private inventoryService: InventoryService,
+  ) {}
 
   async createOrder(createBarOrderDto: CreateBarOrderDto, userId?: string) {
     if (!createBarOrderDto.customerId && !createBarOrderDto.sessionId) {
@@ -262,6 +266,16 @@ export class BarOrdersService {
         items: { include: { product: true } },
       },
     });
+
+    // Deduct inventory when delivered (if not already deducted)
+    if (updateStatusDto.status === 'delivered') {
+      try {
+        await this.inventoryService.deductStockForOrder(orderId, updated.createdByUserId || updated.customer.createdByUserId);
+      } catch (err) {
+        console.error('Failed to deduct inventory:', err.message);
+        // We don't throw here to avoid failing the order update, but it should be logged
+      }
+    }
 
     return updated;
   }

@@ -19,6 +19,7 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AuditLogsInterceptor } from './audit-logs/audit-logs.interceptor';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ExpensesModule } from './expenses/expenses.module';
     AuditLogsModule,
     DashboardsModule,
     ExpensesModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [

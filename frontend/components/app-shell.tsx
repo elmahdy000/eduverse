@@ -27,6 +27,7 @@ import {
   Boxes,
   Timer,
   BarChartHorizontal,
+  FileText,
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
 import { roleHomePath, roleLabel } from "../lib/api";
@@ -125,10 +126,16 @@ const navGroups: NavGroup[] = [
         icon: <Timer size={14} />,
       },
       {
-        label: "التقارير",
+        label: "التقارير المالية",
         href: "/reports",
         roles: ["Owner", "Operations Manager"],
         icon: <BarChartHorizontal size={14} />,
+      },
+      {
+        label: "تقارير الحجوزات",
+        href: "/reports/bookings",
+        roles: ["Owner", "Operations Manager"],
+        icon: <FileText size={14} />,
       },
       {
         label: "المستخدمين",
@@ -141,12 +148,6 @@ const navGroups: NavGroup[] = [
         href: "/expenses",
         roles: ["Owner", "Operations Manager"],
         icon: <Wallet size={14} />,
-      },
-      {
-        label: "التقارير",
-        href: "/reports",
-        roles: ["Owner", "Operations Manager"],
-        icon: <BarChart3 size={14} />,
       },
       {
         label: "عمليات السيستم",

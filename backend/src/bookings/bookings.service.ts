@@ -165,6 +165,9 @@ export class BookingsService {
     const where: any = {};
     if (filters?.status) {
       where.status = filters.status;
+    } else {
+      // افتراضياً: استبعاد الحجوزات الملغاة من القوائم العامة واليومية
+      where.status = { not: 'cancelled' };
     }
     if (filters?.roomId) {
       where.roomId = filters.roomId;

@@ -103,15 +103,16 @@ export class InventoryService {
 
     if (!order) return;
 
-    for (const orderItem of order.items) {
-      const recipeItems = orderItem.product.recipeItems;
-      if (!recipeItems || recipeItems.length === 0) continue;
+    // تحسين: استخدام عملية واحدة (Transaction) لكل المكونات بدلاً من تكرارها داخل الحلقات
+    return this.prisma.$transaction(async (tx) => {
+      for (const orderItem of order.items) {
+        const recipeItems = orderItem.product.recipeItems;
+        if (!recipeItems || recipeItems.length === 0) continue;
 
-      for (const recipe of recipeItems) {
-        const totalDeduction = Number(recipe.quantity) * orderItem.quantity;
+        for (const recipe of recipeItems) {
+          const totalDeduction = Number(recipe.quantity) * orderItem.quantity;
 
-        // Log transaction and update stock
-        await this.prisma.$transaction(async (tx) => {
+          // 1. تسوية المخزن
           await tx.inventoryTransaction.create({
             data: {
               inventoryItemId: recipe.inventoryItemId,
@@ -128,17 +129,22 @@ export class InventoryService {
             data: { currentStock: { decrement: totalDeduction } },
           });
 
-          // Central Audit Log (Manual)
+          // 2. سجل التدقيق المركزي (Manual)
           await this.auditLogsService.createAuditLog({
             userId,
             action: 'AUTO_DEDUCT_STOCK',
             entityType: 'inventory_item',
             entityId: recipe.inventoryItemId,
-            newValue: { orderId, quantity: totalDeduction, currentStock: updated.currentStock },
+            newValue: { 
+              orderId, 
+              quantity: totalDeduction, 
+              currentStock: updated.currentStock,
+              isNegative: Number(updated.currentStock) < 0 // تحويل لـ Number للمقارنة السليمة
+            },
           });
-        });
+        }
       }
-    }
+    });
   }
   
   // 5. إدارة الهالك (Waste Management)

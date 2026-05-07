@@ -41,13 +41,42 @@ export class SessionsService {
         throw new Error('Customer already has an active session');
       }
 
-      // Check customer exists
+      // Check customer exists and status
       const customer = await tx.customer.findUnique({
         where: { id: createSessionDto.customerId },
       });
 
       if (!customer) {
-        throw new Error('Customer not found');
+        throw new Error('العميل غير موجود');
+      }
+
+      if (customer.status === 'blacklisted') {
+        throw new Error('هذا العميل في القائمة السوداء، لا يمكن فتح جلسة له');
+      }
+
+      // Check room availability if roomId is provided
+      if (createSessionDto.roomId) {
+        const room = await tx.room.findUnique({
+          where: { id: createSessionDto.roomId },
+        });
+
+        if (!room) {
+          throw new Error('الغرفة غير موجودة');
+        }
+
+        if (room.status === 'out_of_service') {
+          throw new Error('هذه الغرفة خارج الخدمة حالياً');
+        }
+
+        if (room.status === 'occupied') {
+          // Check if there's REALLY an active session in this room
+          const activeRoomSession = await tx.session.findFirst({
+            where: { roomId: createSessionDto.roomId, status: 'active' },
+          });
+          if (activeRoomSession) {
+            throw new Error('الغرفة مشغولة حالياً بجلسة أخرى');
+          }
+        }
       }
 
       const guestCode = await this.generateUniqueGuestCode();
@@ -65,6 +94,14 @@ export class SessionsService {
           room: true,
         },
       });
+
+      // Update room status to occupied
+      if (createSessionDto.roomId) {
+        await tx.room.update({
+          where: { id: createSessionDto.roomId },
+          data: { status: 'occupied' },
+        });
+      }
 
       // Update customer's last visit
       await tx.customer.update({
@@ -131,6 +168,14 @@ export class SessionsService {
           room: true,
         },
       });
+
+      // Update room status to available
+      if (updatedSession.roomId) {
+        await tx.room.update({
+          where: { id: updatedSession.roomId },
+          data: { status: 'available' },
+        });
+      }
 
       // Generate invoice within the same transaction
       const invoice = await this.invoicesService.generateInvoiceWithTx(
@@ -221,17 +266,34 @@ export class SessionsService {
       throw new Error('Session not found');
     }
 
-    if (session.status !== 'active') {
-      throw new Error('Only active sessions can be cancelled');
+    const deliveredOrders = await this.prisma.barOrder.count({
+      where: { sessionId, status: 'delivered' },
+    });
+
+    if (deliveredOrders > 0) {
+      throw new Error('لا يمكن إلغاء الجلسة لأن هناك طلبات بار تم تسليمها بالفعل. يرجى إغلاق الجلسة وتحصيل الحساب بدلاً من الإلغاء.');
     }
 
-    return await this.prisma.session.update({
-      where: { id: sessionId },
-      data: {
-        status: 'cancelled',
-        closedByUserId: userId,
-        endTime: new Date(),
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.session.update({
+        where: { id: sessionId },
+        data: {
+          status: 'cancelled',
+          closedByUserId: userId,
+          endTime: new Date(),
+          guestCode: null,
+        },
+      });
+
+      // Update room status to available
+      if (session.roomId) {
+        await tx.room.update({
+          where: { id: session.roomId },
+          data: { status: 'available' },
+        });
+      }
+
+      return updated;
     });
   }
 }

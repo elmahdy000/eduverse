@@ -14,7 +14,7 @@ module.exports = {
       name: 'eduverse-frontend',
       cwd: './frontend',
       script: 'npm',
-      args: 'run start -- -p 3009',
+      args: ['run', 'start', '--', '-p', '3009'],
       env: {
         NODE_ENV: 'production'
       }

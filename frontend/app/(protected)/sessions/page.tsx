@@ -140,7 +140,7 @@ export default function SessionsPage() {
       setMessage({ text: translateApiError(m), ok: false });
     },
   });
-
+  const closeMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const res = await api.post(`/sessions/${sessionId}/close`, { notes: "أُغلقت من واجهة الاستقبال" });
       return res.data; // This now contains session + invoice

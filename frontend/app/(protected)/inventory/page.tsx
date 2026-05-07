@@ -62,7 +62,7 @@ export default function InventoryPage() {
       setItems(res.data);
     } catch (err) {
       console.error("Failed to fetch inventory", err);
-      setMessage({ ok: false, text: "Could not load inventory now." });
+      setMessage({ ok: false, text: "مش قادرين نحمل المخزون دلوقتي." });
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export default function InventoryPage() {
 
   const handleCreateItem = async () => {
     if (!newItemData.name.trim() || !newItemData.unit.trim()) {
-      setMessage({ ok: false, text: "Item name and unit are required." });
+      setMessage({ ok: false, text: "لازم تكتب اسم الصنف والوحدة." });
       return;
     }
 
@@ -90,14 +90,14 @@ export default function InventoryPage() {
       });
       setShowNewItemModal(false);
       setNewItemData(EMPTY_NEW_ITEM);
-      setMessage({ ok: true, text: "Item created successfully." });
+      setMessage({ ok: true, text: "الصنف اتضاف بنجاح." });
       await fetchInventory();
     } catch (err: any) {
       console.error("Failed to create inventory item", err);
       const status = err?.response?.status;
       setMessage({
         ok: false,
-        text: status === 403 ? "Only owner or operations manager can create inventory items." : "Failed to create item.",
+        text: status === 403 ? "الإضافة متاحة للـ Owner أو مدير التشغيل بس." : "ماعرفناش نضيف الصنف.",
       });
     } finally {
       setSubmitting(false);
@@ -109,7 +109,7 @@ export default function InventoryPage() {
 
     const quantity = Number(addStockData.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0) {
-      setMessage({ ok: false, text: "Stock quantity must be greater than zero." });
+      setMessage({ ok: false, text: "كمية الإضافة لازم تكون أكبر من صفر." });
       return;
     }
 
@@ -121,14 +121,14 @@ export default function InventoryPage() {
       });
       setShowAddStockModal(null);
       setAddStockData({ quantity: "", reason: "" });
-      setMessage({ ok: true, text: "Stock added successfully." });
+      setMessage({ ok: true, text: "المخزون اتضاف بنجاح." });
       await fetchInventory();
     } catch (err: any) {
       console.error("Failed to add stock", err);
       const status = err?.response?.status;
       setMessage({
         ok: false,
-        text: status === 403 ? "Only owner or operations manager can add stock." : "Failed to add stock.",
+        text: status === 403 ? "إضافة المخزون متاحة للـ Owner أو مدير التشغيل بس." : "ماعرفناش نضيف المخزون.",
       });
     } finally {
       setSubmitting(false);
@@ -140,7 +140,7 @@ export default function InventoryPage() {
 
     const quantity = Number(wasteData.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0) {
-      setMessage({ ok: false, text: "Waste quantity must be greater than zero." });
+      setMessage({ ok: false, text: "كمية الهالك لازم تكون أكبر من صفر." });
       return;
     }
 
@@ -153,11 +153,11 @@ export default function InventoryPage() {
       });
       setShowWasteModal(null);
       setWasteData({ quantity: "", reason: "" });
-      setMessage({ ok: true, text: "Waste recorded successfully." });
+      setMessage({ ok: true, text: "تم تسجيل الهالك." });
       await fetchInventory();
     } catch (err) {
       console.error("Failed to record waste", err);
-      setMessage({ ok: false, text: "Failed to record waste." });
+      setMessage({ ok: false, text: "ماعرفناش نسجل الهالك." });
     } finally {
       setSubmitting(false);
     }
@@ -167,20 +167,20 @@ export default function InventoryPage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Inventory</h1>
-          <p className="text-slate-500">Manage raw materials, recipes, and stock movement.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">المخزون</h1>
+          <p className="text-slate-500">إدارة الخامات والوصفات وحركة المخزن.</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
             <History size={18} />
-            Log
+            السجل
           </button>
           <button
             onClick={() => setShowNewItemModal(true)}
             className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800 active:scale-95"
           >
             <Plus size={18} />
-            Add New Item
+            إضافة صنف جديد
           </button>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function InventoryPage() {
         <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-500">Total Items</p>
+              <p className="text-sm font-medium text-slate-500">إجمالي الأصناف</p>
               <p className="text-3xl font-bold text-slate-900">{totalItems}</p>
             </div>
             <div className="rounded-2xl bg-blue-50 p-3 text-blue-600 transition-colors group-hover:bg-blue-100">
@@ -209,14 +209,14 @@ export default function InventoryPage() {
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-600">
             <ArrowUpRight size={14} />
-            <span>Live stock monitoring</span>
+            <span>متابعة لحظية لحركة المخزون</span>
           </div>
         </div>
 
         <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-500">Low Stock Items</p>
+              <p className="text-sm font-medium text-slate-500">أصناف ناقصة</p>
               <p className="text-3xl font-bold text-rose-600">{lowStockItems.length}</p>
             </div>
             <div
@@ -229,14 +229,14 @@ export default function InventoryPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs font-medium text-rose-500">
-            {lowStockItems.length > 0 ? "Some items need replenishment" : "Stock status is healthy"}
+            {lowStockItems.length > 0 ? "في أصناف محتاجة توريد" : "وضع المخزون كويس"}
           </div>
         </div>
 
         <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-500">Recipe Coverage</p>
+              <p className="text-sm font-medium text-slate-500">تغطية الوصفات</p>
               <p className="text-3xl font-bold text-slate-900">92%</p>
             </div>
             <div className="rounded-2xl bg-amber-50 p-3 text-amber-600 transition-colors group-hover:bg-amber-100">
@@ -244,7 +244,7 @@ export default function InventoryPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs font-medium text-amber-600">
-            <span>Review products that still miss recipe links</span>
+            <span>راجع المنتجات اللي لسه بدون وصفة</span>
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@ export default function InventoryPage() {
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder="Search item..."
+              placeholder="ابحث عن صنف..."
               className="w-full rounded-xl border-none bg-transparent pr-10 text-sm focus:ring-0"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -264,7 +264,7 @@ export default function InventoryPage() {
           <div className="flex items-center gap-2 px-2">
             <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
               <Filter size={14} />
-              Filter
+              تصفية
             </button>
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function InventoryPage() {
                   >
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.category || "Raw Material"}</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.category || "خامات"}</p>
                         <h3 className="font-bold text-slate-900">{item.name}</h3>
                       </div>
                       <button className="text-slate-400 hover:text-slate-600">
@@ -309,7 +309,7 @@ export default function InventoryPage() {
                             stockNum <= minStock ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600",
                           )}
                         >
-                          {stockNum <= minStock ? "Low" : "Available"}
+                          {stockNum <= minStock ? "منخفض" : "متوفر"}
                         </span>
                       </div>
 
@@ -330,14 +330,14 @@ export default function InventoryPage() {
                         className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100"
                       >
                         <Plus size={14} />
-                        Add Stock
+                        إضافة مخزون
                       </button>
                       <button
                         onClick={() => setShowWasteModal(item.id)}
                         className="flex items-center justify-center gap-2 rounded-xl bg-rose-50 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100"
                       >
                         <Trash2 size={14} />
-                        Record Waste
+                        تسجيل هالك
                       </button>
                     </div>
                   </div>
@@ -350,20 +350,20 @@ export default function InventoryPage() {
       {showNewItemModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Add New Item</h3>
-            <p className="mt-1 text-sm text-slate-500">Save new item details and it will appear immediately.</p>
+            <h3 className="text-xl font-bold text-slate-900">إضافة صنف جديد</h3>
+            <p className="mt-1 text-sm text-slate-500">اكتب بيانات الصنف وهيظهر فورًا في القائمة.</p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="Item name" value={newItemData.name} onChange={(e) => setNewItemData((p) => ({ ...p, name: e.target.value }))} />
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="Unit (kg/ltr/pcs)" value={newItemData.unit} onChange={(e) => setNewItemData((p) => ({ ...p, unit: e.target.value }))} />
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="Category" value={newItemData.category} onChange={(e) => setNewItemData((p) => ({ ...p, category: e.target.value }))} />
-              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="Minimum stock level" value={newItemData.minStockLevel} onChange={(e) => setNewItemData((p) => ({ ...p, minStockLevel: e.target.value }))} />
-              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm sm:col-span-2" placeholder="Cost per unit (optional)" value={newItemData.costPerUnit} onChange={(e) => setNewItemData((p) => ({ ...p, costPerUnit: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="اسم الصنف" value={newItemData.name} onChange={(e) => setNewItemData((p) => ({ ...p, name: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="الوحدة (كجم/لتر/قطعة)" value={newItemData.unit} onChange={(e) => setNewItemData((p) => ({ ...p, unit: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="التصنيف" value={newItemData.category} onChange={(e) => setNewItemData((p) => ({ ...p, category: e.target.value }))} />
+              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="الحد الأدنى للمخزون" value={newItemData.minStockLevel} onChange={(e) => setNewItemData((p) => ({ ...p, minStockLevel: e.target.value }))} />
+              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm sm:col-span-2" placeholder="تكلفة الوحدة (اختياري)" value={newItemData.costPerUnit} onChange={(e) => setNewItemData((p) => ({ ...p, costPerUnit: e.target.value }))} />
             </div>
 
             <div className="mt-6 flex gap-3">
-              <button onClick={() => { setShowNewItemModal(false); setNewItemData(EMPTY_NEW_ITEM); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">Cancel</button>
-              <button onClick={handleCreateItem} disabled={submitting} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "Saving..." : "Save Item"}</button>
+              <button onClick={() => { setShowNewItemModal(false); setNewItemData(EMPTY_NEW_ITEM); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">إلغاء</button>
+              <button onClick={handleCreateItem} disabled={submitting} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "جاري الحفظ..." : "حفظ الصنف"}</button>
             </div>
           </div>
         </div>
@@ -372,17 +372,17 @@ export default function InventoryPage() {
       {showAddStockModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
           <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Add Stock</h3>
-            <p className="mt-1 text-sm text-slate-500">Item: {selectedStockItem?.name || "-"}</p>
+            <h3 className="text-xl font-bold text-slate-900">إضافة مخزون</h3>
+            <p className="mt-1 text-sm text-slate-500">الصنف: {selectedStockItem?.name || "-"}</p>
 
             <div className="mt-5 space-y-3">
-              <input type="number" autoFocus className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="Quantity" value={addStockData.quantity} onChange={(e) => setAddStockData((p) => ({ ...p, quantity: e.target.value }))} />
-              <input className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="Reason (optional)" value={addStockData.reason} onChange={(e) => setAddStockData((p) => ({ ...p, reason: e.target.value }))} />
+              <input type="number" autoFocus className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="الكمية" value={addStockData.quantity} onChange={(e) => setAddStockData((p) => ({ ...p, quantity: e.target.value }))} />
+              <input className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="سبب الإضافة (اختياري)" value={addStockData.reason} onChange={(e) => setAddStockData((p) => ({ ...p, reason: e.target.value }))} />
             </div>
 
             <div className="mt-6 flex gap-3">
-              <button onClick={() => { setShowAddStockModal(null); setAddStockData({ quantity: "", reason: "" }); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">Cancel</button>
-              <button onClick={handleAddStock} disabled={submitting || !addStockData.quantity} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "Adding..." : "Confirm"}</button>
+              <button onClick={() => { setShowAddStockModal(null); setAddStockData({ quantity: "", reason: "" }); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">إلغاء</button>
+              <button onClick={handleAddStock} disabled={submitting || !addStockData.quantity} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "جاري الإضافة..." : "تأكيد"}</button>
             </div>
           </div>
         </div>
@@ -394,29 +394,29 @@ export default function InventoryPage() {
             <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-600">
               <Trash2 size={32} />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900">Record Waste</h3>
-            <p className="mt-2 text-sm text-slate-500">Quantity will be deducted and recorded for review.</p>
+            <h3 className="text-2xl font-bold text-slate-900">تسجيل هالك</h3>
+            <p className="mt-2 text-sm text-slate-500">الكمية هتتخصم من المخزون وتتسجل للمراجعة.</p>
 
             <div className="mt-8 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">Quantity</label>
+                <label className="text-sm font-bold text-slate-700">الكمية</label>
                 <input type="number" autoFocus placeholder="0.00" className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-lg font-bold text-slate-900" value={wasteData.quantity} onChange={(e) => setWasteData({ ...wasteData, quantity: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">Reason</label>
+                <label className="text-sm font-bold text-slate-700">السبب</label>
                 <select className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-sm text-slate-900" value={wasteData.reason} onChange={(e) => setWasteData({ ...wasteData, reason: e.target.value })}>
-                  <option value="">Select reason...</option>
-                  <option value="Breakage">Breakage</option>
-                  <option value="Expired">Expired</option>
-                  <option value="Preparation Error">Preparation Error</option>
-                  <option value="Spillage">Spillage</option>
-                  <option value="Other">Other</option>
+                  <option value="">اختار السبب...</option>
+                  <option value="Breakage">كسر</option>
+                  <option value="Expired">انتهاء صلاحية</option>
+                  <option value="Preparation Error">خطأ تحضير</option>
+                  <option value="Spillage">انسكاب</option>
+                  <option value="Other">أخرى</option>
                 </select>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <button onClick={() => setShowWasteModal(null)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 transition hover:bg-slate-200">Cancel</button>
-                <button onClick={handleRecordWaste} disabled={!wasteData.quantity || submitting} className="flex-1 rounded-2xl bg-rose-600 py-4 font-bold text-white shadow-lg transition hover:bg-rose-700 disabled:opacity-50">{submitting ? "Saving..." : "Confirm"}</button>
+                <button onClick={() => setShowWasteModal(null)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 transition hover:bg-slate-200">إلغاء</button>
+                <button onClick={handleRecordWaste} disabled={!wasteData.quantity || submitting} className="flex-1 rounded-2xl bg-rose-600 py-4 font-bold text-white shadow-lg transition hover:bg-rose-700 disabled:opacity-50">{submitting ? "جاري التسجيل..." : "تأكيد"}</button>
               </div>
             </div>
           </div>

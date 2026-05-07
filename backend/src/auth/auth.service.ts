@@ -86,6 +86,27 @@ export class AuthService {
       throw new Error('User account is not active');
     }
 
+    // Auto open receptionist shift on login if no open shift exists
+    let autoOpenedShift: { id: string; startTime: Date } | null = null;
+    if (user.role?.name === 'Receptionist') {
+      const openShift = await this.prisma.shift.findFirst({
+        where: { userId: user.id, status: 'open' },
+        select: { id: true },
+      });
+
+      if (!openShift) {
+        autoOpenedShift = await this.prisma.shift.create({
+          data: {
+            userId: user.id,
+            startCash: 0,
+            status: 'open',
+            notes: 'Auto-opened at receptionist login',
+          },
+          select: { id: true, startTime: true },
+        });
+      }
+    }
+
     // Generate tokens
     const accessToken = this.jwtConfig.generateAccessToken(
       user.id,
@@ -112,6 +133,7 @@ export class AuthService {
           name: user.role.name,
         },
       },
+      shift: autoOpenedShift,
     };
   }
 

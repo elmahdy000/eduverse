@@ -47,7 +47,7 @@ export class ShiftsService {
     if (!shift) return null;
 
     // Calculate real-time stats for the open shift
-    const stats = await this.getShiftStats(shift.startTime, new Date());
+    const stats = await this.getShiftStats(shift.startTime, new Date(), shift.userId);
     
     return {
       ...shift,
@@ -72,7 +72,11 @@ export class ShiftsService {
     this.assertCanAccessShift(shift.userId, actor);
 
     const endTime = new Date();
-    const stats = await this.getShiftStatsDetailed(shift.startTime, endTime);
+    const stats = await this.getShiftStatsDetailed(
+      shift.startTime,
+      endTime,
+      shift.userId,
+    );
     const expectedCash = Number(shift.startCash) + stats.totalSales - stats.totalExpenses;
     const variance = Number((actualCash - expectedCash).toFixed(2));
 
@@ -110,16 +114,18 @@ export class ShiftsService {
     };
   }
 
-  private async getShiftStats(startTime: Date, endTime: Date) {
+  private async getShiftStats(startTime: Date, endTime: Date, userId: string) {
     const [sales, expenses] = await Promise.all([
       this.prisma.payment.aggregate({
         where: {
+          recordedByUserId: userId,
           paidAt: { gte: startTime, lte: endTime },
         },
         _sum: { amount: true },
       }),
       this.prisma.expense.aggregate({
         where: {
+          recordedByUserId: userId,
           date: { gte: startTime, lte: endTime },
           status: 'paid',
         },
@@ -133,31 +139,52 @@ export class ShiftsService {
     };
   }
 
-  private async getShiftStatsDetailed(startTime: Date, endTime: Date) {
+  private async getShiftStatsDetailed(
+    startTime: Date,
+    endTime: Date,
+    userId: string,
+  ) {
     const [sales, expenses, paymentsByMethodRaw, expensesByCategoryRaw, recentPayments, recentExpenses] =
       await Promise.all([
         this.prisma.payment.aggregate({
-          where: { paidAt: { gte: startTime, lte: endTime } },
+          where: {
+            recordedByUserId: userId,
+            paidAt: { gte: startTime, lte: endTime },
+          },
           _sum: { amount: true },
         }),
         this.prisma.expense.aggregate({
-          where: { date: { gte: startTime, lte: endTime }, status: 'paid' },
+          where: {
+            recordedByUserId: userId,
+            date: { gte: startTime, lte: endTime },
+            status: 'paid',
+          },
           _sum: { amount: true },
         }),
         this.prisma.payment.groupBy({
           by: ['paymentMethod'],
-          where: { paidAt: { gte: startTime, lte: endTime } },
+          where: {
+            recordedByUserId: userId,
+            paidAt: { gte: startTime, lte: endTime },
+          },
           _sum: { amount: true },
           _count: { _all: true },
         }),
         this.prisma.expense.groupBy({
           by: ['categoryId'],
-          where: { date: { gte: startTime, lte: endTime }, status: 'paid' },
+          where: {
+            recordedByUserId: userId,
+            date: { gte: startTime, lte: endTime },
+            status: 'paid',
+          },
           _sum: { amount: true },
           _count: { _all: true },
         }),
         this.prisma.payment.findMany({
-          where: { paidAt: { gte: startTime, lte: endTime } },
+          where: {
+            recordedByUserId: userId,
+            paidAt: { gte: startTime, lte: endTime },
+          },
           orderBy: { paidAt: 'desc' },
           take: 10,
           include: {
@@ -170,7 +197,11 @@ export class ShiftsService {
           },
         }),
         this.prisma.expense.findMany({
-          where: { date: { gte: startTime, lte: endTime }, status: 'paid' },
+          where: {
+            recordedByUserId: userId,
+            date: { gte: startTime, lte: endTime },
+            status: 'paid',
+          },
           orderBy: { date: 'desc' },
           take: 10,
           include: {
@@ -230,7 +261,11 @@ export class ShiftsService {
     this.assertCanAccessShift(shift.userId, actor);
 
     const endTime = shift.endTime || new Date();
-    const stats = await this.getShiftStatsDetailed(shift.startTime, endTime);
+    const stats = await this.getShiftStatsDetailed(
+      shift.startTime,
+      endTime,
+      shift.userId,
+    );
     const expectedCash =
       Number(shift.startCash) + stats.totalSales - stats.totalExpenses;
     const actualCash =

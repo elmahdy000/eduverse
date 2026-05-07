@@ -240,7 +240,7 @@ export default function ShiftsPage() {
             </div>
             <h3 className="text-2xl font-bold text-slate-900">بدء وردية جديدة</h3>
             <p className="mt-2 text-slate-500">اكتب كاش البداية الفعلي في الدرج.</p>
-            {errorMsg && <Alert tone="danger" className="mt-3">{errorMsg}</Alert>}
+            {errorMsg && <Alert tone="danger">{errorMsg}</Alert>}
             <div className="mt-8 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-bold text-slate-700">كاش البداية (ج.م)</label>
@@ -278,7 +278,7 @@ export default function ShiftsPage() {
             <h3 className="text-2xl font-bold text-slate-900">إنهاء الوردية</h3>
             <p className="mt-2 text-slate-500">اكتب الكاش الفعلي في الدرج، والنظام هيحسبلك الفرق تلقائي.</p>
 
-            {errorMsg && <Alert tone="danger" className="mt-3">{errorMsg}</Alert>}
+            {errorMsg && <Alert tone="danger">{errorMsg}</Alert>}
 
             <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
               <div className="flex items-center gap-2 font-bold"><AlertTriangle size={14} /> الكاش المتوقع حالياً</div>

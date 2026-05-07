@@ -493,11 +493,11 @@ export default function CustomersPage() {
                     setEditEmail(selectedCustomer.email ?? "");
                     setEditAddress(selectedCustomer.address ?? "");
                     setEditNotes(selectedCustomer.notes ?? "");
-                    setEditCollege((selectedCustomer as Record<string, unknown>).college as string ?? "");
-                    setEditStudyLevel((selectedCustomer as Record<string, unknown>).studyLevel as string ?? "");
-                    setEditSpecialization((selectedCustomer as Record<string, unknown>).specialization as string ?? "");
-                    setEditEmployerName((selectedCustomer as Record<string, unknown>).employerName as string ?? "");
-                    setEditJobTitle((selectedCustomer as Record<string, unknown>).jobTitle as string ?? "");
+                    setEditCollege((selectedCustomer as any).college ?? "");
+                    setEditStudyLevel((selectedCustomer as any).studyLevel ?? "");
+                    setEditSpecialization((selectedCustomer as any).specialization ?? "");
+                    setEditEmployerName((selectedCustomer as any).employerName ?? "");
+                    setEditJobTitle((selectedCustomer as any).jobTitle ?? "");
                     setShowEditModal(true);
                   }}
                 >

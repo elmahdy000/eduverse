@@ -3,6 +3,7 @@ export declare class CreateProductDto {
     category: string;
     price: number;
     description?: string;
+    imageUrl?: string;
     availability?: boolean;
 }
 export declare class UpdateProductDto {
@@ -10,6 +11,7 @@ export declare class UpdateProductDto {
     category?: string;
     price?: number;
     description?: string;
+    imageUrl?: string;
     availability?: boolean;
     active?: boolean;
 }

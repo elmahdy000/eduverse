@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -117,7 +117,7 @@ export default function OperationsDashboardPage() {
     <div className="space-y-6">
       <SectionTitle
         title="لوحة مدير العمليات"
-        subtitle="متابعة سريعة للحركة اليومية: الغرف، الجلسات، الحجوزات، وطلبات البار."
+        subtitle="متابعة سريعة للحركة اليومية: الغرف، الوقت، الحجوزات، وطلبات البار."
         icon={<Activity size={20} />}
         action={
           <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export default function OperationsDashboardPage() {
       )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="جلسات نشطة" value={data.activeSessions.length} tone="info" icon={<Users size={18} />} sub="حاليًا داخل المكان" />
+        <StatCard label="أوقات نشطة" value={data.activeSessions.length} tone="info" icon={<Users size={18} />} sub="حاليًا داخل المكان" />
         <StatCard label="حجوزات 24 ساعة" value={data.upcomingBookings.length} icon={<BookOpen size={18} />} />
         <StatCard label="طلبات بار معلقة" value={data.pendingBarOrders.length} tone={data.pendingBarOrders.length > 5 ? "warn" : "default"} icon={<Coffee size={18} />} />
         <StatCard label="غرف متاحة" value={`${data.roomStats?.available ?? 0} / ${data.roomStats?.total ?? 0}`} icon={<DoorOpen size={18} />} tone={data.roomStats?.available === 0 ? "danger" : "success"} />
@@ -180,8 +180,8 @@ export default function OperationsDashboardPage() {
       <Panel title="إجراءات سريعة" icon={<Zap size={15} />}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/sessions" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-right transition hover:bg-blue-100">
-            <p className="text-sm font-bold text-blue-800">متابعة الجلسات</p>
-            <p className="mt-1 text-xs text-blue-700">فتح/غلق الجلسات النشطة</p>
+            <p className="text-sm font-bold text-blue-800">متابعة الوقت</p>
+            <p className="mt-1 text-xs text-blue-700">بدء/إنهاء الوقت للعملاء</p>
           </Link>
           <Link href="/bookings" className="rounded-xl border border-violet-200 bg-violet-50 p-3 text-right transition hover:bg-violet-100">
             <p className="text-sm font-bold text-violet-800">إدارة الحجوزات</p>
@@ -231,7 +231,7 @@ export default function OperationsDashboardPage() {
                       </p>
                       <div className="mt-1">
                         <Badge tone={statusBadgeTone(isOcc ? "occupied" : room.status)}>
-                          {isOcc ? `مشغولة - ${room.activeSessions} جلسة` : translateStatus(room.status)}
+                          {isOcc ? `مشغولة - ${room.activeSessions} وقت` : translateStatus(room.status)}
                         </Badge>
                       </div>
                     </div>
@@ -243,12 +243,12 @@ export default function OperationsDashboardPage() {
         </Panel>
 
         <Panel
-          title="الجلسات النشطة"
+          title="الوقت النشط"
           icon={<Clock size={15} />}
           action={<span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">{data.activeSessions.length}</span>}
         >
           {data.activeSessions.length === 0 ? (
-            <EmptyState icon={<Users size={32} />} title="لا توجد جلسات نشطة" />
+            <EmptyState icon={<Users size={32} />} title="لا يوجد عملاء حالياً" />
           ) : (
             <div className="space-y-2 max-h-72 overflow-y-auto">
               {data.activeSessions.map((s) => {

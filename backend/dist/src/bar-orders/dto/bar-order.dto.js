@@ -40,6 +40,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateBarOrderDto.prototype, "sessionId", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateBarOrderDto.prototype, "customerId", void 0);

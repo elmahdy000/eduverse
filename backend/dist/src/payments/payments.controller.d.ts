@@ -7,8 +7,8 @@ export declare class PaymentsController {
         success: boolean;
         data: {
             id: string;
-            createdAt: Date;
             notes: string | null;
+            createdAt: Date;
             invoiceId: string;
             paymentMethod: string;
             amount: import("@prisma/client/runtime/library").Decimal;
@@ -23,9 +23,9 @@ export declare class PaymentsController {
             data: ({
                 invoice: {
                     id: string;
+                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
-                    notes: string | null;
                     createdByUserId: string;
                     customerId: string;
                     totalAmount: import("@prisma/client/runtime/library").Decimal;
@@ -48,8 +48,8 @@ export declare class PaymentsController {
                 };
             } & {
                 id: string;
-                createdAt: Date;
                 notes: string | null;
+                createdAt: Date;
                 invoiceId: string;
                 paymentMethod: string;
                 amount: import("@prisma/client/runtime/library").Decimal;
@@ -67,8 +67,8 @@ export declare class PaymentsController {
         success: boolean;
         data: {
             id: string;
-            createdAt: Date;
             notes: string | null;
+            createdAt: Date;
             invoiceId: string;
             paymentMethod: string;
             amount: import("@prisma/client/runtime/library").Decimal;

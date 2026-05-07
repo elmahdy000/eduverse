@@ -7,13 +7,15 @@ export declare class ProductsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         };
         timestamp: string;
@@ -22,13 +24,15 @@ export declare class ProductsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         };
         timestamp: string;
@@ -38,13 +42,15 @@ export declare class ProductsController {
         data: {
             data: {
                 id: string;
-                name: string;
-                description: string | null;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                description: string | null;
                 active: boolean;
+                costPrice: import("@prisma/client/runtime/library").Decimal;
                 category: string;
                 price: import("@prisma/client/runtime/library").Decimal;
+                imageUrl: string | null;
                 availability: boolean;
             }[];
             total: number;
@@ -58,13 +64,15 @@ export declare class ProductsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         };
         timestamp: string;
@@ -73,13 +81,15 @@ export declare class ProductsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         };
         message: string;
@@ -89,13 +99,15 @@ export declare class ProductsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         };
         message: string;

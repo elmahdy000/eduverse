@@ -6,8 +6,8 @@ export declare class PaymentsService {
     private getPaymentStatus;
     recordPayment(recordPaymentDto: RecordPaymentDto, userId: string): Promise<{
         id: string;
-        createdAt: Date;
         notes: string | null;
+        createdAt: Date;
         invoiceId: string;
         paymentMethod: string;
         amount: import("@prisma/client/runtime/library").Decimal;
@@ -23,9 +23,9 @@ export declare class PaymentsService {
         data: ({
             invoice: {
                 id: string;
+                notes: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                notes: string | null;
                 createdByUserId: string;
                 customerId: string;
                 totalAmount: import("@prisma/client/runtime/library").Decimal;
@@ -48,8 +48,8 @@ export declare class PaymentsService {
             };
         } & {
             id: string;
-            createdAt: Date;
             notes: string | null;
+            createdAt: Date;
             invoiceId: string;
             paymentMethod: string;
             amount: import("@prisma/client/runtime/library").Decimal;
@@ -63,8 +63,8 @@ export declare class PaymentsService {
     }>;
     refundPayment(paymentId: string, refundDto: RefundPaymentDto, userId: string): Promise<{
         id: string;
-        createdAt: Date;
         notes: string | null;
+        createdAt: Date;
         invoiceId: string;
         paymentMethod: string;
         amount: import("@prisma/client/runtime/library").Decimal;

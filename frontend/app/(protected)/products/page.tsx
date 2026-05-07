@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,13 +12,20 @@ import { Alert, Btn, EmptyState, FormField, Panel, SectionTitle, StatCard } from
 
 const CATEGORIES = [
   { value: "", label: "الكل" },
-  { value: "coffee",   label: "☕ قهوة" },
-  { value: "tea",      label: " شاي" },
-  { value: "juice",    label: "🧃 عصير" },
-  { value: "snack",    label: " سناك" },
-  { value: "dessert",  label: " حلويات" },
-  { value: "sandwich", label: "🥪 ساندويتش" },
-  { value: "other",    label: "📦 أخرى" },
+  { value: "coffee", label: "☕ قهوة" },
+  { value: "tea", label: "🍵 شاي" },
+  { value: "frappe", label: "🥤 فرابيه" },
+  { value: "cold-coffee", label: "❄️ قهوة مثلجة" },
+  { value: "hot-drinks", label: "🔥 مشروبات ساخنة" },
+  { value: "frappuccino", label: "🍦 فرابوتشينو" },
+  { value: "milk-shake", label: "🥛 ميلك شيك" },
+  { value: "smoothies", label: "🍓 سموذي" },
+  { value: "yougert", label: "🥣 زبادي" },
+  { value: "cans", label: "🥫 كانز" },
+  { value: "mocktails", label: "🍹 موكتيل" },
+  { value: "indomy", label: "🍜 اندومي" },
+  { value: "boba-drinks", label: "🧋 بوبا" },
+  { value: "additions", label: "➕ إضافات" },
 ];
 
 function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
@@ -30,7 +37,18 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
 }) {
   return (
     <div className={`flex flex-col rounded-2xl border bg-white shadow-sm transition ${!product.active ? "opacity-60" : ""} ${!product.availability ? "border-amber-200" : "border-slate-200"}`}>
-      <div className="flex items-start justify-between p-4">
+      <div className="p-2">
+        <div className="aspect-video w-full overflow-hidden rounded-xl bg-slate-50">
+          {product.imageUrl ? (
+            <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-slate-300">
+              <Package size={24} />
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex items-start justify-between p-4 pt-0">
         <div className="flex flex-col gap-1 text-right">
           <p className="font-bold text-slate-900">{product.name}</p>
           <p className="text-xs text-slate-500">{translateProductCategory(product.category)}</p>
@@ -78,6 +96,7 @@ export default function ProductsPage() {
   const [category, setCategory] = useState("other");
   const [price, setPrice] = useState("0");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [showForm, setShowForm] = useState(false);
 
   // Edit form
@@ -86,6 +105,7 @@ export default function ProductsPage() {
   const [editCategory, setEditCategory] = useState("other");
   const [editPrice, setEditPrice] = useState("0");
   const [editDescription, setEditDescription] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
   const [editAvailability, setEditAvailability] = useState(true);
 
   const productsQuery = useQuery({
@@ -104,9 +124,15 @@ export default function ProductsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => api.post("/products", { name, category, price: Number(price), description: description || undefined }),
+    mutationFn: () => api.post("/products", { 
+      name, 
+      category, 
+      price: Number(price), 
+      description: description || undefined,
+      imageUrl: imageUrl || undefined,
+    }),
     onSuccess: () => {
-      setName(""); setCategory("other"); setPrice("0"); setDescription(""); setShowForm(false);
+      setName(""); setCategory("other"); setPrice("0"); setDescription(""); setImageUrl(""); setShowForm(false);
       setMessage({ text: "المنتج اتضا بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -124,6 +150,7 @@ export default function ProductsPage() {
         category: editCategory,
         price: Number(editPrice),
         description: editDescription || undefined,
+        imageUrl: editImageUrl || undefined,
         availability: editAvailability,
       });
     },
@@ -163,6 +190,7 @@ export default function ProductsPage() {
     setEditCategory(product.category);
     setEditPrice(String(product.price));
     setEditDescription(product.description ?? "");
+    setEditImageUrl(product.imageUrl ?? "");
     setEditAvailability(product.availability);
   }
 
@@ -213,6 +241,10 @@ export default function ProductsPage() {
                 <input value={description} onChange={e => setDescription(e.target.value)} placeholder="اختياري"
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
+              <FormField label="رابط الصورة">
+                <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..."
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
+              </FormField>
             </div>
             <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضاة..." icon={<Plus size={14} />}>
               ضي المنتج
@@ -250,10 +282,16 @@ export default function ProductsPage() {
                 </select>
               </FormField>
             </div>
-            <FormField label="الوص">
-              <input value={editDescription} onChange={e => setEditDescription(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
-            </FormField>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="الوص">
+                <input value={editDescription} onChange={e => setEditDescription(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
+              </FormField>
+              <FormField label="رابط الصورة">
+                <input value={editImageUrl} onChange={e => setEditImageUrl(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
+              </FormField>
+            </div>
             <div className="flex gap-2">
               <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحظ..." icon={<Pencil size={14} />}>احظ التعديل</Btn>
               <Btn type="button" variant="ghost" onClick={() => setEditingProduct(null)}>إلغاء</Btn>

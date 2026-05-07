@@ -43,7 +43,7 @@ let InvoicesService = class InvoicesService {
                 customer: true,
                 barOrders: {
                     where: {
-                        status: { in: ['ready', 'delivered'] },
+                        status: { not: 'cancelled' },
                     },
                     include: {
                         items: {

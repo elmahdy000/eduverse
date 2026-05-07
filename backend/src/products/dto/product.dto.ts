@@ -11,7 +11,7 @@ export class CreateProductDto {
   @IsString()
   name: string;
 
-  @IsEnum(['coffee', 'tea', 'juice', 'snack', 'dessert', 'sandwich', 'other'])
+  @IsString()
   category: string;
 
   @IsNumber()
@@ -21,6 +21,10 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 
   @IsOptional()
   @IsBoolean()
@@ -33,7 +37,7 @@ export class UpdateProductDto {
   name?: string;
 
   @IsOptional()
-  @IsEnum(['coffee', 'tea', 'juice', 'snack', 'dessert', 'sandwich', 'other'])
+  @IsString()
   category?: string;
 
   @IsOptional()
@@ -44,6 +48,10 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 
   @IsOptional()
   @IsBoolean()

@@ -91,6 +91,7 @@ async function main() {
     // Payments
     { module: 'payments', action: 'read', description: 'View payments' },
     { module: 'payments', action: 'record', description: 'Record payment' },
+    { module: 'payments', action: 'refund', description: 'Refund payment' },
 
     // Audit Logs
     { module: 'audit_logs', action: 'read', description: 'View audit logs' },
@@ -169,6 +170,7 @@ async function main() {
         'rooms',
         'bookings',
         'bar_orders',
+        'products',
         'audit_logs',
         'dashboards',
       ].includes(p.module),
@@ -200,12 +202,13 @@ async function main() {
         [
           'customers',
           'sessions',
-          'rooms',
           'bookings',
           'bar_orders',
           'invoices',
           'payments',
         ].includes(p.module) ||
+        (p.module === 'rooms' && p.action === 'read') ||
+        (p.module === 'products' && p.action === 'read') ||
         (p.module === 'dashboards' && p.action === 'view_reception'),
     )
     .map((perm) => ({
@@ -347,9 +350,11 @@ async function main() {
     { name: 'Croissant', category: 'snack', price: 25 },
     { name: 'Cake', category: 'dessert', price: 35 },
     { name: 'Cookie', category: 'snack', price: 15 },
+    { name: 'مياه معدنية صغيرة', category: 'water', price: 10, costPrice: 5 },
+    { name: 'مياه معدنية كبيرة', category: 'water', price: 15, costPrice: 8 },
   ];
 
-  for (const prod of sampleProducts) {
+  for (const prod of sampleProducts as any[]) {
     // Check if product exists by name
     const existing = await prisma.product.findFirst({
       where: { name: prod.name },
@@ -360,6 +365,7 @@ async function main() {
           name: prod.name,
           category: prod.category,
           price: prod.price,
+          costPrice: prod.costPrice || 0,
           description: `${prod.name} - Quality product`,
           availability: true,
           active: true,
@@ -371,6 +377,8 @@ async function main() {
 
   // Create Egyptian customers
   const egyptianCustomers = [
+    { fullName: 'إبراهيم المالك (خصم)', phoneNumber: '01000000001', customerType: 'owner_discount' },
+    { fullName: 'أحمد الموظف (خصم)', phoneNumber: '01000000002', customerType: 'staff' },
     { fullName: 'أحمد محمد علي', phoneNumber: '01012345678', customerType: 'student', college: 'جامعة القاهرة', studyLevel: 'السنة الرابعة' },
     { fullName: 'محمد أحمد حسن', phoneNumber: '01123456789', customerType: 'student', college: 'جامعة عين شمس', studyLevel: 'السنة الثالثة' },
     { fullName: 'سارة أحمد محمود', phoneNumber: '01234567890', customerType: 'student', college: 'جامعة الإسكندرية', studyLevel: 'السنة الثانية' },

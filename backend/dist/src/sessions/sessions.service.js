@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SessionsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../common/prisma/prisma.service");
+const invoices_service_1 = require("../invoices/invoices.service");
 let SessionsService = class SessionsService {
     prisma;
-    constructor(prisma) {
+    invoicesService;
+    constructor(prisma, invoicesService) {
         this.prisma = prisma;
+        this.invoicesService = invoicesService;
     }
     async generateUniqueGuestCode() {
         let code = '';
@@ -31,38 +34,41 @@ let SessionsService = class SessionsService {
         return code;
     }
     async openSession(createSessionDto, userId) {
-        const existingSession = await this.prisma.session.findFirst({
-            where: {
-                customerId: createSessionDto.customerId,
-                status: 'active',
-            },
-        });
-        if (existingSession) {
-            throw new Error('Customer already has an active session');
-        }
-        const customer = await this.prisma.customer.findUnique({
-            where: { id: createSessionDto.customerId },
-        });
-        if (!customer) {
-            throw new Error('Customer not found');
-        }
-        const guestCode = await this.generateUniqueGuestCode();
-        const session = await this.prisma.session.create({
-            data: {
-                ...createSessionDto,
-                startTime: new Date(),
-                openedByUserId: userId,
-                status: 'active',
-                guestCode,
-            },
-            include: {
-                customer: true,
-                room: true,
-            },
-        });
-        await this.prisma.customer.update({
-            where: { id: createSessionDto.customerId },
-            data: { lastVisitAt: new Date() },
+        const session = await this.prisma.$transaction(async (tx) => {
+            const existingSession = await tx.session.findFirst({
+                where: {
+                    customerId: createSessionDto.customerId,
+                    status: 'active',
+                },
+            });
+            if (existingSession) {
+                throw new Error('Customer already has an active session');
+            }
+            const customer = await tx.customer.findUnique({
+                where: { id: createSessionDto.customerId },
+            });
+            if (!customer) {
+                throw new Error('Customer not found');
+            }
+            const guestCode = await this.generateUniqueGuestCode();
+            const newSession = await tx.session.create({
+                data: {
+                    ...createSessionDto,
+                    startTime: new Date(),
+                    openedByUserId: userId,
+                    status: 'active',
+                    guestCode,
+                },
+                include: {
+                    customer: true,
+                    room: true,
+                },
+            });
+            await tx.customer.update({
+                where: { id: createSessionDto.customerId },
+                data: { lastVisitAt: new Date() },
+            });
+            return newSession;
         });
         return session;
     }
@@ -106,6 +112,15 @@ let SessionsService = class SessionsService {
                 barOrders: true,
             },
         });
+        try {
+            await this.invoicesService.generateInvoice({
+                sessionId: closedSession.id,
+                notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
+            }, userId);
+        }
+        catch (invoiceError) {
+            console.error('Failed to auto-generate invoice:', invoiceError.message);
+        }
         return closedSession;
     }
     async getSession(sessionId) {
@@ -171,6 +186,7 @@ let SessionsService = class SessionsService {
 exports.SessionsService = SessionsService;
 exports.SessionsService = SessionsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        invoices_service_1.InvoicesService])
 ], SessionsService);
 //# sourceMappingURL=sessions.service.js.map

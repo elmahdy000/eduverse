@@ -1,17 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  Request,
-  BadRequestException,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, BadRequestException, HttpCode, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
@@ -37,6 +24,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -52,6 +40,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -67,6 +56,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -83,6 +73,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -106,6 +97,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -125,6 +117,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -138,7 +131,7 @@ export class UsersController {
     @Request() req: any,
   ) {
     // Users can only change their own password, except owner
-    if (req.user.userId !== userId && req.user.roleId !== 'owner') {
+    if (req.user.userId !== userId && req.user.roleName !== 'Owner') {
       throw new BadRequestException('You can only change your own password');
     }
 
@@ -153,6 +146,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -171,6 +165,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -189,6 +184,7 @@ export class UsersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }

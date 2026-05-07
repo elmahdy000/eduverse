@@ -9,31 +9,31 @@ export declare class BookingsService {
         bookingConflict: ({
             customer: {
                 id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
                 fullName: string;
+                phoneNumber: string;
                 phoneNumberSecondary: string | null;
+                email: string | null;
                 address: string | null;
                 customerType: string;
+                college: string | null;
                 studyLevel: string | null;
                 specialization: string | null;
+                employerName: string | null;
                 jobTitle: string | null;
                 notes: string | null;
+                status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string;
             };
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
             startTime: Date;
             endTime: Date;
@@ -47,31 +47,31 @@ export declare class BookingsService {
         activeSessionConflict: ({
             customer: {
                 id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
                 fullName: string;
+                phoneNumber: string;
                 phoneNumberSecondary: string | null;
+                email: string | null;
                 address: string | null;
                 customerType: string;
+                college: string | null;
                 studyLevel: string | null;
                 specialization: string | null;
+                employerName: string | null;
                 jobTitle: string | null;
                 notes: string | null;
+                status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string;
             };
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             sessionType: string;
             startTime: Date;
             endTime: Date | null;
@@ -87,32 +87,32 @@ export declare class BookingsService {
     createBooking(createBookingDto: CreateBookingDto, userId: string): Promise<{
         customer: {
             id: string;
-            createdAt: Date;
-            email: string | null;
-            phoneNumber: string;
-            status: string;
-            updatedAt: Date;
-            employerName: string | null;
-            college: string | null;
             fullName: string;
+            phoneNumber: string;
             phoneNumberSecondary: string | null;
+            email: string | null;
             address: string | null;
             customerType: string;
+            college: string | null;
             studyLevel: string | null;
             specialization: string | null;
+            employerName: string | null;
             jobTitle: string | null;
             notes: string | null;
+            status: string;
             firstVisitAt: Date | null;
             lastVisitAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
         };
         room: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -121,10 +121,10 @@ export declare class BookingsService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         createdByUserId: string;
         startTime: Date;
         endTime: Date;
@@ -138,23 +138,23 @@ export declare class BookingsService {
     getBooking(bookingId: string): Promise<{
         customer: {
             id: string;
-            createdAt: Date;
-            email: string | null;
-            phoneNumber: string;
-            status: string;
-            updatedAt: Date;
-            employerName: string | null;
-            college: string | null;
             fullName: string;
+            phoneNumber: string;
             phoneNumberSecondary: string | null;
+            email: string | null;
             address: string | null;
             customerType: string;
+            college: string | null;
             studyLevel: string | null;
             specialization: string | null;
+            employerName: string | null;
             jobTitle: string | null;
             notes: string | null;
+            status: string;
             firstVisitAt: Date | null;
             lastVisitAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
         };
         createdByUser: {
@@ -165,11 +165,11 @@ export declare class BookingsService {
         };
         room: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -178,10 +178,10 @@ export declare class BookingsService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         createdByUserId: string;
         startTime: Date;
         endTime: Date;
@@ -202,32 +202,32 @@ export declare class BookingsService {
         data: ({
             customer: {
                 id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
                 fullName: string;
+                phoneNumber: string;
                 phoneNumberSecondary: string | null;
+                email: string | null;
                 address: string | null;
                 customerType: string;
+                college: string | null;
                 studyLevel: string | null;
                 specialization: string | null;
+                employerName: string | null;
                 jobTitle: string | null;
                 notes: string | null;
+                status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string;
             };
             room: {
                 id: string;
-                name: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -236,10 +236,10 @@ export declare class BookingsService {
             };
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
             startTime: Date;
             endTime: Date;
@@ -258,32 +258,32 @@ export declare class BookingsService {
     updateBooking(bookingId: string, updateBookingDto: UpdateBookingDto): Promise<{
         customer: {
             id: string;
-            createdAt: Date;
-            email: string | null;
-            phoneNumber: string;
-            status: string;
-            updatedAt: Date;
-            employerName: string | null;
-            college: string | null;
             fullName: string;
+            phoneNumber: string;
             phoneNumberSecondary: string | null;
+            email: string | null;
             address: string | null;
             customerType: string;
+            college: string | null;
             studyLevel: string | null;
             specialization: string | null;
+            employerName: string | null;
             jobTitle: string | null;
             notes: string | null;
+            status: string;
             firstVisitAt: Date | null;
             lastVisitAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
         };
         room: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -292,10 +292,10 @@ export declare class BookingsService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         createdByUserId: string;
         startTime: Date;
         endTime: Date;
@@ -309,32 +309,32 @@ export declare class BookingsService {
     cancelBooking(bookingId: string, reason?: string): Promise<{
         customer: {
             id: string;
-            createdAt: Date;
-            email: string | null;
-            phoneNumber: string;
-            status: string;
-            updatedAt: Date;
-            employerName: string | null;
-            college: string | null;
             fullName: string;
+            phoneNumber: string;
             phoneNumberSecondary: string | null;
+            email: string | null;
             address: string | null;
             customerType: string;
+            college: string | null;
             studyLevel: string | null;
             specialization: string | null;
+            employerName: string | null;
             jobTitle: string | null;
             notes: string | null;
+            status: string;
             firstVisitAt: Date | null;
             lastVisitAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
         };
         room: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -343,10 +343,10 @@ export declare class BookingsService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         createdByUserId: string;
         startTime: Date;
         endTime: Date;
@@ -360,32 +360,32 @@ export declare class BookingsService {
     completeBooking(bookingId: string): Promise<{
         customer: {
             id: string;
-            createdAt: Date;
-            email: string | null;
-            phoneNumber: string;
-            status: string;
-            updatedAt: Date;
-            employerName: string | null;
-            college: string | null;
             fullName: string;
+            phoneNumber: string;
             phoneNumberSecondary: string | null;
+            email: string | null;
             address: string | null;
             customerType: string;
+            college: string | null;
             studyLevel: string | null;
             specialization: string | null;
+            employerName: string | null;
             jobTitle: string | null;
             notes: string | null;
+            status: string;
             firstVisitAt: Date | null;
             lastVisitAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             createdByUserId: string;
         };
         room: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -394,10 +394,10 @@ export declare class BookingsService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         createdByUserId: string;
         startTime: Date;
         endTime: Date;

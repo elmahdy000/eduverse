@@ -2,9 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 
+import { InvoicesService } from '../invoices/invoices.service';
+
 @Injectable()
 export class SessionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private invoicesService: InvoicesService,
+  ) {}
 
   private async generateUniqueGuestCode(): Promise<string> {
     let code = '';
@@ -21,48 +26,51 @@ export class SessionsService {
 
 
   async openSession(createSessionDto: CreateSessionDto, userId: string) {
-    // Check if customer already has active session
-    const existingSession = await this.prisma.session.findFirst({
-      where: {
-        customerId: createSessionDto.customerId,
-        status: 'active',
-      },
-    });
+    const session = await this.prisma.$transaction(async (tx) => {
+      // Check if customer already has active session
+      const existingSession = await tx.session.findFirst({
+        where: {
+          customerId: createSessionDto.customerId,
+          status: 'active',
+        },
+      });
 
-    if (existingSession) {
-      throw new Error('Customer already has an active session');
-    }
+      if (existingSession) {
+        throw new Error('Customer already has an active session');
+      }
 
-    // Check customer exists
-    const customer = await this.prisma.customer.findUnique({
-      where: { id: createSessionDto.customerId },
-    });
+      // Check customer exists
+      const customer = await tx.customer.findUnique({
+        where: { id: createSessionDto.customerId },
+      });
 
-    if (!customer) {
-      throw new Error('Customer not found');
-    }
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
 
-    const guestCode = await this.generateUniqueGuestCode();
+      const guestCode = await this.generateUniqueGuestCode();
 
-    const session = await this.prisma.session.create({
-      data: {
-        ...createSessionDto,
-        startTime: new Date(),
-        openedByUserId: userId,
-        status: 'active',
-        guestCode,
-      },
-      include: {
-        customer: true,
-        room: true,
-      },
-    });
+      const newSession = await tx.session.create({
+        data: {
+          ...createSessionDto,
+          startTime: new Date(),
+          openedByUserId: userId,
+          status: 'active',
+          guestCode,
+        },
+        include: {
+          customer: true,
+          room: true,
+        },
+      });
 
+      // Update customer's last visit
+      await tx.customer.update({
+        where: { id: createSessionDto.customerId },
+        data: { lastVisitAt: new Date() },
+      });
 
-    // Update customer's last visit
-    await this.prisma.customer.update({
-      where: { id: createSessionDto.customerId },
-      data: { lastVisitAt: new Date() },
+      return newSession;
     });
 
     return session;
@@ -118,6 +126,20 @@ export class SessionsService {
       },
     });
 
+    // Auto-generate invoice
+    try {
+      await this.invoicesService.generateInvoice(
+        {
+          sessionId: closedSession.id,
+          notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
+        },
+        userId,
+      );
+    } catch (invoiceError) {
+      console.error('Failed to auto-generate invoice:', invoiceError.message);
+      // We don't throw here to avoid failing the session close if only invoice fails,
+      // but in a real app we might want to use a transaction for both.
+    }
 
     return closedSession;
   }

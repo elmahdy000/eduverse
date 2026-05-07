@@ -24,8 +24,9 @@ export class CreateBarOrderDto {
   @IsUUID()
   sessionId?: string;
 
+  @IsOptional()
   @IsUUID()
-  customerId: string;
+  customerId?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

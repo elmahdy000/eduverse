@@ -94,7 +94,7 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint }: InvoiceRecei
                   <td className="px-4 py-4 font-medium text-slate-900">{item.description || "خدمة / منتج"}</td>
                   <td className="px-4 py-4 text-center">
                     <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600 font-bold">
-                      {item.itemType === "session" ? "جلسة" : item.itemType === "bar" ? "بار" : "أخرى"}
+                      {item.itemType === "session" ? "وقت" : item.itemType === "bar" ? "بار" : "أخرى"}
                     </span>
                   </td>
                   <td className="px-4 py-4 text-left font-mono font-bold text-slate-900">{money(item.total)}</td>

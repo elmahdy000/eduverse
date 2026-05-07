@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Cairo, Source_Code_Pro } from "next/font/google";
+import { Almarai, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../components/providers";
 
-const sans = Cairo({
+const sans = Almarai({
   variable: "--font-sans",
-  subsets: ["arabic", "latin"],
+  subsets: ["arabic"],
+  weight: ["300", "400", "700", "800"],
+  display: "swap",
 });
 
 const mono = Source_Code_Pro({

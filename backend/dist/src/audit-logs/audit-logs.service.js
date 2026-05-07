@@ -36,7 +36,15 @@ let AuditLogsService = class AuditLogsService {
         const safePage = Math.max(page, 1);
         const skip = (safePage - 1) * safeLimit;
         const where = {};
+        if (filters?.userRole === 'Operations Manager') {
+            where.entityType = { notIn: ['Invoice', 'Payment', 'Expense'] };
+        }
         if (filters?.entityType) {
+            if (where.entityType) {
+                if (['Invoice', 'Payment', 'Expense'].includes(filters.entityType)) {
+                    throw new Error('You do not have permission to view financial logs');
+                }
+            }
             where.entityType = filters.entityType;
         }
         if (filters?.entityId) {

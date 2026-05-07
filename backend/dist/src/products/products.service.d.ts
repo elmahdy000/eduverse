@@ -5,24 +5,28 @@ export declare class ProductsService {
     constructor(prisma: PrismaService);
     createProduct(createProductDto: CreateProductDto): Promise<{
         id: string;
-        name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        description: string | null;
         active: boolean;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        imageUrl: string | null;
         availability: boolean;
     }>;
     getProduct(productId: string): Promise<{
         id: string;
-        name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        description: string | null;
         active: boolean;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        imageUrl: string | null;
         availability: boolean;
     }>;
     listProducts(page?: number, limit?: number, filters?: {
@@ -33,13 +37,15 @@ export declare class ProductsService {
     }): Promise<{
         data: {
             id: string;
-            name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            description: string | null;
             active: boolean;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            imageUrl: string | null;
             availability: boolean;
         }[];
         total: number;
@@ -49,35 +55,41 @@ export declare class ProductsService {
     }>;
     updateProduct(productId: string, updateProductDto: UpdateProductDto): Promise<{
         id: string;
-        name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        description: string | null;
         active: boolean;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        imageUrl: string | null;
         availability: boolean;
     }>;
     deactivateProduct(productId: string): Promise<{
         id: string;
-        name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        description: string | null;
         active: boolean;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        imageUrl: string | null;
         availability: boolean;
     }>;
     reactivateProduct(productId: string): Promise<{
         id: string;
-        name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        description: string | null;
         active: boolean;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        imageUrl: string | null;
         availability: boolean;
     }>;
 }

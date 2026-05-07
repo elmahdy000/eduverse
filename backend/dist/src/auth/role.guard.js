@@ -61,7 +61,7 @@ let RoleGuard = class RoleGuard {
         if (lastSegment === 'close')
             return 'close';
         if (lastSegment === 'refund')
-            return moduleName === 'payments' ? 'record' : 'refund';
+            return 'refund';
         if (method === 'GET') {
             return 'read';
         }

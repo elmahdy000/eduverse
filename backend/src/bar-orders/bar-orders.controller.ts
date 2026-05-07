@@ -10,6 +10,7 @@ import {
   Query,
   Request,
   UseGuards,
+  HttpException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -67,6 +68,7 @@ export class BarOrdersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -82,6 +84,7 @@ export class BarOrdersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -111,6 +114,7 @@ export class BarOrdersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -138,6 +142,7 @@ export class BarOrdersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -162,6 +167,7 @@ export class BarOrdersController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }

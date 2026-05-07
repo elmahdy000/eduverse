@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Re
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto, CreateVendorDto } from './dto/expense.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { RoleGuard } from '../auth/role.guard';
 
 @Controller('expenses')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 

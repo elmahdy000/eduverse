@@ -31,16 +31,20 @@ let BarOrdersService = class BarOrdersService {
             });
             if (!session)
                 throw new Error('Session not found');
+            if (customerId && customerId !== session.customerId) {
+                throw new Error('Selected customer does not match the selected session');
+            }
             if (!customerId)
                 customerId = session.customerId;
         }
-        if (customerId) {
-            const customer = await this.prisma.customer.findUnique({
-                where: { id: customerId },
-            });
-            if (!customer)
-                throw new Error('Customer not found');
+        if (!customerId) {
+            throw new Error('Unable to resolve customer for this order');
         }
+        const customer = await this.prisma.customer.findUnique({
+            where: { id: customerId },
+        });
+        if (!customer)
+            throw new Error('Customer not found');
         const productIds = createBarOrderDto.items.map((item) => item.productId);
         const products = await this.prisma.product.findMany({
             where: { id: { in: productIds } },
@@ -56,9 +60,33 @@ let BarOrdersService = class BarOrdersService {
             if (!product.active || !product.availability) {
                 throw new Error(`Product "${product.name}" is not available`);
             }
-            const unitPrice = Number(product.price);
+            let unitPrice = Number(product.price);
+            const isWater = product.category?.toLowerCase().includes('water') ||
+                product.name?.toLowerCase().includes('مياه') ||
+                product.name?.toLowerCase().includes('مياة');
+            if (customer.customerType === 'owner_discount') {
+                if (isWater) {
+                    unitPrice = Number(product.costPrice);
+                }
+                else {
+                    unitPrice = Number(product.price) * 0.3;
+                }
+            }
+            else if (customer.customerType === 'staff') {
+                if (isWater) {
+                    unitPrice = Number(product.costPrice);
+                }
+                else {
+                    unitPrice = Number(product.price) * 0.5;
+                }
+            }
             const subtotal = unitPrice * item.quantity;
-            return { productId: item.productId, quantity: item.quantity, unitPrice, subtotal };
+            return {
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice,
+                subtotal,
+            };
         });
         const totalAmount = itemsToCreate.reduce((sum, item) => sum + item.subtotal, 0);
         const order = await this.prisma.barOrder.create({
@@ -165,36 +193,39 @@ let BarOrdersService = class BarOrdersService {
                 })
                 : null;
             if (!activeSession) {
-                const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
-                const invoice = await this.prisma.invoice.create({
-                    data: {
-                        customerId: order.customerId,
-                        invoiceNumber,
-                        createdByUserId: order.createdByUserId || order.customer.createdByUserId,
-                        totalAmount: Number(order.totalAmount),
-                        amountPaid: 0,
-                        remainingAmount: Number(order.totalAmount),
-                        paymentStatus: 'unpaid',
-                        notes: `طلب بار #${orderId.slice(0, 8)}`,
-                        items: {
-                            create: order.items.map((item) => ({
-                                itemType: 'bar_order',
-                                description: item.product?.name ?? 'منتج بار',
-                                quantity: item.quantity,
-                                unitPrice: Number(item.unitPrice),
-                                total: Number(item.quantity) * Number(item.unitPrice),
-                            })),
+                await this.prisma.$transaction(async (tx) => {
+                    const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
+                    const invoice = await tx.invoice.create({
+                        data: {
+                            customerId: order.customerId,
+                            invoiceNumber,
+                            createdByUserId: order.createdByUserId || order.customer.createdByUserId,
+                            totalAmount: Number(order.totalAmount),
+                            amountPaid: 0,
+                            remainingAmount: Number(order.totalAmount),
+                            paymentStatus: 'unpaid',
+                            notes: `طلب بار #${orderId.slice(0, 8)}`,
+                            items: {
+                                create: order.items.map((item) => ({
+                                    itemType: 'bar_order',
+                                    itemId: orderId,
+                                    description: item.product?.name ?? 'منتج بار',
+                                    quantity: item.quantity,
+                                    unitPrice: Number(item.unitPrice),
+                                    total: Number(item.quantity) * Number(item.unitPrice),
+                                })),
+                            },
                         },
-                    },
-                });
-                try {
-                    await this.prisma.barOrder.update({
-                        where: { id: orderId },
-                        data: { invoiceId: invoice.id },
                     });
-                }
-                catch {
-                }
+                    await tx.barOrder.update({
+                        where: { id: orderId },
+                        data: {
+                            invoiceId: invoice.id,
+                            status: updateStatusDto.status,
+                        },
+                    });
+                });
+                return this.getOrder(orderId);
             }
         }
         const updated = await this.prisma.barOrder.update({

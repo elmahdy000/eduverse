@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -92,8 +92,8 @@ function entityLabel(entityType: string) {
   const map: Record<string, string> = {
     customers: "العملاء",
     customer: "عميل",
-    sessions: "الجلسات",
-    session: "جلسة",
+    sessions: "الأوقات",
+    session: "وقت",
     bookings: "الحجوزات",
     booking: "حجز",
     rooms: "الغرف",

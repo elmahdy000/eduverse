@@ -34,6 +34,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -47,6 +49,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -60,6 +64,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -73,6 +79,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -87,6 +95,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -100,11 +110,13 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
     async changePassword(userId, changePasswordDto, req) {
-        if (req.user.userId !== userId && req.user.roleId !== 'owner') {
+        if (req.user.userId !== userId && req.user.roleName !== 'Owner') {
             throw new common_1.BadRequestException('You can only change your own password');
         }
         try {
@@ -116,6 +128,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -130,6 +144,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -144,6 +160,8 @@ let UsersController = class UsersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }

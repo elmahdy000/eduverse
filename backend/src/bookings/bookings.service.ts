@@ -37,8 +37,23 @@ export class BookingsService {
       where: {
         roomId,
         status: 'active',
+        // Only conflict if the booking starts in the immediate future (e.g., today)
+        // or if there's a real overlap. Since active sessions have no endTime,
+        // we assume they only block the room for the CURRENT time.
         startTime: { lt: endTime },
-        OR: [{ endTime: null }, { endTime: { gt: startTime } }],
+        OR: [
+          { endTime: { gt: startTime } },
+          {
+            AND: [
+              { endTime: null },
+              { startTime: { lt: new Date() } }, // It's currently active
+              { 
+                // If the booking is starting now or in the very near future (e.g. next 30 mins)
+                startTime: { lt: new Date(Date.now() + 30 * 60000) } 
+              }
+            ]
+          }
+        ],
       },
       include: {
         customer: true,

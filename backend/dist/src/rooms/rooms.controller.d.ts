@@ -7,11 +7,11 @@ export declare class RoomsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -25,11 +25,11 @@ export declare class RoomsController {
         data: {
             data: {
                 id: string;
-                name: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -50,11 +50,11 @@ export declare class RoomsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -68,11 +68,11 @@ export declare class RoomsController {
         data: {
             data: {
                 id: string;
-                name: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -90,11 +90,11 @@ export declare class RoomsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -107,11 +107,11 @@ export declare class RoomsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -125,11 +125,11 @@ export declare class RoomsController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];

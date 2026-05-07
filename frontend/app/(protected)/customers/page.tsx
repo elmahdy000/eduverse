@@ -447,7 +447,7 @@ export default function CustomersPage() {
 
               <div className="grid gap-4 lg:grid-cols-3">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-slate-600"><Clock3 size={14} /><p className="text-sm font-semibold">الجلسة الحالية</p></div>
+                  <div className="mb-2 flex items-center gap-2 text-slate-600"><Clock3 size={14} /><p className="text-sm font-semibold">الوقت الحالي</p></div>
                   {activeSessionQuery.isLoading ? <p className="text-sm text-slate-500">جاري التحميل...</p> : activeSessionQuery.data ? (
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between"><Badge tone={statusBadgeTone(activeSessionQuery.data.status)}>{translateStatus(activeSessionQuery.data.status)}</Badge><span className="text-slate-500">الحالة</span></div>
@@ -455,7 +455,7 @@ export default function CustomersPage() {
                       <div className="flex items-center justify-between"><span className="text-xs">{dateTime(activeSessionQuery.data.startTime)}</span><span className="text-slate-500">من</span></div>
                       {activeSessionQuery.data.room?.name && <div className="flex items-center justify-between"><span>{activeSessionQuery.data.room.name}</span><span className="text-slate-500">الغرفة</span></div>}
                     </div>
-                  ) : <EmptyState title="مفيش جلسة نشطة" sub="العميل مش داخل حالياً." />}
+                  ) : <EmptyState title="مفيش وقت نشط" sub="العميل مش داخل حالياً." />}
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 lg:col-span-2">

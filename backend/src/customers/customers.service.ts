@@ -60,7 +60,8 @@ export class CustomersService {
       where.email = { contains: search.email, mode: 'insensitive' };
     }
     if (search?.customerType) {
-      where.customerType = search.customerType;
+      const types = search.customerType.split(",").map((t) => t.trim());
+      where.customerType = types.length > 1 ? { in: types } : types[0];
     }
     if (search?.college) {
       where.college = { contains: search.college, mode: 'insensitive' };

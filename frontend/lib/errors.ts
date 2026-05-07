@@ -5,19 +5,19 @@ export function translateApiError(message?: string | string[]) {
     case "Invalid email or password":
       return "الإيميل أو الباسورد غلط.";
     case "Unauthorized: Invalid or missing JWT token":
-      return "الجلسة خلصت، سجل دخول تاني.";
+      return "الوقت خلص، سجل دخول تاني.";
     case "Insufficient permissions":
       return "مالكش صلاحية تعمل الحركة دي.";
     case "Customer not found":
       return "العميل ده مش موجود.";
     case "Session not found":
-      return "الجلسة دي مش موجودة.";
+      return "الوقت ده مش موجود.";
     case "Customer already has an active session":
-      return "العميل ده عنده جلسة مفتوحة بالفعل.";
+      return "العميل ده عنده وقت مفتوح بالفعل.";
     case "Only active sessions can be closed":
-      return "مينفعش تقفل غير جلسة شغالة.";
+      return "مينفعش تقفل غير وقت شغال.";
     case "Only active sessions can be cancelled":
-      return "مينفعش تلغي غير جلسة شغالة.";
+      return "مينفعش تلغي غير وقت شغال.";
     case "Room is not available for the selected time range":
       return "الغرفة دي مش فاضية في المعاد ده.";
     case "Room not found":

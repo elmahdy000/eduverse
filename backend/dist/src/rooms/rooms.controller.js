@@ -34,6 +34,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -50,6 +52,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -63,6 +67,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -81,6 +87,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -94,6 +102,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -108,6 +118,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -122,6 +134,8 @@ let RoomsController = class RoomsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }

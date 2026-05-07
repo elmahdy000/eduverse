@@ -8,32 +8,32 @@ export declare class SessionsController {
         data: {
             customer: {
                 id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
                 fullName: string;
+                phoneNumber: string;
                 phoneNumberSecondary: string | null;
+                email: string | null;
                 address: string | null;
                 customerType: string;
+                college: string | null;
                 studyLevel: string | null;
                 specialization: string | null;
+                employerName: string | null;
                 jobTitle: string | null;
                 notes: string | null;
+                status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string;
             };
             room: {
                 id: string;
-                name: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -42,10 +42,10 @@ export declare class SessionsController {
             } | null;
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             sessionType: string;
             startTime: Date;
             endTime: Date | null;
@@ -62,46 +62,47 @@ export declare class SessionsController {
     getSession(sessionId: string): Promise<{
         success: boolean;
         data: {
+            customer: {
+                id: string;
+                fullName: string;
+                phoneNumber: string;
+                phoneNumberSecondary: string | null;
+                email: string | null;
+                address: string | null;
+                customerType: string;
+                college: string | null;
+                studyLevel: string | null;
+                specialization: string | null;
+                employerName: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                status: string;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string;
+            };
             barOrders: {
                 id: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string | null;
                 guestCode: string | null;
                 customerId: string;
                 totalAmount: import("@prisma/client/runtime/library").Decimal | null;
                 sessionId: string | null;
+                invoiceId: string | null;
             }[];
-            customer: {
-                id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
-                fullName: string;
-                phoneNumberSecondary: string | null;
-                address: string | null;
-                customerType: string;
-                studyLevel: string | null;
-                specialization: string | null;
-                jobTitle: string | null;
-                notes: string | null;
-                firstVisitAt: Date | null;
-                lastVisitAt: Date | null;
-                createdByUserId: string;
-            };
             room: {
                 id: string;
-                name: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -110,10 +111,10 @@ export declare class SessionsController {
             } | null;
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             sessionType: string;
             startTime: Date;
             endTime: Date | null;
@@ -133,32 +134,32 @@ export declare class SessionsController {
             data: ({
                 customer: {
                     id: string;
-                    createdAt: Date;
-                    email: string | null;
-                    phoneNumber: string;
-                    status: string;
-                    updatedAt: Date;
-                    employerName: string | null;
-                    college: string | null;
                     fullName: string;
+                    phoneNumber: string;
                     phoneNumberSecondary: string | null;
+                    email: string | null;
                     address: string | null;
                     customerType: string;
+                    college: string | null;
                     studyLevel: string | null;
                     specialization: string | null;
+                    employerName: string | null;
                     jobTitle: string | null;
                     notes: string | null;
+                    status: string;
                     firstVisitAt: Date | null;
                     lastVisitAt: Date | null;
+                    createdAt: Date;
+                    updatedAt: Date;
                     createdByUserId: string;
                 };
                 room: {
                     id: string;
-                    name: string;
-                    createdAt: Date;
-                    status: string;
-                    updatedAt: Date;
                     notes: string | null;
+                    status: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    name: string;
                     roomType: string;
                     capacity: number;
                     features: string[];
@@ -167,10 +168,10 @@ export declare class SessionsController {
                 } | null;
             } & {
                 id: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
                 sessionType: string;
                 startTime: Date;
                 endTime: Date | null;
@@ -192,45 +193,46 @@ export declare class SessionsController {
     closeSession(sessionId: string, closeSessionDto: CloseSessionDto, req: any): Promise<{
         success: boolean;
         data: {
+            customer: {
+                id: string;
+                fullName: string;
+                phoneNumber: string;
+                phoneNumberSecondary: string | null;
+                email: string | null;
+                address: string | null;
+                customerType: string;
+                college: string | null;
+                studyLevel: string | null;
+                specialization: string | null;
+                employerName: string | null;
+                jobTitle: string | null;
+                notes: string | null;
+                status: string;
+                firstVisitAt: Date | null;
+                lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string;
+            };
             barOrders: {
                 id: string;
-                createdAt: Date;
-                status: string;
-                updatedAt: Date;
                 notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
                 createdByUserId: string | null;
                 guestCode: string | null;
                 customerId: string;
                 totalAmount: import("@prisma/client/runtime/library").Decimal | null;
                 sessionId: string | null;
+                invoiceId: string | null;
             }[];
-            customer: {
-                id: string;
-                createdAt: Date;
-                email: string | null;
-                phoneNumber: string;
-                status: string;
-                updatedAt: Date;
-                employerName: string | null;
-                college: string | null;
-                fullName: string;
-                phoneNumberSecondary: string | null;
-                address: string | null;
-                customerType: string;
-                studyLevel: string | null;
-                specialization: string | null;
-                jobTitle: string | null;
-                notes: string | null;
-                firstVisitAt: Date | null;
-                lastVisitAt: Date | null;
-                createdByUserId: string;
-            };
         } & {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             sessionType: string;
             startTime: Date;
             endTime: Date | null;
@@ -249,10 +251,10 @@ export declare class SessionsController {
         success: boolean;
         data: {
             id: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
             sessionType: string;
             startTime: Date;
             endTime: Date | null;

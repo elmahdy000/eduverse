@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  Request,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, BadRequestException, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionsService } from './sessions.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
@@ -39,6 +29,7 @@ export class SessionsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -54,6 +45,7 @@ export class SessionsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -72,6 +64,7 @@ export class SessionsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -96,6 +89,7 @@ export class SessionsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -115,6 +109,7 @@ export class SessionsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }

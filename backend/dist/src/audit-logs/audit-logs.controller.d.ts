@@ -25,7 +25,7 @@ export declare class AuditLogsController {
         };
         timestamp: string;
     }>;
-    listAuditLogs(page?: string, limit?: string, entityType?: string, entityId?: string, userId?: string, action?: string, fromDate?: string, toDate?: string): Promise<{
+    listAuditLogs(req: any, page?: string, limit?: string, entityType?: string, entityId?: string, userId?: string, action?: string, fromDate?: string, toDate?: string): Promise<{
         success: boolean;
         data: {
             data: ({

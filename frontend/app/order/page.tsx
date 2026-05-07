@@ -45,6 +45,7 @@ export default function GuestOrderPage() {
   const [guestCode, setGuestCode] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<"menu" | "history">("menu");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -271,31 +272,48 @@ export default function GuestOrderPage() {
   if (!isAuthorized) {
     return (
       <div className="min-h-screen bg-[#020617] overflow-hidden flex items-center justify-center p-6 relative" dir="rtl">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-orange-600/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[120px]" />
         
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md z-10">
           <div className="flex flex-col items-center gap-6 mb-12">
-            <motion.div whileHover={{ rotate: 10 }} className="h-24 w-24 rounded-3xl bg-white text-[#020617] flex items-center justify-center shadow-2xl">
-              <Coffee size={48} strokeWidth={1.5} />
+            <motion.div 
+              whileHover={{ rotate: 10, scale: 1.05 }} 
+              className="h-28 w-28 rounded-[2.5rem] bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center shadow-[0_20px_50px_-15px_rgba(249,115,22,0.5)] border border-orange-400/30"
+            >
+              <Coffee size={56} strokeWidth={1.5} />
             </motion.div>
             <div className="text-center">
-              <h1 className="text-4xl font-black text-white tracking-tighter">EDUVERS</h1>
-              <p className="text-slate-400 font-medium mt-2">نظام طلبات الضيوف الذكي</p>
+              <h1 className="text-5xl font-black text-white tracking-tighter uppercase">Eduverse <span className="text-orange-500">Bar</span></h1>
+              <p className="text-slate-400 font-bold mt-3 text-lg">نظام طلبات الضيوف الذكي</p>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl">
-            <form onSubmit={handleLogin} className="space-y-8">
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-300 block text-center uppercase tracking-widest">أدخل كود الطاولة أو الضيف</label>
-                <input 
-                  type="text" value={guestCode} onChange={e => setGuestCode(e.target.value)}
-                  className="w-full rounded-2xl border-2 border-white/5 bg-white/5 py-5 text-center text-3xl font-black text-white tracking-[0.3em] outline-none transition focus:border-blue-500/50 focus:bg-white/10"
-                  placeholder="0000" required
-                />
+          <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 shadow-2xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <form onSubmit={handleLogin} className="space-y-10 relative z-10">
+              <div className="space-y-5">
+                <label className="text-xs font-black text-slate-400 block text-center uppercase tracking-[0.2em]">أدخل كود الطاولة أو الضيف</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={guestCode} 
+                    onChange={e => setGuestCode(e.target.value)}
+                    className="w-full rounded-[2rem] border-2 border-white/5 bg-white/5 py-6 text-center text-4xl font-black text-white tracking-[0.4em] outline-none transition-all focus:border-orange-500/50 focus:bg-white/10 focus:ring-4 focus:ring-orange-500/10"
+                    placeholder="0000" 
+                    required
+                  />
+                  <div className="absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
+                </div>
               </div>
-              <button type="submit" className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition">دخول</button>
+              <button 
+                type="submit" 
+                className="w-full py-6 bg-orange-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-orange-900/40 hover:bg-orange-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              >
+                دخول القائمة
+                <ChevronRight size={24} className="rotate-180" />
+              </button>
+              <p className="text-center text-[10px] font-bold text-slate-500">بمجرد الدخول، يمكنك تصفح المنيو وطلب مشروباتك مباشرة.</p>
             </form>
           </div>
         </motion.div>
@@ -330,11 +348,38 @@ export default function GuestOrderPage() {
         </div>
         
         {/* Animated Tabs */}
-        <div className="mx-auto max-w-2xl mt-4 relative flex p-1 bg-slate-100 rounded-2xl border border-slate-200/50">
+        <div className="mx-auto max-w-2xl mt-4 relative flex p-1 bg-slate-100/50 rounded-2xl border border-slate-200/50">
           <motion.div className="absolute top-1 bottom-1 bg-white rounded-xl shadow-sm z-0" animate={{ x: activeTab === "menu" ? "0%" : "-100%" }} style={{ width: "calc(50% - 4px)" }} />
-          <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 flex-1 py-2 text-xs font-bold flex items-center justify-center gap-2 transition-colors", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={14} /> القائمة</button>
-          <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 flex-1 py-2 text-xs font-bold flex items-center justify-center gap-2 transition-colors", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={14} /> طلباتي</button>
+          <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 flex-1 py-2.5 text-xs font-black flex items-center justify-center gap-2 transition-colors", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={14} /> القائمة</button>
+          <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 flex-1 py-2.5 text-xs font-black flex items-center justify-center gap-2 transition-colors", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={14} /> طلباتي</button>
         </div>
+
+        {/* Sticky Categories */}
+        {activeTab === "menu" && productsQuery.data && (
+          <div className="mx-auto max-w-2xl mt-4 -mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 pb-2">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={clsx(
+                "whitespace-nowrap px-5 py-2 rounded-xl text-xs font-black transition-all border",
+                selectedCategory === "all" ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+              )}
+            >
+              الكل
+            </button>
+            {Array.from(new Set(productsQuery.data.map(p => p.category))).map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={clsx(
+                  "whitespace-nowrap px-5 py-2 rounded-xl text-xs font-black transition-all border",
+                  selectedCategory === cat ? "bg-orange-600 text-white border-orange-600 shadow-lg shadow-orange-100" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                )}
+              >
+                {translateProductCategory(cat)}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-6">
@@ -459,68 +504,82 @@ export default function GuestOrderPage() {
                 {productsQuery.isLoading ? (
                   <div className="py-20 flex flex-col items-center gap-3"><Spinner size={24} /> <p className="text-[10px] font-bold text-slate-400">جاري التحميل...</p></div>
                 ) : (
-                  <div className="space-y-10">
-                    {Array.from(new Set(productsQuery.data?.map(p => p.category))).map(category => {
+                  <div className="space-y-12">
+                    {Array.from(new Set(productsQuery.data?.map(p => p.category))).filter(c => selectedCategory === "all" || selectedCategory === c).map(category => {
                       const prods = productsQuery.data?.filter(p => p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
                       if (!prods?.length) return null;
                       return (
-                        <div key={category} className="space-y-4">
-                          <div className="flex items-center gap-2 px-1">
-                            <div className="h-8 w-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">{getCategoryIcon(category)}</div>
-                            <h3 className="text-sm font-black text-slate-900">{translateProductCategory(category)}</h3>
+                        <div key={category} className="space-y-5">
+                          <div className="flex items-center gap-3 px-1">
+                            <div className="h-10 w-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center shadow-sm border border-orange-100">{getCategoryIcon(category)}</div>
+                            <div>
+                              <h3 className="text-base font-black text-slate-900 leading-none">{translateProductCategory(category)}</h3>
+                              <p className="text-[10px] font-bold text-slate-400 mt-1">{prods.length} أصناف متوفرة</p>
+                            </div>
                             <div className="h-px flex-1 bg-gradient-to-l from-slate-200 to-transparent ml-4" />
                           </div>
-                          <div className="grid grid-cols-1 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {prods.map(product => (
-                              <div key={product.id} className="group bg-white rounded-3xl border border-slate-100 p-3 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300">
-                                <div className="flex items-center gap-4 flex-1">
+                              <motion.div 
+                                layout
+                                key={product.id} 
+                                className="group bg-white rounded-[2rem] border border-slate-100 p-4 flex flex-col gap-4 shadow-sm hover:shadow-xl hover:border-orange-200/50 transition-all duration-500"
+                              >
+                                <div className="flex items-start gap-4">
                                   {/* Product Image */}
-                                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-50 border border-slate-100">
+                                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl bg-slate-50 border border-slate-100">
                                     <img 
                                       src={getProductImage(product.name, product.category)} 
                                       alt={product.name}
-                                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                       loading="lazy"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                   </div>
-
-                                  <div>
-                                    <h4 className="text-[13px] font-black text-slate-800 group-hover:text-blue-600 transition-colors">{product.name}</h4>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">{money(product.price)}</span>
-                                      {product.description && <p className="text-[10px] text-slate-400 font-medium truncate max-w-[120px]">{product.description}</p>}
-                                    </div>
+                                  
+                                  <div className="flex-1 min-w-0 pt-1">
+                                    <h4 className="text-sm font-black text-slate-800 group-hover:text-orange-600 transition-colors line-clamp-1">{product.name}</h4>
+                                    <p className="text-[10px] text-slate-400 font-bold mt-1 line-clamp-2 leading-relaxed">
+                                      {product.description || "استمتع بمشروبك المفضل المحضر بكل حب من باريستا إديوفيرس."}
+                                    </p>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                  {cart[product.id] ? (
-                                    <div className="flex items-center gap-2 bg-slate-900 text-white rounded-2xl p-1.5 shadow-lg shadow-slate-900/20">
-                                      <button 
-                                        onClick={() => removeFromCart(product.id)} 
-                                        className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
-                                      >
-                                        <Minus size={14} />
-                                      </button>
-                                      <span className="text-sm font-black w-5 text-center">{cart[product.id]}</span>
+                                <div className="flex items-center justify-between mt-auto pt-2">
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">السعر</span>
+                                    <span className="text-lg font-black text-slate-900 tracking-tight">{money(product.price)}</span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    {cart[product.id] ? (
+                                      <div className="flex items-center gap-3 bg-slate-900 text-white rounded-2xl p-1.5 shadow-xl shadow-slate-900/20">
+                                        <button 
+                                          onClick={() => removeFromCart(product.id)} 
+                                          className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                        >
+                                          <Minus size={14} />
+                                        </button>
+                                        <span className="text-sm font-black w-4 text-center">{cart[product.id]}</span>
+                                        <button 
+                                          onClick={() => addToCart(product.id)} 
+                                          className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                        >
+                                          <Plus size={14} />
+                                        </button>
+                                      </div>
+                                    ) : (
                                       <button 
                                         onClick={() => addToCart(product.id)} 
-                                        className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                        className="h-12 px-6 rounded-2xl bg-orange-600 text-white font-black text-xs hover:bg-orange-500 hover:shadow-lg hover:shadow-orange-600/30 transition-all duration-300 flex items-center gap-2 shadow-md shadow-orange-900/10"
                                       >
-                                        <Plus size={14} />
+                                        <Plus size={16} />
+                                        إضافة
                                       </button>
-                                    </div>
-                                  ) : (
-                                    <button 
-                                      onClick={() => addToCart(product.id)} 
-                                      className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 flex items-center justify-center border border-slate-100"
-                                    >
-                                      <Plus size={20} />
-                                    </button>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
+                              </motion.div>
                             ))}
                           </div>
                         </div>
@@ -803,20 +862,25 @@ export default function GuestOrderPage() {
         {isCartOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[50]" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[3rem] z-[60] p-6 max-h-[80vh] overflow-y-auto shadow-2xl border-t border-slate-100">
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[3.5rem] z-[60] p-8 max-h-[85vh] overflow-y-auto shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.3)] border-t border-slate-100">
+              <div className="w-16 h-1.5 bg-slate-200 rounded-full mx-auto mb-8" />
+              
               <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><ShoppingCart size={24} /></div>
-                  <h3 className="text-xl font-black text-slate-900">مراجعة طلبك</h3>
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-[1.75rem] bg-orange-50 text-orange-600 flex items-center justify-center shadow-inner border border-orange-100"><ShoppingCart size={28} /></div>
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-900 leading-none">سلة طلباتك</h3>
+                    <p className="text-xs font-bold text-slate-400 mt-1.5">{cartItems.length} أصناف جاهزة للإرسال</p>
+                  </div>
                 </div>
-                <button onClick={() => setIsCartOpen(false)} className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"><X size={20} /></button>
+                <button onClick={() => setIsCartOpen(false)} className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><X size={24} /></button>
               </div>
 
-              <div className="space-y-4 mb-8">
+              <div className="space-y-4 mb-10">
                 {cartItems.map(item => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-[2.5rem] border border-slate-200/50">
+                  <motion.div layout key={item.id} className="flex items-center gap-4 p-5 bg-slate-50/50 rounded-[2.5rem] border border-slate-200/40 hover:bg-white hover:border-orange-200 transition-all duration-300">
                     {/* Item Image */}
-                    <div className="h-16 w-16 shrink-0 rounded-2xl overflow-hidden border border-slate-200 bg-white">
+                    <div className="h-20 w-20 shrink-0 rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white shadow-sm">
                       <img 
                         src={getProductImage(item.product?.name || '', item.product?.category || '')} 
                         alt={item.product?.name}
@@ -825,37 +889,54 @@ export default function GuestOrderPage() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-black text-slate-900 truncate">{item.product?.name}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">{money(item.product?.price || 0)} للواحد</p>
+                      <h4 className="text-[15px] font-black text-slate-900 truncate">{item.product?.name}</h4>
+                      <p className="text-xs font-black text-orange-600 mt-1">{money(item.product?.price || 0)}</p>
                     </div>
 
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="flex items-center gap-2 bg-white p-1 rounded-xl shadow-sm border border-slate-100">
-                        <button onClick={() => removeFromCart(item.id)} className="h-7 w-7 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center"><Minus size={12} /></button>
-                        <span className="text-xs font-black w-4 text-center">{item.qty}</span>
-                        <button onClick={() => addToCart(item.id)} className="h-7 w-7 rounded-lg bg-slate-900 text-white flex items-center justify-center"><Plus size={12} /></button>
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+                        <button onClick={() => removeFromCart(item.id)} className="h-8 w-8 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors"><Minus size={14} /></button>
+                        <span className="text-sm font-black w-5 text-center">{item.qty}</span>
+                        <button onClick={() => addToCart(item.id)} className="h-8 w-8 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition-colors"><Plus size={14} /></button>
                       </div>
-                      <button onClick={() => deleteFromCart(item.id)} className="text-[9px] font-bold text-rose-500 hover:text-rose-600 transition-colors">حذف</button>
+                      <button onClick={() => deleteFromCart(item.id)} className="flex items-center gap-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 transition-colors px-2">
+                        <Trash2 size={12} />
+                        حذف
+                      </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
-              <div className="border-t border-slate-100 pt-6 space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <span className="text-sm font-bold text-slate-500">إجمالي الطلب الحالي</span>
-                  <span className="text-2xl font-black text-slate-900">{money(currentCartTotal)}</span>
+              <div className="border-t border-slate-100 pt-8 space-y-6">
+                <div className="bg-slate-900 rounded-[2rem] p-6 text-white shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+                  <div className="flex items-center justify-between relative z-10">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي الحساب</p>
+                      <p className="text-3xl font-black">{money(currentCartTotal)}</p>
+                    </div>
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md">
+                      <ReceiptText size={24} />
+                    </div>
+                  </div>
                 </div>
+
                 <button 
                   onClick={() => {
                     const items = cartItems.map(i => ({ productId: i.id, quantity: i.qty }));
                     orderMutation.mutate(items);
                   }}
                   disabled={orderMutation.isPending}
-                  className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="group relative w-full py-6 bg-orange-600 text-white rounded-3xl font-black text-xl shadow-2xl shadow-orange-600/30 flex items-center justify-center gap-4 transition-all hover:bg-orange-500 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                 >
-                  {orderMutation.isPending ? <Spinner size={24} /> : (
-                    <>إرسال الطلب للباريستا <Send size={20} className="rotate-180" /></>
+                  {orderMutation.isPending ? <Spinner size={28} className="text-white" /> : (
+                    <>
+                      تأكيد وإرسال الطلب 
+                      <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:translate-x-[-4px] transition-transform">
+                        <Send size={18} className="rotate-180" />
+                      </div>
+                    </>
                   )}
                 </button>
               </div>
@@ -890,65 +971,77 @@ export default function GuestOrderPage() {
               <>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setChatOpen(false)} className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-[55]" />
                 <motion.div 
-                  initial={{ y: 100, opacity: 0, scale: 0.9 }} 
+                  initial={{ y: 100, opacity: 0, scale: 0.95 }} 
                   animate={{ y: 0, opacity: 1, scale: 1 }} 
-                  exit={{ y: 100, opacity: 0, scale: 0.9 }}
-                  className="fixed inset-x-6 bottom-6 top-20 bg-white rounded-[2.5rem] shadow-2xl z-[60] flex flex-col overflow-hidden border border-slate-100"
+                  exit={{ y: 100, opacity: 0, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="fixed inset-x-4 bottom-4 top-16 bg-white rounded-[3rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.4)] z-[60] flex flex-col overflow-hidden border border-slate-100"
                 >
                   {/* Chat Header */}
-                  <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-blue-500 flex items-center justify-center"><ChefHat size={20} /></div>
+                  <div className="p-8 bg-slate-900 text-white flex items-center justify-between relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className="h-14 w-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20"><ChefHat size={28} /></div>
                       <div>
-                        <h3 className="text-sm font-black">دردشة مع الباريستا</h3>
-                        <p className="text-[10px] text-blue-300">طاولة {guestCode} • متاح الآن</p>
+                        <h3 className="text-lg font-black leading-none">مساعدة الباريستا</h3>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <p className="text-xs font-bold text-blue-300">طاولة {guestCode} • متصل</p>
+                        </div>
                       </div>
                     </div>
-                    <button onClick={() => setChatOpen(false)} className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"><X size={20} /></button>
+                    <button onClick={() => setChatOpen(false)} className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors relative z-10"><X size={24} /></button>
                   </div>
 
                   {/* Messages Area */}
-                  <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50">
+                  <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
                     {chatMessages.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center opacity-40 grayscale px-10">
-                        <div className="h-20 w-20 bg-slate-200 rounded-[2rem] flex items-center justify-center mb-4"><Send size={32} className="rotate-180" /></div>
-                        <p className="text-xs font-bold">ابدأ المحادثة مع الباريستا إذا كان لديك أي استفسار عن طلبك</p>
+                      <div className="h-full flex flex-col items-center justify-center text-center opacity-30 px-10">
+                        <div className="h-24 w-24 bg-slate-200 rounded-[2.5rem] flex items-center justify-center mb-6 rotate-12 transition-transform hover:rotate-0 duration-500"><Send size={40} className="rotate-180 text-slate-400" /></div>
+                        <h4 className="text-sm font-black text-slate-900 mb-2">كيف يمكننا مساعدتك؟</h4>
+                        <p className="text-xs font-bold text-slate-500">ارسل رسالتك للباريستا مباشرة وسنقوم بالرد عليك في أسرع وقت</p>
                       </div>
                     ) : (
                       chatMessages.map((msg, i) => (
                         <motion.div 
                           key={msg.id || i}
-                          initial={{ opacity: 0, x: msg.sender === 'العميل' ? -20 : 20 }}
-                          animate={{ opacity: 1, x: 0 }}
+                          initial={{ opacity: 0, y: 10, x: msg.sender === 'العميل' ? -10 : 10 }}
+                          animate={{ opacity: 1, y: 0, x: 0 }}
                           className={clsx("flex flex-col", msg.sender === 'العميل' ? "items-start" : "items-end")}
                         >
                           <div className={clsx(
-                            "max-w-[80%] p-4 rounded-3xl text-xs font-bold shadow-sm",
-                            msg.sender === 'العميل' ? "bg-white border border-slate-100 text-slate-800 rounded-br-none" : "bg-blue-600 text-white rounded-bl-none shadow-blue-500/20"
+                            "max-w-[85%] p-5 rounded-[1.75rem] text-[13px] font-black shadow-sm leading-relaxed",
+                            msg.sender === 'العميل' ? "bg-white border border-slate-100 text-slate-800 rounded-br-none" : "bg-orange-600 text-white rounded-bl-none shadow-lg shadow-orange-600/20"
                           )}>
                             {msg.text}
                           </div>
-                          <span className="text-[8px] text-slate-400 mt-1 px-2">{msg.sender} • {new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                          <div className="flex items-center gap-2 mt-2 px-2">
+                             <span className="text-[9px] font-black text-slate-400">{new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                             <span className="h-1 w-1 rounded-full bg-slate-200" />
+                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{msg.sender}</span>
+                          </div>
                         </motion.div>
                       ))
                     )}
                   </div>
 
                   {/* Input Area */}
-                  <form onSubmit={handleSendChat} className="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
-                    <input 
-                      type="text" 
-                      placeholder="اكتب رسالتك هنا..." 
-                      value={chatInput}
-                      onChange={e => setChatInput(e.target.value)}
-                      className="flex-1 bg-slate-100 border-none rounded-2xl px-5 py-4 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                    />
+                  <form onSubmit={handleSendChat} className="p-6 bg-white border-t border-slate-100 flex items-center gap-4">
+                    <div className="flex-1 relative">
+                      <input 
+                        type="text" 
+                        placeholder="اكتب استفسارك هنا..." 
+                        value={chatInput}
+                        onChange={e => setChatInput(e.target.value)}
+                        className="w-full bg-slate-100/50 border-2 border-transparent rounded-[1.5rem] px-6 py-4 text-sm font-black outline-none focus:ring-4 focus:ring-orange-600/5 focus:bg-white focus:border-orange-600/20 transition-all placeholder:text-slate-300"
+                      />
+                    </div>
                     <button 
                       type="submit"
                       disabled={!chatInput.trim()}
-                      className="h-12 w-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
+                      className="h-14 w-14 bg-orange-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-orange-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
                     >
-                      <Send size={18} className="rotate-180" />
+                      <Send size={22} className="rotate-180" />
                     </button>
                   </form>
                 </motion.div>
@@ -962,18 +1055,24 @@ export default function GuestOrderPage() {
 
       <AnimatePresence>
         {activeTab === "menu" && currentCartTotal > 0 && !isCartOpen && (
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-8 left-4 right-4 z-40 pointer-events-none">
+          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-6 left-4 right-4 z-40 pointer-events-none">
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="mx-auto max-w-lg w-full rounded-[2.5rem] bg-slate-900 p-5 shadow-2xl flex items-center justify-between pointer-events-auto hover:scale-[1.02] active:scale-[0.98] transition"
+              className="mx-auto max-w-lg w-full rounded-[2.5rem] bg-slate-900 p-3 pl-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] flex items-center justify-between pointer-events-auto hover:scale-[1.02] active:scale-[0.98] transition-all border border-white/10"
             >
-              <div className="text-right">
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">عرض السلة ({cartItems.length} صنف)</p>
-                <p className="text-xl font-black text-white leading-none">{money(currentCartTotal)}</p>
+              <div className="flex items-center gap-4 pr-6">
+                <div className="relative">
+                  <div className="h-14 w-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-600/20"><ShoppingCart size={24} /></div>
+                  <div className="absolute -top-1.5 -right-1.5 h-6 w-6 bg-white text-slate-900 rounded-full flex items-center justify-center text-[10px] font-black shadow-md">{cartItems.length}</div>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">إجمالي السلة</p>
+                  <p className="text-xl font-black text-white leading-none tracking-tight">{money(currentCartTotal)}</p>
+                </div>
               </div>
-              <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-xs flex items-center gap-2">
+              <div className="bg-white/10 text-white px-8 h-14 rounded-2xl font-black text-xs flex items-center gap-2 backdrop-blur-md hover:bg-white/20 transition-colors">
                 مراجعة الطلب
-                <ChevronRight size={16} className="rotate-180" />
+                <ChevronRight size={18} className="rotate-180" />
               </div>
             </button>
           </motion.div>

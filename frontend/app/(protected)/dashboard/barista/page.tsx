@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X, Bell } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X } from "lucide-react";
 
 import Link from "next/link";
 import { api } from "../../../../lib/api";
-import { translateStatus } from "../../../../lib/labels";
 import { useBarOrderSocket } from "../../../../lib/useBarOrderSocket";
 import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard } from "../../../../components/ui";
 
@@ -114,7 +113,6 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
 }
 
 export default function BaristaDashboardPage() {
-  const qc = useQueryClient();
   const [isSocketLive, setIsSocketLive] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -146,6 +144,9 @@ export default function BaristaDashboardPage() {
   const { sendMessage } = useBarOrderSocket({
     onConnect: () => {
       setIsSocketLive(true);
+    },
+    onDisconnect: () => {
+      setIsSocketLive(false);
     },
     onNewOrder: () => {
       refetch();
@@ -378,4 +379,3 @@ export default function BaristaDashboardPage() {
     </div>
   );
 }
-

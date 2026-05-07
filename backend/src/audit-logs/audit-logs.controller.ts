@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Query, UseGuards, HttpException, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -29,6 +22,7 @@ export class AuditLogsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }
@@ -36,6 +30,7 @@ export class AuditLogsController {
   @Get()
   @ApiOperation({ summary: 'List audit logs with filters' })
   async listAuditLogs(
+    @Request() req: any,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '20',
     @Query('entityType') entityType?: string,
@@ -53,6 +48,7 @@ export class AuditLogsController {
         action,
         fromDate,
         toDate,
+        userRole: req.user.roleName,
       });
       return {
         success: true,
@@ -60,6 +56,7 @@ export class AuditLogsController {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
     }
   }

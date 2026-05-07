@@ -39,6 +39,7 @@ export class AuditLogsService {
       action?: string;
       fromDate?: string;
       toDate?: string;
+      userRole?: string;
     },
   ) {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
@@ -46,7 +47,19 @@ export class AuditLogsService {
     const skip = (safePage - 1) * safeLimit;
 
     const where: any = {};
+
+    // Operations Manager should not see financial logs
+    if (filters?.userRole === 'Operations Manager') {
+      where.entityType = { notIn: ['Invoice', 'Payment', 'Expense'] };
+    }
+
     if (filters?.entityType) {
+      // If user specifically requested a type, combine with restriction
+      if (where.entityType) {
+        if (['Invoice', 'Payment', 'Expense'].includes(filters.entityType)) {
+          throw new Error('You do not have permission to view financial logs');
+        }
+      }
       where.entityType = filters.entityType;
     }
     if (filters?.entityId) {

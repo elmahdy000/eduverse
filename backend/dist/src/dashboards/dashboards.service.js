@@ -154,7 +154,14 @@ let DashboardsService = class DashboardsService {
         const [activeSessions, rooms, upcomingBookings, pendingBarOrders, totalRooms] = await Promise.all([
             this.prisma.session.findMany({
                 where: { status: 'active' },
-                include: { customer: true, room: true },
+                select: {
+                    id: true,
+                    startTime: true,
+                    guestCode: true,
+                    status: true,
+                    customer: { select: { id: true, fullName: true, customerType: true } },
+                    room: { select: { id: true, name: true, roomType: true } },
+                },
                 orderBy: { startTime: 'asc' },
                 take: 100,
             }),
@@ -164,13 +171,32 @@ let DashboardsService = class DashboardsService {
                     status: { in: ['draft', 'confirmed'] },
                     startTime: { gte: now, lte: next24h },
                 },
-                include: { customer: true, room: true },
+                select: {
+                    id: true,
+                    startTime: true,
+                    endTime: true,
+                    status: true,
+                    customer: { select: { id: true, fullName: true } },
+                    room: { select: { id: true, name: true } },
+                },
                 orderBy: { startTime: 'asc' },
                 take: 50,
             }),
             this.prisma.barOrder.findMany({
                 where: { status: { in: ['new', 'in_preparation'] } },
-                include: { customer: true, items: { include: { product: true } } },
+                select: {
+                    id: true,
+                    status: true,
+                    createdAt: true,
+                    customer: { select: { id: true, fullName: true } },
+                    items: {
+                        select: {
+                            id: true,
+                            quantity: true,
+                            product: { select: { id: true, name: true, category: true } },
+                        },
+                    },
+                },
                 orderBy: { createdAt: 'asc' },
                 take: 50,
             }),

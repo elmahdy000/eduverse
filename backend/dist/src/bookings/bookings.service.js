@@ -41,7 +41,18 @@ let BookingsService = class BookingsService {
                 roomId,
                 status: 'active',
                 startTime: { lt: endTime },
-                OR: [{ endTime: null }, { endTime: { gt: startTime } }],
+                OR: [
+                    { endTime: { gt: startTime } },
+                    {
+                        AND: [
+                            { endTime: null },
+                            { startTime: { lt: new Date() } },
+                            {
+                                startTime: { lt: new Date(Date.now() + 30 * 60000) }
+                            }
+                        ]
+                    }
+                ],
             },
             include: {
                 customer: true,

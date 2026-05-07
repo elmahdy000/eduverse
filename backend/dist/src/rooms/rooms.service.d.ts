@@ -5,11 +5,11 @@ export declare class RoomsService {
     constructor(prisma: PrismaService);
     createRoom(createRoomDto: CreateRoomDto): Promise<{
         id: string;
-        name: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
         roomType: string;
         capacity: number;
         features: string[];
@@ -18,11 +18,11 @@ export declare class RoomsService {
     }>;
     getRoom(roomId: string): Promise<{
         id: string;
-        name: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
         roomType: string;
         capacity: number;
         features: string[];
@@ -37,11 +37,11 @@ export declare class RoomsService {
     }): Promise<{
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];
@@ -55,11 +55,11 @@ export declare class RoomsService {
     }>;
     updateRoom(roomId: string, updateRoomDto: UpdateRoomDto): Promise<{
         id: string;
-        name: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
         roomType: string;
         capacity: number;
         features: string[];
@@ -68,11 +68,11 @@ export declare class RoomsService {
     }>;
     deactivateRoom(roomId: string): Promise<{
         id: string;
-        name: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
         roomType: string;
         capacity: number;
         features: string[];
@@ -81,11 +81,11 @@ export declare class RoomsService {
     }>;
     reactivateRoom(roomId: string): Promise<{
         id: string;
-        name: string;
-        createdAt: Date;
-        status: string;
-        updatedAt: Date;
         notes: string | null;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
         roomType: string;
         capacity: number;
         features: string[];
@@ -95,11 +95,11 @@ export declare class RoomsService {
     getAvailableRooms(startTime: Date, endTime: Date, minCapacity?: number): Promise<{
         data: {
             id: string;
-            name: string;
-            createdAt: Date;
-            status: string;
-            updatedAt: Date;
             notes: string | null;
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
             roomType: string;
             capacity: number;
             features: string[];

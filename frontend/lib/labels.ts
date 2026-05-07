@@ -115,6 +115,30 @@ export function translateProductCategory(category?: string | null) {
       return "قهوة";
     case "tea":
       return "شاي";
+    case "frappe":
+      return "فرابيه";
+    case "cold-coffee":
+      return "قهوة مثلجة";
+    case "hot-drinks":
+      return "مشروبات ساخنة";
+    case "frappuccino":
+      return "فرابوتشينو";
+    case "milk-shake":
+      return "ميلك شيك";
+    case "smoothies":
+      return "سموذي";
+    case "yougert":
+      return "زبادي";
+    case "cans":
+      return "كانز";
+    case "mocktails":
+      return "موكتيل";
+    case "indomy":
+      return "اندومي";
+    case "boba-drinks":
+      return "بوبا";
+    case "additions":
+      return "إضافات";
     case "juice":
       return "عصير";
     case "snack":
@@ -149,7 +173,7 @@ export function translateOperationalAlert(alert?: string | null) {
   if (!alert) return "-";
   const map: Record<string, string> = {
     "High pending bar orders volume": "طلبات البار كثيرة - عدد المعلق مرتفع",
-    "High active sessions load": "ضغط جلسات مرتفع - عدد الحضور كبير",
+    "High active sessions load": "ضغط أوقات مرتفع - عدد الحضور كبير",
     "Bar queue is building up": "طابور البار بيزيد - يلزم تسريع التحضير",
     "High upcoming bookings in next 24h": "حجوزات كثيرة خلال 24 ساعة - جهز المكان",
   };
@@ -158,9 +182,9 @@ export function translateOperationalAlert(alert?: string | null) {
 
 export function translateAuditAction(action?: string | null) {
   const map: Record<string, string> = {
-    "session.open": "فتح جلسة",
-    "session.close": "قفل جلسة",
-    "session.cancel": "إلغاء جلسة",
+    "session.open": "بدء وقت",
+    "session.close": "إنهاء وقت",
+    "session.cancel": "إلغاء وقت",
     "booking.create": "حجز جديد",
     "booking.complete": "إنهاء حجز",
     "booking.cancel": "إلغاء حجز",

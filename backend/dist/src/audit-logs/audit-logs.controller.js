@@ -33,10 +33,12 @@ let AuditLogsController = class AuditLogsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async listAuditLogs(page = '1', limit = '20', entityType, entityId, userId, action, fromDate, toDate) {
+    async listAuditLogs(req, page = '1', limit = '20', entityType, entityId, userId, action, fromDate, toDate) {
         try {
             const result = await this.auditLogsService.listAuditLogs(Number(page), Number(limit), {
                 entityType,
@@ -45,6 +47,7 @@ let AuditLogsController = class AuditLogsController {
                 action,
                 fromDate,
                 toDate,
+                userRole: req.user.roleName,
             });
             return {
                 success: true,
@@ -53,6 +56,8 @@ let AuditLogsController = class AuditLogsController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -69,16 +74,17 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'List audit logs with filters' }),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('entityType')),
-    __param(3, (0, common_1.Query)('entityId')),
-    __param(4, (0, common_1.Query)('userId')),
-    __param(5, (0, common_1.Query)('action')),
-    __param(6, (0, common_1.Query)('fromDate')),
-    __param(7, (0, common_1.Query)('toDate')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('entityType')),
+    __param(4, (0, common_1.Query)('entityId')),
+    __param(5, (0, common_1.Query)('userId')),
+    __param(6, (0, common_1.Query)('action')),
+    __param(7, (0, common_1.Query)('fromDate')),
+    __param(8, (0, common_1.Query)('toDate')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], AuditLogsController.prototype, "listAuditLogs", null);
 exports.AuditLogsController = AuditLogsController = __decorate([

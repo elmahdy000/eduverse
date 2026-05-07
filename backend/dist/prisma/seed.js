@@ -101,6 +101,7 @@ async function main() {
         { module: 'invoices', action: 'refund', description: 'Refund invoice' },
         { module: 'payments', action: 'read', description: 'View payments' },
         { module: 'payments', action: 'record', description: 'Record payment' },
+        { module: 'payments', action: 'refund', description: 'Refund payment' },
         { module: 'audit_logs', action: 'read', description: 'View audit logs' },
         {
             module: 'dashboards',
@@ -160,6 +161,7 @@ async function main() {
         'rooms',
         'bookings',
         'bar_orders',
+        'products',
         'audit_logs',
         'dashboards',
     ].includes(p.module))
@@ -184,12 +186,13 @@ async function main() {
         .filter((p) => [
         'customers',
         'sessions',
-        'rooms',
         'bookings',
         'bar_orders',
         'invoices',
         'payments',
     ].includes(p.module) ||
+        (p.module === 'rooms' && p.action === 'read') ||
+        (p.module === 'products' && p.action === 'read') ||
         (p.module === 'dashboards' && p.action === 'view_reception'))
         .map((perm) => ({
         roleId: receptionistRole.id,
@@ -303,6 +306,8 @@ async function main() {
         { name: 'Croissant', category: 'snack', price: 25 },
         { name: 'Cake', category: 'dessert', price: 35 },
         { name: 'Cookie', category: 'snack', price: 15 },
+        { name: 'مياه معدنية صغيرة', category: 'water', price: 10, costPrice: 5 },
+        { name: 'مياه معدنية كبيرة', category: 'water', price: 15, costPrice: 8 },
     ];
     for (const prod of sampleProducts) {
         const existing = await prisma.product.findFirst({
@@ -314,6 +319,7 @@ async function main() {
                     name: prod.name,
                     category: prod.category,
                     price: prod.price,
+                    costPrice: prod.costPrice || 0,
                     description: `${prod.name} - Quality product`,
                     availability: true,
                     active: true,
@@ -323,6 +329,8 @@ async function main() {
     }
     console.log(`✅ Created ${sampleProducts.length} sample products`);
     const egyptianCustomers = [
+        { fullName: 'إبراهيم المالك (خصم)', phoneNumber: '01000000001', customerType: 'owner_discount' },
+        { fullName: 'أحمد الموظف (خصم)', phoneNumber: '01000000002', customerType: 'staff' },
         { fullName: 'أحمد محمد علي', phoneNumber: '01012345678', customerType: 'student', college: 'جامعة القاهرة', studyLevel: 'السنة الرابعة' },
         { fullName: 'محمد أحمد حسن', phoneNumber: '01123456789', customerType: 'student', college: 'جامعة عين شمس', studyLevel: 'السنة الثالثة' },
         { fullName: 'سارة أحمد محمود', phoneNumber: '01234567890', customerType: 'student', college: 'جامعة الإسكندرية', studyLevel: 'السنة الثانية' },

@@ -54,6 +54,8 @@ let BarOrdersController = class BarOrdersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -67,6 +69,8 @@ let BarOrdersController = class BarOrdersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -84,6 +88,8 @@ let BarOrdersController = class BarOrdersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -101,6 +107,8 @@ let BarOrdersController = class BarOrdersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }
@@ -118,6 +126,8 @@ let BarOrdersController = class BarOrdersController {
             };
         }
         catch (error) {
+            if (error instanceof common_1.HttpException)
+                throw error;
             throw new common_1.BadRequestException(error.message);
         }
     }

@@ -16,6 +16,7 @@ class CreateProductDto {
     category;
     price;
     description;
+    imageUrl;
     availability;
 }
 exports.CreateProductDto = CreateProductDto;
@@ -24,7 +25,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(['coffee', 'tea', 'juice', 'snack', 'dessert', 'sandwich', 'other']),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "category", void 0);
 __decorate([
@@ -39,6 +40,11 @@ __decorate([
 ], CreateProductDto.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProductDto.prototype, "imageUrl", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateProductDto.prototype, "availability", void 0);
@@ -47,6 +53,7 @@ class UpdateProductDto {
     category;
     price;
     description;
+    imageUrl;
     availability;
     active;
 }
@@ -58,7 +65,7 @@ __decorate([
 ], UpdateProductDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(['coffee', 'tea', 'juice', 'snack', 'dessert', 'sandwich', 'other']),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "category", void 0);
 __decorate([
@@ -72,6 +79,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateProductDto.prototype, "imageUrl", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),

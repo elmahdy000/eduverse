@@ -52,7 +52,7 @@ export class RoleGuard implements CanActivate {
 
     if (lastSegment === 'cancel') return 'cancel';
     if (lastSegment === 'close') return 'close';
-    if (lastSegment === 'refund') return moduleName === 'payments' ? 'record' : 'refund';
+    if (lastSegment === 'refund') return 'refund';
 
     if (method === 'GET') {
       return 'read';

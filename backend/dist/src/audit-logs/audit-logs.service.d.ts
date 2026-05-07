@@ -30,6 +30,7 @@ export declare class AuditLogsService {
         action?: string;
         fromDate?: string;
         toDate?: string;
+        userRole?: string;
     }): Promise<{
         data: ({
             user: {

@@ -4,14 +4,25 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting Bar-Centric Production Seed...');
+  console.log('🌱 Starting Bar-Centric Production Seed with Inventory...');
 
-  // 1. Clean existing data
+  // 1. Clean existing data (Ordering matters due to foreign keys)
   console.log('🧹 Cleaning old data...');
+  await prisma.inventoryTransaction.deleteMany();
+  await prisma.recipeItem.deleteMany();
+  await prisma.inventoryItem.deleteMany();
   await prisma.barOrderItem.deleteMany();
   await prisma.barOrder.deleteMany();
-  await prisma.product.deleteMany();
+  await prisma.payment.deleteMany();
+  await prisma.invoiceItem.deleteMany();
+  await prisma.invoice.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.session.deleteMany();
   await prisma.customer.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.room.deleteMany();
+  await prisma.expense.deleteMany();
+  await prisma.auditLog.deleteMany();
   await prisma.user.deleteMany();
   await prisma.rolePermission.deleteMany();
   await prisma.permission.deleteMany();
@@ -37,6 +48,8 @@ async function main() {
     { m: 'sessions', actions: ['read'] },
     { m: 'dashboards', actions: ['view_owner', 'view_barista'] },
     { m: 'audit_logs', actions: ['read'] },
+    { m: 'inventory', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'expenses', actions: ['read', 'create', 'update', 'delete'] },
   ];
 
   const allCreatedPermissions: any[] = [];
@@ -99,33 +112,68 @@ async function main() {
     });
   }
 
-  // 6. Create Bar Products
-  console.log('☕ Creating products...');
-  const barProducts = [
-    { name: 'اسبريسو', category: 'coffee', price: 45 },
-    { name: 'كابتشينو', category: 'coffee', price: 65 },
-    { name: 'لاتيه', category: 'coffee', price: 70 },
-    { name: 'فلات وايت', category: 'coffee', price: 75 },
-    { name: 'شاي فتلة', category: 'tea', price: 25 },
-    { name: 'شاي أخضر', category: 'tea', price: 30 },
-    { name: 'مياه معدنية', category: 'water', price: 15 },
-    { name: 'بيبسي', category: 'cans', price: 25 },
-    { name: 'ساندوتش تونة', category: 'food', price: 85 },
+  // 6. Create Inventory Items
+  console.log('📦 Creating inventory items...');
+  const inventoryItems = [
+    { name: 'بن برازيلي (حبوب)', category: 'coffee', unit: 'جرام', currentStock: 5000, minStockLevel: 1000 },
+    { name: 'حليب كامل الدسم', category: 'dairy', unit: 'مل', currentStock: 12000, minStockLevel: 2000 },
+    { name: 'سكر أبيض', category: 'raw', unit: 'جرام', currentStock: 3000, minStockLevel: 500 },
+    { name: 'أكواب ورقية 9oz', category: 'packaging', unit: 'قطعة', currentStock: 500, minStockLevel: 50 },
+    { name: 'مياه معدنية 500ml', category: 'drinks', unit: 'قطعة', currentStock: 100, minStockLevel: 12 },
   ];
 
-  for (const p of barProducts) {
-    await prisma.product.create({
+  const invMap: Record<string, any> = {};
+  for (const item of inventoryItems) {
+    invMap[item.name] = await prisma.inventoryItem.create({ data: item });
+  }
+
+  // 7. Create Bar Products & Recipes
+  console.log('☕ Creating products and recipes...');
+  const products = [
+    { 
+      name: 'اسبريسو', category: 'coffee', price: 45, 
+      recipe: [{ name: 'بن برازيلي (حبوب)', qty: 18 }] 
+    },
+    { 
+      name: 'لاتيه', category: 'coffee', price: 70, 
+      recipe: [
+        { name: 'بن برازيلي (حبوب)', qty: 18 },
+        { name: 'حليب كامل الدسم', qty: 200 },
+        { name: 'أكواب ورقية 9oz', qty: 1 }
+      ] 
+    },
+    { 
+      name: 'مياه معدنية', category: 'water', price: 15, 
+      recipe: [{ name: 'مياه معدنية 500ml', qty: 1 }] 
+    },
+  ];
+
+  for (const pInfo of products) {
+    const product = await prisma.product.create({
       data: {
-        ...p,
+        name: pInfo.name,
+        category: pInfo.category,
+        price: pInfo.price,
         description: 'Bar Product',
         availability: true,
         active: true,
         costPrice: 0,
       },
     });
+
+    // Create Recipe
+    for (const r of pInfo.recipe) {
+      await prisma.recipeItem.create({
+        data: {
+          productId: product.id,
+          inventoryItemId: invMap[r.name].id,
+          quantity: r.qty,
+        },
+      });
+    }
   }
 
-  console.log('✅ SEEDING COMPLETE!');
+  console.log('✅ SEEDING COMPLETE WITH INVENTORY!');
   console.log('-----------------------------------');
   console.log('Default Login Credentials:');
   console.log('Email: owner@eduvers.com');

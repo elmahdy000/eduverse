@@ -44,4 +44,21 @@ export class InventoryController {
   ) {
     return this.inventoryService.setRecipe(productId, body.items);
   }
+
+  @Post('waste')
+  @UseGuards(OpsManagerGuard)
+  @ApiOperation({ summary: 'Record inventory waste' })
+  async recordWaste(
+    @Body() body: { inventoryItemId: string; quantity: number; reason?: string },
+    @Request() req: any
+  ) {
+    return this.inventoryService.recordWaste(body, req.user.userId);
+  }
+
+  @Get('low-stock')
+  @ApiOperation({ summary: 'Get items with stock below minimum level' })
+  async getLowStock() {
+    const items = await this.inventoryService.listItems();
+    return items.filter(item => Number(item.currentStock) <= Number(item.minStockLevel));
+  }
 }

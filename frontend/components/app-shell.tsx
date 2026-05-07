@@ -25,6 +25,8 @@ import {
   Activity,
   Wallet,
   Boxes,
+  Timer,
+  BarChartHorizontal,
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
 import { roleHomePath, roleLabel } from "../lib/api";
@@ -115,6 +117,18 @@ const navGroups: NavGroup[] = [
         href: "/inventory",
         roles: ["Owner", "Operations Manager"],
         icon: <Boxes size={14} />,
+      },
+      {
+        label: "الورديات",
+        href: "/shifts",
+        roles: ["Owner", "Operations Manager", "Barista"],
+        icon: <Timer size={14} />,
+      },
+      {
+        label: "التقارير",
+        href: "/reports",
+        roles: ["Owner", "Operations Manager"],
+        icon: <BarChartHorizontal size={14} />,
       },
       {
         label: "المستخدمين",

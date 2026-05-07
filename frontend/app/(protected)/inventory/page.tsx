@@ -12,7 +12,8 @@ import {
   MoreVertical,
   History,
   Settings2,
-  PackageCheck
+  PackageCheck,
+  Trash2
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import clsx from "clsx";
@@ -21,6 +22,9 @@ export default function InventoryPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [showWasteModal, setShowWasteModal] = useState<string | null>(null);
+  const [wasteData, setWasteData] = useState({ quantity: "", reason: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchInventory();
@@ -39,6 +43,25 @@ export default function InventoryPage() {
 
   const lowStockItems = items.filter(item => Number(item.currentStock) <= Number(item.minStockLevel));
   const totalItems = items.length;
+
+  const handleRecordWaste = async () => {
+    if (!showWasteModal) return;
+    setSubmitting(true);
+    try {
+      await api.post("/inventory/waste", {
+        inventoryItemId: showWasteModal,
+        quantity: Number(wasteData.quantity),
+        reason: wasteData.reason,
+      });
+      setShowWasteModal(null);
+      setWasteData({ quantity: "", reason: "" });
+      fetchInventory();
+    } catch (err) {
+      console.error("Failed to record waste", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -189,9 +212,12 @@ export default function InventoryPage() {
                       <Plus size={14} />
                       إضافة مخزون
                     </button>
-                    <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100">
-                      <Settings2 size={14} />
-                      تعديل الوصفة
+                    <button 
+                      onClick={() => setShowWasteModal(item.id)}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-rose-50 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100"
+                    >
+                      <Trash2 size={14} />
+                      تسجيل هالك
                     </button>
                   </div>
                 </div>
@@ -200,6 +226,64 @@ export default function InventoryPage() {
           )}
         </div>
       </div>
+
+      {/* Waste Modal */}
+      {showWasteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 text-right">
+          <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-600">
+              <Trash2 size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900">تسجيل هالك / فاقد</h3>
+            <p className="mt-2 text-slate-500 text-sm">سيتم خصم الكمية من المخزن وتسجيلها كعملية تسوية.</p>
+            
+            <div className="mt-8 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-slate-700">الكمية المستبعدة</label>
+                <input 
+                  type="number" 
+                  autoFocus
+                  placeholder="0.00"
+                  className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-lg font-bold text-slate-900"
+                  value={wasteData.quantity}
+                  onChange={(e) => setWasteData({ ...wasteData, quantity: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-slate-700">السبب</label>
+                <select 
+                  className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-sm text-slate-900"
+                  value={wasteData.reason}
+                  onChange={(e) => setWasteData({ ...wasteData, reason: e.target.value })}
+                >
+                  <option value="">اختر السبب...</option>
+                  <option value="كسر / تلف">كسر / تلف</option>
+                  <option value="انتهاء صلاحية">انتهاء صلاحية</option>
+                  <option value="خطأ تحضير">خطأ تحضير</option>
+                  <option value="انسكاب">انسكاب / وقوع</option>
+                  <option value="أخرى">أخرى</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button 
+                  onClick={() => setShowWasteModal(null)}
+                  className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 transition hover:bg-slate-200"
+                >
+                  إلغاء
+                </button>
+                <button 
+                  onClick={handleRecordWaste}
+                  disabled={!wasteData.quantity || submitting}
+                  className="flex-1 rounded-2xl bg-rose-600 py-4 font-bold text-white shadow-lg transition hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {submitting ? "جاري التسجيل..." : "تأكيد الخصم"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -131,6 +131,7 @@ export class BarOrdersController {
       const order = await this.barOrdersService.updateOrderStatus(
         orderId,
         updateStatusDto,
+        req.user.userId,
       );
       // Emit real-time event
       this.barOrdersGateway.emitOrderStatusUpdate(order);
@@ -156,7 +157,7 @@ export class BarOrdersController {
   ) {
     try {
       await this.assertCanMutateOrder(req?.user);
-      const order = await this.barOrdersService.cancelOrder(orderId, reason);
+      const order = await this.barOrdersService.cancelOrder(orderId, req.user.userId, reason);
       // Emit real-time event
       this.barOrdersGateway.emitOrderStatusUpdate(order);
       this.barOrdersGateway.emitDashboardRefresh();

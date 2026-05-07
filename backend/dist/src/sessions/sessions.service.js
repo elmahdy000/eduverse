@@ -13,12 +13,15 @@ exports.SessionsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../common/prisma/prisma.service");
 const invoices_service_1 = require("../invoices/invoices.service");
+const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
 let SessionsService = class SessionsService {
     prisma;
     invoicesService;
-    constructor(prisma, invoicesService) {
+    auditLogsService;
+    constructor(prisma, invoicesService, auditLogsService) {
         this.prisma = prisma;
         this.invoicesService = invoicesService;
+        this.auditLogsService = auditLogsService;
     }
     async generateUniqueGuestCode() {
         let code = '';
@@ -120,6 +123,18 @@ let SessionsService = class SessionsService {
                 sessionId: updatedSession.id,
                 notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
             }, userId, tx);
+            await this.auditLogsService.createAuditLog({
+                userId,
+                action: 'CLOSE_SESSION',
+                entityType: 'session',
+                entityId: updatedSession.id,
+                newValue: {
+                    chargeAmount,
+                    durationMinutes,
+                    invoiceId: invoice.id,
+                    totalBarOrders: updatedSession.barOrders.length,
+                },
+            });
             return {
                 ...updatedSession,
                 invoice,
@@ -191,6 +206,7 @@ exports.SessionsService = SessionsService;
 exports.SessionsService = SessionsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        invoices_service_1.InvoicesService])
+        invoices_service_1.InvoicesService,
+        audit_logs_service_1.AuditLogsService])
 ], SessionsService);
 //# sourceMappingURL=sessions.service.js.map

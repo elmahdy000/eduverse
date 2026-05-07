@@ -10,9 +10,9 @@ export declare class ProductsService {
         name: string;
         description: string | null;
         active: boolean;
-        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         imageUrl: string | null;
         availability: boolean;
     }>;
@@ -23,9 +23,9 @@ export declare class ProductsService {
         name: string;
         description: string | null;
         active: boolean;
-        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         imageUrl: string | null;
         availability: boolean;
     }>;
@@ -42,9 +42,9 @@ export declare class ProductsService {
             name: string;
             description: string | null;
             active: boolean;
-            costPrice: import("@prisma/client/runtime/library").Decimal;
             category: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
             imageUrl: string | null;
             availability: boolean;
         }[];
@@ -60,9 +60,9 @@ export declare class ProductsService {
         name: string;
         description: string | null;
         active: boolean;
-        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         imageUrl: string | null;
         availability: boolean;
     }>;
@@ -73,9 +73,9 @@ export declare class ProductsService {
         name: string;
         description: string | null;
         active: boolean;
-        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         imageUrl: string | null;
         availability: boolean;
     }>;
@@ -86,9 +86,9 @@ export declare class ProductsService {
         name: string;
         description: string | null;
         active: boolean;
-        costPrice: import("@prisma/client/runtime/library").Decimal;
         category: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        costPrice: import("@prisma/client/runtime/library").Decimal;
         imageUrl: string | null;
         availability: boolean;
     }>;

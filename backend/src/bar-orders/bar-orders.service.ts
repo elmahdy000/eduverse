@@ -203,7 +203,7 @@ export class BarOrdersService {
     };
   }
 
-  async updateOrderStatus(orderId: string, updateStatusDto: UpdateBarOrderStatusDto) {
+  async updateOrderStatus(orderId: string, updateStatusDto: UpdateBarOrderStatusDto, userId: string) {
     const order = await this.getOrder(orderId);
 
     if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
@@ -270,17 +270,16 @@ export class BarOrdersService {
     // Deduct inventory when delivered (if not already deducted)
     if (updateStatusDto.status === 'delivered') {
       try {
-        await this.inventoryService.deductStockForOrder(orderId, updated.createdByUserId || updated.customer.createdByUserId);
+        await this.inventoryService.deductStockForOrder(orderId, userId);
       } catch (err) {
         console.error('Failed to deduct inventory:', err.message);
-        // We don't throw here to avoid failing the order update, but it should be logged
       }
     }
 
     return updated;
   }
 
-  async cancelOrder(orderId: string, _reason?: string) {
+  async cancelOrder(orderId: string, userId: string, _reason?: string) {
     const order = await this.getOrder(orderId);
     if (order.status === 'delivered') {
       throw new Error('Cannot cancel a delivered order');

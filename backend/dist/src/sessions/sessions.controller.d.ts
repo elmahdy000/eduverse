@@ -8,10 +8,6 @@ export declare class SessionsController {
         data: {
             customer: {
                 id: string;
-                notes: string | null;
-                createdByUserId: string;
-                createdAt: Date;
-                updatedAt: Date;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -23,17 +19,21 @@ export declare class SessionsController {
                 specialization: string | null;
                 employerName: string | null;
                 jobTitle: string | null;
+                notes: string | null;
                 status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string;
             };
             room: {
                 id: string;
                 notes: string | null;
+                status: string;
                 createdAt: Date;
                 updatedAt: Date;
                 name: string;
-                status: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
@@ -42,18 +42,18 @@ export declare class SessionsController {
             } | null;
         } & {
             id: string;
-            customerId: string;
             notes: string | null;
+            status: string;
             createdAt: Date;
             updatedAt: Date;
-            status: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
             endTime: Date | null;
             durationMinutes: number | null;
             guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         };
@@ -64,10 +64,6 @@ export declare class SessionsController {
         data: {
             customer: {
                 id: string;
-                notes: string | null;
-                createdByUserId: string;
-                createdAt: Date;
-                updatedAt: Date;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -79,50 +75,54 @@ export declare class SessionsController {
                 specialization: string | null;
                 employerName: string | null;
                 jobTitle: string | null;
+                notes: string | null;
                 status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string;
             };
+            barOrders: {
+                id: string;
+                notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string | null;
+                guestCode: string | null;
+                customerId: string;
+                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+                sessionId: string | null;
+                invoiceId: string | null;
+            }[];
             room: {
                 id: string;
                 notes: string | null;
+                status: string;
                 createdAt: Date;
                 updatedAt: Date;
                 name: string;
-                status: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
                 hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
                 dailyRate: import("@prisma/client/runtime/library").Decimal | null;
             } | null;
-            barOrders: {
-                id: string;
-                sessionId: string | null;
-                customerId: string;
-                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-                notes: string | null;
-                createdByUserId: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                status: string;
-                guestCode: string | null;
-                invoiceId: string | null;
-            }[];
         } & {
             id: string;
-            customerId: string;
             notes: string | null;
+            status: string;
             createdAt: Date;
             updatedAt: Date;
-            status: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
             endTime: Date | null;
             durationMinutes: number | null;
             guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         };
@@ -134,10 +134,6 @@ export declare class SessionsController {
             data: ({
                 customer: {
                     id: string;
-                    notes: string | null;
-                    createdByUserId: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     fullName: string;
                     phoneNumber: string;
                     phoneNumberSecondary: string | null;
@@ -149,17 +145,21 @@ export declare class SessionsController {
                     specialization: string | null;
                     employerName: string | null;
                     jobTitle: string | null;
+                    notes: string | null;
                     status: string;
                     firstVisitAt: Date | null;
                     lastVisitAt: Date | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    createdByUserId: string;
                 };
                 room: {
                     id: string;
                     notes: string | null;
+                    status: string;
                     createdAt: Date;
                     updatedAt: Date;
                     name: string;
-                    status: string;
                     roomType: string;
                     capacity: number;
                     features: string[];
@@ -168,18 +168,18 @@ export declare class SessionsController {
                 } | null;
             } & {
                 id: string;
-                customerId: string;
                 notes: string | null;
+                status: string;
                 createdAt: Date;
                 updatedAt: Date;
-                status: string;
                 sessionType: string;
-                roomId: string | null;
                 startTime: Date;
                 endTime: Date | null;
                 durationMinutes: number | null;
                 guestCode: string | null;
                 chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+                customerId: string;
+                roomId: string | null;
                 openedByUserId: string;
                 closedByUserId: string | null;
             })[];
@@ -196,10 +196,6 @@ export declare class SessionsController {
             invoice: any;
             customer: {
                 id: string;
-                notes: string | null;
-                createdByUserId: string;
-                createdAt: Date;
-                updatedAt: Date;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -211,49 +207,53 @@ export declare class SessionsController {
                 specialization: string | null;
                 employerName: string | null;
                 jobTitle: string | null;
+                notes: string | null;
                 status: string;
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string;
             };
+            barOrders: {
+                id: string;
+                notes: string | null;
+                status: string;
+                createdAt: Date;
+                updatedAt: Date;
+                createdByUserId: string | null;
+                guestCode: string | null;
+                customerId: string;
+                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+                sessionId: string | null;
+                invoiceId: string | null;
+            }[];
             room: {
                 id: string;
                 notes: string | null;
+                status: string;
                 createdAt: Date;
                 updatedAt: Date;
                 name: string;
-                status: string;
                 roomType: string;
                 capacity: number;
                 features: string[];
                 hourlyRate: import("@prisma/client/runtime/library").Decimal | null;
                 dailyRate: import("@prisma/client/runtime/library").Decimal | null;
             } | null;
-            barOrders: {
-                id: string;
-                sessionId: string | null;
-                customerId: string;
-                totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-                notes: string | null;
-                createdByUserId: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                status: string;
-                guestCode: string | null;
-                invoiceId: string | null;
-            }[];
             id: string;
-            customerId: string;
             notes: string | null;
+            status: string;
             createdAt: Date;
             updatedAt: Date;
-            status: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
             endTime: Date | null;
             durationMinutes: number | null;
             guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         };
@@ -264,18 +264,18 @@ export declare class SessionsController {
         success: boolean;
         data: {
             id: string;
-            customerId: string;
             notes: string | null;
+            status: string;
             createdAt: Date;
             updatedAt: Date;
-            status: string;
             sessionType: string;
-            roomId: string | null;
             startTime: Date;
             endTime: Date | null;
             durationMinutes: number | null;
             guestCode: string | null;
             chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+            customerId: string;
+            roomId: string | null;
             openedByUserId: string;
             closedByUserId: string | null;
         };

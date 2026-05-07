@@ -96,7 +96,7 @@ let BarOrdersController = class BarOrdersController {
     async updateStatus(orderId, updateStatusDto, req) {
         try {
             await this.assertCanMutateOrder(req.user);
-            const order = await this.barOrdersService.updateOrderStatus(orderId, updateStatusDto);
+            const order = await this.barOrdersService.updateOrderStatus(orderId, updateStatusDto, req.user.userId);
             this.barOrdersGateway.emitOrderStatusUpdate(order);
             this.barOrdersGateway.emitDashboardRefresh();
             return {
@@ -115,7 +115,7 @@ let BarOrdersController = class BarOrdersController {
     async cancelOrder(orderId, reason, req) {
         try {
             await this.assertCanMutateOrder(req?.user);
-            const order = await this.barOrdersService.cancelOrder(orderId, reason);
+            const order = await this.barOrdersService.cancelOrder(orderId, req.user.userId, reason);
             this.barOrdersGateway.emitOrderStatusUpdate(order);
             this.barOrdersGateway.emitDashboardRefresh();
             return {

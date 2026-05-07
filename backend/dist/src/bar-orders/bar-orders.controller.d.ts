@@ -11,30 +11,13 @@ export declare class BarOrdersController {
     createOrder(createBarOrderDto: CreateBarOrderDto, req: any): Promise<{
         success: boolean;
         data: {
-            session: {
-                id: string;
-                guestCode: string | null;
-                status: string;
-                notes: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                customerId: string;
-                sessionType: string;
-                roomId: string | null;
-                startTime: Date;
-                endTime: Date | null;
-                durationMinutes: number | null;
-                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
-                openedByUserId: string;
-                closedByUserId: string | null;
-            } | null;
             customer: {
                 id: string;
-                status: string;
-                notes: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 createdByUserId: string;
+                status: string;
+                notes: string | null;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -49,13 +32,30 @@ export declare class BarOrdersController {
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
             };
+            session: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                customerId: string;
+                guestCode: string | null;
+                status: string;
+                notes: string | null;
+                sessionType: string;
+                roomId: string | null;
+                startTime: Date;
+                endTime: Date | null;
+                durationMinutes: number | null;
+                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+                openedByUserId: string;
+                closedByUserId: string | null;
+            } | null;
             items: ({
                 product: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     category: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     price: import("@prisma/client/runtime/library").Decimal;
                     costPrice: import("@prisma/client/runtime/library").Decimal;
                     description: string | null;
@@ -66,53 +66,36 @@ export declare class BarOrdersController {
             } & {
                 id: string;
                 quantity: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
                 productId: string;
                 orderId: string;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
             })[];
         } & {
             id: string;
-            guestCode: string | null;
-            status: string;
-            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-            notes: string | null;
             createdAt: Date;
             updatedAt: Date;
             sessionId: string | null;
             customerId: string;
             createdByUserId: string | null;
+            guestCode: string | null;
+            status: string;
             invoiceId: string | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            notes: string | null;
         };
         timestamp: string;
     }>;
     getOrder(orderId: string): Promise<{
         success: boolean;
         data: {
-            session: {
-                id: string;
-                guestCode: string | null;
-                status: string;
-                notes: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                customerId: string;
-                sessionType: string;
-                roomId: string | null;
-                startTime: Date;
-                endTime: Date | null;
-                durationMinutes: number | null;
-                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
-                openedByUserId: string;
-                closedByUserId: string | null;
-            } | null;
             customer: {
                 id: string;
-                status: string;
-                notes: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 createdByUserId: string;
+                status: string;
+                notes: string | null;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -127,6 +110,23 @@ export declare class BarOrdersController {
                 firstVisitAt: Date | null;
                 lastVisitAt: Date | null;
             };
+            session: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                customerId: string;
+                guestCode: string | null;
+                status: string;
+                notes: string | null;
+                sessionType: string;
+                roomId: string | null;
+                startTime: Date;
+                endTime: Date | null;
+                durationMinutes: number | null;
+                chargeAmount: import("@prisma/client/runtime/library").Decimal | null;
+                openedByUserId: string;
+                closedByUserId: string | null;
+            } | null;
             createdByUser: {
                 id: string;
                 email: string;
@@ -136,10 +136,10 @@ export declare class BarOrdersController {
             items: ({
                 product: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     category: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     price: import("@prisma/client/runtime/library").Decimal;
                     costPrice: import("@prisma/client/runtime/library").Decimal;
                     description: string | null;
@@ -150,23 +150,23 @@ export declare class BarOrdersController {
             } & {
                 id: string;
                 quantity: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
                 productId: string;
                 orderId: string;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
             })[];
         } & {
             id: string;
-            guestCode: string | null;
-            status: string;
-            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-            notes: string | null;
             createdAt: Date;
             updatedAt: Date;
             sessionId: string | null;
             customerId: string;
             createdByUserId: string | null;
+            guestCode: string | null;
+            status: string;
             invoiceId: string | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            notes: string | null;
         };
         timestamp: string;
     }>;
@@ -186,11 +186,11 @@ export declare class BarOrdersController {
         data: {
             customer: {
                 id: string;
-                status: string;
-                notes: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 createdByUserId: string;
+                status: string;
+                notes: string | null;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -208,10 +208,10 @@ export declare class BarOrdersController {
             items: ({
                 product: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     category: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     price: import("@prisma/client/runtime/library").Decimal;
                     costPrice: import("@prisma/client/runtime/library").Decimal;
                     description: string | null;
@@ -222,23 +222,23 @@ export declare class BarOrdersController {
             } & {
                 id: string;
                 quantity: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
                 productId: string;
                 orderId: string;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
             })[];
         } & {
             id: string;
-            guestCode: string | null;
-            status: string;
-            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-            notes: string | null;
             createdAt: Date;
             updatedAt: Date;
             sessionId: string | null;
             customerId: string;
             createdByUserId: string | null;
+            guestCode: string | null;
+            status: string;
             invoiceId: string | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            notes: string | null;
         };
         message: string;
         timestamp: string;
@@ -248,11 +248,11 @@ export declare class BarOrdersController {
         data: {
             customer: {
                 id: string;
-                status: string;
-                notes: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 createdByUserId: string;
+                status: string;
+                notes: string | null;
                 fullName: string;
                 phoneNumber: string;
                 phoneNumberSecondary: string | null;
@@ -270,10 +270,10 @@ export declare class BarOrdersController {
             items: ({
                 product: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     category: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     price: import("@prisma/client/runtime/library").Decimal;
                     costPrice: import("@prisma/client/runtime/library").Decimal;
                     description: string | null;
@@ -284,23 +284,23 @@ export declare class BarOrdersController {
             } & {
                 id: string;
                 quantity: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-                subtotal: import("@prisma/client/runtime/library").Decimal;
                 productId: string;
                 orderId: string;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
             })[];
         } & {
             id: string;
-            guestCode: string | null;
-            status: string;
-            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
-            notes: string | null;
             createdAt: Date;
             updatedAt: Date;
             sessionId: string | null;
             customerId: string;
             createdByUserId: string | null;
+            guestCode: string | null;
+            status: string;
             invoiceId: string | null;
+            totalAmount: import("@prisma/client/runtime/library").Decimal | null;
+            notes: string | null;
         };
         message: string;
         timestamp: string;

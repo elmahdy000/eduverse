@@ -3,12 +3,14 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 
 import { InvoicesService } from '../invoices/invoices.service';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 @Injectable()
 export class SessionsService {
   constructor(
     private prisma: PrismaService,
     private invoicesService: InvoicesService,
+    private auditLogsService: AuditLogsService,
   ) {}
 
   private async generateUniqueGuestCode(): Promise<string> {
@@ -139,6 +141,20 @@ export class SessionsService {
         userId,
         tx,
       );
+
+      // Record audit log manually for detail
+      await this.auditLogsService.createAuditLog({
+        userId,
+        action: 'CLOSE_SESSION',
+        entityType: 'session',
+        entityId: updatedSession.id,
+        newValue: {
+          chargeAmount,
+          durationMinutes,
+          invoiceId: invoice.id,
+          totalBarOrders: updatedSession.barOrders.length,
+        },
+      });
 
       return {
         ...updatedSession,

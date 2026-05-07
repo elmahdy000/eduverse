@@ -73,6 +73,8 @@ model User {
   invoices   Invoice[]
   recordedExpenses Expense[] @relation("RecordedExpenses")
   linkedExpenses   Expense[] @relation("LinkedExpenses")
+  wasteEntries     WasteEntry[]
+  shifts           Shift[]
 
   @@map("users")
 }
@@ -447,6 +449,7 @@ model InventoryItem {
 
   recipes      RecipeItem[]
   transactions InventoryTransaction[]
+  wasteEntries WasteEntry[]
 
   @@map("inventory_items")
 }
@@ -479,4 +482,47 @@ model InventoryTransaction {
   @@index([inventoryItemId])
   @@index([type])
   @@map("inventory_transactions")
+}
+
+// ============================================================================
+// WASTE MANAGEMENT (إدارة الهالك)
+// ============================================================================
+
+model WasteEntry {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventoryItemId String   @db.Uuid
+  quantity        Decimal  @db.Decimal(10, 3)
+  reason          String?  // كسر، انتهاء صلاحية، خطأ تحضير
+  recordedByUserId String  @db.Uuid
+  createdAt       DateTime @default(now())
+
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  recordedByUser  User          @relation(fields: [recordedByUserId], references: [id])
+
+  @@index([inventoryItemId])
+  @@map("waste_entries")
+}
+
+// ============================================================================
+// SHIFTS & REPORTS (الورديات والتقارير)
+// ============================================================================
+
+model Shift {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @db.Uuid
+  startTime       DateTime  @default(now())
+  endTime         DateTime?
+  startCash       Decimal   @default(0) @db.Decimal(10, 2)
+  endCash         Decimal?  @db.Decimal(10, 2)
+  actualCash      Decimal?  @db.Decimal(10, 2) // المبلغ الفعلي اللي اتسلم
+  totalSales      Decimal   @default(0) @db.Decimal(10, 2)
+  totalExpenses   Decimal   @default(0) @db.Decimal(10, 2)
+  notes           String?
+  status          String    @default("open") // open, closed
+
+  user            User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("shifts")
 }

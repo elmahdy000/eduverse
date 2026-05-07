@@ -29,6 +29,7 @@ const audit_logs_interceptor_1 = require("./audit-logs/audit-logs.interceptor");
 const dashboards_module_1 = require("./dashboards/dashboards.module");
 const expenses_module_1 = require("./expenses/expenses.module");
 const inventory_module_1 = require("./inventory/inventory.module");
+const shifts_module_1 = require("./shifts/shifts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -65,6 +66,7 @@ exports.AppModule = AppModule = __decorate([
             dashboards_module_1.DashboardsModule,
             expenses_module_1.ExpensesModule,
             inventory_module_1.InventoryModule,
+            shifts_module_1.ShiftsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

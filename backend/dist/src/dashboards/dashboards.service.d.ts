@@ -180,19 +180,19 @@ export declare class DashboardsService {
                     name: string;
                     description: string | null;
                     active: boolean;
-                    costPrice: import("@prisma/client/runtime/library").Decimal;
                     category: string;
                     price: import("@prisma/client/runtime/library").Decimal;
+                    costPrice: import("@prisma/client/runtime/library").Decimal;
                     imageUrl: string | null;
                     availability: boolean;
                 };
             } & {
                 id: string;
                 quantity: number;
+                productId: string;
                 unitPrice: import("@prisma/client/runtime/library").Decimal;
                 subtotal: import("@prisma/client/runtime/library").Decimal;
                 orderId: string;
-                productId: string;
             })[];
         } & {
             id: string;

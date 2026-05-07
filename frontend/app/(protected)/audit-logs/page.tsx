@@ -232,7 +232,7 @@ export default function AuditLogsPage() {
                   <span className={`text-right text-slate-800 ${mono ? "font-mono text-xs" : ""}`}>{value}</span>
                 </div>
               ))}
-              {selectedLog.oldValue && (
+              {!!selectedLog.oldValue && (
                 <div>
                   <p className="mb-1 text-xs font-semibold text-slate-500">قبل التعديل</p>
                   <pre className="max-h-32 overflow-auto rounded-lg bg-slate-50 p-2 text-[10px] text-slate-600 text-left">
@@ -240,7 +240,7 @@ export default function AuditLogsPage() {
                   </pre>
                 </div>
               )}
-              {selectedLog.newValue && (
+              {!!selectedLog.newValue && (
                 <div>
                   <p className="mb-1 text-xs font-semibold text-slate-500">بعد التعديل</p>
                   <pre className="max-h-32 overflow-auto rounded-lg bg-emerald-50 p-2 text-[10px] text-emerald-700 text-left">

@@ -28,11 +28,21 @@ export class InvoicesService {
   }
 
   async generateInvoice(createInvoiceDto: CreateInvoiceDto, userId: string) {
+    return await this.prisma.$transaction(async (tx) => {
+      return await this.generateInvoiceWithTx(createInvoiceDto, userId, tx);
+    });
+  }
+
+  async generateInvoiceWithTx(
+    createInvoiceDto: CreateInvoiceDto,
+    userId: string,
+    tx: any, // Using any for Prisma transaction client
+  ) {
     if (createInvoiceDto.discountAmount && createInvoiceDto.discountPercent) {
       throw new Error('Use either discountAmount or discountPercent, not both');
     }
 
-    const session = await this.prisma.session.findUnique({
+    const session = await tx.session.findUnique({
       where: { id: createInvoiceDto.sessionId },
       include: {
         customer: true,
@@ -56,12 +66,13 @@ export class InvoicesService {
       throw new Error('Session not found');
     }
     if (session.invoice) {
-      throw new Error('Invoice already exists for this session');
+      // If invoice already exists, just return it instead of throwing error in auto-gen
+      return session.invoice;
     }
 
     const sessionAmount = Number(session.chargeAmount ?? 0);
     const barOrdersAmount = session.barOrders.reduce(
-      (sum, order) => sum + Number(order.totalAmount ?? 0),
+      (sum: number, order: any) => sum + Number(order.totalAmount ?? 0),
       0,
     );
     const subtotal = sessionAmount + barOrdersAmount;
@@ -75,95 +86,104 @@ export class InvoicesService {
     const taxAmount = 0;
     const totalAmount = Math.max(0, Number((subtotal - discountAmount + taxAmount).toFixed(2)));
 
-    const invoiceNumber = await this.generateInvoiceNumber();
+    const invoiceNumber = await this.generateInvoiceNumberWithTx(tx);
 
-    const invoice = await this.prisma.$transaction(async (tx) => {
-      const createdInvoice = await tx.invoice.create({
-        data: {
-          customerId: session.customerId,
-          sessionId: session.id,
-          invoiceNumber,
-          subtotal,
-          discountAmount,
-          taxAmount,
-          totalAmount,
-          amountPaid: 0,
-          remainingAmount: totalAmount,
-          paymentStatus: totalAmount === 0 ? 'paid' : 'unpaid',
-          notes: createInvoiceDto.notes,
-          createdByUserId: userId,
-        },
-      });
-
-      const itemsData: Array<{
-        invoiceId: string;
-        itemType: string;
-        itemId: string | null;
-        description: string;
-        quantity: number;
-        unitPrice: number;
-        total: number;
-      }> = [];
-
-      if (sessionAmount > 0) {
-        itemsData.push({
-          invoiceId: createdInvoice.id,
-          itemType: 'session',
-          itemId: null,
-          description: `Session charge (${session.sessionType})`,
-          quantity: 1,
-          unitPrice: sessionAmount,
-          total: sessionAmount,
-        });
-      }
-
-      for (const order of session.barOrders) {
-        const orderTotal = Number(order.totalAmount ?? 0);
-        if (orderTotal <= 0) {
-          continue;
-        }
-
-        itemsData.push({
-          invoiceId: createdInvoice.id,
-          itemType: 'bar_order',
-          itemId: order.id,
-          description: `Bar order #${order.id.slice(0, 8)}`,
-          quantity: 1,
-          unitPrice: orderTotal,
-          total: orderTotal,
-        });
-      }
-
-      if (discountAmount > 0) {
-        itemsData.push({
-          invoiceId: createdInvoice.id,
-          itemType: 'discount',
-          itemId: null,
-          description: 'Discount',
-          quantity: 1,
-          unitPrice: -discountAmount,
-          total: -discountAmount,
-        });
-      }
-
-      if (itemsData.length > 0) {
-        await tx.invoiceItem.createMany({
-          data: itemsData,
-        });
-      }
-
-      return tx.invoice.findUnique({
-        where: { id: createdInvoice.id },
-        include: {
-          customer: true,
-          session: true,
-          items: true,
-          payments: true,
-        },
-      });
+    const createdInvoice = await tx.invoice.create({
+      data: {
+        customerId: session.customerId,
+        sessionId: session.id,
+        invoiceNumber,
+        subtotal,
+        discountAmount,
+        taxAmount,
+        totalAmount,
+        amountPaid: 0,
+        remainingAmount: totalAmount,
+        paymentStatus: totalAmount === 0 ? 'paid' : 'unpaid',
+        notes: createInvoiceDto.notes,
+        createdByUserId: userId,
+      },
     });
 
-    return invoice;
+    const itemsData: any[] = [];
+
+    if (sessionAmount > 0) {
+      itemsData.push({
+        invoiceId: createdInvoice.id,
+        itemType: 'session',
+        itemId: null,
+        description: `Session charge (${session.sessionType})`,
+        quantity: 1,
+        unitPrice: sessionAmount,
+        total: sessionAmount,
+      });
+    }
+
+    for (const order of session.barOrders) {
+      const orderTotal = Number(order.totalAmount ?? 0);
+      if (orderTotal <= 0) {
+        continue;
+      }
+
+      itemsData.push({
+        invoiceId: createdInvoice.id,
+        itemType: 'bar_order',
+        itemId: order.id,
+        description: `Bar order #${order.id.slice(0, 8)}`,
+        quantity: 1,
+        unitPrice: orderTotal,
+        total: orderTotal,
+      });
+    }
+
+    if (discountAmount > 0) {
+      itemsData.push({
+        invoiceId: createdInvoice.id,
+        itemType: 'discount',
+        itemId: null,
+        description: 'Discount',
+        quantity: 1,
+        unitPrice: -discountAmount,
+        total: -discountAmount,
+      });
+    }
+
+    if (itemsData.length > 0) {
+      await tx.invoiceItem.createMany({
+        data: itemsData,
+      });
+    }
+
+    return tx.invoice.findUnique({
+      where: { id: createdInvoice.id },
+      include: {
+        customer: true,
+        session: true,
+        items: true,
+        payments: true,
+      },
+    });
+  }
+
+  private async generateInvoiceNumberWithTx(tx: any) {
+    const now = new Date();
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    const base = `${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(
+      now.getUTCDate(),
+    )}${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}`;
+
+    for (let i = 0; i < 10; i += 1) {
+      const suffix = Math.floor(Math.random() * 9000 + 1000).toString();
+      const invoiceNumber = `INV-${base}-${suffix}`;
+      const exists = await tx.invoice.findUnique({
+        where: { invoiceNumber },
+      });
+      if (!exists) {
+        return invoiceNumber;
+      }
+    }
+
+    throw new Error('Unable to generate unique invoice number');
   }
 
   async getInvoice(invoiceId: string) {

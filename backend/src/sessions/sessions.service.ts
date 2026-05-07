@@ -109,37 +109,42 @@ export class SessionsService {
     }
 
 
-    const closedSession = await this.prisma.session.update({
-      where: { id: sessionId },
-      data: {
-        endTime,
-        durationMinutes,
-        status: 'closed',
-        closedByUserId: userId,
-        chargeAmount,
-        notes: closeSessionDto.notes,
-        guestCode: null, // End of validity
-      },
-      include: {
-        customer: true,
-        barOrders: true,
-      },
-    });
+    const closedSession = await this.prisma.$transaction(async (tx) => {
+      const updatedSession = await tx.session.update({
+        where: { id: sessionId },
+        data: {
+          endTime,
+          durationMinutes,
+          status: 'closed',
+          closedByUserId: userId,
+          chargeAmount,
+          notes: closeSessionDto.notes,
+          guestCode: null,
+        },
+        include: {
+          customer: true,
+          barOrders: {
+            where: { status: { not: 'cancelled' } }
+          },
+          room: true,
+        },
+      });
 
-    // Auto-generate invoice
-    try {
-      await this.invoicesService.generateInvoice(
+      // Generate invoice within the same transaction
+      const invoice = await this.invoicesService.generateInvoiceWithTx(
         {
-          sessionId: closedSession.id,
+          sessionId: updatedSession.id,
           notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
         },
         userId,
+        tx,
       );
-    } catch (invoiceError) {
-      console.error('Failed to auto-generate invoice:', invoiceError.message);
-      // We don't throw here to avoid failing the session close if only invoice fails,
-      // but in a real app we might want to use a transaction for both.
-    }
+
+      return {
+        ...updatedSession,
+        invoice,
+      };
+    });
 
     return closedSession;
   }

@@ -96,31 +96,35 @@ let SessionsService = class SessionsService {
                 chargeAmount = Number(session.room.dailyRate);
             }
         }
-        const closedSession = await this.prisma.session.update({
-            where: { id: sessionId },
-            data: {
-                endTime,
-                durationMinutes,
-                status: 'closed',
-                closedByUserId: userId,
-                chargeAmount,
-                notes: closeSessionDto.notes,
-                guestCode: null,
-            },
-            include: {
-                customer: true,
-                barOrders: true,
-            },
-        });
-        try {
-            await this.invoicesService.generateInvoice({
-                sessionId: closedSession.id,
+        const closedSession = await this.prisma.$transaction(async (tx) => {
+            const updatedSession = await tx.session.update({
+                where: { id: sessionId },
+                data: {
+                    endTime,
+                    durationMinutes,
+                    status: 'closed',
+                    closedByUserId: userId,
+                    chargeAmount,
+                    notes: closeSessionDto.notes,
+                    guestCode: null,
+                },
+                include: {
+                    customer: true,
+                    barOrders: {
+                        where: { status: { not: 'cancelled' } }
+                    },
+                    room: true,
+                },
+            });
+            const invoice = await this.invoicesService.generateInvoiceWithTx({
+                sessionId: updatedSession.id,
                 notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
-            }, userId);
-        }
-        catch (invoiceError) {
-            console.error('Failed to auto-generate invoice:', invoiceError.message);
-        }
+            }, userId, tx);
+            return {
+                ...updatedSession,
+                invoice,
+            };
+        });
         return closedSession;
     }
     async getSession(sessionId) {

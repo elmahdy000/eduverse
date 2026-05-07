@@ -141,22 +141,17 @@ export default function SessionsPage() {
     },
   });
 
-  const closeMutation = useMutation({
     mutationFn: async (sessionId: string) => {
-      await api.post(`/sessions/${sessionId}/close`, { notes: "أُغلقت من واجهة الاستقبال" });
-      return sessionId;
+      const res = await api.post(`/sessions/${sessionId}/close`, { notes: "أُغلقت من واجهة الاستقبال" });
+      return res.data; // This now contains session + invoice
     },
-    onSuccess: async (sessionId: string) => {
-      setMessage({ text: "تم إغلاق المدة وجاري إنشاء الفاتورة...", ok: true });
+    onSuccess: (data: any) => {
+      setMessage({ text: "تم إغلاق المدة وإنشاء الفاتورة بنجاح!", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
-      try {
-        const response = await api.post("/invoices", { sessionId });
-        const invoice = response.data.data;
-        setSelectedInvoice(invoice);
-        setMessage({ text: "تم إغلاق المدة وإنشاء الفاتورة بنجاح!", ok: true });
-        queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      } catch {
-        setMessage({ text: "تم إغلاق المدة (فشل إنشاء الفاتورة التلقائية)", ok: false });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      
+      if (data.invoice) {
+        setSelectedInvoice(data.invoice);
       }
     },
     onError: (err: unknown) => {

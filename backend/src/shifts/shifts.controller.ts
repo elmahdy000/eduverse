@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, UseGuards, Request, Put } from '@ne
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ShiftsService } from './shifts.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { AdminGuard } from '../auth/role.guard';
+import { OpsManagerGuard } from '../auth/role.guard';
 
 @ApiTags('shifts')
 @ApiBearerAuth()
@@ -33,7 +33,7 @@ export class ShiftsController {
   }
 
   @Get()
-  @UseGuards(AdminGuard)
+  @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'List all shifts (Admin only)' })
   async listShifts() {
     return this.shiftsService.listShifts();

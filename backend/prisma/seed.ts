@@ -4,441 +4,139 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database with initial data...');
+  console.log('🌱 Starting Bar-Centric Production Seed...');
 
-  // Create roles
-  const ownerRole = await prisma.role.upsert({
-    where: { name: 'Owner' },
-    update: {},
-    create: {
-      name: 'Owner',
-      description: 'Full system access',
-    },
-  });
+  // 1. Clean existing data
+  console.log('🧹 Cleaning old data...');
+  await prisma.barOrderItem.deleteMany();
+  await prisma.barOrder.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.rolePermission.deleteMany();
+  await prisma.permission.deleteMany();
+  await prisma.role.deleteMany();
 
-  const opsManagerRole = await prisma.role.upsert({
-    where: { name: 'Operations Manager' },
-    update: {},
-    create: {
-      name: 'Operations Manager',
-      description: 'Daily operations management',
-    },
-  });
+  // 2. Create Essential Roles
+  console.log('👥 Creating roles...');
+  const roleNames = ['Owner', 'Operations Manager', 'Barista', 'Receptionist'];
+  const roles: Record<string, any> = {};
+  
+  for (const name of roleNames) {
+    roles[name] = await prisma.role.create({
+      data: { name, description: `${name} role for bar operations` },
+    });
+  }
 
-  const receptionistRole = await prisma.role.upsert({
-    where: { name: 'Receptionist' },
-    update: {},
-    create: {
-      name: 'Receptionist',
-      description: 'Customer lifecycle management',
-    },
-  });
-
-  const baristaRole = await prisma.role.upsert({
-    where: { name: 'Barista' },
-    update: {},
-    create: {
-      name: 'Barista',
-      description: 'Bar order operations',
-    },
-  });
-
-  console.log('✅ Roles created');
-
-  // Create permissions
-  const permissions = [
-    // Customers
-    { module: 'customers', action: 'read', description: 'View customers' },
-    { module: 'customers', action: 'create', description: 'Create customer' },
-    { module: 'customers', action: 'update', description: 'Update customer' },
-    { module: 'customers', action: 'delete', description: 'Delete customer' },
-
-    // Sessions
-    { module: 'sessions', action: 'read', description: 'View sessions' },
-    { module: 'sessions', action: 'create', description: 'Open session' },
-    { module: 'sessions', action: 'update', description: 'Update session' },
-    { module: 'sessions', action: 'close', description: 'Close session' },
-    { module: 'sessions', action: 'cancel', description: 'Cancel session' },
-
-    // Rooms
-    { module: 'rooms', action: 'read', description: 'View rooms' },
-    { module: 'rooms', action: 'create', description: 'Create room' },
-    { module: 'rooms', action: 'update', description: 'Update room' },
-    { module: 'rooms', action: 'delete', description: 'Delete room' },
-
-    // Bookings
-    { module: 'bookings', action: 'read', description: 'View bookings' },
-    { module: 'bookings', action: 'create', description: 'Create booking' },
-    { module: 'bookings', action: 'update', description: 'Update booking' },
-    { module: 'bookings', action: 'cancel', description: 'Cancel booking' },
-
-    // Bar Orders
-    { module: 'bar_orders', action: 'read', description: 'View bar orders' },
-    { module: 'bar_orders', action: 'create', description: 'Create order' },
-    { module: 'bar_orders', action: 'update', description: 'Update order status' },
-    { module: 'bar_orders', action: 'cancel', description: 'Cancel order' },
-
-    // Products
-    { module: 'products', action: 'read', description: 'View products' },
-    { module: 'products', action: 'create', description: 'Create product' },
-    { module: 'products', action: 'update', description: 'Update product' },
-
-    // Invoices
-    { module: 'invoices', action: 'read', description: 'View invoices' },
-    { module: 'invoices', action: 'generate', description: 'Generate invoice' },
-    { module: 'invoices', action: 'refund', description: 'Refund invoice' },
-
-    // Payments
-    { module: 'payments', action: 'read', description: 'View payments' },
-    { module: 'payments', action: 'record', description: 'Record payment' },
-    { module: 'payments', action: 'refund', description: 'Refund payment' },
-
-    // Audit Logs
-    { module: 'audit_logs', action: 'read', description: 'View audit logs' },
-
-    // Dashboards
-    {
-      module: 'dashboards',
-      action: 'view_owner',
-      description: 'View owner dashboard',
-    },
-    {
-      module: 'dashboards',
-      action: 'view_ops_manager',
-      description: 'View ops manager dashboard',
-    },
-    {
-      module: 'dashboards',
-      action: 'view_reception',
-      description: 'View reception dashboard',
-    },
-    {
-      module: 'dashboards',
-      action: 'view_barista',
-      description: 'View barista dashboard',
-    },
-    {
-      module: 'dashboards',
-      action: 'view_operations_by_role',
-      description: 'View operations by role report',
-    },
-
-    // Users & Roles
-    { module: 'users', action: 'manage', description: 'Manage users' },
-    { module: 'roles', action: 'manage', description: 'Manage roles' },
+  // 3. Create Essential Permissions
+  console.log('🔐 Creating permissions...');
+  const permissionModules = [
+    { m: 'products', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'bar_orders', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'customers', actions: ['read', 'create', 'update'] },
+    { m: 'sessions', actions: ['read'] },
+    { m: 'dashboards', actions: ['view_owner', 'view_barista'] },
+    { m: 'audit_logs', actions: ['read'] },
   ];
 
-  const createdPermissions = await Promise.all(
-    permissions.map((perm) =>
-      prisma.permission.upsert({
-        where: { module_action: { module: perm.module, action: perm.action } },
-        update: {},
-        create: perm,
-      }),
-    ),
-  );
+  const allCreatedPermissions: any[] = [];
 
-  console.log(`✅ Created ${createdPermissions.length} permissions`);
-
-  // Assign all permissions to Owner
-  const ownerPermissions = createdPermissions.map((perm) => ({
-    roleId: ownerRole.id,
-    permissionId: perm.id,
-  }));
-
-  for (const rp of ownerPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: rp.roleId,
-          permissionId: rp.permissionId,
-        },
-      },
-      update: {},
-      create: rp,
-    });
-  }
-
-  console.log('✅ Owner role assigned all permissions');
-
-  // Assign permissions to Operations Manager
-  const opsPermissions = createdPermissions
-    .filter((p) =>
-      [
-        'customers',
-        'sessions',
-        'rooms',
-        'bookings',
-        'bar_orders',
-        'products',
-        'audit_logs',
-        'dashboards',
-      ].includes(p.module),
-    )
-    .map((perm) => ({
-      roleId: opsManagerRole.id,
-      permissionId: perm.id,
-    }));
-
-  for (const rp of opsPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: rp.roleId,
-          permissionId: rp.permissionId,
-        },
-      },
-      update: {},
-      create: rp,
-    });
-  }
-
-  console.log('✅ Operations Manager role permissions assigned');
-
-  // Assign permissions to Receptionist
-  const receptionistPermissions = createdPermissions
-    .filter(
-      (p) =>
-        [
-          'customers',
-          'sessions',
-          'bookings',
-          'bar_orders',
-          'invoices',
-          'payments',
-        ].includes(p.module) ||
-        (p.module === 'rooms' && p.action === 'read') ||
-        (p.module === 'products' && p.action === 'read') ||
-        (p.module === 'dashboards' && p.action === 'view_reception'),
-    )
-    .map((perm) => ({
-      roleId: receptionistRole.id,
-      permissionId: perm.id,
-    }));
-
-  for (const rp of receptionistPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: rp.roleId,
-          permissionId: rp.permissionId,
-        },
-      },
-      update: {},
-      create: rp,
-    });
-  }
-
-  console.log('✅ Receptionist role permissions assigned');
-
-  // Assign permissions to Barista
-  const baristaPermissions = createdPermissions
-    .filter(
-      (p) =>
-        (p.module === 'bar_orders') ||
-        (p.module === 'products' && p.action === 'read') ||
-        (p.module === 'customers' && p.action === 'read') ||
-        (p.module === 'sessions' && p.action === 'read') ||
-        (p.module === 'dashboards' && p.action === 'view_barista'),
-    )
-    .map((perm) => ({
-      roleId: baristaRole.id,
-      permissionId: perm.id,
-    }));
-
-  for (const rp of baristaPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: rp.roleId,
-          permissionId: rp.permissionId,
-        },
-      },
-      update: {},
-      create: rp,
-    });
-  }
-
-  console.log('✅ Barista role permissions assigned');
-
-  // Create default Owner user
-  const passwordHash = await bcrypt.hash('owner123', 10);
-
-  const ownerUser = await prisma.user.upsert({
-    where: { email: 'owner@eduvers.com' },
-    update: {},
-    create: {
-      email: 'owner@eduvers.com',
-      passwordHash,
-      firstName: 'المالك',
-      lastName: 'اداري',
-      roleId: ownerRole.id,
-      status: 'active',
-    },
-  });
-
-  console.log('✅ Default owner user created');
-
-  // Create Operations Manager user
-  const opsPasswordHash = await bcrypt.hash('ops123', 10);
-
-  const opsUser = await prisma.user.upsert({
-    where: { email: 'opsmanager@eduvers.com' },
-    update: {},
-    create: {
-      email: 'opsmanager@eduvers.com',
-      passwordHash: opsPasswordHash,
-      firstName: 'مدير',
-      lastName: 'العمليات',
-      roleId: opsManagerRole.id,
-      status: 'active',
-    },
-  });
-
-  console.log('✅ Operations Manager user created');
-
-  // Create Receptionist user
-  const receptionPasswordHash = await bcrypt.hash('recept123', 10);
-
-  const receptionUser = await prisma.user.upsert({
-    where: { email: 'receptionist@eduvers.com' },
-    update: {},
-    create: {
-      email: 'receptionist@eduvers.com',
-      passwordHash: receptionPasswordHash,
-      firstName: 'موظف',
-      lastName: 'الاستقبال',
-      roleId: receptionistRole.id,
-      status: 'active',
-    },
-  });
-
-  console.log('✅ Receptionist user created');
-
-  // Create Barista user
-  const baristaPasswordHash = await bcrypt.hash('barista123', 10);
-
-  const baristaUser = await prisma.user.upsert({
-    where: { email: 'barista@eduvers.com' },
-    update: {},
-    create: {
-      email: 'barista@eduvers.com',
-      passwordHash: baristaPasswordHash,
-      firstName: 'باريستا',
-      lastName: 'بار',
-      roleId: baristaRole.id,
-      status: 'active',
-    },
-  });
-
-  console.log('✅ Barista user created');
-
-  // Create sample products
-  const sampleProducts = [
-    { name: 'Espresso', category: 'coffee', price: 25 },
-    { name: 'Americano', category: 'coffee', price: 30 },
-    { name: 'Cappuccino', category: 'coffee', price: 35 },
-    { name: 'Latte', category: 'coffee', price: 40 },
-    { name: 'Mocha', category: 'coffee', price: 45 },
-    { name: 'Turkish Coffee', category: 'coffee', price: 20 },
-    { name: 'Tea', category: 'tea', price: 15 },
-    { name: 'Green Tea', category: 'tea', price: 20 },
-    { name: 'Mint Tea', category: 'tea', price: 25 },
-    { name: 'Fresh Juice', category: 'juice', price: 30 },
-    { name: 'Mango Smoothie', category: 'juice', price: 40 },
-    { name: 'Sandwich', category: 'sandwich', price: 50 },
-    { name: 'Croissant', category: 'snack', price: 25 },
-    { name: 'Cake', category: 'dessert', price: 35 },
-    { name: 'Cookie', category: 'snack', price: 15 },
-    { name: 'مياه معدنية صغيرة', category: 'water', price: 10, costPrice: 5 },
-    { name: 'مياه معدنية كبيرة', category: 'water', price: 15, costPrice: 8 },
-  ];
-
-  for (const prod of sampleProducts as any[]) {
-    // Check if product exists by name
-    const existing = await prisma.product.findFirst({
-      where: { name: prod.name },
-    });
-    if (!existing) {
-      await prisma.product.create({
+  for (const mod of permissionModules) {
+    for (const action of mod.actions) {
+      const p = await prisma.permission.create({
         data: {
-          name: prod.name,
-          category: prod.category,
-          price: prod.price,
-          costPrice: prod.costPrice || 0,
-          description: `${prod.name} - Quality product`,
-          availability: true,
-          active: true,
+          module: mod.m,
+          action: action,
+          description: `${action} permission for ${mod.m}`,
         },
       });
+      allCreatedPermissions.push(p);
     }
   }
-  console.log(`✅ Created ${sampleProducts.length} sample products`);
 
-  // Create Egyptian customers
-  const egyptianCustomers = [
-    { fullName: 'إبراهيم المالك (خصم)', phoneNumber: '01000000001', customerType: 'owner_discount' },
-    { fullName: 'أحمد الموظف (خصم)', phoneNumber: '01000000002', customerType: 'staff' },
-    { fullName: 'أحمد محمد علي', phoneNumber: '01012345678', customerType: 'student', college: 'جامعة القاهرة', studyLevel: 'السنة الرابعة' },
-    { fullName: 'محمد أحمد حسن', phoneNumber: '01123456789', customerType: 'student', college: 'جامعة عين شمس', studyLevel: 'السنة الثالثة' },
-    { fullName: 'سارة أحمد محمود', phoneNumber: '01234567890', customerType: 'student', college: 'جامعة الإسكندرية', studyLevel: 'السنة الثانية' },
-    { fullName: 'كريم عبد الله', phoneNumber: '01098765432', customerType: 'employee', employerName: 'شركة IBM', jobTitle: 'مهندس برمجيات' },
-    { fullName: 'نور الدين محمد', phoneNumber: '01187654321', customerType: 'student', college: 'جامعة الأزهر', studyLevel: 'السنة الخامسة' },
-    { fullName: 'يوسف إبراهيم', phoneNumber: '01276543210', customerType: 'employee', employerName: 'بنك مصر', jobTitle: 'محاسب' },
-    { fullName: 'فاطمة الزهراء', phoneNumber: '01054321098', customerType: 'student', college: 'جامعة حلوان', studyLevel: 'السنة الأولى' },
-    { fullName: 'عمر فاروق', phoneNumber: '01143210987', customerType: 'trainer', college: 'جامعة القاهرة', studyLevel: 'خريج' },
-    { fullName: 'ليلى محمود', phoneNumber: '01232109876', customerType: 'student', college: 'جامعة المنصورة', studyLevel: 'السنة الرابعة' },
-    { fullName: 'محمود حسن', phoneNumber: '01021098765', customerType: 'employee', employerName: 'فودافون مصر', jobTitle: 'مدير مبيعات' },
-    { fullName: 'رنا سعيد', phoneNumber: '01110987654', customerType: 'student', college: 'جامعة بني سويف', studyLevel: 'السنة الثالثة' },
-    { fullName: 'خالد عادل', phoneNumber: '01209876543', customerType: 'employee', employerName: 'أوراسكوم', jobTitle: 'مهندس مدني' },
-    { fullName: 'منى أحمد', phoneNumber: '01098765432', customerType: 'parent', college: null, studyLevel: null },
-    { fullName: 'عبد الرحمن محمود', phoneNumber: '01187654321', customerType: 'student', college: 'جامعة دمنهور', studyLevel: 'السنة الثانية' },
-    { fullName: 'سامي عبد الكريم', phoneNumber: '01276543210', customerType: 'employee', employerName: 'شركة Vodafone', jobTitle: 'مطور ويب' },
-    { fullName: 'هند محمد', phoneNumber: '01065432109', customerType: 'student', college: 'جامعة سوهاج', studyLevel: 'السنة الرابعة' },
-    { fullName: 'ياسر علي', phoneNumber: '01154321098', customerType: 'trainer', college: 'جامعة القاهرة', studyLevel: 'خريج' },
-    { fullName: 'نادية حسن', phoneNumber: '01243210987', customerType: 'employee', employerName: 'بنك القاهرة', jobTitle: 'موظف خدمة عملاء' },
-    { fullName: 'مصطفى أحمد', phoneNumber: '01032109876', customerType: 'student', college: 'جامعة الفيوم', studyLevel: 'السنة الثالثة' },
-    { fullName: 'دعاء محمود', phoneNumber: '01121098765', customerType: 'student', college: 'جامعة كفر الشيخ', studyLevel: 'السنة الأولى' },
-    { fullName: 'علي حسين', phoneNumber: '01210987654', customerType: 'employee', employerName: 'شركة اتصالات', jobTitle: 'فني شبكات' },
+  // 4. Assign Permissions to Roles
+  console.log('🔗 Assigning permissions to roles...');
+  for (const perm of allCreatedPermissions) {
+    // Owner & Operations Manager get everything
+    await prisma.rolePermission.create({ data: { roleId: roles['Owner'].id, permissionId: perm.id } });
+    await prisma.rolePermission.create({ data: { roleId: roles['Operations Manager'].id, permissionId: perm.id } });
+
+    // Barista & Receptionist get core operational permissions
+    const isOperational = ['read', 'create'].includes(perm.action) || 
+                         perm.module === 'dashboards' || 
+                         perm.module === 'sessions' ||
+                         (perm.module === 'bar_orders' && perm.action === 'update');
+                         
+    if (isOperational) {
+      await prisma.rolePermission.create({ data: { roleId: roles['Barista'].id, permissionId: perm.id } });
+      await prisma.rolePermission.create({ data: { roleId: roles['Receptionist'].id, permissionId: perm.id } });
+    }
+  }
+
+  // 5. Create Default Users (Password: 123456)
+  console.log('👤 Creating default users...');
+  const passwordHash = await bcrypt.hash('123456', 10);
+  
+  const defaultUsers = [
+    { email: 'owner@eduvers.com', role: 'Owner', name: 'Owner' },
+    { email: 'ops@eduvers.com', role: 'Operations Manager', name: 'Ops Manager' },
+    { email: 'barista1@eduvers.com', role: 'Barista', name: 'Barista One' },
+    { email: 'barista2@eduvers.com', role: 'Barista', name: 'Barista Two' },
+    { email: 'recept1@eduvers.com', role: 'Receptionist', name: 'Receptionist One' },
+    { email: 'recept2@eduvers.com', role: 'Receptionist', name: 'Receptionist Two' },
   ];
 
-  for (const customer of egyptianCustomers) {
-    const existing = await prisma.customer.findFirst({
-      where: { phoneNumber: customer.phoneNumber },
+  for (const u of defaultUsers) {
+    await prisma.user.create({
+      data: {
+        email: u.email,
+        passwordHash,
+        firstName: u.name,
+        lastName: 'User',
+        roleId: roles[u.role].id,
+        status: 'active',
+      },
     });
-    if (!existing) {
-      await prisma.customer.create({
-        data: {
-          fullName: customer.fullName,
-          phoneNumber: customer.phoneNumber,
-          customerType: customer.customerType,
-          college: customer.college,
-          studyLevel: customer.studyLevel,
-          employerName: customer.employerName,
-          jobTitle: customer.jobTitle,
-          status: 'active',
-          createdByUserId: ownerUser.id,
-        },
-      });
-    }
   }
-  console.log(`✅ Created ${egyptianCustomers.length} Egyptian customers`);
 
-  console.log('\n📋 ALL ROLE CREDENTIALS:');
-  console.log('┌─────────────────────┬────────────────────────┬────────────┐');
-  console.log('│ Role                │ Email                  │ Password   │');
-  console.log('├─────────────────────┼────────────────────────┼────────────┤');
-  console.log('│ Owner               │ owner@eduvers.com      │ owner123   │');
-  console.log('│ Operations Manager  │ opsmanager@eduvers.com │ ops123     │');
-  console.log('│ Receptionist        │ receptionist@eduvers.com│ recept123  │');
-  console.log('│ Barista             │ barista@eduvers.com    │ barista123 │');
-  console.log('└─────────────────────┴────────────────────────┴────────────┘');
-  console.log('\n✅ Database seeded successfully!');
+  // 6. Create Bar Products
+  console.log('☕ Creating products...');
+  const barProducts = [
+    { name: 'اسبريسو', category: 'coffee', price: 45 },
+    { name: 'كابتشينو', category: 'coffee', price: 65 },
+    { name: 'لاتيه', category: 'coffee', price: 70 },
+    { name: 'فلات وايت', category: 'coffee', price: 75 },
+    { name: 'شاي فتلة', category: 'tea', price: 25 },
+    { name: 'شاي أخضر', category: 'tea', price: 30 },
+    { name: 'مياه معدنية', category: 'water', price: 15 },
+    { name: 'بيبسي', category: 'cans', price: 25 },
+    { name: 'ساندوتش تونة', category: 'food', price: 85 },
+  ];
+
+  for (const p of barProducts) {
+    await prisma.product.create({
+      data: {
+        ...p,
+        description: 'Bar Product',
+        availability: true,
+        active: true,
+        costPrice: 0,
+      },
+    });
+  }
+
+  console.log('✅ SEEDING COMPLETE!');
+  console.log('-----------------------------------');
+  console.log('Default Login Credentials:');
+  console.log('Email: owner@eduvers.com');
+  console.log('Email: barista1@eduvers.com');
+  console.log('Password: 123456');
+  console.log('-----------------------------------');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

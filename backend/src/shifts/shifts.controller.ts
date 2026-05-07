@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ShiftsService } from './shifts.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { OpsManagerGuard } from '../auth/role.guard';
+import { CloseShiftDto, StartShiftDto } from './dto/shift.dto';
 
 @ApiTags('shifts')
 @ApiBearerAuth()
@@ -13,7 +14,7 @@ export class ShiftsController {
 
   @Post('start')
   @ApiOperation({ summary: 'Start a new shift' })
-  async startShift(@Body() body: { startCash: number; notes?: string }, @Request() req: any) {
+  async startShift(@Body() body: StartShiftDto, @Request() req: any) {
     return this.shiftsService.startShift(req.user.userId, body.startCash, body.notes);
   }
 
@@ -27,9 +28,21 @@ export class ShiftsController {
   @ApiOperation({ summary: 'Close a shift' })
   async closeShift(
     @Param('id') shiftId: string,
-    @Body() body: { actualCash: number; notes?: string }
+    @Body() body: CloseShiftDto,
+    @Request() req: any,
   ) {
-    return this.shiftsService.closeShift(shiftId, body.actualCash, body.notes);
+    return this.shiftsService.closeShift(
+      shiftId,
+      body.actualCash,
+      req.user,
+      body.notes,
+    );
+  }
+
+  @Get(':id/report')
+  @ApiOperation({ summary: 'Get full financial shift report' })
+  async getShiftReport(@Param('id') shiftId: string, @Request() req: any) {
+    return this.shiftsService.getShiftReport(shiftId, req.user);
   }
 
   @Get()

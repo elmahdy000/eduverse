@@ -30,12 +30,22 @@ export default function ShiftsPage() {
 
   const fetchShifts = async () => {
     try {
-      const [currentRes, listRes] = await Promise.all([
+      const [currentRes, listRes] = await Promise.allSettled([
         api.get("/shifts/current"),
         api.get("/shifts")
       ]);
-      setCurrentShift(currentRes.data);
-      setPastShifts(listRes.data.data || []);
+
+      if (currentRes.status === "fulfilled") {
+        setCurrentShift(currentRes.value.data);
+      } else {
+        setCurrentShift(null);
+      }
+
+      if (listRes.status === "fulfilled") {
+        setPastShifts(listRes.value.data.data || []);
+      } else {
+        setPastShifts([]);
+      }
     } catch (err) {
       console.error("Failed to fetch shifts", err);
     } finally {

@@ -28,6 +28,35 @@ interface InvoicePaymentsSummary {
   remainingAmount: number;
 }
 
+function printInvoiceOnly() {
+  const node = document.getElementById("printable-invoice");
+  if (!node) {
+    window.print();
+    return;
+  }
+  const w = window.open("", "_blank", "width=900,height=700");
+  if (!w) {
+    window.print();
+    return;
+  }
+  w.document.write(`<html dir="rtl"><head><meta charset="utf-8" /><title>فاتورة</title></head><body>${node.outerHTML}</body></html>`);
+  w.document.close();
+  w.focus();
+  w.print();
+  w.close();
+}
+
+function downloadInvoiceSnapshot(invoice: Invoice) {
+  const payload = { type: "invoice_snapshot", exportedAt: new Date().toISOString(), invoice };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${invoice.invoiceNumber || invoice.id}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function InvoiceListItem({ invoice, onSelect, selected }: {
   invoice: Invoice;
   onSelect: () => void;
@@ -379,7 +408,8 @@ export default function BillingPage() {
               <InvoiceReceipt 
                 invoice={selectedInvoiceQuery.data} 
                 payments={selectedInvoicePaymentsQuery.data?.data}
-                onPrint={() => window.print()}
+                onPrint={printInvoiceOnly}
+                onDownload={() => downloadInvoiceSnapshot(selectedInvoiceQuery.data)}
               />
 
               {/* Payment Actions Grid */}

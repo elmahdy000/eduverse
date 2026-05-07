@@ -17,19 +17,19 @@ export class PaymentsService {
   }
 
   async recordPayment(recordPaymentDto: RecordPaymentDto, userId: string) {
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id: recordPaymentDto.invoiceId },
-    });
-    if (!invoice) {
-      throw new Error('Invoice not found');
-    }
-
-    const remainingAmount = Number(invoice.remainingAmount);
-    if (recordPaymentDto.amount > remainingAmount) {
-      throw new Error('Payment amount exceeds remaining invoice amount');
-    }
-
     return this.prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.findUnique({
+        where: { id: recordPaymentDto.invoiceId },
+      });
+      if (!invoice) {
+        throw new Error('Invoice not found');
+      }
+
+      const remainingAmount = Number(invoice.remainingAmount);
+      if (recordPaymentDto.amount > remainingAmount) {
+        throw new Error('Payment amount exceeds remaining invoice amount');
+      }
+
       const payment = await tx.payment.create({
         data: {
           invoiceId: recordPaymentDto.invoiceId,
@@ -45,7 +45,7 @@ export class PaymentsService {
       const updatedRemaining = Number((totalAmount - updatedAmountPaid).toFixed(2));
       const paymentStatus = this.getPaymentStatus(totalAmount, updatedAmountPaid);
 
-      await tx.invoice.update({
+      const updated = await tx.invoice.updateMany({
         where: { id: recordPaymentDto.invoiceId },
         data: {
           amountPaid: updatedAmountPaid,
@@ -54,8 +54,12 @@ export class PaymentsService {
         },
       });
 
+      if (updated.count !== 1) {
+        throw new Error('Failed to update invoice payment state');
+      }
+
       return payment;
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 
   async listPayments(
@@ -120,25 +124,25 @@ export class PaymentsService {
   }
 
   async refundPayment(paymentId: string, refundDto: RefundPaymentDto, userId: string) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-      include: { invoice: true },
-    });
-    if (!payment) {
-      throw new Error('Payment not found');
-    }
-
-    const originalAmount = Number(payment.amount);
-    if (originalAmount <= 0) {
-      throw new Error('Cannot refund a refund payment');
-    }
-
-    const refundAmount = refundDto.amount ?? originalAmount;
-    if (refundAmount > originalAmount) {
-      throw new Error('Refund amount cannot exceed original payment amount');
-    }
-
     return this.prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({
+        where: { id: paymentId },
+        include: { invoice: true },
+      });
+      if (!payment) {
+        throw new Error('Payment not found');
+      }
+
+      const originalAmount = Number(payment.amount);
+      if (originalAmount <= 0) {
+        throw new Error('Cannot refund a refund payment');
+      }
+
+      const refundAmount = refundDto.amount ?? originalAmount;
+      if (refundAmount > originalAmount) {
+        throw new Error('Refund amount cannot exceed original payment amount');
+      }
+
       const refundPayment = await tx.payment.create({
         data: {
           invoiceId: payment.invoiceId,
@@ -160,7 +164,7 @@ export class PaymentsService {
       const adjustedRemaining = Number((totalAmount - adjustedPaid).toFixed(2));
       const paymentStatus = this.getPaymentStatus(totalAmount, adjustedPaid);
 
-      await tx.invoice.update({
+      const updated = await tx.invoice.updateMany({
         where: { id: invoice.id },
         data: {
           amountPaid: adjustedPaid,
@@ -169,7 +173,11 @@ export class PaymentsService {
         },
       });
 
+      if (updated.count !== 1) {
+        throw new Error('Failed to update invoice after refund');
+      }
+
       return refundPayment;
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 }

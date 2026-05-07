@@ -66,8 +66,17 @@ export class InvoicesService {
       throw new Error('Session not found');
     }
     if (session.invoice) {
-      // If invoice already exists, just return it instead of throwing error in auto-gen
-      return session.invoice;
+      return tx.invoice.findUnique({
+        where: { id: session.invoice.id },
+        include: {
+          customer: true,
+          session: true,
+          items: true,
+          payments: {
+            orderBy: { paidAt: 'desc' },
+          },
+        },
+      });
     }
 
     const sessionAmount = Number(session.chargeAmount ?? 0);

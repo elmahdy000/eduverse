@@ -110,7 +110,7 @@ export class SessionsService {
       });
 
       return newSession;
-    });
+    }, { isolationLevel: 'Serializable' });
 
     return session;
   }

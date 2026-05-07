@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { AppModule } from './../src/app.module';
 
 describe('Eduverse API (e2e)', () => {
@@ -21,6 +21,7 @@ describe('Eduverse API (e2e)', () => {
   let barOrderId: string;
   let invoiceId: string;
   let paymentId: string;
+  let ownerShiftId: string;
 
   beforeAll(async () => {
     prisma = new PrismaClient();
@@ -30,6 +31,7 @@ describe('Eduverse API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
     await app.init();
 
     const ownerLogin = await request(app.getHttpServer()).post('/auth/login').send({
@@ -91,6 +93,42 @@ describe('Eduverse API (e2e)', () => {
         expect(body.success).toBe(true);
         expect(body.data.email).toBe('owner@eduvers.com');
       });
+  });
+
+  it('validates shift cash inputs and enforces shift ownership on close', async () => {
+    const currentShiftRes = await request(app.getHttpServer())
+      .get('/shifts/current')
+      .set('Authorization', `Bearer ${ownerAccessToken}`)
+      .expect(200);
+
+    if (currentShiftRes.body?.id) {
+      ownerShiftId = currentShiftRes.body.id;
+    } else {
+      const startRes = await request(app.getHttpServer())
+        .post('/shifts/start')
+        .set('Authorization', `Bearer ${ownerAccessToken}`)
+        .send({ startCash: 200 })
+        .expect(201);
+      ownerShiftId = startRes.body.id;
+    }
+
+    await request(app.getHttpServer())
+      .put(`/shifts/${ownerShiftId}/close`)
+      .set('Authorization', `Bearer ${ownerAccessToken}`)
+      .send({ actualCash: -1 })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .put(`/shifts/${ownerShiftId}/close`)
+      .set('Authorization', `Bearer ${restrictedAccessToken}`)
+      .send({ actualCash: 200 })
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .put(`/shifts/${ownerShiftId}/close`)
+      .set('Authorization', `Bearer ${ownerAccessToken}`)
+      .send({ actualCash: 200 })
+      .expect(200);
   });
 
   it('enforces room booking conflict detection', async () => {

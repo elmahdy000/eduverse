@@ -143,15 +143,16 @@ export default function SessionsPage() {
   const closeMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const res = await api.post(`/sessions/${sessionId}/close`, { notes: "أُغلقت من واجهة الاستقبال" });
-      return res.data; // This now contains session + invoice
+      return res.data;
     },
     onSuccess: (data: any) => {
       setMessage({ text: "تم إغلاق المدة وإنشاء الفاتورة بنجاح!", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       
-      if (data.invoice) {
-        setSelectedInvoice(data.invoice);
+      const invoice = data?.data?.invoice;
+      if (invoice) {
+        setSelectedInvoice(invoice);
       }
     },
     onError: (err: unknown) => {

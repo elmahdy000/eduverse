@@ -113,6 +113,9 @@ export interface Invoice {
   id: string;
   invoiceNumber: string;
   paymentStatus: string;
+  subtotal?: string | number;
+  discountAmount?: string | number;
+  taxAmount?: string | number;
   totalAmount: string | number;
   amountPaid: string | number;
   remainingAmount: string | number;

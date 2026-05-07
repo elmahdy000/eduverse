@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
 import clsx from "clsx";
 import {
@@ -20,8 +20,6 @@ import {
   ChevronRight,
   Building2,
   Settings,
-  TrendingUp,
-  BarChart3,
   Activity,
   Wallet,
   Boxes,
@@ -30,7 +28,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
-import { roleHomePath, roleLabel } from "../lib/api";
+import { roleLabel } from "../lib/api";
 
 type NavItem = { label: string; href: string; roles: string[]; icon: React.ReactNode };
 
@@ -211,7 +209,6 @@ function roleColor(roleName?: string | null) {
 
 export function AppShell({ children }: PropsWithChildren) {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, clearAuth } = useAuthStore();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
@@ -220,7 +217,7 @@ export function AppShell({ children }: PropsWithChildren) {
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "مستخدم";
 
   const allowedGroups = navGroups.filter((group) =>
-    roleName ? group.roles.includes(roleName) : false
+    roleName ? group.roles.includes(roleName) : false,
   );
 
   const toggleGroup = (groupLabel: string) => {
@@ -232,31 +229,25 @@ export function AppShell({ children }: PropsWithChildren) {
 
   const handleLogout = () => {
     clearAuth();
-    // Use window.location.href for immediate redirect
     window.location.href = "/login";
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-slate-900">
       <div className="mx-auto grid min-h-screen w-full max-w-[1600px] grid-cols-1 lg:grid-cols-[280px_1fr]">
-        {/* ── Sidebar ── */}
         <aside className="flex flex-col border-l border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
-          {/* Logo */}
           <div className="border-b border-slate-100 px-6 py-5">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow">
                 <Building2 size={18} />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                  EDUVERS
-                </p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">EDUVERS</p>
                 <p className="text-sm font-semibold text-slate-900">نظام التشغيل</p>
               </div>
             </div>
           </div>
 
-          {/* User Card */}
           <div className="border-b border-slate-100 px-4 py-4">
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="mb-2 flex items-center gap-2">
@@ -279,12 +270,11 @@ export function AppShell({ children }: PropsWithChildren) {
             </div>
           </div>
 
-          {/* Nav Groups */}
           <nav className="flex-1 overflow-y-auto px-3 py-4">
             <div className="space-y-1">
               {allowedGroups.map((group) => {
                 const allowedItems = group.items.filter((item) =>
-                  roleName ? item.roles.includes(roleName) : false
+                  roleName ? item.roles.includes(roleName) : false,
                 );
                 if (allowedItems.length === 0) return null;
 
@@ -301,12 +291,10 @@ export function AppShell({ children }: PropsWithChildren) {
                         "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                         isActive
                           ? "bg-slate-900 text-white shadow-sm"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                       )}
                     >
-                      <span className={clsx("shrink-0", isActive ? "text-white" : "text-slate-400")}>
-                        {item.icon}
-                      </span>
+                      <span className={clsx("shrink-0", isActive ? "text-white" : "text-slate-400")}>{item.icon}</span>
                       {item.label}
                     </Link>
                   );
@@ -328,8 +316,7 @@ export function AppShell({ children }: PropsWithChildren) {
                     {isOpen && (
                       <div className="mt-1 space-y-0.5 pr-2">
                         {allowedItems.map((item) => {
-                          const isActive =
-                            pathname === item.href || pathname.startsWith(item.href + "/");
+                          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                           return (
                             <Link
                               key={item.href}
@@ -338,12 +325,10 @@ export function AppShell({ children }: PropsWithChildren) {
                                 "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition",
                                 isActive
                                   ? "bg-slate-900 text-white shadow-sm"
-                                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                               )}
                             >
-                              <span className={clsx("shrink-0", isActive ? "text-white" : "text-slate-400")}>
-                                {item.icon}
-                              </span>
+                              <span className={clsx("shrink-0", isActive ? "text-white" : "text-slate-400")}>{item.icon}</span>
                               {item.label}
                             </Link>
                           );
@@ -356,7 +341,6 @@ export function AppShell({ children }: PropsWithChildren) {
             </div>
           </nav>
 
-          {/* Logout */}
           <div className="border-t border-slate-100 px-4 py-4">
             <button
               onClick={handleLogout}
@@ -368,7 +352,6 @@ export function AppShell({ children }: PropsWithChildren) {
           </div>
         </aside>
 
-        {/* ── Main Content ── */}
         <main className="min-w-0 p-4 md:p-6 lg:p-8">
           {children}
         </main>

@@ -89,7 +89,7 @@ export default function OwnerDashboardPage() {
     <div className="space-y-6">
       <SectionTitle
         title={`${greeting}، يا مالك 👑`}
-        subtitle="ملخص تنيذي لأداء النهارده وحالة التشغيل اللحظية."
+        subtitle="ملخص تنفيذي لأداء النهارده وحالة التشغيل اللحظية."
         icon={<Crown size={20} />}
         action={
           <button onClick={() => refetch()} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
@@ -117,7 +117,7 @@ export default function OwnerDashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="داخل المكان دلوقتي" value={data.activeCustomersNow} icon={<Users size={18} />} tone="info" sub="عميل نشط" />
         <StatCard label="جلسات شغالة" value={data.activeSessionsNow} icon={<Clock size={18} />} tone="info" />
-        <StatCard label="غر مشغولة" value={data.occupiedRoomsNow} icon={<DoorOpen size={18} />} tone={data.occupiedRoomsNow > 0 ? "warn" : "default"} />
+        <StatCard label="غرف مشغولة" value={data.occupiedRoomsNow} icon={<DoorOpen size={18} />} tone={data.occupiedRoomsNow > 0 ? "warn" : "default"} />
         <StatCard label="طلبات بار معلقة" value={data.currentBarOrders} icon={<Coffee size={18} />} tone={data.currentBarOrders > 10 ? "warn" : "default"} />
       </div>
 
@@ -139,10 +139,10 @@ export default function OwnerDashboardPage() {
 
       {/* Secondary KPIs */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="واتير النهارده" value={data.invoicesToday} icon={<Receipt size={18} />} />
+        <StatCard label="فواتير النهارده" value={data.invoicesToday} icon={<Receipt size={18} />} />
         <StatCard label="حجوزات النهارده" value={data.todayBookings} icon={<Calendar size={18} />} />
         <StatCard label="عملاء جدد النهارده" value={data.newCustomersToday} tone="success" icon={<UserPlus size={18} />} />
-        <StatCard label="متوسط مدة المدة" value={data.avgSessionMinutes != null ? `${data.avgSessionMinutes} د` : "—"} icon={<Clock size={18} />} sub="المدد المغلقة النهارده" />
+        <StatCard label="متوسط مدة الجلسة" value={data.avgSessionMinutes != null ? `${data.avgSessionMinutes} د` : "—"} icon={<Clock size={18} />} sub="المدد المغلقة النهارده" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -165,9 +165,9 @@ export default function OwnerDashboardPage() {
         </Panel>
 
         {/* Top products */}
-        <Panel title="الأكتر مبيعاً ي البار" icon={<BarChart3 size={16} />}>
+        <Panel title="الأكثر مبيعًا في البار" icon={<BarChart3 size={16} />}>
           {data.topProducts.length === 0 ? (
-            <EmptyState icon={<BarChart3 size={36} />} title="ميش مبيعات لحد دلوقتي" />
+            <EmptyState icon={<BarChart3 size={36} />} title="مفيش مبيعات لحد دلوقتي" />
           ) : (
             <div className="space-y-3">
               {data.topProducts.map((item, i) => {
@@ -204,7 +204,7 @@ export default function OwnerDashboardPage() {
           <EmptyState icon={<Users size={36} />} title="لا توجد بيانات" />
         ) : (
           <div className="space-y-4">
-            <p className="text-xs text-slate-500">نشاط الريق النهارده</p>
+            <p className="text-xs text-slate-500">نشاط الفريق النهارده</p>
             <div className="grid gap-3 sm:grid-cols-3">
               {opsData.operationsByRole.map((roleData) => (
                 <div key={roleData.role} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -238,4 +238,3 @@ export default function OwnerDashboardPage() {
     </div>
   );
 }
-

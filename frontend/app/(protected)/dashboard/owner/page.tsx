@@ -115,8 +115,8 @@ export default function OwnerDashboardPage() {
 
       {/* Live pulse strip */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="داخل المكان دلوقتي" value={data.activeCustomersNow} icon={<Users size={18} />} tone="info" sub="عميل نشط" />
-        <StatCard label="جلسات شغالة" value={data.activeSessionsNow} icon={<Clock size={18} />} tone="info" />
+        <StatCard label="داخل المكان دلوقتي" value={data.activeSessionsNow} icon={<Users size={18} />} tone="info" sub="جلسة مفتوحة" />
+        <StatCard label="عملاء جدد النهارده" value={data.newCustomersToday} icon={<UserPlus size={18} />} tone="success" sub="مسجلين اليوم" />
         <StatCard label="غرف مشغولة" value={data.occupiedRoomsNow} icon={<DoorOpen size={18} />} tone={data.occupiedRoomsNow > 0 ? "warn" : "default"} />
         <StatCard label="طلبات بار معلقة" value={data.currentBarOrders} icon={<Coffee size={18} />} tone={data.currentBarOrders > 10 ? "warn" : "default"} />
       </div>
@@ -141,9 +141,46 @@ export default function OwnerDashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="فواتير النهارده" value={data.invoicesToday} icon={<Receipt size={18} />} />
         <StatCard label="حجوزات النهارده" value={data.todayBookings} icon={<Calendar size={18} />} />
-        <StatCard label="عملاء جدد النهارده" value={data.newCustomersToday} tone="success" icon={<UserPlus size={18} />} />
+        <StatCard label="إجمالي العملاء" value={data.totalCustomers} icon={<Users size={18} />} tone="info" sub="حسابات مسجلة" />
         <StatCard label="متوسط مدة الجلسة" value={data.avgSessionMinutes != null ? `${data.avgSessionMinutes} د` : "—"} icon={<Clock size={18} />} sub="المدد المغلقة النهارده" />
       </div>
+
+      {/* Weekly Revenue Chart */}
+      {Object.keys(data.dailyRevenue ?? {}).length > 0 && (() => {
+        const entries = Object.entries(data.dailyRevenue).sort(([a], [b]) => a.localeCompare(b));
+        const maxVal = Math.max(...entries.map(([, v]) => v), 1);
+        const arabicDays = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+        return (
+          <Panel title="الإيراد اليومي — آخر 7 أيام" icon={<BarChart3 size={16} />}>
+            <div className="flex items-end gap-2 h-36 pt-4">
+              {entries.map(([date, amount]) => {
+                const pct = Math.round((amount / maxVal) * 100);
+                const d = new Date(date);
+                const isToday = date === new Date().toISOString().split('T')[0];
+                return (
+                  <div key={date} className="flex flex-1 flex-col items-center gap-1">
+                    <span className="text-[9px] font-bold text-slate-500">{amount > 0 ? Math.round(amount).toLocaleString('ar') : ''}</span>
+                    <div className="w-full flex items-end" style={{ height: '80px' }}>
+                      <div
+                        className={`w-full rounded-t-lg transition-all duration-700 ${isToday ? 'bg-emerald-500' : 'bg-slate-300 hover:bg-slate-400'}`}
+                        style={{ height: `${Math.max(pct, 4)}%` }}
+                        title={`${date}: ${amount.toLocaleString('ar')} ج`}
+                      />
+                    </div>
+                    <span className={`text-[9px] font-semibold ${isToday ? 'text-emerald-700' : 'text-slate-400'}`}>
+                      {arabicDays[d.getDay()]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-400">
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500 inline-block" /> اليوم</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-slate-300 inline-block" /> أيام سابقة</span>
+            </div>
+          </Panel>
+        );
+      })()}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Financial summary */}

@@ -134,6 +134,9 @@ export default function RoomsPage() {
   const [editCapacity, setEditCapacity] = useState("1");
   const [editStatus, setEditStatus] = useState("available");
 
+  // Confirm dialog state for room status change
+  const [confirmAction, setConfirmAction] = useState<{ roomId: string; action: "deactivate" | "reactivate"; roomName: string } | null>(null);
+
   const roomsQuery = useQuery({
     queryKey: ["rooms", statusFilter, searchQuery],
     queryFn: async () => {
@@ -391,9 +394,48 @@ export default function RoomsPage() {
               key={room.id}
               room={room}
               onEdit={startEdit}
-              onStatusChange={(roomId, action) => statusMutation.mutate({ roomId, action })}
+              onStatusChange={(roomId, action) => {
+                const room = rooms.find(r => r.id === roomId);
+                setConfirmAction({ roomId, action, roomName: room?.name ?? "الغرفة" });
+              }}
             />
           ))}
+        </div>
+      )}
+
+      {/* Confirm Status Change Dialog */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-8 shadow-2xl">
+            <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${confirmAction.action === "deactivate" ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"}`}>
+              {confirmAction.action === "deactivate" ? <PowerOff size={28} /> : <Power size={28} />}
+            </div>
+            <h3 className="text-xl font-bold text-slate-900">
+              {confirmAction.action === "deactivate" ? "إيقاف الغرفة" : "تفعيل الغرفة"}
+            </h3>
+            <p className="mt-2 text-slate-500">
+              هل أنت متأكد من {confirmAction.action === "deactivate" ? "إيقاف" : "تفعيل"} الغرفة{" "}
+              <strong className="text-slate-900">"{confirmAction.roomName}"</strong>؟
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="flex-1 rounded-2xl bg-slate-100 py-3 font-bold text-slate-600 hover:bg-slate-200 transition"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => {
+                  statusMutation.mutate({ roomId: confirmAction.roomId, action: confirmAction.action });
+                  setConfirmAction(null);
+                }}
+                disabled={statusMutation.isPending}
+                className={`flex-1 rounded-2xl py-3 font-bold text-white shadow-md transition disabled:opacity-50 ${confirmAction.action === "deactivate" ? "bg-rose-500 hover:bg-rose-600" : "bg-emerald-600 hover:bg-emerald-700"}`}
+              >
+                {confirmAction.action === "deactivate" ? "إيقاف" : "تفعيل"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

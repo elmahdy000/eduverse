@@ -74,6 +74,7 @@ model User {
   recordedExpenses Expense[] @relation("RecordedExpenses")
   linkedExpenses   Expense[] @relation("LinkedExpenses")
   wasteEntries     WasteEntry[]
+  inventoryTransactions InventoryTransaction[]
   shifts           Shift[]
 
   @@map("users")
@@ -150,6 +151,7 @@ model Session {
   customerId      String   @db.Uuid
   sessionType     String   // hourly, daily, package, booking_linked
   roomId          String?  @db.Uuid
+  bookingId       String?  @unique @db.Uuid  // ربط بالحجز المسبق
   startTime       DateTime
   endTime         DateTime?
   durationMinutes Int?
@@ -164,6 +166,7 @@ model Session {
 
   customer      Customer   @relation(fields: [customerId], references: [id])
   room          Room?      @relation(fields: [roomId], references: [id])
+  booking       Booking?   @relation(fields: [bookingId], references: [id])
   openedByUser  User       @relation("OpenedBy", fields: [openedByUserId], references: [id])
   closedByUser  User?      @relation("ClosedBy", fields: [closedByUserId], references: [id])
   barOrders     BarOrder[]
@@ -191,7 +194,7 @@ model Booking {
   totalAmount      Decimal  @db.Decimal(10, 2)
   depositAmount    Decimal? @db.Decimal(10, 2)
   notes            String?
-  status           String   @default("confirmed") // draft, confirmed, completed, cancelled
+  status           String   @default("confirmed") // draft, confirmed, completed, cancelled, no_show
   createdByUserId  String   @db.Uuid
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -199,6 +202,7 @@ model Booking {
   customer      Customer @relation(fields: [customerId], references: [id])
   room          Room     @relation(fields: [roomId], references: [id])
   createdByUser User     @relation(fields: [createdByUserId], references: [id])
+  session       Session?  // الجلسة المرتبطة بالحجز
 
   @@index([customerId])
   @@index([roomId])
@@ -478,6 +482,7 @@ model InventoryTransaction {
   createdAt       DateTime @default(now())
 
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  performedBy     User          @relation(fields: [performedByUserId], references: [id])
 
   @@index([inventoryItemId])
   @@index([type])

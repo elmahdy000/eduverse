@@ -318,4 +318,76 @@ export class ShiftsService {
 
     return { data, total, page, limit };
   }
+
+
+
+  async getShiftsSummary(fromDate?: string, toDate?: string) {
+    const dateFilter =
+      fromDate || toDate
+        ? {
+            startTime: {
+              ...(fromDate ? { gte: new Date(fromDate) } : {}),
+              ...(toDate ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) } : {}),
+            },
+          }
+        : {};
+
+    const closedWhere = { status: 'closed', ...dateFilter };
+
+    const [agg, closedShifts, openCount] = await Promise.all([
+      this.prisma.shift.aggregate({
+        where: closedWhere,
+        _sum: { totalSales: true, totalExpenses: true },
+        _count: true,
+        _avg: { totalSales: true },
+      }),
+      this.prisma.shift.findMany({
+        where: closedWhere,
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          startCash: true,
+          actualCash: true,
+          totalSales: true,
+          totalExpenses: true,
+          user: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { startTime: 'desc' },
+        take: 10,
+      }),
+      this.prisma.shift.count({ where: { status: 'open' } }),
+    ]);
+
+    const shiftsWithVariance = closedShifts.map((s) => {
+      const expectedCash =
+        Number(s.startCash) + Number(s.totalSales) - Number(s.totalExpenses);
+      const actualCash = s.actualCash != null ? Number(s.actualCash) : null;
+      const variance = actualCash != null ? Number((actualCash - expectedCash).toFixed(2)) : null;
+      return {
+        id: s.id,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        cashier: s.user ? `${s.user.firstName} ${s.user.lastName}` : 'Unknown',
+        totalSales: Number(s.totalSales),
+        totalExpenses: Number(s.totalExpenses),
+        netSales: Number(s.totalSales) - Number(s.totalExpenses),
+        variance,
+      };
+    });
+
+    const totalVariance = shiftsWithVariance.reduce((sum, s) => sum + (s.variance ?? 0), 0);
+
+    return {
+      closedCount: agg._count,
+      openCount,
+      totalSales: Number(agg._sum.totalSales ?? 0),
+      totalExpenses: Number(agg._sum.totalExpenses ?? 0),
+      netSales: Number(agg._sum.totalSales ?? 0) - Number(agg._sum.totalExpenses ?? 0),
+      avgSalesPerShift: Number(agg._avg.totalSales ?? 0),
+      totalVariance: Number(totalVariance.toFixed(2)),
+      recentShifts: shiftsWithVariance,
+    };
+  }
+
 }

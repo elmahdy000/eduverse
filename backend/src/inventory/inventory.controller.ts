@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -61,4 +61,38 @@ export class InventoryController {
     const items = await this.inventoryService.listItems();
     return items.filter(item => Number(item.currentStock) <= Number(item.minStockLevel));
   }
+
+  @Get('transactions')
+  @ApiOperation({ summary: 'Get all inventory movement history' })
+  async getTransactions(
+    @Query('itemId') itemId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.inventoryService.getTransactions(itemId, limit ? Number(limit) : 100);
+  }
+
+  @Get('items/:id/transactions')
+  @ApiOperation({ summary: 'Get movement history for a specific inventory item' })
+  async getItemTransactions(
+    @Param('id') itemId: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.inventoryService.getTransactions(itemId, limit ? Number(limit) : 50);
+  }
+
+
+
+  @Get('waste-summary')
+  @UseGuards(OpsManagerGuard)
+  async getWasteSummary(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
+    try {
+      return await this.inventoryService.getWasteSummary(fromDate, toDate);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
 }

@@ -7,6 +7,7 @@ import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 @Injectable()
 export class SessionsService {
+  // Trigger TS Re-validation
   constructor(
     private prisma: PrismaService,
     private invoicesService: InvoicesService,
@@ -54,6 +55,29 @@ export class SessionsService {
         throw new Error('هذا العميل في القائمة السوداء، لا يمكن فتح جلسة له');
       }
 
+      // Validate booking if bookingId is provided
+      let linkedBooking: any = null;
+      if (createSessionDto.bookingId) {
+        linkedBooking = await tx.booking.findUnique({
+          where: { id: createSessionDto.bookingId },
+        });
+
+        if (!linkedBooking) {
+          throw new Error('الحجز المحدد غير موجود');
+        }
+        if (linkedBooking.status !== 'confirmed') {
+          throw new Error('لا يمكن ربط جلسة بحجز غير مؤكد');
+        }
+        if (linkedBooking.customerId !== createSessionDto.customerId) {
+          throw new Error('العميل لا يتطابق مع الحجز المحدد');
+        }
+
+        // Use booking's room if session doesn't specify one
+        if (!createSessionDto.roomId && linkedBooking.roomId) {
+          createSessionDto.roomId = linkedBooking.roomId;
+        }
+      }
+
       // Check room availability if roomId is provided
       if (createSessionDto.roomId) {
         const room = await tx.room.findUnique({
@@ -69,7 +93,6 @@ export class SessionsService {
         }
 
         if (room.status === 'occupied') {
-          // Check if there's REALLY an active session in this room
           const activeRoomSession = await tx.session.findFirst({
             where: { roomId: createSessionDto.roomId, status: 'active' },
           });
@@ -77,21 +100,49 @@ export class SessionsService {
             throw new Error('الغرفة مشغولة حالياً بجلسة أخرى');
           }
         }
+
+        // تحذير: لو فيه حجز مؤكد على الغرفة خلال الساعتين الجايين
+        if (!createSessionDto.bookingId) {
+          const upcomingBooking = await tx.booking.findFirst({
+            where: {
+              roomId: createSessionDto.roomId,
+              status: 'confirmed',
+              startTime: {
+                gt: new Date(),
+                lte: new Date(Date.now() + 2 * 60 * 60 * 1000), // خلال ساعتين
+              },
+            },
+            include: { customer: true },
+          });
+
+          if (upcomingBooking) {
+            const bookingTime = new Date(upcomingBooking.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            throw new Error(
+              `تنبيه: الغرفة عليها حجز مؤكد الساعة ${bookingTime} باسم ${upcomingBooking.customer?.fullName || 'عميل'}. لو عاوز تكمل، اختار غرفة تانية أو اربط بالحجز.`
+            );
+          }
+        }
       }
 
       const guestCode = await this.generateUniqueGuestCode();
 
-      const newSession = await tx.session.create({
+      const newSession = await (tx.session as any).create({
         data: {
-          ...createSessionDto,
+          customerId: createSessionDto.customerId,
+          sessionType: createSessionDto.bookingId ? 'booking_linked' : createSessionDto.sessionType,
+          roomId: createSessionDto.roomId,
+          bookingId: createSessionDto.bookingId,
           startTime: new Date(),
           openedByUserId: userId,
           status: 'active',
           guestCode,
+          chargeAmount: createSessionDto.chargeAmount,
+          notes: createSessionDto.notes,
         },
         include: {
           customer: true,
           room: true,
+          booking: true,
         },
       });
 
@@ -116,9 +167,9 @@ export class SessionsService {
   }
 
   async closeSession(sessionId: string, closeSessionDto: CloseSessionDto, userId: string) {
-    const session = await this.prisma.session.findUnique({
+    const session: any = await (this.prisma.session as any).findUnique({
       where: { id: sessionId },
-      include: { room: true },
+      include: { room: true, booking: true },
     });
 
     if (!session) {
@@ -149,7 +200,7 @@ export class SessionsService {
 
 
     const closedSession = await this.prisma.$transaction(async (tx) => {
-      const updatedSession = await tx.session.update({
+      const updatedSession: any = await (tx.session as any).update({
         where: { id: sessionId },
         data: {
           endTime,
@@ -200,6 +251,14 @@ export class SessionsService {
           totalBarOrders: updatedSession.barOrders.length,
         },
       });
+
+      // Auto-complete linked booking
+      if (updatedSession.bookingId) {
+        await tx.booking.update({
+          where: { id: updatedSession.bookingId },
+          data: { status: 'completed' },
+        });
+      }
 
       return {
         ...updatedSession,

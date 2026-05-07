@@ -1,17 +1,18 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   AlertTriangle,
   ArrowUpRight,
   Boxes,
-  Filter,
+  ChevronDown,
+  Clock,
   History,
-  MoreVertical,
   Plus,
   Search,
   Settings2,
   Trash2,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import { api } from "../../../lib/api";
@@ -23,6 +24,17 @@ type InventoryItem = {
   category?: string | null;
   currentStock: number | string;
   minStockLevel: number | string;
+  _count?: { recipes: number };
+};
+
+type InventoryTransaction = {
+  id: string;
+  type: "in" | "out" | "adjustment";
+  quantity: number;
+  reason?: string | null;
+  createdAt: string;
+  inventoryItem: { name: string; unit: string };
+  performedBy?: { firstName: string | null; lastName: string | null; email: string } | null;
 };
 
 type FlashMessage = { ok: boolean; text: string } | null;
@@ -39,6 +51,7 @@ export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const [showNewItemModal, setShowNewItemModal] = useState(false);
   const [newItemData, setNewItemData] = useState(EMPTY_NEW_ITEM);
@@ -48,6 +61,12 @@ export default function InventoryPage() {
 
   const [showWasteModal, setShowWasteModal] = useState<string | null>(null);
   const [wasteData, setWasteData] = useState({ quantity: "", reason: "" });
+
+  // History log modal
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyItems, setHistoryItems] = useState<InventoryTransaction[]>([]);
+  const [historyItemId, setHistoryItemId] = useState<string | null>(null); // null = all
 
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<FlashMessage>(null);
@@ -68,10 +87,39 @@ export default function InventoryPage() {
     }
   };
 
+  const openHistory = async (itemId?: string) => {
+    setHistoryItemId(itemId || null);
+    setShowHistoryModal(true);
+    setHistoryLoading(true);
+    try {
+      const url = itemId ? `/inventory/items/${itemId}/transactions` : `/inventory/transactions`;
+      const res = await api.get(url, { params: { limit: 100 } });
+      setHistoryItems(res.data);
+    } catch {
+      setHistoryItems([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // Unique categories derived from items
+  const categories = useMemo(() => {
+    const cats = new Set(items.map(i => i.category).filter(Boolean) as string[]);
+    return Array.from(cats).sort();
+  }, [items]);
+
+  // Recipe coverage: items that have at least one recipe / total
+  const recipeCoverage = useMemo(() => {
+    if (!items.length) return null;
+    const withRecipes = items.filter(i => (i._count?.recipes ?? 0) > 0).length;
+    return Math.round((withRecipes / items.length) * 100);
+  }, [items]);
+
   const lowStockItems = items.filter((item) => Number(item.currentStock) <= Number(item.minStockLevel));
   const totalItems = items.length;
 
   const selectedStockItem = items.find((item) => item.id === showAddStockModal);
+  const historyItemName = historyItemId ? items.find(i => i.id === historyItemId)?.name : null;
 
   const handleCreateItem = async () => {
     if (!newItemData.name.trim() || !newItemData.unit.trim()) {
@@ -171,9 +219,12 @@ export default function InventoryPage() {
           <p className="text-slate-500">إدارة الخامات والوصفات وحركة المخزن.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          <button
+            onClick={() => openHistory()}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
             <History size={18} />
-            السجل
+            سجل الحركة
           </button>
           <button
             onClick={() => setShowNewItemModal(true)}
@@ -237,14 +288,20 @@ export default function InventoryPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm font-medium text-slate-500">تغطية الوصفات</p>
-              <p className="text-3xl font-bold text-slate-900">92%</p>
+              <p className="text-3xl font-bold text-slate-900">
+                {recipeCoverage !== null ? `${recipeCoverage}%` : "—"}
+              </p>
             </div>
             <div className="rounded-2xl bg-amber-50 p-3 text-amber-600 transition-colors group-hover:bg-amber-100">
               <Settings2 size={24} />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs font-medium text-amber-600">
-            <span>راجع المنتجات اللي لسه بدون وصفة</span>
+            <span>
+              {recipeCoverage !== null
+                ? `${items.filter(i => (i._count?.recipes ?? 0) > 0).length} من ${totalItems} صنف ليه وصفة`
+                : "راجع المنتجات اللي لسه بدون وصفة"}
+            </span>
           </div>
         </div>
       </div>
@@ -262,10 +319,19 @@ export default function InventoryPage() {
             />
           </div>
           <div className="flex items-center gap-2 px-2">
-            <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
-              <Filter size={14} />
-              تصفية
-            </button>
+            <div className="relative">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="appearance-none rounded-lg border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              >
+                <option value="">كل الفئات</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <ChevronDown size={12} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
           </div>
         </div>
 
@@ -276,7 +342,10 @@ export default function InventoryPage() {
               .map((_, i) => <div key={i} className="h-48 animate-pulse rounded-3xl bg-slate-100" />)
           ) : (
             items
-              .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+              .filter((item) =>
+                item.name.toLowerCase().includes(search.toLowerCase()) &&
+                (categoryFilter === "" || item.category === categoryFilter)
+              )
               .map((item) => {
                 const stockNum = Number(item.currentStock);
                 const minStock = Number(item.minStockLevel);
@@ -292,8 +361,12 @@ export default function InventoryPage() {
                         <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.category || "خامات"}</p>
                         <h3 className="font-bold text-slate-900">{item.name}</h3>
                       </div>
-                      <button className="text-slate-400 hover:text-slate-600">
-                        <MoreVertical size={18} />
+                      <button
+                        onClick={() => openHistory(item.id)}
+                        title="سجل حركة هذا الصنف"
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        <History size={16} />
                       </button>
                     </div>
 
@@ -383,6 +456,83 @@ export default function InventoryPage() {
             <div className="mt-6 flex gap-3">
               <button onClick={() => { setShowAddStockModal(null); setAddStockData({ quantity: "", reason: "" }); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">إلغاء</button>
               <button onClick={handleAddStock} disabled={submitting || !addStockData.quantity} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "جاري الإضافة..." : "تأكيد"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
+          <div className="flex h-[600px] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-6">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  {historyItemName ? `سجل حركة: ${historyItemName}` : "سجل حركة المخزون"}
+                </h3>
+                <p className="text-sm text-slate-500">آخر 100 عملية</p>
+              </div>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="rounded-xl border border-slate-200 p-2 hover:bg-slate-50"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {historyLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Clock size={24} className="animate-spin text-slate-400" />
+                </div>
+              ) : historyItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <History size={40} className="mb-3" />
+                  <p className="text-sm">لا توجد عمليات مسجلة بعد.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {historyItems.map((tx) => (
+                    <div
+                      key={tx.id}
+                      className={clsx(
+                        "flex items-start justify-between rounded-xl border p-3",
+                        tx.type === "in" ? "border-emerald-100 bg-emerald-50" :
+                        tx.type === "out" ? "border-rose-100 bg-rose-50" :
+                        "border-amber-100 bg-amber-50"
+                      )}
+                    >
+                      <div className="space-y-0.5 text-right">
+                        <p className="text-xs font-bold text-slate-700">
+                          {tx.inventoryItem.name}
+                        </p>
+                        <p className="text-[11px] text-slate-500">{tx.reason || "بدون سبب"}</p>
+                        <p className="text-[10px] text-slate-400">
+                          {tx.performedBy
+                            ? `${tx.performedBy.firstName || ""} ${tx.performedBy.lastName || ""}`.trim() || tx.performedBy.email
+                            : "نظام"}
+                        </p>
+                      </div>
+                      <div className="text-left">
+                        <span
+                          className={clsx(
+                            "text-sm font-black",
+                            tx.type === "in" ? "text-emerald-700" :
+                            tx.type === "out" ? "text-rose-700" : "text-amber-700"
+                          )}
+                        >
+                          {tx.type === "in" ? "+" : "-"}{tx.quantity} {tx.inventoryItem.unit}
+                        </span>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          {new Date(tx.createdAt).toLocaleString("ar-EG", {
+                            day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

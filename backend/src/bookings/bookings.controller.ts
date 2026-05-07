@@ -38,6 +38,25 @@ export class BookingsController {
     }
   }
 
+  @Get('summary')
+  @ApiOperation({ summary: 'Get aggregate booking analytics for reporting' })
+  async getSummary(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
+    try {
+      const stats = await this.bookingsService.getBookingSummary(fromDate, toDate);
+      return {
+        success: true,
+        data: stats,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Get('conflicts')
   @ApiOperation({ summary: 'Check room conflicts for a time range' })
   async checkConflicts(@Query() query: BookingConflictQueryDto) {
@@ -157,6 +176,23 @@ export class BookingsController {
         success: true,
         data: booking,
         message: 'Booking completed',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/no-show')
+  @ApiOperation({ summary: 'Mark booking as no-show' })
+  async markAsNoShow(@Param('id') bookingId: string) {
+    try {
+      const booking = await this.bookingsService.markAsNoShow(bookingId);
+      return {
+        success: true,
+        data: booking,
+        message: 'Booking marked as no-show',
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

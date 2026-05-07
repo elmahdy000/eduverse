@@ -58,7 +58,7 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
           <p className="text-lg font-bold text-emerald-700">{money(product.price)}</p>
           <div className="mt-1 flex flex-col gap-1 items-end">
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.active ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-              {product.active ? "شغال" : "موقو"}
+              {product.active ? "شغال" : "موقوف"}
             </span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.availability ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
               {product.availability ? "متاح" : "مش متاح"}
@@ -73,11 +73,11 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
         </button>
         <button onClick={onToggleAvail} disabled={busy} className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
           {product.availability ? <EyeOff size={11} /> : <Eye size={11} />}
-          {product.availability ? "اوق الإتاحة" : "اتح الإتاحة"}
+          {product.availability ? "إيقاف الإتاحة" : "إتاحة"}
         </button>
         <button onClick={onToggleActive} disabled={busy} className={`flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
           {product.active ? <PowerOff size={11} /> : <Power size={11} />}
-          {product.active ? "إيقا" : "تعيل"}
+          {product.active ? "إيقاف" : "تفعيل"}
         </button>
       </div>
     </div>
@@ -133,7 +133,7 @@ export default function ProductsPage() {
     }),
     onSuccess: () => {
       setName(""); setCategory("other"); setPrice("0"); setDescription(""); setImageUrl(""); setShowForm(false);
-      setMessage({ text: "المنتج اتضا بنجاح! ✓", ok: true });
+      setMessage({ text: "تم إضافة المنتج بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (err: unknown) => {
@@ -156,7 +156,7 @@ export default function ProductsPage() {
     },
     onSuccess: () => {
       setEditingProduct(null);
-      setMessage({ text: "التعديل اتحظ. ✓", ok: true });
+      setMessage({ text: "تم حفظ التعديلات بنجاح. ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (err: unknown) => {
@@ -198,7 +198,7 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <SectionTitle
         title="المنتجات"
-        subtitle="إدارة منتجات البار — ضي، عدّل، وتحكم ي الإتاحة على طول."
+        subtitle="إدارة منتجات البار — أضف، عدّل، وتحكم في الإتاحة على طول."
         icon={<ShoppingBag size={20} />}
         action={
           <Btn size="sm" onClick={() => setShowForm(!showForm)} icon={<Plus size={14} />}>
@@ -213,12 +213,12 @@ export default function ProductsPage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard label="إجمالي المنتجات" value={total} icon={<Package size={18} />} />
         <StatCard label="شغالة" value={active} tone="success" icon={<Power size={18} />} />
-        <StatCard label="متاحة الآن" value={available} tone="info" icon={<Coffee size={18} />} sub="نشطة وإتاحتها متوحة" />
+        <StatCard label="متاحة الآن" value={available} tone="info" icon={<Coffee size={18} />} sub="نشطة وإتاحتها مفتوحة" />
       </div>
 
       {/* Add form */}
       {showForm && (
-        <Panel title="إضاة منتج جديد" icon={<Plus size={15} />} action={
+        <Panel title="إضافة منتج جديد" icon={<Plus size={15} />} action={
           <Btn size="sm" variant="ghost" onClick={() => setShowForm(false)}>✕ إغلاق</Btn>
         }>
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); createMutation.mutate(); }}>

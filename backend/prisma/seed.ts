@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting Bar-Centric Production Seed with Inventory...');
 
-  // 1. Clean existing data (Ordering matters due to foreign keys)
+  // 1. Clean existing data
   console.log('🧹 Cleaning old data...');
   await prisma.inventoryTransaction.deleteMany();
   await prisma.recipeItem.deleteMany();
@@ -53,7 +53,6 @@ async function main() {
   ];
 
   const allCreatedPermissions: any[] = [];
-
   for (const mod of permissionModules) {
     for (const action of mod.actions) {
       const p = await prisma.permission.create({
@@ -67,14 +66,12 @@ async function main() {
     }
   }
 
-  // 4. Assign Permissions to Roles
-  console.log('🔗 Assigning permissions to roles...');
+  // 4. Assign Permissions
+  console.log('🔗 Assigning permissions...');
   for (const perm of allCreatedPermissions) {
-    // Owner & Operations Manager get everything
     await prisma.rolePermission.create({ data: { roleId: roles['Owner'].id, permissionId: perm.id } });
     await prisma.rolePermission.create({ data: { roleId: roles['Operations Manager'].id, permissionId: perm.id } });
 
-    // Barista & Receptionist get core operational permissions
     const isOperational = ['read', 'create'].includes(perm.action) ||
       perm.module === 'dashboards' ||
       perm.module === 'sessions' ||
@@ -86,56 +83,80 @@ async function main() {
     }
   }
 
-  // 5. Create Default Users (Password: 123456)
+  // 5. Create Default Users
   console.log('👤 Creating default users...');
   const passwordHash = await bcrypt.hash('123456', 10);
+  const owner = await prisma.user.create({
+    data: {
+      email: 'owner@eduvers.com',
+      passwordHash,
+      firstName: 'Owner',
+      lastName: 'User',
+      roleId: roles['Owner'].id,
+      status: 'active',
+    },
+  });
 
-  const defaultUsers = [
-    { email: 'owner@eduvers.com', role: 'Owner', name: 'Owner' },
-    { email: 'ops@eduvers.com', role: 'Operations Manager', name: 'Ops Manager' },
-    { email: 'barista1@eduvers.com', role: 'Barista', name: 'Barista One' },
-    { email: 'barista2@eduvers.com', role: 'Barista', name: 'Barista Two' },
-    { email: 'recept1@eduvers.com', role: 'Receptionist', name: 'Receptionist One' },
-    { email: 'recept2@eduvers.com', role: 'Receptionist', name: 'Receptionist Two' },
+  await prisma.user.create({
+    data: {
+      email: 'barista@eduvers.com',
+      passwordHash,
+      firstName: 'Barista',
+      lastName: 'One',
+      roleId: roles['Barista'].id,
+      status: 'active',
+    },
+  });
+
+  // 6. Create Customers (Including Staff/Owners for discounts)
+  console.log('👥 Creating customers...');
+  const customers = [
+    { fullName: 'أحمد علي (موظف)', phoneNumber: '01011111111', customerType: 'staff' },
+    { fullName: 'محمد محمود (مالك)', phoneNumber: '01022222222', customerType: 'owner_discount' },
+    { fullName: 'سارة حسن (طالب)', phoneNumber: '01033333333', customerType: 'student' },
+    { fullName: 'ياسين كمال (زائر)', phoneNumber: '01044444444', customerType: 'visitor' },
   ];
 
-  for (const u of defaultUsers) {
-    await prisma.user.create({
-      data: {
-        email: u.email,
-        passwordHash,
-        firstName: u.name,
-        lastName: 'User',
-        roleId: roles[u.role].id,
-        status: 'active',
-      },
+  for (const c of customers) {
+    await prisma.customer.create({
+      data: { ...c, createdByUserId: owner.id },
     });
   }
 
-  // 6. Create Inventory Items
-  console.log('📦 Creating inventory items...');
-  const inventoryItems = [
-    { name: 'بن برازيلي (حبوب)', category: 'coffee', unit: 'جرام', currentStock: 5000, minStockLevel: 1000 },
-    { name: 'حليب كامل الدسم', category: 'dairy', unit: 'مل', currentStock: 12000, minStockLevel: 2000 },
-    { name: 'سكر أبيض', category: 'raw', unit: 'جرام', currentStock: 3000, minStockLevel: 500 },
-    { name: 'أكواب ورقية 9oz', category: 'packaging', unit: 'قطعة', currentStock: 500, minStockLevel: 50 },
-    { name: 'مياه معدنية 500ml', category: 'drinks', unit: 'قطعة', currentStock: 100, minStockLevel: 12 },
+  // 7. Create Inventory Items with Costs
+  console.log('📦 Creating inventory items with costs...');
+  const inventoryData = [
+    { name: 'بن برازيلي (حبوب)', category: 'coffee', unit: 'جرام', currentStock: 10000, costPerUnit: 0.8 }, // 800 LE / kg
+    { name: 'حليب كامل الدسم', category: 'dairy', unit: 'مل', currentStock: 20000, costPerUnit: 0.04 }, // 40 LE / Litre
+    { name: 'سكر أبيض', category: 'raw', unit: 'جرام', currentStock: 5000, costPerUnit: 0.035 }, // 35 LE / kg
+    { name: 'أكواب ورقية 9oz', category: 'packaging', unit: 'قطعة', currentStock: 1000, costPerUnit: 1.5 },
+    { name: 'مياه معدنية 500ml', category: 'drinks', unit: 'قطعة', currentStock: 200, costPerUnit: 6.0 },
+    { name: 'شاي فتلة', category: 'tea', unit: 'فتلة', currentStock: 500, costPerUnit: 2.0 },
+    { name: 'بودرة فرابيه', category: 'raw', unit: 'جرام', currentStock: 2000, costPerUnit: 0.5 },
   ];
 
   const invMap: Record<string, any> = {};
-  for (const item of inventoryItems) {
+  for (const item of inventoryData) {
     invMap[item.name] = await prisma.inventoryItem.create({ data: item });
   }
 
-  // 7. Create Bar Products & Recipes
+  // 8. Create Bar Products & Recipes with Automatic Cost Calculation
   console.log('☕ Creating products and recipes...');
-  const products = [
+  const productTemplates = [
     { 
       name: 'اسبريسو', category: 'coffee', price: 45, 
       recipe: [{ name: 'بن برازيلي (حبوب)', qty: 18 }] 
     },
     { 
-      name: 'لاتيه', category: 'coffee', price: 70, 
+      name: 'لاتيه', category: 'coffee', price: 75, 
+      recipe: [
+        { name: 'بن برازيلي (حبوب)', qty: 18 },
+        { name: 'حليب كامل الدسم', qty: 250 },
+        { name: 'أكواب ورقية 9oz', qty: 1 }
+      ] 
+    },
+    { 
+      name: 'كابتشينو', category: 'coffee', price: 70, 
       recipe: [
         { name: 'بن برازيلي (حبوب)', qty: 18 },
         { name: 'حليب كامل الدسم', qty: 200 },
@@ -143,26 +164,51 @@ async function main() {
       ] 
     },
     { 
-      name: 'مياه معدنية', category: 'water', price: 15, 
+      name: 'مياه معدنية صغير', category: 'water', price: 15, 
       recipe: [{ name: 'مياه معدنية 500ml', qty: 1 }] 
+    },
+    { 
+      name: 'شاي أحمر', category: 'tea', price: 25, 
+      recipe: [
+        { name: 'شاي فتلة', qty: 1 },
+        { name: 'سكر أبيض', qty: 10 },
+        { name: 'أكواب ورقية 9oz', qty: 1 }
+      ] 
+    },
+    { 
+      name: 'فرابيه كراميل', category: 'frappe', price: 95, 
+      recipe: [
+        { name: 'بن برازيلي (حبوب)', qty: 18 },
+        { name: 'حليب كامل الدسم', qty: 150 },
+        { name: 'بودرة فرابيه', qty: 30 },
+        { name: 'أكواب ورقية 9oz', qty: 1 }
+      ] 
     },
   ];
 
-  for (const pInfo of products) {
+  for (const template of productTemplates) {
+    // 1. Calculate cost from recipe
+    let costPrice = 0;
+    for (const r of template.recipe) {
+      const invItem = invMap[r.name];
+      costPrice += Number(invItem.costPerUnit) * r.qty;
+    }
+
+    // 2. Create product
     const product = await prisma.product.create({
       data: {
-        name: pInfo.name,
-        category: pInfo.category,
-        price: pInfo.price,
-        description: 'Bar Product',
+        name: template.name,
+        category: template.category,
+        price: template.price,
+        costPrice: costPrice,
+        description: `${template.name} - تحضير طازج`,
         availability: true,
         active: true,
-        costPrice: 0,
       },
     });
 
-    // Create Recipe
-    for (const r of pInfo.recipe) {
+    // 3. Create recipe items
+    for (const r of template.recipe) {
       await prisma.recipeItem.create({
         data: {
           productId: product.id,
@@ -173,12 +219,22 @@ async function main() {
     }
   }
 
-  console.log('✅ SEEDING COMPLETE WITH INVENTORY!');
+  // 9. Create some Rooms for coworking
+  console.log('🛋️ Creating rooms...');
+  const rooms = [
+    { name: 'قاعة الاجتماعات الكبرى', roomType: 'meeting', capacity: 12, hourlyRate: 300 },
+    { name: 'منطقة العمل المشترك (A)', roomType: 'coworking', capacity: 20, hourlyRate: 40 },
+    { name: 'غرفة مذاكرة هادئة', roomType: 'study', capacity: 4, hourlyRate: 60 },
+  ];
+
+  for (const r of rooms) {
+    await prisma.room.create({ data: r });
+  }
+
+  console.log('✅ SEEDING COMPLETE!');
   console.log('-----------------------------------');
-  console.log('Default Login Credentials:');
-  console.log('Email: owner@eduvers.com');
-  console.log('Email: barista1@eduvers.com');
-  console.log('Password: 123456');
+  console.log('Barista: barista@eduvers.com / 123456');
+  console.log('Owner: owner@eduvers.com / 123456');
   console.log('-----------------------------------');
 }
 

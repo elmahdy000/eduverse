@@ -26,7 +26,7 @@ export function statusBadgeTone(status?: string | null): BadgeTone {
     case "active": case "available": case "paid": case "delivered": case "completed": case "confirmed": case "ready": return "success";
     case "inactive": case "out_of_service": case "cancelled": case "refunded": case "blacklisted": return "danger";
     case "new": case "draft": case "unpaid": return "info";
-    case "in_preparation": case "partially_paid": case "booked_soon": case "under_prep": return "warn";
+    case "in_preparation": case "partially_paid": case "booked_soon": case "under_prep": case "no_show": return "warn";
     default: return "neutral";
   }
 }

@@ -192,12 +192,14 @@ export default function BaristaDashboardPage() {
     setChatInput("");
   };
 
-  // Legacy notification sound for polling fallback
+  // Polling fallback notification — only fires when WebSocket is NOT live
+  // When socket is live, sound is already played via onNewOrder handler
   useEffect(() => {
-    if (data && prevNewCount !== null && data.counts.new > prevNewCount) {
+    if (data && prevNewCount !== null && data.counts.new > prevNewCount && !isSocketLive) {
       playNotificationSound();
     }
     if (data) setPrevNewCount(data.counts.new);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.counts.new]);
 
   const advance = useMutation({
@@ -247,7 +249,7 @@ export default function BaristaDashboardPage() {
       {hasUrgent ? (
         <div className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
           <Flame size={16} className="shrink-0 text-rose-600" />
-          <p className="text-sm font-bold text-rose-700">ي طلبات مستنياك أكتر من 15 دقيقة — بسرعة!</p>
+          <p className="text-sm font-bold text-rose-700">⚠ في طلبات مستنياك أكتر من 15 دقيقة — بسرعة!</p>
         </div>
       ) : totalActive === 0 ? (
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
@@ -305,7 +307,7 @@ export default function BaristaDashboardPage() {
       </Panel>
 
       {/* Ready */}
-      <Panel title="جاهز — ي انتظار التسليم" icon={<PackageCheck size={15} />} action={
+      <Panel title="جاهز — في انتظار التسليم" icon={<PackageCheck size={15} />} action={
         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">{data.counts.ready}</span>
       }>
         {data.readyOrders.length === 0 ? (

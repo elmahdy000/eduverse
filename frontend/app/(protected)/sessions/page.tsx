@@ -1,8 +1,12 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen, Timer, RefreshCw, Zap, History, CreditCard, Banknote } from "lucide-react";
+import { 
+  Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen, 
+  Timer, RefreshCw, Zap, History, CreditCard, Banknote, Search,
+  ChevronRight, MoreHorizontal, UserPlus
+} from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
@@ -15,13 +19,30 @@ import clsx from "clsx";
 function printInvoiceOnly() {
   const node = document.getElementById("printable-invoice");
   if (!node) return window.print();
-  const w = window.open("", "_blank", "width=900,height=700");
+  const w = window.open("", "_blank", "width=400,height=600");
   if (!w) return window.print();
-  w.document.write(`<html dir="rtl"><head><meta charset="utf-8" /><title>فاتورة</title></head><body>${node.outerHTML}</body></html>`);
+  w.document.write(`
+    <html dir="rtl">
+      <head>
+        <meta charset="utf-8" />
+        <title>طباعة فاتورة</title>
+        <style>
+          body { margin: 0; padding: 0; background: white; }
+          * { box-sizing: border-box; }
+        </style>
+      </head>
+      <body>
+        ${node.outerHTML}
+        <script>
+          setTimeout(() => {
+            window.print();
+            window.close();
+          }, 250);
+        </script>
+      </body>
+    </html>
+  `);
   w.document.close();
-  w.focus();
-  w.print();
-  w.close();
 }
 
 function downloadInvoiceSnapshot(invoice: Invoice) {
@@ -49,10 +70,13 @@ function useSessionTimer(startTime: string | null) {
   const h = Math.floor(elapsed / 3600);
   const m = Math.floor((elapsed % 3600) / 60);
   const s = elapsed % 60;
-  return { hours: h, formatted: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` };
+  return { 
+    hours: h, 
+    formatted: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` 
+  };
 }
 
-function ActiveSessionRow({
+function ActiveSessionCard({
   session,
   onClose,
   onCancel,
@@ -66,27 +90,69 @@ function ActiveSessionRow({
   isCancelling: boolean;
 }) {
   const timer = useSessionTimer(session.startTime);
+  
   return (
-    <tr className="border-b border-slate-100 hover:bg-slate-50 transition">
-      <td className="py-2 pr-3 font-medium text-slate-900">{session.customer?.fullName ?? session.customerId.slice(0, 8)}</td>
-      <td className="py-2 pr-3 text-xs text-slate-600">{translateSessionType(session.sessionType)}</td>
-      <td className="py-2 pr-3 text-xs text-slate-600">{session.room?.name ?? <span className="text-slate-400">-</span>}</td>
-      <td className="py-2 pr-3"><Badge tone="info">{session.guestCode ?? "-"}</Badge></td>
-      <td className="py-2 pr-3 text-xs text-slate-500">{dateTime(session.startTime)}</td>
-      <td className="py-2 pr-3">
-        <span className={clsx("font-mono text-xs font-bold", timer.hours >= 2 ? "text-amber-600" : "text-emerald-600")}>
-          <Timer size={12} className="inline mr-1" />
-          {timer.formatted}
-        </span>
-      </td>
-      <td className="py-2 pr-3 text-xs font-semibold text-emerald-700">{session.chargeAmount ? money(session.chargeAmount) : <span className="text-slate-400">-</span>}</td>
-      <td className="py-2 pl-3">
-        <div className="flex gap-1">
-          <Btn size="sm" variant="success" onClick={() => onClose(session.id)} loading={isClosing} icon={<StopCircle size={12} />}>إنهاء</Btn>
-          <Btn size="sm" variant="danger" onClick={() => onCancel(session.id)} loading={isCancelling} icon={<XCircle size={12} />}>إلغاء</Btn>
+    <div className="group relative flex items-center justify-between rounded-xl border border-slate-100 bg-white p-3 transition-all hover:border-slate-200 hover:shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className={clsx(
+          "flex h-10 w-10 items-center justify-center rounded-xl transition-colors",
+          timer.hours >= 3 ? "bg-amber-50 text-amber-600" : "bg-slate-50 text-slate-400"
+        )}>
+          <Timer size={18} className={timer.hours >= 3 ? "animate-pulse" : ""} />
         </div>
-      </td>
-    </tr>
+        
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-slate-900">
+              {session.customer?.fullName ?? session.customerId.slice(0, 8)}
+            </span>
+            <Badge tone="info" className="h-4 px-1.5 text-[9px] uppercase tracking-tighter">
+              {session.guestCode ?? "No Code"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-3 text-[10px] font-medium text-slate-500">
+            <span className="flex items-center gap-1">
+              <DoorOpen size={10} />
+              {session.room?.name ?? "المنطقة العامة"}
+            </span>
+            <span className="h-1 w-1 rounded-full bg-slate-300" />
+            <span>{translateSessionType(session.sessionType)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <div className="text-left">
+          <div className={clsx(
+            "font-mono text-sm font-bold",
+            timer.hours >= 3 ? "text-amber-600" : "text-slate-900"
+          )}>
+            {timer.formatted}
+          </div>
+          <div className="text-[10px] font-bold text-slate-400">
+            {session.chargeAmount ? money(session.chargeAmount) : "يحسب لاحقاً"}
+          </div>
+        </div>
+
+        <div className="flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            onClick={() => onClose(session.id)}
+            disabled={isClosing}
+            className="flex h-8 items-center gap-1.5 rounded-lg bg-slate-900 px-3 text-[10px] font-bold text-white transition hover:bg-slate-800 disabled:opacity-50"
+          >
+            {isClosing ? <RefreshCw size={12} className="animate-spin" /> : <StopCircle size={12} />}
+            إنهاء
+          </button>
+          <button
+            onClick={() => onCancel(session.id)}
+            disabled={isCancelling}
+            className="flex h-8 items-center justify-center rounded-lg bg-slate-50 px-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+          >
+            <XCircle size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -95,52 +161,69 @@ export default function SessionsPage() {
   const [customerId, setCustomerId] = useState("");
   const [sessionType, setSessionType] = useState("hourly");
   const [roomId, setRoomId] = useState("");
+  const [bookingId, setBookingId] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
   const [payNotes, setPayNotes] = useState("");
+  const [tableStatusFilter, setTableStatusFilter] = useState<"all" | "active" | "closed" | "cancelled">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const sessionsQuery = useQuery({
     queryKey: ["sessions"],
-    queryFn: async () => (await api.get("/sessions", { params: { page: 1, limit: 50 } })).data.data as Paginated<Session>,
-    refetchInterval: 30_000,
+    queryFn: async () => (await api.get("/sessions", { params: { page: 1, limit: 100 } })).data.data as Paginated<Session>,
+    refetchInterval: 15_000,
   });
+  
   const customersQuery = useQuery({
     queryKey: ["customers", "for-sessions"],
-    queryFn: async () => (await api.get("/customers", { params: { page: 1, limit: 100 } })).data.data as Paginated<Customer>,
+    queryFn: async () => (await api.get("/customers", { params: { page: 1, limit: 200 } })).data.data as Paginated<Customer>,
   });
+  
   const roomsQuery = useQuery({
     queryKey: ["rooms", "for-sessions"],
-    queryFn: async () => (await api.get("/rooms", { params: { page: 1, limit: 100 } })).data.data as Paginated<Room>,
+    queryFn: async () => (await api.get("/rooms", { params: { page: 1, limit: 50 } })).data.data as Paginated<Room>,
+  });
+  
+  const bookingsQuery = useQuery({
+    queryKey: ["bookings", "active"],
+    queryFn: async () => (await api.get("/bookings", { params: { status: "confirmed", page: 1, limit: 50 } })).data.data as Paginated<any>,
   });
 
+  const availableBookings = useMemo(() => {
+    if (!customerId) return [];
+    return (bookingsQuery.data?.data ?? []).filter(b => b.customerId === customerId);
+  }, [bookingsQuery.data, customerId]);
+
   const openMutation = useMutation({
-    mutationFn: async () => api.post("/sessions", { customerId, sessionType, roomId: roomId || undefined, chargeAmount: chargeAmount ? Number(chargeAmount) : undefined }),
+    mutationFn: async () => api.post("/sessions", { 
+      customerId, 
+      sessionType, 
+      roomId: roomId || undefined, 
+      bookingId: bookingId || undefined,
+      chargeAmount: chargeAmount ? Number(chargeAmount) : undefined 
+    }),
     onSuccess: () => {
-      setCustomerId(""); setSessionType("hourly"); setRoomId(""); setChargeAmount("");
+      setCustomerId(""); setSessionType("hourly"); setRoomId(""); setBookingId(""); setChargeAmount("");
       setMessage({ text: "تم فتح الجلسة بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
   });
 
   const closeMutation = useMutation({
-    mutationFn: async (sessionId: string) => (await api.post(`/sessions/${sessionId}/close`, { notes: "اتقفلت من شاشة الجلسات" })).data,
+    mutationFn: async (sessionId: string) => (await api.post(`/sessions/${sessionId}/close`, { notes: "تم الإنهاء من شاشة الإدارة" })).data,
     onSuccess: (data: any) => {
-      setMessage({ text: "تم إنهاء الجلسة وإنشاء الفاتورة.", ok: true });
+      setMessage({ text: "تم إنهاء الجلسة بنجاح.", ok: true });
       const closedSession = data?.data;
-      queryClient.setQueryData(["sessions"], (prev: any) => {
-        if (!prev?.data || !closedSession?.id) return prev;
-        return {
-          ...prev,
-          data: prev.data.map((s: any) => s.id === closedSession.id ? { ...s, status: "closed", endTime: closedSession.endTime, guestCode: null } : s),
-        };
-      });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       if (closedSession?.invoice) setSelectedInvoice(closedSession.invoice);
+      setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
   });
@@ -150,6 +233,7 @@ export default function SessionsPage() {
     onSuccess: () => {
       setMessage({ text: "تم إلغاء الجلسة.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
   });
@@ -163,7 +247,7 @@ export default function SessionsPage() {
     }),
     onSuccess: (res) => {
       setPayAmount(""); setPayNotes("");
-      setMessage({ text: "تم تسجيل الدفع بنجاح.", ok: true });
+      setMessage({ text: "تم التحصيل بنجاح.", ok: true });
       setSelectedInvoice(res.data.data.invoice);
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
@@ -171,131 +255,328 @@ export default function SessionsPage() {
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
   });
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); setMessage(null); openMutation.mutate(); };
-
   const sessions = sessionsQuery.data?.data ?? [];
   const active = sessions.filter((s) => s.status === "active");
   const closed = sessions.filter((s) => s.status === "closed");
-  const cancelled = sessions.filter((s) => s.status === "cancelled");
 
-  const allRows = useMemo(() => sessions.map((s) => [
-    s.customer?.fullName ?? "-",
-    translateSessionType(s.sessionType),
-    s.room?.name ?? "-",
-    <Badge key="gc" tone="info">{s.guestCode ?? "-"}</Badge>,
-    <Badge key="st" tone={statusBadgeTone(s.status)}>{translateStatus(s.status)}</Badge>,
-    <span key="t" className="text-xs text-slate-500">{dateTime(s.startTime)}</span>,
-  ]), [sessions]);
+  const filteredHistory = useMemo(() => {
+    let result = sessions;
+    if (tableStatusFilter !== "all") {
+      result = result.filter(s => s.status === tableStatusFilter);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(s => 
+        s.customer?.fullName?.toLowerCase().includes(q) || 
+        s.guestCode?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [sessions, tableStatusFilter, searchQuery]);
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <SectionTitle
-        title="الجلسات"
-        subtitle="نشط هنا يعني الجلسة شغالة، مش حالة العميل نفسه."
-        icon={<Clock size={20} />}
-        action={<button onClick={() => sessionsQuery.refetch()} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"><RefreshCw size={12} /> تحديث</button>}
-      />
+    <div className="max-w-[1400px] mx-auto p-6 space-y-8" dir="rtl">
+      {/* Header Section */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">الجلسات الحية</h1>
+          <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Real-time Session Management</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 items-center gap-3 rounded-xl bg-white border border-slate-100 px-4">
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">{active.length} Active</span>
+            </div>
+          </div>
+          <button 
+            onClick={() => sessionsQuery.refetch()}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 transition hover:text-slate-900 hover:border-slate-200"
+          >
+            <RefreshCw size={16} className={sessionsQuery.isFetching ? "animate-spin" : ""} />
+          </button>
+        </div>
+      </header>
 
-      {message && <Alert tone={message.ok ? "success" : "danger"}>{message.text}</Alert>}
+      {message && (
+        <div className={clsx(
+          "flex items-center gap-3 rounded-xl border px-4 py-3 text-xs font-bold transition-all animate-in fade-in slide-in-from-top-2",
+          message.ok ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-red-50 border-red-100 text-red-700"
+        )}>
+          {message.ok ? <Zap size={14} /> : <XCircle size={14} />}
+          {message.text}
+        </div>
+      )}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="جلسات شغالة" value={active.length} tone="info" icon={<Timer size={18} />} sub="دي الجلسات اللي لسه مفتوحة" />
-        <StatCard label="جلسات متقفلة" value={closed.length} icon={<StopCircle size={18} />} />
-        <StatCard label="جلسات ملغية" value={cancelled.length} icon={<XCircle size={18} />} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Opening & Active */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Active Sessions Grid */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <Timer size={14} />
+                الجلسات النشطة الآن
+              </h3>
+            </div>
+            
+            {active.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 p-12 text-center">
+                <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center text-slate-300 shadow-sm mb-4">
+                  <DoorOpen size={24} />
+                </div>
+                <h4 className="text-sm font-bold text-slate-600">لا توجد جلسات نشطة</h4>
+                <p className="text-[10px] font-medium text-slate-400 mt-1">ابدأ بفتح جلسة جديدة للعملاء</p>
+              </div>
+            ) : (
+              <div className="grid gap-2">
+                {active.map((s) => (
+                  <ActiveSessionCard 
+                    key={s.id} 
+                    session={s} 
+                    onClose={closeMutation.mutate} 
+                    onCancel={cancelMutation.mutate} 
+                    isClosing={closeMutation.isPending} 
+                    isCancelling={cancelMutation.isPending} 
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* History / Filtered Table */}
+          <section className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <History size={14} />
+                سجل العمليات
+              </h3>
+              
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="text"
+                    placeholder="بحث سريع..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-9 w-48 rounded-lg border-none bg-slate-100 pr-9 pl-3 text-[10px] font-bold text-slate-900 outline-none transition focus:ring-2 focus:ring-slate-900/5"
+                  />
+                </div>
+                <div className="flex h-9 items-center gap-1 rounded-lg bg-slate-100 p-1">
+                  {(["all", "active", "closed", "cancelled"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTableStatusFilter(t)}
+                      className={clsx(
+                        "rounded-md px-3 py-1 text-[10px] font-bold transition",
+                        tableStatusFilter === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      {t === "all" ? "الكل" : translateStatus(t)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
+              <table className="w-full text-right text-[11px]">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    {["العميل", "الغرفة", "الحالة", "البداية", "التكلفة"].map((h) => (
+                      <th key={h} className="px-4 py-3 font-black text-slate-400 uppercase tracking-widest">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filteredHistory.slice(0, 10).map((s) => (
+                    <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-bold text-slate-900">{s.customer?.fullName ?? "عميل خارجي"}</div>
+                        <div className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">{s.guestCode}</div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-slate-600">{s.room?.name ?? "عامة"}</td>
+                      <td className="px-4 py-3">
+                        <Badge tone={statusBadgeTone(s.status)} className="h-5 px-2 text-[9px]">
+                          {translateStatus(s.status)}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 font-medium">{dateTime(s.startTime)}</td>
+                      <td className="px-4 py-3 font-bold text-slate-900">{s.chargeAmount ? money(s.chargeAmount) : "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Opening Form & Stats */}
+        <div className="lg:col-span-4 space-y-8">
+          
+          <section className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-900/10">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-6">
+              <UserPlus size={14} />
+              فتح جلسة جديدة
+            </h3>
+            
+            <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); openMutation.mutate(); }}>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">العميل</label>
+                <select 
+                  value={customerId} 
+                  onChange={(e) => setCustomerId(e.target.value)}
+                  className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
+                  required
+                >
+                  <option value="" className="text-slate-900">اختار العميل...</option>
+                  {customersQuery.data?.data?.map((c) => (
+                    <option key={c.id} value={c.id} className="text-slate-900">{c.fullName}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">النوع</label>
+                  <select 
+                    value={sessionType} 
+                    onChange={(e) => setSessionType(e.target.value)}
+                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
+                  >
+                    <option value="hourly" className="text-slate-900">ساعة</option>
+                    <option value="daily" className="text-slate-900">يوم</option>
+                    <option value="package" className="text-slate-900">باقة</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">الغرفة</label>
+                  <select 
+                    value={roomId} 
+                    onChange={(e) => setRoomId(e.target.value)}
+                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
+                  >
+                    <option value="" className="text-slate-900">عامة</option>
+                    {roomsQuery.data?.data?.map((r) => (
+                      <option key={r.id} value={r.id} className="text-slate-900">{r.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {availableBookings.length > 0 && (
+                <div className="space-y-1.5 animate-in fade-in slide-in-from-right-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400 pr-1">حجوزات متاحة</label>
+                  <select 
+                    value={bookingId} 
+                    onChange={(e) => {
+                      const bId = e.target.value;
+                      setBookingId(bId);
+                      if (bId) {
+                        const b = availableBookings.find(x => x.id === bId);
+                        if (b?.roomId) setRoomId(b.roomId);
+                        setSessionType("booking_linked");
+                      }
+                    }}
+                    className="w-full h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 text-xs font-bold text-emerald-400 outline-none transition"
+                  >
+                    <option value="" className="text-slate-900">لا تربط بحجز</option>
+                    {availableBookings.map((b: any) => (
+                      <option key={b.id} value={b.id} className="text-slate-900">
+                        {b.room?.name} - {new Date(b.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">التكلفة المبدئية</label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    value={chargeAmount} 
+                    onChange={(e) => setChargeAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 pr-10 pl-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
+                  />
+                  <Banknote size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={openMutation.isPending}
+                className="w-full h-12 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-widest transition hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {openMutation.isPending ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} />}
+                تفعيل الجلسة
+              </button>
+            </form>
+          </section>
+
+          {/* Quick Stats Summary */}
+          <section className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">المغلقة اليوم</div>
+              <div className="text-xl font-black text-slate-900">{closed.length}</div>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">إجمالي الحجوزات</div>
+              <div className="text-xl font-black text-slate-900">{bookingsQuery.data?.total ?? 0}</div>
+            </div>
+          </section>
+        </div>
       </div>
 
-      <Panel title="فتح جلسة جديدة" icon={<PlayCircle size={15} />}>
-        <form className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" onSubmit={onSubmit}>
-          <FormField label="العميل">
-            <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)} required>
-              <option value="">اختار العميل</option>
-              {customersQuery.data?.data?.map((c) => <option key={c.id} value={c.id}>{c.fullName} - {c.phoneNumber}</option>)}
-            </Select>
-          </FormField>
-
-          <FormField label="نوع الجلسة">
-            <Select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
-              <option value="hourly">بالساعة</option>
-              <option value="daily">يومي</option>
-              <option value="package">باقة</option>
-              <option value="booking_linked">مرتبط بحجز</option>
-            </Select>
-          </FormField>
-
-          <FormField label="الغرفة (اختياري)">
-            {roomsQuery.isLoading ? <p className="text-sm text-slate-500">جاري تحميل الغرف...</p> : (
-              <Select value={roomId} onChange={(e) => setRoomId(e.target.value)}>
-                <option value="">بدون غرفة</option>
-                {roomsQuery.data?.data?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-              </Select>
-            )}
-          </FormField>
-
-          <FormField label="المبلغ (اختياري)">
-            <input type="number" min={0} step={0.01} value={chargeAmount} onChange={(e) => setChargeAmount(e.target.value)} placeholder="0.00" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
-          </FormField>
-
-          <div className="md:col-span-2 lg:col-span-4">
-            <Btn type="submit" loading={openMutation.isPending} loadingText="جاري الفتح..." className="w-full" icon={<Zap size={14} />}>فتح الجلسة</Btn>
-          </div>
-        </form>
-      </Panel>
-
-      {active.length > 0 && (
-        <Panel title="الجلسات الشغالة - إجراءات سريعة" icon={<Timer size={15} />} action={<span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">{active.length}</span>}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-right text-sm">
-              <thead><tr className="border-b border-slate-100">{["العميل", "النوع", "الغرفة", "كود الطلب", "من", "المدة", "المبلغ", "إجراء"].map((h) => <th key={h} className="py-2 pr-3 text-xs font-semibold text-slate-500 last:text-left">{h}</th>)}</tr></thead>
-              <tbody>{active.map((s) => <ActiveSessionRow key={s.id} session={s} onClose={closeMutation.mutate} onCancel={cancelMutation.mutate} isClosing={closeMutation.isPending} isCancelling={cancelMutation.isPending} />)}</tbody>
-            </table>
-          </div>
-        </Panel>
-      )}
-
-      {active.length === 0 && !sessionsQuery.isLoading && (
-        <Panel title="الجلسات الشغالة" icon={<Users size={15} />}>
-          <EmptyState icon={<DoorOpen size={36} />} title="مفيش جلسات شغالة دلوقتي" sub="افتح جلسة جديدة من فوق." />
-        </Panel>
-      )}
-
-      <Panel title="كل الجلسات" icon={<Clock size={15} />}>
-        {sessionsQuery.isLoading ? <div className="flex justify-center py-10"><RefreshCw size={20} className="animate-spin text-slate-400" /></div> : sessions.length === 0 ? (
-          <EmptyState icon={<Clock size={36} />} title="لا توجد جلسات" sub="هيظهر هنا سجل الجلسات." />
-        ) : (
-          <Panel title="سجل الجلسات" icon={<History size={16} />} className="overflow-hidden">
-            <DataTable headers={["العميل", "النوع", "المكان", "كود الطلب", "الحالة", "وقت البداية"]} rows={allRows} />
-          </Panel>
-        )}
-      </Panel>
-
+      {/* Invoice Modal Refined */}
       <Modal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} size="lg">
         {selectedInvoice && (
-          <div className="space-y-6">
+          <div className="space-y-8 p-2">
             <InvoiceReceipt invoice={selectedInvoice} onPrint={printInvoiceOnly} onDownload={() => downloadInvoiceSnapshot(selectedInvoice)} />
 
             {selectedInvoice.paymentStatus !== "paid" && (
-              <Panel title="تحصيل سريع للمبلغ" icon={<CreditCard size={16} />} className="border-emerald-100 bg-emerald-50/10">
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); payMutation.mutate(); }}>
+              <div className="rounded-2xl bg-slate-900 p-6 text-white">
+                <div className="flex items-center gap-2 mb-6">
+                  <CreditCard size={18} className="text-emerald-400" />
+                  <h3 className="text-sm font-black uppercase tracking-widest">تحصيل سريع</h3>
+                </div>
+                
+                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); payMutation.mutate(); }}>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField label="طريقة الدفع">
-                      <Select value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>
-                        <option value="cash">نقدي (كاش)</option>
-                        <option value="card">بطاقة بنكية</option>
-                        <option value="bank_transfer">تحويل بنكي</option>
-                      </Select>
-                    </FormField>
-                    <FormField label="المبلغ (جنيه)">
-                      <Input type="number" min={0.01} step={0.01} value={payAmount || String(selectedInvoice.remainingAmount)} onChange={(e) => setPayAmount(e.target.value)} placeholder={String(selectedInvoice.remainingAmount)} required />
-                    </FormField>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">الطريقة</label>
+                      <select 
+                        value={payMethod} 
+                        onChange={(e) => setPayMethod(e.target.value)}
+                        className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
+                      >
+                        <option value="cash" className="text-slate-900">نقدي</option>
+                        <option value="card" className="text-slate-900">فيزا</option>
+                        <option value="bank_transfer" className="text-slate-900">تحويل</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">المبلغ</label>
+                      <input 
+                        type="number" 
+                        value={payAmount || String(selectedInvoice.remainingAmount)} 
+                        onChange={(e) => setPayAmount(e.target.value)}
+                        className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
+                      />
+                    </div>
                   </div>
-                  <FormField label="ملاحظات (اختياري)">
-                    <Input value={payNotes} onChange={(e) => setPayNotes(e.target.value)} placeholder="أي ملاحظة على الدفع" />
-                  </FormField>
-                  <Btn type="submit" loading={payMutation.isPending} loadingText="جاري التحصيل..." icon={<Banknote size={16} />} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                    تأكيد تحصيل {money(payAmount || selectedInvoice.remainingAmount)}
-                  </Btn>
+                  <button 
+                    type="submit" 
+                    disabled={payMutation.isPending}
+                    className="w-full h-12 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-widest transition hover:bg-emerald-400"
+                  >
+                    {payMutation.isPending ? "جاري التحصيل..." : `تأكيد دفع ${money(payAmount || selectedInvoice.remainingAmount)}`}
+                  </button>
                 </form>
-              </Panel>
+              </div>
             )}
           </div>
         )}
@@ -303,3 +584,4 @@ export default function SessionsPage() {
     </div>
   );
 }
+

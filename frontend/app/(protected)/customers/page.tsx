@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Coffee,
   Clock3,
+  Edit2,
   History,
   Phone,
   RefreshCw,
@@ -16,6 +17,7 @@ import {
   UserX,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import { api } from "../../../lib/api";
@@ -75,6 +77,19 @@ export default function CustomersPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
+
+  // Edit state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFullName, setEditFullName] = useState("");
+  const [editPhoneNumber, setEditPhoneNumber] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editCollege, setEditCollege] = useState("");
+  const [editStudyLevel, setEditStudyLevel] = useState("");
+  const [editSpecialization, setEditSpecialization] = useState("");
+  const [editEmployerName, setEditEmployerName] = useState("");
+  const [editJobTitle, setEditJobTitle] = useState("");
 
   const customersQuery = useQuery({
     queryKey: ["customers", searchName, searchPhone],
@@ -163,6 +178,34 @@ export default function CustomersPage() {
       setShowCreateForm(false);
       setMessage({ text: "تم تسجيل العميل بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
+    },
+    onError: (err: unknown) => {
+      const m = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+      setMessage({ text: translateApiError(m), ok: false });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedCustomerId) return;
+      await api.put(`/customers/${selectedCustomerId}`, {
+        fullName: editFullName,
+        phoneNumber: editPhoneNumber,
+        email: editEmail || undefined,
+        address: editAddress || undefined,
+        notes: editNotes || undefined,
+        college: editCollege || undefined,
+        studyLevel: editStudyLevel || undefined,
+        specialization: editSpecialization || undefined,
+        employerName: editEmployerName || undefined,
+        jobTitle: editJobTitle || undefined,
+      });
+    },
+    onSuccess: () => {
+      setShowEditModal(false);
+      setMessage({ text: "تم تحديث بيانات العميل بنجاح.", ok: true });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", selectedCustomerId, "details"] });
     },
     onError: (err: unknown) => {
       const m = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
@@ -440,6 +483,26 @@ export default function CustomersPage() {
           ) : (
             <>
               <div className="mb-4 flex flex-wrap gap-2">
+                <Btn
+                  variant="secondary"
+                  size="sm"
+                  icon={<Edit2 size={14} />}
+                  onClick={() => {
+                    setEditFullName(selectedCustomer.fullName ?? "");
+                    setEditPhoneNumber(selectedCustomer.phoneNumber ?? "");
+                    setEditEmail(selectedCustomer.email ?? "");
+                    setEditAddress(selectedCustomer.address ?? "");
+                    setEditNotes(selectedCustomer.notes ?? "");
+                    setEditCollege((selectedCustomer as Record<string, unknown>).college as string ?? "");
+                    setEditStudyLevel((selectedCustomer as Record<string, unknown>).studyLevel as string ?? "");
+                    setEditSpecialization((selectedCustomer as Record<string, unknown>).specialization as string ?? "");
+                    setEditEmployerName((selectedCustomer as Record<string, unknown>).employerName as string ?? "");
+                    setEditJobTitle((selectedCustomer as Record<string, unknown>).jobTitle as string ?? "");
+                    setShowEditModal(true);
+                  }}
+                >
+                  تعديل البيانات
+                </Btn>
                 <Btn variant="warn" size="sm" icon={<UserX size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "deactivate" })}>إيقاف</Btn>
                 <Btn variant="success" size="sm" icon={<UserCheck size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "reactivate" })}>تفعيل</Btn>
                 <Btn variant="danger" size="sm" icon={<ShieldBan size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" })}>قائمة سوداء</Btn>
@@ -500,6 +563,69 @@ export default function CustomersPage() {
             </>
           )}
         </Panel>
+      )}
+      {/* Edit Customer Modal */}
+      {showEditModal && selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm" dir="rtl">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-5">
+              <div>
+                <h3 className="font-bold text-slate-900">تعديل بيانات العميل</h3>
+                <p className="text-xs text-slate-500">{selectedCustomer.fullName}</p>
+              </div>
+              <button onClick={() => setShowEditModal(false)} className="rounded-lg border border-slate-200 p-1.5 hover:bg-slate-50">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto p-5 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FormField label="الاسم الكامل">
+                  <Input value={editFullName} onChange={e => setEditFullName(e.target.value)} placeholder="الاسم الكامل" required />
+                </FormField>
+                <FormField label="رقم الموبايل">
+                  <Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" required />
+                </FormField>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <FormField label="البريد الإلكتروني">
+                  <Input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="email@example.com" dir="ltr" />
+                </FormField>
+                <FormField label="العنوان">
+                  <Input value={editAddress} onChange={e => setEditAddress(e.target.value)} placeholder="العنوان" />
+                </FormField>
+              </div>
+              {selectedCustomer.customerType === "student" && (
+                <div className="grid gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 sm:grid-cols-3">
+                  <p className="col-span-3 text-[10px] font-bold uppercase tracking-wider text-blue-600">بيانات الطالب</p>
+                  <FormField label="الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
+                  <FormField label="المستوى"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
+                  <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
+                </div>
+              )}
+              {selectedCustomer.customerType === "employee" && (
+                <div className="grid gap-3 rounded-xl border border-violet-100 bg-violet-50/50 p-3 sm:grid-cols-2">
+                  <p className="col-span-2 text-[10px] font-bold uppercase tracking-wider text-violet-600">بيانات الموظف</p>
+                  <FormField label="جهة العمل"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
+                  <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
+                </div>
+              )}
+              <FormField label="ملاحظات">
+                <textarea
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-slate-400"
+                  rows={2}
+                  value={editNotes}
+                  onChange={e => setEditNotes(e.target.value)}
+                />
+              </FormField>
+            </div>
+            <div className="flex gap-3 border-t border-slate-100 p-5">
+              <Btn className="flex-1" loading={updateMutation.isPending} loadingText="جاري الحفظ..." icon={<Edit2 size={14} />} onClick={() => updateMutation.mutate()}>
+                حفظ التعديلات
+              </Btn>
+              <Btn variant="ghost" onClick={() => setShowEditModal(false)}>إلغاء</Btn>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

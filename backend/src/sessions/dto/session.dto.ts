@@ -12,6 +12,10 @@ export class CreateSessionDto {
   roomId?: string;
 
   @IsOptional()
+  @IsUUID()
+  bookingId?: string;
+
+  @IsOptional()
   @IsNumber()
   chargeAmount?: number;
 

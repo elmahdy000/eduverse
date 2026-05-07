@@ -150,6 +150,21 @@ export default function BillingPage() {
     },
   });
 
+  const paymentsSummaryQuery = useQuery({
+    queryKey: ["payments", "summary"],
+    queryFn: async () => {
+      const r = await api.get("/payments/summary");
+      return r.data.data as {
+        totalCollected: number;
+        totalRefunded: number;
+        net: number;
+        transactionCount: number;
+        refundCount: number;
+        invoicesByStatus: Record<string, number>;
+      };
+    },
+  });
+
   const selectedInvoiceQuery = useQuery({
     queryKey: ["invoices", selectedInvoiceId],
     enabled: Boolean(selectedInvoiceId),
@@ -206,6 +221,7 @@ export default function BillingPage() {
         qc.invalidateQueries({ queryKey: ["invoices", selectedInvoiceId] });
         qc.invalidateQueries({ queryKey: ["invoices", selectedInvoiceId, "payments"] });
       }
+      qc.invalidateQueries({ queryKey: ["payments", "summary"] });
     },
     onError: (err: unknown) => {
       const m = (err as any)?.response?.data?.message;
@@ -227,6 +243,7 @@ export default function BillingPage() {
         qc.invalidateQueries({ queryKey: ["invoices", selectedInvoiceId] });
         qc.invalidateQueries({ queryKey: ["invoices", selectedInvoiceId, "payments"] });
       }
+      qc.invalidateQueries({ queryKey: ["payments", "summary"] });
     },
     onError: (err: unknown) => {
       const m = (err as any)?.response?.data?.message;
@@ -236,9 +253,13 @@ export default function BillingPage() {
 
   const invoices = invoicesQuery.data?.data ?? [];
   const payments = paymentsQuery.data?.data ?? [];
-  const totalCollected = payments.reduce((s, p) => s + Number(p.amount), 0);
-  const paidCount = invoices.filter(i => i.paymentStatus === "paid").length;
-  const pendingCount = invoices.filter(i => i.paymentStatus !== "paid").length;
+  const summary = paymentsSummaryQuery.data;
+  // Use server-side aggregate for accurate totals (not limited to 50 records)
+  const totalCollected = summary?.totalCollected ?? 0;
+  const paidCount = summary?.invoicesByStatus?.paid ?? invoices.filter(i => i.paymentStatus === "paid").length;
+  const pendingCount = (summary
+    ? Object.entries(summary.invoicesByStatus).filter(([k]) => k !== "paid").reduce((s, [, v]) => s + v, 0)
+    : invoices.filter(i => i.paymentStatus !== "paid").length);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -248,7 +269,7 @@ export default function BillingPage() {
         icon={<Receipt size={20} />}
         action={
           <div className="flex gap-2">
-            <Btn size="sm" variant="secondary" onClick={() => { invoicesQuery.refetch(); paymentsQuery.refetch(); }} icon={<RefreshCw size={12} />}>
+            <Btn size="sm" variant="secondary" onClick={() => { invoicesQuery.refetch(); paymentsQuery.refetch(); paymentsSummaryQuery.refetch(); }} icon={<RefreshCw size={12} />}>
               تحديث البيانات
             </Btn>
           </div>
@@ -262,7 +283,13 @@ export default function BillingPage() {
         <StatCard label="إجمالي الفواتير" value={invoices.length} icon={<Receipt size={18} />} />
         <StatCard label="فواتير مُحصلة" value={paidCount} tone="success" icon={<CheckCircle2 size={18} />} />
         <StatCard label="فواتير معلقة" value={pendingCount} tone={pendingCount > 0 ? "warn" : "success"} icon={<AlertCircle size={18} />} />
-        <StatCard label="إجمالي التحصيل" value={money(totalCollected)} tone="success" icon={<Wallet size={18} />} />
+        <StatCard
+          label="إجمالي التحصيل (صافي)"
+          value={summary ? money(summary.net) : "..."}
+          tone="success"
+          icon={<Wallet size={18} />}
+          sub={summary?.totalRefunded ? `مرتجع: ${money(summary.totalRefunded)}` : undefined}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[400px_1fr]">

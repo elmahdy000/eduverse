@@ -84,6 +84,7 @@ export interface Booking {
     id: string;
     name: string;
   };
+  createdAt?: string;
 }
 
 export interface Room {
@@ -107,6 +108,7 @@ export interface Product {
   imageUrl?: string | null;
   availability: boolean;
   active: boolean;
+  costPrice?: string | number;
 }
 
 export interface Invoice {

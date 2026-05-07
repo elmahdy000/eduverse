@@ -31,6 +31,21 @@ export class PaymentsController {
     }
   }
 
+  @Get('summary')
+  @ApiOperation({ summary: 'Get payments aggregate summary' })
+  async getSummary(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
+    try {
+      const result = await this.paymentsService.getSummary({ fromDate, toDate });
+      return { success: true, data: result, timestamp: new Date().toISOString() };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Get()
   @ApiOperation({ summary: 'List payments' })
   async listPayments(

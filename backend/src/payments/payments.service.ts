@@ -123,6 +123,49 @@ export class PaymentsService {
     };
   }
 
+  async getSummary(filters?: { fromDate?: string; toDate?: string }) {
+    const dateFilter = (filters?.fromDate || filters?.toDate)
+      ? {
+          ...(filters.fromDate ? { gte: new Date(filters.fromDate) } : {}),
+          ...(filters.toDate ? { lte: new Date(filters.toDate) } : {}),
+        }
+      : undefined;
+
+    const [collected, refunded, invoiceSummary] = await Promise.all([
+      this.prisma.payment.aggregate({
+        where: { amount: { gt: 0 }, ...(dateFilter ? { paidAt: dateFilter } : {}) },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      this.prisma.payment.aggregate({
+        where: { amount: { lt: 0 }, ...(dateFilter ? { paidAt: dateFilter } : {}) },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      this.prisma.invoice.groupBy({
+        by: ['paymentStatus'],
+        _count: true,
+      }),
+    ]);
+
+    const totalCollected = Number(collected._sum.amount ?? 0);
+    const totalRefunded = Math.abs(Number(refunded._sum.amount ?? 0));
+
+    const statusMap: Record<string, number> = {};
+    for (const row of invoiceSummary) {
+      statusMap[row.paymentStatus] = row._count;
+    }
+
+    return {
+      totalCollected,
+      totalRefunded,
+      net: totalCollected - totalRefunded,
+      transactionCount: collected._count,
+      refundCount: refunded._count,
+      invoicesByStatus: statusMap,
+    };
+  }
+
   async refundPayment(paymentId: string, refundDto: RefundPaymentDto, userId: string) {
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.payment.findUnique({

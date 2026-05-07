@@ -1,10 +1,11 @@
-﻿export function money(value: string | number | null | undefined) {
-  const parsed = Number(value ?? 0);
-  if (Number.isNaN(parsed)) return "0.00";
+export function money(value: string | number | null | undefined) {
+  const parsed = Math.round(Number(value ?? 0));
+  if (Number.isNaN(parsed)) return "0";
   return new Intl.NumberFormat("ar-EG", {
     style: "currency",
     currency: "EGP",
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(parsed);
 }
 

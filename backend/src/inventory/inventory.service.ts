@@ -9,32 +9,24 @@ export class InventoryService {
     private auditLogsService: AuditLogsService,
   ) {}
 
-  // 1. إدارة أصناف المخزن
   async listItems() {
     return this.prisma.inventoryItem.findMany({
-      include: {
-        _count: { select: { recipes: true } },
-      },
+      include: { _count: { select: { recipes: true } } },
       orderBy: { name: 'asc' },
     });
   }
 
   async createItem(data: { name: string; unit: string; category?: string; minStockLevel?: number; costPerUnit?: number }) {
     return this.prisma.inventoryItem.create({
-      data: {
-        ...data,
-        currentStock: 0,
-      },
+      data: { ...data, currentStock: 0 },
     });
   }
 
-  // 2. إدارة المخزون (الوارد والمنصرف)
   async addStock(itemId: string, quantity: number, userId: string, reason?: string) {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.inventoryItem.findUnique({ where: { id: itemId } });
       if (!item) throw new NotFoundException('Inventory item not found');
 
-      // 1. Create Transaction
       await tx.inventoryTransaction.create({
         data: {
           inventoryItemId: itemId,
@@ -45,13 +37,11 @@ export class InventoryService {
         },
       });
 
-      // 2. Update Current Stock
       const updated = await tx.inventoryItem.update({
         where: { id: itemId },
         data: { currentStock: { increment: quantity } },
       });
 
-      // 3. Central Audit Log
       await this.auditLogsService.createAuditLog({
         userId,
         action: 'ADD_STOCK',
@@ -64,21 +54,13 @@ export class InventoryService {
     });
   }
 
-  // 3. إدارة الوصفات (Recipes)
   async setRecipe(productId: string, items: { inventoryItemId: string; quantity: number }[]) {
     return this.prisma.$transaction(async (tx) => {
-      // Clear old recipe items
       await tx.recipeItem.deleteMany({ where: { productId } });
-
-      // Add new recipe items
       const created = await Promise.all(
         items.map((item) =>
           tx.recipeItem.create({
-            data: {
-              productId,
-              inventoryItemId: item.inventoryItemId,
-              quantity: item.quantity,
-            },
+            data: { productId, inventoryItemId: item.inventoryItemId, quantity: item.quantity },
           }),
         ),
       );
@@ -86,24 +68,18 @@ export class InventoryService {
     });
   }
 
-  // 4. الخصم التلقائي (السحر الحقيقي)
   async deductStockForOrder(orderId: string, userId: string) {
     const order = await this.prisma.barOrder.findUnique({
       where: { id: orderId },
       include: {
         items: {
-          include: {
-            product: {
-              include: { recipeItems: true },
-            },
-          },
+          include: { product: { include: { recipeItems: true } } },
         },
       },
     });
 
     if (!order) return;
 
-    // تحسين: استخدام عملية واحدة (Transaction) لكل المكونات بدلاً من تكرارها داخل الحلقات
     return this.prisma.$transaction(async (tx) => {
       for (const orderItem of order.items) {
         const recipeItems = orderItem.product.recipeItems;
@@ -112,7 +88,6 @@ export class InventoryService {
         for (const recipe of recipeItems) {
           const totalDeduction = Number(recipe.quantity) * orderItem.quantity;
 
-          // 1. تسوية المخزن
           await tx.inventoryTransaction.create({
             data: {
               inventoryItemId: recipe.inventoryItemId,
@@ -129,31 +104,40 @@ export class InventoryService {
             data: { currentStock: { decrement: totalDeduction } },
           });
 
-          // 2. سجل التدقيق المركزي (Manual)
           await this.auditLogsService.createAuditLog({
             userId,
             action: 'AUTO_DEDUCT_STOCK',
             entityType: 'inventory_item',
             entityId: recipe.inventoryItemId,
-            newValue: { 
-              orderId, 
-              quantity: totalDeduction, 
+            newValue: {
+              orderId,
+              quantity: totalDeduction,
               currentStock: updated.currentStock,
-              isNegative: Number(updated.currentStock) < 0 // تحويل لـ Number للمقارنة السليمة
+              isNegative: Number(updated.currentStock) < 0,
             },
           });
         }
       }
     });
   }
-  
-  // 5. إدارة الهالك (Waste Management)
+
+  async getTransactions(itemId?: string, limit = 100) {
+    return this.prisma.inventoryTransaction.findMany({
+      where: itemId ? { inventoryItemId: itemId } : undefined,
+      include: {
+        inventoryItem: { select: { name: true, unit: true } },
+        performedBy: { select: { firstName: true, lastName: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  }
+
   async recordWaste(data: { inventoryItemId: string; quantity: number; reason?: string }, userId: string) {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.inventoryItem.findUnique({ where: { id: data.inventoryItemId } });
       if (!item) throw new NotFoundException('Inventory item not found');
 
-      // 1. Create Waste Entry
       const waste = await tx.wasteEntry.create({
         data: {
           inventoryItemId: data.inventoryItemId,
@@ -163,7 +147,6 @@ export class InventoryService {
         },
       });
 
-      // 2. Create Inventory Transaction
       await tx.inventoryTransaction.create({
         data: {
           inventoryItemId: data.inventoryItemId,
@@ -175,13 +158,11 @@ export class InventoryService {
         },
       });
 
-      // 3. Update Stock
       const updated = await tx.inventoryItem.update({
         where: { id: data.inventoryItemId },
         data: { currentStock: { decrement: data.quantity } },
       });
 
-      // 4. Central Audit Log
       await this.auditLogsService.createAuditLog({
         userId,
         action: 'RECORD_WASTE',
@@ -192,5 +173,63 @@ export class InventoryService {
 
       return waste;
     });
+  }
+
+  async getWasteSummary(fromDate?: string, toDate?: string) {
+    const dateFilter =
+      fromDate || toDate
+        ? {
+            createdAt: {
+              ...(fromDate ? { gte: new Date(fromDate) } : {}),
+              ...(toDate ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) } : {}),
+            },
+          }
+        : {};
+
+    const [entries, byItem] = await Promise.all([
+      this.prisma.wasteEntry.aggregate({
+        where: dateFilter,
+        _sum: { quantity: true },
+        _count: true,
+      }),
+      this.prisma.wasteEntry.groupBy({
+        by: ['inventoryItemId'],
+        where: dateFilter,
+        _sum: { quantity: true },
+        _count: true,
+        orderBy: { _sum: { quantity: 'desc' } },
+        take: 5,
+      }),
+    ]);
+
+    const itemIds = byItem.map((r) => r.inventoryItemId);
+    const items = itemIds.length
+      ? await this.prisma.inventoryItem.findMany({
+          where: { id: { in: itemIds } },
+          select: { id: true, name: true, unit: true, costPerUnit: true },
+        })
+      : [];
+    const itemMap = Object.fromEntries(items.map((i) => [i.id, i]));
+
+    const topItems = byItem.map((r) => {
+      const item = itemMap[r.inventoryItemId];
+      const qty = Number(r._sum.quantity ?? 0);
+      const cost = item?.costPerUnit ? Number(item.costPerUnit) * qty : null;
+      return {
+        itemId: r.inventoryItemId,
+        name: item?.name ?? 'Unknown',
+        unit: item?.unit ?? '',
+        totalQuantity: qty,
+        estimatedCost: cost,
+        entryCount: r._count,
+      };
+    });
+
+    return {
+      totalEntries: entries._count,
+      totalQuantity: Number(entries._sum.quantity ?? 0),
+      totalEstimatedCost: topItems.reduce((s, i) => s + (i.estimatedCost ?? 0), 0),
+      topWastedItems: topItems,
+    };
   }
 }

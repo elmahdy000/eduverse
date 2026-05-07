@@ -165,9 +165,6 @@ export class BookingsService {
     const where: any = {};
     if (filters?.status) {
       where.status = filters.status;
-    } else {
-      // افتراضياً: استبعاد الحجوزات الملغاة من القوائم العامة واليومية
-      where.status = { not: 'cancelled' };
     }
     if (filters?.roomId) {
       where.roomId = filters.roomId;
@@ -298,5 +295,47 @@ export class BookingsService {
         room: true,
       },
     });
+  }
+
+  async markAsNoShow(bookingId: string) {
+    await this.getBooking(bookingId);
+
+    return this.prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        status: 'no_show',
+      },
+      include: {
+        customer: true,
+        room: true,
+      },
+    });
+  }
+
+  async getBookingSummary(fromDate?: string, toDate?: string) {
+    const where: any = {};
+    if (fromDate || toDate) {
+      where.startTime = {};
+      if (fromDate) where.startTime.gte = new Date(fromDate);
+      if (toDate) where.startTime.lte = new Date(toDate);
+    }
+
+    const bookings = await this.prisma.booking.findMany({ where });
+
+    const stats = {
+      totalCount: bookings.length,
+      confirmedCount: bookings.filter((b) => b.status === 'confirmed').length,
+      completedCount: bookings.filter((b) => b.status === 'completed').length,
+      cancelledCount: bookings.filter((b) => b.status === 'cancelled').length,
+      noShowCount: bookings.filter((b) => b.status === 'no_show').length,
+      totalRevenue: bookings
+        .filter((b) => b.status === 'completed')
+        .reduce((sum, b) => sum + Number(b.totalAmount || 0), 0),
+      potentialLoss: bookings
+        .filter((b) => b.status === 'cancelled' || b.status === 'no_show')
+        .reduce((sum, b) => sum + Number(b.totalAmount || 0), 0),
+    };
+
+    return stats;
   }
 }

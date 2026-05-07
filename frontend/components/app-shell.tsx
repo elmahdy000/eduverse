@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -282,7 +282,9 @@ export function AppShell({ children }: PropsWithChildren) {
 
                 if (allowedItems.length === 1) {
                   const item = allowedItems[0];
-                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                  const isActive = item.href === "/reports" 
+                    ? pathname === "/reports" 
+                    : pathname === item.href || pathname.startsWith(item.href + "/");
                   return (
                     <Link
                       key={item.href}
@@ -316,7 +318,9 @@ export function AppShell({ children }: PropsWithChildren) {
                     {isOpen && (
                       <div className="mt-1 space-y-0.5 pr-2">
                         {allowedItems.map((item) => {
-                          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                          const isActive = item.href === "/reports" 
+                            ? pathname === "/reports" 
+                            : pathname === item.href || pathname.startsWith(item.href + "/");
                           return (
                             <Link
                               key={item.href}

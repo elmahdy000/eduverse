@@ -38,7 +38,7 @@
     "@nestjs/swagger": "^7.1.0",
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^10.4.22",
-    "@prisma/client": "^5.9.0",
+    "@prisma/client": "^5.22.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",

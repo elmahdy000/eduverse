@@ -9,44 +9,14 @@ import { AuthGate } from "../../components/auth-gate";
 import type { ApiSuccess, AuthPayload } from "../../lib/types";
 import { translateApiError } from "../../lib/errors";
 
-const DEMO_CREDENTIALS = [
-  { role: "المالك", email: "owner@eduvers.com", password: "owner123", color: "violet" },
-  { role: "مدير العمليات", email: "opsmanager@eduvers.com", password: "ops123", color: "blue" },
-  { role: "الاستقبال", email: "receptionist@eduvers.com", password: "recept123", color: "emerald" },
-  { role: "الباريستا", email: "barista@eduvers.com", password: "barista123", color: "amber" },
-];
 
-type DemoColor = "violet" | "blue" | "emerald" | "amber";
-
-const colorMap: Record<DemoColor, { active: string; base: string; dot: string }> = {
-  violet: {
-    active: "bg-violet-50 border-violet-300 text-violet-700",
-    base: "border-slate-200 hover:border-violet-200 hover:bg-violet-50/50 text-slate-700",
-    dot: "bg-violet-500",
-  },
-  blue: {
-    active: "bg-blue-50 border-blue-300 text-blue-700",
-    base: "border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 text-slate-700",
-    dot: "bg-blue-500",
-  },
-  emerald: {
-    active: "bg-emerald-50 border-emerald-300 text-emerald-700",
-    base: "border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/50 text-slate-700",
-    dot: "bg-emerald-500",
-  },
-  amber: {
-    active: "bg-amber-50 border-amber-300 text-amber-700",
-    base: "border-slate-200 hover:border-amber-200 hover:bg-amber-50/50 text-slate-700",
-    dot: "bg-amber-500",
-  },
-};
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
-  const [email, setEmail] = useState("owner@eduvers.com");
-  const [password, setPassword] = useState("owner123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,11 +46,7 @@ export default function LoginPage() {
     }
   }
 
-  function fillCredentials(cred: (typeof DEMO_CREDENTIALS)[number]) {
-    setEmail(cred.email);
-    setPassword(cred.password);
-    setError(null);
-  }
+
 
   return (
     <AuthGate publicOnly>
@@ -183,35 +149,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-6 space-y-3">
-              <p className="text-center text-xs font-bold text-slate-500">اختر الحساب التجريبي</p>
 
-              <div className="grid grid-cols-2 gap-2">
-                {DEMO_CREDENTIALS.map((cred) => {
-                  const colors = colorMap[cred.color as DemoColor];
-                  const isActive = email === cred.email;
-                  return (
-                    <button
-                      key={cred.role}
-                      type="button"
-                      onClick={() => fillCredentials(cred)}
-                      className={`rounded-xl border p-2.5 text-right transition hover:scale-[1.02] active:scale-100 ${
-                        isActive ? colors.active : colors.base
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span className={`h-2 w-2 shrink-0 rounded-full ${colors.dot}`} />
-                        <span className="text-xs font-semibold">{cred.role}</span>
-                      </div>
-                      <p className="mt-0.5 truncate text-[10px] opacity-70 text-left" dir="ltr">
-                        {cred.email}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-500">

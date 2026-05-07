@@ -222,6 +222,7 @@ model Product {
   updatedAt     DateTime @updatedAt
 
   barOrderItems BarOrderItem[]
+  recipeItems   RecipeItem[]
 
   @@index([category])
   @@map("products")
@@ -427,4 +428,55 @@ model Expense {
   @@index([date])
   @@index([linkedUserId])
   @@map("expenses")
+}
+
+// ============================================================================
+// INVENTORY & RECIPES (إدارة المخازن والوصفات)
+// ============================================================================
+
+model InventoryItem {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String   @unique
+  category      String?  // خامات، تعبئة، منظفات
+  unit          String   // جرام، مل، قطعة، كيس
+  currentStock  Decimal  @default(0) @db.Decimal(10, 3)
+  minStockLevel Decimal  @default(0) @db.Decimal(10, 3) // حد الإنذار
+  costPerUnit   Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  recipes      RecipeItem[]
+  transactions InventoryTransaction[]
+
+  @@map("inventory_items")
+}
+
+model RecipeItem {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId       String   @db.Uuid
+  inventoryItemId String   @db.Uuid
+  quantity        Decimal  @db.Decimal(10, 3) // الكمية المطلوبة لكل كوب/وحدة
+
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@unique([productId, inventoryItemId])
+  @@map("recipe_items")
+}
+
+model InventoryTransaction {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventoryItemId String   @db.Uuid
+  type            String   // in (وارد), out (بيع/منصرف), adjustment (تسوية)
+  quantity        Decimal  @db.Decimal(10, 3)
+  reason          String?  // مبيعات، شراء، تالف
+  referenceId     String?  // ID الطلب أو الفاتورة المرتبطة
+  performedByUserId String @db.Uuid
+  createdAt       DateTime @default(now())
+
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([inventoryItemId])
+  @@index([type])
+  @@map("inventory_transactions")
 }

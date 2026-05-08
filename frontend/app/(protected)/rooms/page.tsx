@@ -426,7 +426,7 @@ export default function RoomsPage() {
               </button>
               <button
                 onClick={() => {
-                  statusMutation.mutate({ id: confirmAction.roomId, action: confirmAction.action });
+                  statusMutation.mutate({ roomId: confirmAction.roomId, action: confirmAction.action });
                   setConfirmAction(null);
                 }}
                 disabled={statusMutation.isPending}

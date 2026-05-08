@@ -1,11 +1,11 @@
 # Graph Report - D:\coders\eduvers  (2026-05-08)
 
 ## Corpus Check
-- 138 files · ~163,380 words
+- 138 files · ~163,107 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 642 nodes · 685 edges · 105 communities detected
+- 643 nodes · 688 edges · 105 communities detected
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 85 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -144,27 +144,27 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
-Nodes (7): AuthService, JwtConfigService, PasswordService, CustomersService, SessionsService, main(), UsersService
+Nodes (5): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController, InventoryService
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
-Nodes (5): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController, InventoryService
-
-### Community 2 - "Community 2"
-Cohesion: 0.06
 Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
 
-### Community 3 - "Community 3"
+### Community 2 - "Community 2"
 Cohesion: 0.07
+Nodes (5): CustomersService, ProductsService, RoomsService, SessionsService, main()
+
+### Community 3 - "Community 3"
+Cohesion: 0.08
 Nodes (19): dateTime(), money(), translatePaymentMethod(), translateStatus(), actionLabel(), ActiveSessionCard(), asObject(), downloadInvoiceSnapshot() (+11 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.11
-Nodes (2): BookingsController, BookingsService
+Nodes (4): AuthService, JwtConfigService, PasswordService, UsersService
 
 ### Community 5 - "Community 5"
-Cohesion: 0.12
-Nodes (2): RoomsController, RoomsService
+Cohesion: 0.11
+Nodes (2): BookingsController, BookingsService
 
 ### Community 6 - "Community 6"
 Cohesion: 0.11
@@ -203,36 +203,36 @@ Cohesion: 0.29
 Nodes (1): DashboardsService
 
 ### Community 15 - "Community 15"
+Cohesion: 0.18
+Nodes (1): RoomsController
+
+### Community 16 - "Community 16"
+Cohesion: 0.24
+Nodes (3): onCreateSubmit(), onUpdateSubmit(), resetCreateForm()
+
+### Community 17 - "Community 17"
 Cohesion: 0.36
 Nodes (1): AuditLogsInterceptor
 
-### Community 16 - "Community 16"
+### Community 18 - "Community 18"
 Cohesion: 0.22
 Nodes (1): ProductsController
 
-### Community 17 - "Community 17"
-Cohesion: 0.31
-Nodes (1): ProductsService
-
-### Community 18 - "Community 18"
+### Community 19 - "Community 19"
 Cohesion: 0.22
 Nodes (1): ShiftsController
 
-### Community 19 - "Community 19"
+### Community 20 - "Community 20"
 Cohesion: 0.25
 Nodes (1): DashboardsController
 
-### Community 20 - "Community 20"
+### Community 21 - "Community 21"
 Cohesion: 0.25
 Nodes (1): PaymentsService
 
-### Community 21 - "Community 21"
+### Community 22 - "Community 22"
 Cohesion: 0.25
 Nodes (1): SessionsController
-
-### Community 22 - "Community 22"
-Cohesion: 0.29
-Nodes (2): onCreateSubmit(), onUpdateSubmit()
 
 ### Community 23 - "Community 23"
 Cohesion: 0.29
@@ -681,10 +681,12 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `InvoicesService` connect `Community 8` to `Community 0`?**
+- **Why does `InvoicesService` connect `Community 8` to `Community 2`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **Why does `ExpensesController` connect `Community 2` to `Community 0`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `RoomsService` connect `Community 2` to `Community 15`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `ExpensesController` connect `Community 1` to `Community 2`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
@@ -692,6 +694,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
   _Cohesion score 0.07 - nodes in this community are weakly interconnected._

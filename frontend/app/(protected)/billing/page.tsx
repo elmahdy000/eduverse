@@ -526,12 +526,12 @@ export default function BillingPage() {
                             </td>
                           <td className="py-3 px-4 text-xs text-slate-600">{dateTime(p.paidAt)}</td>
                           <td className="py-3 px-4">
-                            <Badge tone={p.amount < 0 ? "danger" : "success"}>
+                            <Badge tone={Number(p.amount) < 0 ? "danger" : "success"}>
                               {translatePaymentMethod(p.paymentMethod)}
                             </Badge>
                           </td>
-                          <td className={clsx("py-3 pl-4 text-left font-bold tabular-nums", p.amount < 0 ? "text-rose-700" : "text-emerald-700")}>
-                            {p.amount < 0 ? "-" : "+"}{money(Math.abs(p.amount))}
+                          <td className={clsx("py-3 pl-4 text-left font-bold tabular-nums", Number(p.amount) < 0 ? "text-rose-700" : "text-emerald-700")}>
+                            {Number(p.amount) < 0 ? "-" : "+"}{money(Math.abs(Number(p.amount)))}
                           </td>
                         </tr>
                       ))}
@@ -540,8 +540,9 @@ export default function BillingPage() {
                 </div>
               </Panel>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
-    );
+    </div>
+  );
 }

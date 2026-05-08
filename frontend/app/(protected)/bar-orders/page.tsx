@@ -373,7 +373,7 @@ export default function BarOrdersPage() {
                         <div className="space-y-1.5">
                           {selectedOrderQuery.data.items.map((item, idx) => (
                             <div key={idx} className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                              <span className="font-bold text-emerald-700">{money((item.unitPrice ?? 0) * item.quantity)}</span>
+                              <span className="font-bold text-emerald-700">{money(Number(item.unitPrice ?? 0) * Number(item.quantity || 0))}</span>
                               <div className="text-right">
                                 <span className="text-sm font-semibold text-slate-800">{item.product?.name}</span>
                                 <span className="mr-1.5 text-xs text-slate-400">x{item.quantity}</span>
@@ -424,11 +424,12 @@ export default function BarOrdersPage() {
                       </div>
                     )}
                   </div>
-                ) : null) : null) : null)}
-              </Panel>
-            </div>
+                </div>
+              ) : null}
+            </Panel>
           </div>
         </div>
+      </div>
 
       {/* Cancel Confirm Dialog */}
       {cancelConfirm && (
@@ -441,16 +442,16 @@ export default function BarOrdersPage() {
               </div>
               <div>
                 <h3 className="text-base font-black text-slate-900">تأكيد الإلغاء</h3>
-                <p className="text-xs text-slate-500">#{cancelConfirm.orderRef}</p>
+                <p className="text-xs text-slate-500">#{cancelConfirm!.orderRef}</p>
               </div>
             </div>
             <div className="p-6">
               <p className="mb-5 text-sm text-slate-700">
-                هل أنت متأكد إنك عايز تلغي الطلب <span className="font-bold">#{cancelConfirm.orderRef}</span>؟ الإجراء ده مش قابل للتراجع.
+                هل أنت متأكد إنك عايز تلغي الطلب <span className="font-bold">#{cancelConfirm!.orderRef}</span>؟ الإجراء ده مش قابل للتراجع.
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => cancelMutation.mutate({ orderId: cancelConfirm.orderId })}
+                  onClick={() => cancelMutation.mutate({ orderId: cancelConfirm!.orderId })}
                   disabled={cancelMutation.isPending}
                   className="flex-1 rounded-xl bg-rose-600 py-2.5 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50 transition"
                 >

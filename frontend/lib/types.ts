@@ -141,7 +141,7 @@ export interface Payment {
   invoiceId: string;
   paymentMethod: string;
   notes?: string | null;
-  amount: string | number;
+  amount: number;
   paidAt: string;
 }
 

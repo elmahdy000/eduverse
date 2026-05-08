@@ -45,7 +45,8 @@ interface CustomerHistory {
   sessionsCount: number;
   invoicesCount: number;
   bookingsCount: number;
-  totalSpent: number;
+  ordersCount: number;
+  totalPaid: number;
 }
 
 const ctypeColors: Record<string, string> = {
@@ -59,6 +60,7 @@ const ctypeColors: Record<string, string> = {
 export default function CustomersPage() {
   const queryClient = useQueryClient();
 
+  // Create form state
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [customerType, setCustomerType] = useState("visitor");
@@ -71,6 +73,7 @@ export default function CustomersPage() {
   const [employerName, setEmployerName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
 
+  // Search/View state
   const [searchName, setSearchName] = useState("");
   const [searchPhone, setSearchPhone] = useState("");
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
@@ -78,7 +81,7 @@ export default function CustomersPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
 
-  // Edit state
+  // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFullName, setEditFullName] = useState("");
   const [editPhoneNumber, setEditPhoneNumber] = useState("");
@@ -224,8 +227,7 @@ export default function CustomersPage() {
     onSuccess: () => {
       setMessage({ text: "تم تحديث حالة العميل.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
-      queryClient.invalidateQueries({ queryKey: ["customers", selectedCustomerId, "history"] });
-      queryClient.invalidateQueries({ queryKey: ["customers", selectedCustomerId, "active-session"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", selectedCustomerId, "details"] });
     },
     onError: (err: unknown) => {
       const m = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
@@ -234,66 +236,20 @@ export default function CustomersPage() {
   });
 
   const customers = useMemo(() => customersQuery.data?.data ?? [], [customersQuery.data]);
-  const customerTypeTabs = useMemo(
-    () => [
-      { key: "all", label: "الكل", count: customers.length },
-      { key: "student", label: "طلاب", count: customers.filter((c) => c.customerType === "student").length },
-      { key: "employee", label: "موظفين", count: customers.filter((c) => c.customerType === "employee").length },
-      { key: "trainer", label: "مدربين", count: customers.filter((c) => c.customerType === "trainer").length },
-      { key: "parent", label: "أولياء أمور", count: customers.filter((c) => c.customerType === "parent").length },
-      { key: "visitor", label: "زوار", count: customers.filter((c) => c.customerType === "visitor").length },
-    ],
-    [customers],
-  );
-
   const visibleCustomers = useMemo(() => {
     if (activeTypeTab === "all") return customers;
     return customers.filter((c) => c.customerType === activeTypeTab);
   }, [customers, activeTypeTab]);
 
+  const customerTypeTabs = useMemo(() => [
+    { key: "all", label: "الكل", count: customers.length },
+    { key: "student", label: "طلاب", count: customers.filter(c => c.customerType === "student").length },
+    { key: "employee", label: "موظفين", count: customers.filter(c => c.customerType === "employee").length },
+    { key: "trainer", label: "مدربين", count: customers.filter(c => c.customerType === "trainer").length },
+    { key: "visitor", label: "زوار", count: customers.filter(c => c.customerType === "visitor").length },
+  ], [customers]);
+
   const selectedCustomer = customerDetailsQuery.data ?? null;
-  const totalCount = customers.length;
-  const activeCount = customers.filter((c) => c.status === "active").length;
-  const blockedCount = customers.filter((c) => c.status === "blacklisted").length;
-
-  const rows = useMemo(
-    () =>
-      visibleCustomers.map((c) => [
-        <span key={`name-${c.id}`} className="font-semibold text-slate-900">{c.fullName}</span>,
-        <span key={`phone-${c.id}`} className="font-mono text-xs">{c.phoneNumber}</span>,
-        <span key={`type-${c.id}`} className={clsx("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold", ctypeColors[c.customerType] ?? ctypeColors.visitor)}>
-          {translateCustomerType(c.customerType)}
-        </span>,
-        <Badge key={`status-${c.id}`} tone={statusBadgeTone(c.status)}>{translateStatus(c.status)}</Badge>,
-        <span key={`visit-${c.id}`} className="text-xs text-slate-500">{dateTime(c.lastVisitAt ?? null)}</span>,
-        <Btn
-          key={`open-${c.id}`}
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            setSelectedCustomerId(c.id);
-            setTimeout(() => document.getElementById("customer-details-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
-          }}
-        >
-          فتح الملف
-        </Btn>,
-      ]),
-    [visibleCustomers],
-  );
-
-  const topProducts = useMemo(() => {
-    const orders = barOrdersQuery.data?.data ?? [];
-    const counter = new Map<string, { name: string; qty: number }>();
-    for (const order of orders) {
-      for (const item of order.items ?? []) {
-        const key = item.productId;
-        const current = counter.get(key);
-        if (current) current.qty += item.quantity;
-        else counter.set(key, { name: item.product?.name ?? "منتج", qty: item.quantity });
-      }
-    }
-    return [...counter.values()].sort((a, b) => b.qty - a.qty).slice(0, 5);
-  }, [barOrdersQuery.data]);
 
   function resetCreateForm() {
     setFullName("");
@@ -311,138 +267,69 @@ export default function CustomersPage() {
 
   function onCreateSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage(null);
     if (duplicateCustomer) {
-      const useExisting = confirm(`الرقم ده متسجل بالفعل باسم: ${duplicateCustomer.fullName}\nتحب نفتح ملفه بدل تسجيل عميل جديد؟`);
-      if (useExisting) {
+      if (confirm(`الرقم ده متسجل باسم: ${duplicateCustomer.fullName}\nتحب نفتح ملفه؟`)) {
         setSelectedCustomerId(duplicateCustomer.id);
         setShowCreateForm(false);
         resetCreateForm();
+        return;
       }
-      return;
     }
     createMutation.mutate();
   }
+
+  const rows = useMemo(() => visibleCustomers.map((c) => [
+    <span key={`name-${c.id}`} className="font-semibold text-slate-900">{c.fullName}</span>,
+    <span key={`phone-${c.id}`} className="font-mono text-xs">{c.phoneNumber}</span>,
+    <span key={`type-${c.id}`} className={clsx("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold", ctypeColors[c.customerType] ?? ctypeColors.visitor)}>
+      {translateCustomerType(c.customerType)}
+    </span>,
+    <Badge key={`status-${c.id}`} tone={statusBadgeTone(c.status)}>{translateStatus(c.status)}</Badge>,
+    <span key={`visit-${c.id}`} className="text-xs text-slate-500">{dateTime(c.lastVisitAt ?? null)}</span>,
+    <Btn key={`action-${c.id}`} size="sm" variant="secondary" onClick={() => setSelectedCustomerId(c.id)}>فتح الملف</Btn>
+  ]), [visibleCustomers]);
 
   return (
     <div className="space-y-6">
       <SectionTitle
         title="شاشة العملاء"
-        subtitle="تسجيل سريع، بحث مباشر، وتقسيم العملاء حسب الفئات في تابات واضحة."
+        subtitle="إدارة بيانات العملاء والتسجيل السريع."
         icon={<Users size={20} />}
-        action={<button onClick={() => customersQuery.refetch()} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"><RefreshCw size={12} /> تحديث</button>}
       />
 
       {message && <Alert tone={message.ok ? "success" : "danger"}>{message.text}</Alert>}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="إجمالي العملاء" value={totalCount} icon={<Users size={18} />} />
-        <StatCard label="نشطين دلوقتي" value={activeCount} tone="success" icon={<UserCheck size={18} />} />
-        <StatCard label="قائمة سوداء" value={blockedCount} tone="danger" icon={<ShieldBan size={18} />} />
-      </div>
-
       <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
         <Panel title="بحث العملاء" icon={<Search size={15} />}>
           <div className="grid gap-3 md:grid-cols-2">
-            <FormField label="بالاسم"><Input value={searchName} onChange={(e) => setSearchName(e.target.value)} placeholder="اكتب اسم العميل..." /></FormField>
+            <FormField label="بالاسم"><Input value={searchName} onChange={(e) => setSearchName(e.target.value)} placeholder="اسم العميل..." /></FormField>
             <FormField label="بالموبايل"><Input value={searchPhone} onChange={(e) => setSearchPhone(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" /></FormField>
           </div>
         </Panel>
 
         <Panel title="تسجيل عميل جديد" icon={<UserPlus size={15} />}>
           {!showCreateForm ? (
-            <Btn className="w-full" icon={<UserPlus size={14} />} onClick={() => setShowCreateForm(true)}>فتح فورم التسجيل</Btn>
+            <Btn className="w-full" onClick={() => setShowCreateForm(true)}>تسجيل عميل جديد</Btn>
           ) : (
             <form className="space-y-4" onSubmit={onCreateSubmit}>
-              {duplicateCustomer && (
-                <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
-                  <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-semibold">الرقم ده متسجل قبل كده</p>
-                    <p>العميل الحالي: {duplicateCustomer.fullName}</p>
-                  </div>
-                </div>
-              )}
-
               <div className="grid gap-4 md:grid-cols-2">
-                <FormField label="الاسم الكامل">
-                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="مثال: محمد أحمد" required />
-                </FormField>
-                <FormField label="رقم الموبايل">
-                  <div className="relative">
-                    <Phone size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" className="pr-9" required />
-                  </div>
-                </FormField>
+                <FormField label="الاسم"><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></FormField>
+                <FormField label="الموبايل"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
               </div>
-
               <div className="grid gap-4 md:grid-cols-2">
-                <FormField label="البريد الإلكتروني (اختياري)">
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" dir="ltr" />
-                </FormField>
-                <FormField label="نوع العميل">
+                <FormField label="النوع">
                   <Select value={customerType} onChange={(e) => setCustomerType(e.target.value)}>
+                    <option value="visitor">زائر</option>
                     <option value="student">طالب</option>
                     <option value="employee">موظف</option>
                     <option value="trainer">مدرب</option>
-                    <option value="parent">ولي أمر</option>
-                    <option value="visitor">زائر</option>
                   </Select>
                 </FormField>
+                <FormField label="الايميل"><Input value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" /></FormField>
               </div>
-
-              {customerType === "student" && (
-                <div className="grid gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600">بيانات الطالب</p>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <FormField label="الجامعة / الكلية">
-                      <Input value={college} onChange={(e) => setCollege(e.target.value)} placeholder="مثال: جامعة القاهرة" />
-                    </FormField>
-                    <FormField label="المستوى الدراسي">
-                      <Input value={studyLevel} onChange={(e) => setStudyLevel(e.target.value)} placeholder="مثال: رابعة هندسة" />
-                    </FormField>
-                    <FormField label="التخصص">
-                      <Input value={specialization} onChange={(e) => setSpecialization(e.target.value)} placeholder="مثال: عمارة" />
-                    </FormField>
-                  </div>
-                </div>
-              )}
-
-              {customerType === "employee" && (
-                <div className="grid gap-3 rounded-xl border border-violet-100 bg-violet-50/50 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600">بيانات الموظف</p>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <FormField label="جهة العمل">
-                      <Input value={employerName} onChange={(e) => setEmployerName(e.target.value)} placeholder="اسم الشركة أو المؤسسة" />
-                    </FormField>
-                    <FormField label="المسمى الوظيفي">
-                      <Input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="مثال: محاسب، مهندس" />
-                    </FormField>
-                  </div>
-                </div>
-              )}
-
-              <FormField label="العنوان (اختياري)">
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="عنوان السكن الحالي" />
-              </FormField>
-
-              <FormField label="ملاحظات">
-                <textarea
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-slate-400"
-                  rows={2}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="أي ملاحظات إضافية عن العميل..."
-                />
-              </FormField>
-
-              <div className="flex gap-2 pt-2">
-                <Btn type="submit" className="flex-1" loading={createMutation.isPending} loadingText="بيتم التسجيل..." icon={<UserPlus size={14} />}>
-                  تسجيل الحساب
-                </Btn>
-                <Btn variant="ghost" onClick={() => { setShowCreateForm(false); resetCreateForm(); }}>
-                  إلغاء
-                </Btn>
+              <div className="flex gap-2">
+                <Btn type="submit" className="flex-1" loading={createMutation.isPending}>حفظ</Btn>
+                <Btn variant="ghost" onClick={() => setShowCreateForm(false)}>إلغاء</Btn>
               </div>
             </form>
           )}
@@ -450,108 +337,80 @@ export default function CustomersPage() {
       </div>
 
       <Panel title="قائمة العملاء" icon={<Users size={15} />}>
-        {customersQuery.isLoading ? (
-          <div className="flex justify-center py-10"><RefreshCw size={20} className="animate-spin text-slate-400" /></div>
-        ) : customers.length === 0 ? (
-          <EmptyState icon={<Users size={36} />} title="مفيش عملاء بالفلاتر الحالية" sub="جرّب تغيّر شروط البحث أو سجّل عميل جديد." />
-        ) : (
-          <>
-            <div className="mb-3 flex flex-wrap gap-2">
-              {customerTypeTabs.map((tab) => (
-                <button key={tab.key} type="button" onClick={() => setActiveTypeTab(tab.key)} className={clsx("inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition", activeTypeTab === tab.key ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50")}>
-                  <span>{tab.label}</span>
-                  <span className={clsx("rounded-full px-1.5 py-0.5 text-[10px]", activeTypeTab === tab.key ? "bg-white/20" : "bg-slate-100 text-slate-600")}>{tab.count}</span>
-                </button>
-              ))}
-            </div>
-            {visibleCustomers.length === 0 ? (
-              <EmptyState title="مفيش عملاء في الفئة دي" sub="غيّر التاب أو عدّل البحث." />
-            ) : (
-              <DataTable headers={["الاسم", "الموبايل", "النوع", "الحالة", "آخر زيارة", "الإجراء"]} rows={rows} />
-            )}
-          </>
-        )}
+        <div className="mb-4 flex flex-wrap gap-2">
+          {customerTypeTabs.map(tab => (
+            <button key={tab.key} onClick={() => setActiveTypeTab(tab.key)} className={clsx("rounded-full px-3 py-1 text-xs font-medium border transition", activeTypeTab === tab.key ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200")}>
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+        {customersQuery.isLoading ? <p>جاري التحميل...</p> : <DataTable headers={["الاسم", "الموبايل", "النوع", "الحالة", "آخر زيارة", "الإجراء"]} rows={rows} />}
       </Panel>
 
       {selectedCustomerId && (
         <Panel className="scroll-mt-6" title={`ملف العميل: ${selectedCustomer?.fullName ?? "..."}`} icon={<UserCheck size={15} />} action={<Btn size="sm" variant="ghost" onClick={() => setSelectedCustomerId(null)}>إغلاق</Btn>}>
-          <div id="customer-details-panel" />
-          {customerDetailsQuery.isLoading ? (
-            <div className="flex justify-center py-10"><RefreshCw size={20} className="animate-spin text-slate-400" /></div>
-          ) : !selectedCustomer ? (
-            <Alert tone="danger">مش قادرين نجيب بيانات العميل.</Alert>
-          ) : (
-            <>
-              <div className="mb-4 flex flex-wrap gap-2">
-                <Btn
-                  variant="secondary"
-                  size="sm"
-                  icon={<Edit2 size={14} />}
-                  onClick={() => {
-                    setEditFullName(selectedCustomer.fullName ?? "");
-                    setEditPhoneNumber(selectedCustomer.phoneNumber ?? "");
-                    setEditEmail(selectedCustomer.email ?? "");
-                    setEditAddress(selectedCustomer.address ?? "");
-                    setEditNotes(selectedCustomer.notes ?? "");
-                    setEditCollege((selectedCustomer as any).college ?? "");
-                    setEditStudyLevel((selectedCustomer as any).studyLevel ?? "");
-                    setEditSpecialization((selectedCustomer as any).specialization ?? "");
-                    setEditEmployerName((selectedCustomer as any).employerName ?? "");
-                    setEditJobTitle((selectedCustomer as any).jobTitle ?? "");
-                    setShowEditModal(true);
-                  }}
-                >
-                  تعديل البيانات
-                </Btn>
-                <Btn variant="warn" size="sm" icon={<UserX size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "deactivate" })}>إيقاف</Btn>
-                <Btn variant="success" size="sm" icon={<UserCheck size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "reactivate" })}>تفعيل</Btn>
-                <Btn variant="danger" size="sm" icon={<ShieldBan size={14} />} loading={statusMutation.isPending} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" })}>قائمة سوداء</Btn>
+          {customerDetailsQuery.isLoading ? <p>جاري تحميل البيانات...</p> : selectedCustomer ? (
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2">
+                <Btn size="sm" variant="secondary" icon={<Edit2 size={14} />} onClick={() => {
+                  setEditFullName(selectedCustomer.fullName);
+                  setEditPhoneNumber(selectedCustomer.phoneNumber);
+                  setEditEmail(selectedCustomer.email || "");
+                  setEditAddress(selectedCustomer.address || "");
+                  setEditNotes(selectedCustomer.notes || "");
+                  setShowEditModal(true);
+                }}>تعديل</Btn>
+                <Btn size="sm" variant="danger" icon={<ShieldBan size={14} />} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" })}>حظر</Btn>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-3">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-slate-600"><Clock3 size={14} /><p className="text-sm font-semibold">الوقت الحالي</p></div>
-                  {activeSessionQuery.isLoading ? <p className="text-sm text-slate-500">جاري التحميل...</p> : activeSessionQuery.data ? (
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between"><Badge tone={statusBadgeTone(activeSessionQuery.data.status)}>{translateStatus(activeSessionQuery.data.status)}</Badge><span className="text-slate-500">الحالة</span></div>
-                      <div className="flex items-center justify-between"><span>{translateSessionType(activeSessionQuery.data.sessionType)}</span><span className="text-slate-500">النوع</span></div>
-                      <div className="flex items-center justify-between"><span className="text-xs">{dateTime(activeSessionQuery.data.startTime)}</span><span className="text-slate-500">من</span></div>
-                      {activeSessionQuery.data.room?.name && <div className="flex items-center justify-between"><span>{activeSessionQuery.data.room.name}</span><span className="text-slate-500">الغرفة</span></div>}
+                  <p className="mb-2 text-sm font-bold text-slate-600">الجلسة الحالية</p>
+                  {activeSessionQuery.data ? (
+                    <div className="space-y-1 text-xs">
+                      <p>النوع: {translateSessionType(activeSessionQuery.data.sessionType)}</p>
+                      <p>منذ: {dateTime(activeSessionQuery.data.startTime)}</p>
                     </div>
-                  ) : <EmptyState title="مفيش وقت نشط" sub="العميل مش داخل حالياً." />}
+                  ) : <p className="text-xs text-slate-400">لا توجد جلسة نشطة</p>}
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 lg:col-span-2">
-                  <div className="mb-2 flex items-center gap-2 text-slate-600"><History size={14} /><p className="text-sm font-semibold">ملخص التاريخ</p></div>
-                  {historyQuery.isLoading ? <p className="text-sm text-slate-500">جاري التحميل...</p> : historyQuery.data ? (
-                    <div className="grid gap-3 sm:grid-cols-4">
+                  <p className="mb-2 text-sm font-bold text-slate-600">تاريخ العميل</p>
+                  {historyQuery.data ? (
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                       <StatCard label="جلسات" value={historyQuery.data.sessionsCount} />
-                      <StatCard label="حجوزات" value={historyQuery.data.bookingsCount} tone="info" />
-                      <StatCard label="طلبات بار" value={historyQuery.data.ordersCount} tone="warn" />
-                      <StatCard label="مبالغ مدفوعة" value={historyQuery.data.totalPaid != null ? historyQuery.data.totalPaid.toLocaleString("ar-EG") + " ج" : "—"} tone="success" />
+                      <StatCard label="حجوزات" value={historyQuery.data.bookingsCount} />
+                      <StatCard label="طلبات بار" value={historyQuery.data.ordersCount} />
+                      <StatCard label="إجمالي المدفوع" value={money(historyQuery.data.totalPaid)} tone="success" />
                     </div>
-                  ) : <EmptyState title="لا يوجد تاريخ" />}
+                  ) : <p className="text-xs text-slate-400">جاري تحميل التاريخ...</p>}
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          ) : <Alert tone="danger">خطأ في تحميل العميل</Alert>}
         </Panel>
       )}
 
-      {/* Edit Customer Modal */}
-      {editCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setEditCustomer(null)} />
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
-            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
-              <h3 className="text-base font-black text-slate-900">تعديل بيانات العميل</h3>
-              <button onClick={() => setEditCustomer(null)} className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
-                <X size={16} />
-              </button>
+      {showEditModal && selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl bg-white shadow-xl" dir="rtl">
+            <div className="flex items-center justify-between border-b p-4">
+              <h3 className="font-bold">تعديل العميل</h3>
+              <button onClick={() => setShowEditModal(false)}><X size={20} /></button>
             </div>
-            <div className="max-h-[75vh] overflow-y-auto p-6">
-              <EditCustomerForm customer={editCustomer} onSuccess={() => { setEditCustomer(null); queryClient.invalidateQueries({ queryKey: ["customers"] }); }} />
-            </div>
+            <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
+                <FormField label="الموبايل"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} required /></FormField>
+              </div>
+              <FormField label="ملاحظات">
+                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />
+              </FormField>
+              <div className="flex gap-2">
+                <Btn type="submit" className="flex-1" loading={updateMutation.isPending}>حفظ التغييرات</Btn>
+                <Btn variant="ghost" onClick={() => setShowEditModal(false)}>إلغاء</Btn>
+              </div>
+            </form>
           </div>
         </div>
       )}

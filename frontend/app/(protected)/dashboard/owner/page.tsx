@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Users, DoorOpen, Calendar, Coffee, Receipt, Banknote, AlertTriangle, BarChart3, Crown, RefreshCw, UserPlus, Clock, Flame, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, DoorOpen, Calendar, Coffee, Receipt, Banknote, AlertTriangle, BarChart3, Crown, RefreshCw, UserPlus, Clock, Flame, Minus, Activity } from "lucide-react";
 import { api } from "../../../../lib/api";
 import { money } from "../../../../lib/format";
 import { translateOperationalAlert } from "../../../../lib/labels";

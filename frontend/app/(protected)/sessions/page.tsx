@@ -430,8 +430,8 @@ export default function SessionsPage() {
                             {session.status === "active" && (
                               <div className="flex gap-1.5">
                                 <button
-                                  onClick={() => closeSession(session.id)}
-                                  disabled={closingSessionId === session.id}
+                                  onClick={() => closeMutation.mutate(session.id)}
+                                  disabled={closeMutation.isPending}
                                   className="rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition disabled:opacity-50"
                                 >
                                   إغلاق
@@ -449,6 +449,5 @@ export default function SessionsPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }

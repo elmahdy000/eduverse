@@ -537,7 +537,6 @@ export default function CustomersPage() {
           )}
         </Panel>
       )}
-      </div>
 
       {/* Edit Customer Modal */}
       {editCustomer && (

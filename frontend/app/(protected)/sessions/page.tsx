@@ -440,8 +440,63 @@ export default function SessionsPage() {
                 </table>
               </div>
             </div>
+          </section>
           </div>
         </div>
+
+        {/* Right Column: Opening Form */}
+        <div className="lg:col-span-4 space-y-6">
+          <Panel title="فتح جلسة جديدة" icon={<DoorOpen size={15} />}>
+            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); openMutation.mutate(); }}>
+              <FormField label="العميل">
+                <Select value={customerId} onChange={e => setCustomerId(e.target.value)} required>
+                  <option value="">-- اختر العميل --</option>
+                  {customersQuery.data?.data?.map(c => (
+                    <option key={c.id} value={c.id}>{c.fullName} ({c.phoneNumber})</option>
+                  ))}
+                </Select>
+              </FormField>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField label="نوع الجلسة">
+                  <Select value={sessionType} onChange={e => setSessionType(e.target.value)}>
+                    <option value="hourly">ساعة (أو جزء)</option>
+                    <option value="room">غرفة (حجز)</option>
+                    <option value="day_pass">يومي (Day Pass)</option>
+                  </Select>
+                </FormField>
+                <FormField label="الغرفة (اختياري)">
+                  <Select value={roomId} onChange={e => setRoomId(e.target.value)}>
+                    <option value="">-- بدون غرفة --</option>
+                    {roomsQuery.data?.data?.map(r => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </Select>
+                </FormField>
+              </div>
+
+              {availableBookings.length > 0 && (
+                <FormField label="ربط بحجز مؤكد">
+                  <Select value={bookingId} onChange={e => setBookingId(e.target.value)}>
+                    <option value="">-- اختر الحجز --</option>
+                    {availableBookings.map(b => (
+                      <option key={b.id} value={b.id}>{dateTime(b.startTime)} - {b.room?.name}</option>
+                    ))}
+                  </Select>
+                </FormField>
+              )}
+
+              <FormField label="مبلغ الخدمة (اختياري)">
+                <Input type="number" value={chargeAmount} onChange={e => setChargeAmount(e.target.value)} placeholder="0.00" />
+              </FormField>
+
+              <Btn type="submit" loading={openMutation.isPending} loadingText="جاري الفتح..." className="w-full" icon={<Zap size={14} />}>
+                فتح الجلسة الآن
+              </Btn>
+            </form>
+          </Panel>
+        </div>
       </div>
-    );
+    </div>
+  );
 }

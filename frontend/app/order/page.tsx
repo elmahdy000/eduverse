@@ -216,27 +216,50 @@ export default function GuestOrderPage() {
   // --- UI Components ---
   const OrderProgress = ({ status }: { status: string }) => {
     const steps = [
-      { id: "new", label: "طلب جديد", icon: <Bell size={12} /> },
-      { id: "in_preparation", label: "تحضير", icon: <ChefHat size={12} /> },
-      { id: "ready", label: "جاهز", icon: <PackageCheck size={12} /> },
+      { id: "new", label: "استلمنا", icon: <Bell size={14} /> },
+      { id: "in_preparation", label: "تحضير", icon: <Flame size={14} /> },
+      { id: "ready", label: "جاهز", icon: <PackageCheck size={14} /> },
     ];
     
     const currentIndex = steps.findIndex(s => s.id === status);
     const isCompleted = status === "delivered" || status === "completed";
     
     return (
-      <div className="flex items-center gap-1 w-full max-w-[120px]">
-        {steps.map((step, i) => {
-          const isActive = currentIndex >= i || isCompleted;
-          return (
-            <React.Fragment key={step.id}>
-              <div className={cn("h-2 w-2 rounded-full transition-all duration-500", isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-700")} />
-              {i < steps.length - 1 && (
-                <div className={cn("h-0.5 flex-1 rounded-full transition-all duration-500", currentIndex > i || isCompleted ? "bg-emerald-500" : "bg-slate-700")} />
-              )}
-            </React.Fragment>
-          );
-        })}
+      <div className="w-full mt-4 pt-2">
+        <div className="relative flex justify-between">
+          {/* Background Line */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-800" />
+          
+          {/* Progress Line */}
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: isCompleted ? "100%" : `${(currentIndex / (steps.length - 1)) * 100}%` }}
+            className="absolute top-4 right-0 h-0.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+          />
+
+          {steps.map((step, i) => {
+            const isActive = currentIndex >= i || isCompleted;
+            const isCurrent = currentIndex === i && !isCompleted;
+            
+            return (
+              <div key={step.id} className="relative z-10 flex flex-col items-center">
+                <div className={cn(
+                  "h-8 w-8 rounded-full flex items-center justify-center transition-all duration-500 border-2",
+                  isActive ? "bg-emerald-500 border-emerald-500 text-slate-900" : "bg-slate-900 border-slate-700 text-slate-500",
+                  isCurrent && "ring-4 ring-emerald-500/20 animate-pulse"
+                )}>
+                  {step.icon}
+                </div>
+                <span className={cn(
+                  "text-[10px] font-black mt-2 transition-colors",
+                  isActive ? "text-emerald-500" : "text-slate-500"
+                )}>
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -301,19 +324,25 @@ export default function GuestOrderPage() {
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.95 }}
-              className="mb-4 bg-slate-900 rounded-[2rem] p-5 flex items-center justify-between shadow-xl shadow-slate-900/10 border border-slate-800"
+              className="mb-4 bg-slate-900 rounded-[2rem] p-6 flex flex-col shadow-xl shadow-slate-900/10 border border-slate-800"
             >
-              <div className="flex items-center gap-4">
-                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", getStatusLabel(order.status).bg, getStatusLabel(order.status).color)}>
-                  {getStatusLabel(order.status).icon}
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className="flex items-center gap-4">
+                  <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", getStatusLabel(order.status).bg, getStatusLabel(order.status).color)}>
+                    {getStatusLabel(order.status).icon}
+                  </div>
+                  <div>
+                    <p className={cn("text-sm font-black", getStatusLabel(order.status).color)}>
+                      {getStatusLabel(order.status).label}
+                    </p>
+                    <p className="text-[11px] text-slate-500 font-bold mt-0.5">طلب #{order.id.slice(-4)} • {money(order.totalAmount)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className={cn("text-sm font-black", getStatusLabel(order.status).color)}>
-                    {getStatusLabel(order.status).label}
-                  </p>
-                  <p className="text-[11px] text-slate-500 font-bold mt-0.5">طلب #{order.id.slice(-4)} • {money(order.totalAmount)}</p>
+                <div className="text-left">
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">حالة الطلب</span>
                 </div>
               </div>
+              
               <OrderProgress status={order.status} />
             </motion.div>
           ))}

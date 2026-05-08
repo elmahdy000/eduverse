@@ -91,8 +91,8 @@ export default function BaristaPOSPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
   const [showCustomerResults, setShowCustomerResults] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [customerTab, setCustomerTab] = useState<"search" | "staff">("search");
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(FAVORITES_KEY);
@@ -273,12 +273,12 @@ export default function BaristaPOSPage() {
 
   return (
     <div
-      className="flex h-[calc(100vh-80px)] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm"
+      className="relative flex h-[calc(100vh-80px)] flex-col lg:flex-row overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm"
       dir="rtl"
     >
 
       {/* Categories Sidebar */}
-      <aside className="w-16 lg:w-56 border-l border-slate-100 flex flex-col bg-slate-50/50 shrink-0">
+      <aside className="hidden lg:flex w-16 lg:w-56 border-l border-slate-100 flex-col bg-slate-50/50 shrink-0">
         <div className="h-16 px-4 flex items-center border-b border-slate-100">
           <Link
             href="/dashboard/barista"
@@ -338,8 +338,15 @@ export default function BaristaPOSPage() {
       </aside>
 
       {/* Product Grid */}
-      <main className="flex-1 flex flex-col min-w-0 bg-white">
-        <header className="h-16 px-6 flex items-center gap-4 border-b border-slate-100 shrink-0">
+      <main className="flex-1 flex flex-col min-w-0 bg-white relative">
+        <header className="h-16 px-4 lg:px-6 flex items-center gap-3 lg:gap-4 border-b border-slate-100 shrink-0">
+          {/* Mobile Back Button */}
+          <Link
+            href="/dashboard/barista"
+            className="lg:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400"
+          >
+            <ChevronRight size={20} />
+          </Link>
           <div className="relative flex-1 max-w-sm">
             <Search size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -353,12 +360,41 @@ export default function BaristaPOSPage() {
           
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["products", "pos"] })}
-            className="h-10 px-4 flex items-center gap-2 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors"
+            className="h-10 px-3 lg:px-4 flex items-center gap-2 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors"
           >
             <RefreshCw size={14} className={productsQuery.isLoading ? "animate-spin" : ""} />
-            <span className="text-[10px] font-bold">تحديث</span>
+            <span className="hidden sm:inline text-[10px] font-bold">تحديث</span>
           </button>
         </header>
+
+        {/* Mobile Categories Scroll */}
+        <div className="lg:hidden flex overflow-x-auto px-4 py-3 gap-2 border-b border-slate-50 bg-slate-50/30 scrollbar-none">
+          <button
+            onClick={() => setShowFavorites(!showFavorites)}
+            className={clsx(
+              "whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+              showFavorites ? "bg-rose-500 text-white shadow-md" : "bg-white text-slate-500 border border-slate-100"
+            )}
+          >
+            <Heart size={14} className={showFavorites ? "fill-white" : ""} />
+            المفضلة
+          </button>
+          {categories.map((cat) => {
+            const isActive = selectedCategory === cat && !showFavorites;
+            return (
+              <button
+                key={cat}
+                onClick={() => { setSelectedCategory(cat); setShowFavorites(false); }}
+                className={clsx(
+                  "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                  isActive ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-500 border-slate-100"
+                )}
+              >
+                {cat === "all" ? "كل القائمة" : translateProductCategory(cat)}
+              </button>
+            );
+          })}
+        </div>
 
         {message && (
           <div className={clsx(
@@ -443,20 +479,43 @@ export default function BaristaPOSPage() {
             </div>
           )}
         </div>
+
+        {/* Floating Cart Button for Mobile */}
+        {cartCount > 0 && (
+          <button
+            onClick={() => setIsMobileCartOpen(true)}
+            className="lg:hidden fixed bottom-6 left-6 z-40 h-16 w-16 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90"
+          >
+            <div className="relative">
+              <ShoppingCart size={24} />
+              <span className="absolute -top-3 -right-3 h-6 w-6 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-white">
+                {cartCount}
+              </span>
+            </div>
+          </button>
+        )}
       </main>
 
-      {/* Checkout Section */}
-      <aside className="w-[20rem] border-r border-slate-100 flex flex-col bg-white shrink-0">
+      {/* Checkout Section - Responsive Drawer */}
+      <aside className={clsx(
+        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[20rem] lg:flex flex-col bg-white border-r border-slate-100 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0",
+        isMobileCartOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-slate-400" />
-            <span className="text-sm font-black text-slate-900">سلة الطلب</span>
+            <span className="text-sm font-black text-slate-900">سلة الطلب ({cartCount})</span>
           </div>
-          {cart.length > 0 && (
-            <button onClick={() => setCart([])} className="p-2 text-slate-300 hover:text-rose-500 transition-colors">
-              <Trash2 size={16} />
+          <div className="flex items-center gap-1">
+            {cart.length > 0 && (
+              <button onClick={() => setCart([])} className="p-2 text-slate-300 hover:text-rose-500 transition-colors">
+                <Trash2 size={16} />
+              </button>
+            )}
+            <button onClick={() => setIsMobileCartOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
+              <X size={20} />
             </button>
-          )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">

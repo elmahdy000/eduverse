@@ -109,10 +109,10 @@ const ProductImage = ({ product, className }: { product: Product, className?: st
 
 const CompactProgress = ({ status }: { status: string }) => {
   const steps = [
-    { id: "new", label: "تم الاستلام" },
-    { id: "in_preparation", label: "جاري التحضير" },
+    { id: "new", label: "مستلم" },
+    { id: "in_preparation", label: "يُحضر" },
     { id: "ready", label: "جاهز" },
-    { id: "delivered", label: "تم التسليم" },
+    { id: "delivered", label: "مكتمل" },
   ];
   
   const normalizedStatus = status === "completed" ? "delivered" : status;
@@ -121,40 +121,51 @@ const CompactProgress = ({ status }: { status: string }) => {
 
   if (isCancelled) {
     return (
-      <div className="mt-3 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+      <div className="mt-3 text-xs font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
         <X size={14} /> تم إلغاء الطلب
       </div>
     );
   }
 
   return (
-    <div className="mt-4 pt-2 relative">
-      {/* Track */}
-      <div className="absolute top-3 left-0 right-0 h-1 bg-slate-100 rounded-full" />
-      {/* Fill */}
-      <div 
-        className="absolute top-3 right-0 h-1 bg-orange-500 rounded-full transition-all duration-500"
-        style={{ width: currentIndex >= 0 ? `${(currentIndex / (steps.length - 1)) * 100}%` : '0%' }}
-      />
-      {/* Points */}
-      <div className="relative z-10 flex justify-between">
-        {steps.map((step, i) => {
-          const isActive = currentIndex >= i;
-          return (
-            <div key={step.id} className="flex flex-col items-center gap-1.5">
-              <div className={cn(
-                "h-3 w-3 rounded-full border-2 transition-colors duration-300 bg-white",
-                isActive ? "border-orange-500" : "border-slate-200"
-              )} />
-              <span className={cn(
-                "text-[10px] font-bold transition-colors",
-                isActive ? "text-slate-800" : "text-slate-400"
-              )}>
-                {step.label}
-              </span>
-            </div>
-          );
-        })}
+    <div className="mt-4 px-2">
+      <div className="relative">
+        {/* Background Track */}
+        <div className="absolute top-[6px] left-0 right-0 h-1 bg-slate-100 rounded-full" />
+        
+        {/* Active Fill Track */}
+        <div 
+          className="absolute top-[6px] right-0 h-1 bg-orange-500 rounded-full transition-all duration-700 ease-out"
+          style={{ width: currentIndex >= 0 ? `${(currentIndex / (steps.length - 1)) * 100}%` : '0%' }}
+        />
+        
+        {/* Step Indicators */}
+        <div className="relative z-10 flex justify-between">
+          {steps.map((step, i) => {
+            const isActive = currentIndex >= i;
+            const isCurrent = currentIndex === i;
+            
+            return (
+              <div key={step.id} className="flex flex-col items-center gap-2">
+                <div 
+                  className={cn(
+                    "h-4 w-4 rounded-full border-[3px] transition-all duration-500 flex items-center justify-center bg-white",
+                    isActive ? "border-orange-500" : "border-slate-200",
+                    isCurrent ? "scale-125 shadow-sm" : "scale-100"
+                  )} 
+                >
+                  {isActive && <div className={cn("rounded-full bg-orange-500 transition-all", isCurrent ? "h-1.5 w-1.5" : "h-0 w-0")} />}
+                </div>
+                <span className={cn(
+                  "text-[10px] font-bold transition-colors whitespace-nowrap",
+                  isActive ? "text-slate-800" : "text-slate-400"
+                )}>
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

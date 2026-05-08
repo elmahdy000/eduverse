@@ -906,7 +906,7 @@ export default function GuestOrderPage() {
                     {/* Item Image */}
                     <div className="h-20 w-20 shrink-0 rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white shadow-sm">
                       <img 
-                        src={getProductImage(item.product?.name || '', item.product?.category || '')} 
+                        src={getProductImage(item.product as Product)} 
                         alt={item.product?.name}
                         className="h-full w-full object-cover"
                       />

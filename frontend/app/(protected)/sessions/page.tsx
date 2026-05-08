@@ -441,7 +441,6 @@ export default function SessionsPage() {
               </div>
             </div>
           </section>
-          </div>
         </div>
 
         {/* Right Column: Opening Form */}

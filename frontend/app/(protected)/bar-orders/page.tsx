@@ -424,7 +424,7 @@ export default function BarOrdersPage() {
                       </div>
                     )}
                   </div>
-                ) : null) : null)}
+                ) : null) : null) : null)}
               </Panel>
             </div>
           </div>

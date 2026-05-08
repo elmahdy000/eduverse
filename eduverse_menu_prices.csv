@@ -1,0 +1,130 @@
+﻿Category,Item,Size,Price_EGP,Notes,Source_Page
+Coffee,Turkish Coffee,M,30,,1
+Coffee,Turkish Coffee,L,40,,1
+Coffee,French Coffee,M,40,,1
+Coffee,French Coffee,L,55,,1
+Coffee,Nescafe,M,45,,1
+Coffee,Nescafe,L,60,,1
+Coffee,Espresso,M,40,,1
+Coffee,Espresso,L,55,,1
+Coffee,Latte,M,60,,1
+Coffee,Latte,L,75,,1
+Coffee,Cappuccino,M,65,,1
+Coffee,Cappuccino,L,80,,1
+Coffee,Mocha,M,65,Ask,1
+Coffee,Mocha,L,80,Ask,1
+Coffee,Caramel Macchiato,M,70,,1
+Coffee,Caramel Macchiato,L,90,,1
+Coffee,Macchiato,One Size,50,,1
+Coffee,Flat White,One Size,75,,1
+Coffee,Cortada,One Size,55,,1
+Coffee,Coffee Flavour,One Size,60,,1
+Coffee,Coffee Nutella,One Size,70,,1
+Coffee,Latte Pistachio,One Size,95,,1
+Coffee,Latte Lotus,One Size,95,,1
+Coffee,Latte Kinder,One Size,95,,1
+Coffee,Spanish Latte,One Size,90,,1
+Tea,Tea,One Size,20,,1
+Tea,Milk Tea,One Size,30,,1
+Tea,Green Tea,One Size,25,,1
+Tea,Tea Flavour,One Size,25,,1
+Tea,Karak Tea,One Size,40,,1
+Cold Coffee,Ice Latte,One Size,65,,1
+Cold Coffee,Ice Americano,One Size,55,,1
+Cold Coffee,Ice Mocha,One Size,75,Ask,1
+Cold Coffee,Ice Spanish Latte,One Size,90,,1
+Cold Coffee,Ice Caramel Macchiato,One Size,90,,1
+Cold Coffee,Ice Special,One Size,100,,1
+Cold Coffee,Ice Creme Brulee,One Size,95,,1
+Cold Coffee,Ice Latte Pistachio,One Size,95,,1
+Cold Coffee,Ice Latte Lotus,One Size,95,,1
+Cold Coffee,Ice Latte Kinder,One Size,95,,1
+Hot Drinks,Hot Chocolate,M,70,,1
+Hot Drinks,Hot Chocolate,L,85,,1
+Hot Drinks,Hot Oreo,M,70,,1
+Hot Drinks,Hot Oreo,L,85,,1
+Hot Drinks,Hot Lotus,M,80,,1
+Hot Drinks,Hot Lotus,L,90,,1
+Hot Drinks,Hot Cidar,M,50,,1
+Hot Drinks,Hot Cidar,L,60,,1
+Hot Drinks,Herbs,One Size,40,,1
+Hot Drinks,Mix Herbs,One Size,50,,1
+Hot Drinks,Hot Kinder,One Size,85,,1
+Hot Drinks,Hot Pistachio,One Size,85,,1
+Frappe,Dark Chocolate,One Size,70,,1
+Frappe,White Chocolate,One Size,70,,1
+Frappe,Oreo,One Size,80,,1
+Frappe,Lotus,One Size,80,,1
+Frappe,Nutella,One Size,90,,1
+Frappe,Frappe Special,One Size,100,,1
+Frappuccino,Mocha,One Size,95,Ask,1
+Frappuccino,Latte,One Size,90,,1
+Frappuccino,Lotus,One Size,100,,1
+Frappuccino,Creme Brulee,One Size,95,,1
+Frappuccino,Kinder,One Size,110,,1
+Frappuccino,Pistachio,One Size,110,,1
+Milk Shake,Vanilla,One Size,70,,2
+Milk Shake,Caramel,One Size,80,,2
+Milk Shake,Nutella,One Size,80,,2
+Milk Shake,Oreo,One Size,90,,2
+Milk Shake,Lotus,One Size,100,,2
+Milk Shake,Cheese Cake,One Size,100,,2
+Milk Shake,Cheese Cake Kinder,One Size,110,,2
+Milk Shake,Cheese Cake Lotus,One Size,110,,2
+Milk Shake,Cheese Cake Blueberry,One Size,105,,2
+Milk Shake,Cheese Cake Oreo,One Size,115,,2
+Milk Shake,Kinder,One Size,85,,2
+Milk Shake,Pistachio,One Size,85,,2
+Milk Shake,Fruits,One Size,85,,2
+Yogurt,Honey,One Size,70,,2
+Yogurt,Fruits,One Size,80,Ask,2
+Yogurt,Mix Fruits,One Size,90,,2
+Cans,Redbull,One Size,65,,2
+Cans,Twist,One Size,25,,2
+Cans,V7,One Size,30,,2
+Cans,Spiro Spathes,One Size,30,,2
+Cans,Buzz,One Size,25,,2
+Cans,Water,One Size,10,,2
+Cans,Suntop,One Size,20,,2
+Cans,Mix Mara3y,One Size,20,,2
+Mocktails,Sunshine,S,65,With soda or Redbull,2
+Mocktails,Sunshine,R,85,With soda or Redbull,2
+Mocktails,Sunrise,S,65,With soda or Redbull,2
+Mocktails,Sunrise,R,85,With soda or Redbull,2
+Mocktails,Mohito,S,65,With soda or Redbull,2
+Mocktails,Mohito,R,85,With soda or Redbull,2
+Mocktails,Cherry Cola,S,65,With soda or Redbull,2
+Mocktails,Cherry Cola,R,85,With soda or Redbull,2
+Mocktails,Hawaii,S,65,With soda or Redbull,2
+Mocktails,Hawaii,R,85,With soda or Redbull,2
+Mocktails,Apple Breeze,S,65,With soda or Redbull,2
+Mocktails,Apple Breeze,R,80,With soda or Redbull,2
+Mocktails,Tropical Fruits,S,75,With soda or Redbull,2
+Mocktails,Tropical Fruits,R,90,With soda or Redbull,2
+Mocktails,Pina Colada,S,75,With soda or Redbull,2
+Mocktails,Pina Colada,R,90,With soda or Redbull,2
+Mocktails,Soda Up,S,65,With soda or Redbull,2
+Mocktails,Soda Up,R,75,With soda or Redbull,2
+Mocktails,Phantom,S,65,With soda or Redbull,2
+Mocktails,Phantom,R,85,With soda or Redbull,2
+Mocktails,Mango Caller,S,65,With soda or Redbull,2
+Mocktails,Mango Caller,R,80,With soda or Redbull,2
+Mocktails,Power Drink,R,100,Redbull + Espresso; with soda or Redbull,2
+Boba Additions,Coffee,One Size,35,,2
+Boba Additions,Bubble Gum,One Size,40,,2
+Boba Additions,Mango,One Size,40,,2
+Boba Additions,Strawberry,One Size,40,,2
+Boba Additions,Peach,One Size,35,,2
+Boba Additions,Blue Berry,One Size,40,,2
+Boba Additions,Passion Fruit,One Size,40,,2
+Smoothies,Smoothies,One Size,75,Ask,2
+Fresh Juice,Fresh Juice,One Size,80,Ask,2
+Indomy,Indomy,One Size,30,,2
+Indomy Add-ons,Add Mix Cheese,One Size,20,,2
+Indomy Add-ons,Add Hot Dog,One Size,20,,2
+Indomy Add-ons,Add Turkey,One Size,20,,2
+Additions,Flavour,One Size,30,,2
+Additions,Milk,One Size,20,,2
+Extra's,Cheese,One Size,10,,2
+Extra's,Hot Dog,One Size,10,,2
+Extra's,Turkey,One Size,10,,2

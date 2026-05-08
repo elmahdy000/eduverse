@@ -24,6 +24,7 @@ interface Product {
   price: number;
   category: string;
   description?: string;
+  imageUrl?: string;
 }
 
 interface OrderItem {
@@ -190,9 +191,10 @@ export default function GuestOrderPage() {
     return <Utensils size={18} />;
   };
 
-  const getProductImage = (name: string, category: string) => {
-    const n = name.toLowerCase();
-    const c = category.toLowerCase();
+  const getProductImage = (product: Product) => {
+    if (product.imageUrl) return product.imageUrl;
+    const n = product.name.toLowerCase();
+    const c = product.category.toLowerCase();
     // Specific product keyword → Unsplash photo ID mapping
     const imageMap: [string[], string][] = [
       // Coffee
@@ -324,59 +326,73 @@ export default function GuestOrderPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-32" dir="rtl">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-slate-200/60 px-4 pt-4 pb-2">
+      <header className="sticky top-0 z-40 bg-white/60 backdrop-blur-3xl border-b border-white/20 px-4 pt-6 pb-4">
         <div className="mx-auto max-w-2xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsAuthorized(false)} className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500">
-              <ArrowLeft size={18} className="rotate-180" />
-            </button>
+          <div className="flex items-center gap-4">
+            <motion.div 
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsAuthorized(false)} 
+              className="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-orange-600 transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={20} className="rotate-180" />
+            </motion.div>
             <div>
-              <h2 className="font-black text-slate-900 text-base">Eduvers Bar</h2>
-              <div className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-slate-400">طاولة {guestCode}</span>
+              <h2 className="font-black text-slate-900 text-lg tracking-tight">Eduvers <span className="text-orange-600">Bar</span></h2>
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">طاولة {guestCode}</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-             <div className="text-left bg-slate-50 rounded-xl px-3 py-1.5 border border-slate-200/50">
-                <p className="text-[9px] text-slate-400 font-bold uppercase">الإجمالي</p>
-                <p className="text-sm font-black text-slate-900 leading-none">{money(grandTotal)}</p>
+          <div className="flex items-center gap-3">
+             <div className="text-left bg-white/50 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/50 shadow-sm">
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">إجمالي الحساب</p>
+                <p className="text-lg font-black text-slate-900 leading-none">{money(grandTotal)}</p>
              </div>
-             <div className="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg"><Wallet size={18} /></div>
           </div>
         </div>
         
         {/* Animated Tabs */}
-        <div className="mx-auto max-w-2xl mt-4 relative flex p-1 bg-slate-100/50 rounded-2xl border border-slate-200/50">
-          <motion.div className="absolute top-1 bottom-1 bg-white rounded-xl shadow-sm z-0" animate={{ x: activeTab === "menu" ? "0%" : "-100%" }} style={{ width: "calc(50% - 4px)" }} />
-          <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 flex-1 py-2.5 text-xs font-black flex items-center justify-center gap-2 transition-colors", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={14} /> القائمة</button>
-          <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 flex-1 py-2.5 text-xs font-black flex items-center justify-center gap-2 transition-colors", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={14} /> طلباتي</button>
+        <div className="mx-auto max-w-2xl mt-6 relative flex p-1.5 bg-slate-200/30 backdrop-blur-md rounded-3xl border border-white/20">
+          <motion.div 
+            className="absolute top-1.5 bottom-1.5 bg-white rounded-[1.25rem] shadow-xl shadow-slate-200/50 z-0" 
+            layoutId="tabBackground"
+            animate={{ x: activeTab === "menu" ? "0%" : "-100%" }} 
+            style={{ width: "calc(50% - 6px)" }} 
+          />
+          <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 flex-1 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={18} /> المنيو</button>
+          <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 flex-1 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={18} /> طلباتي</button>
         </div>
 
-        {/* Sticky Categories */}
+        {/* Categories Scroller */}
         {activeTab === "menu" && productsQuery.data && (
-          <div className="mx-auto max-w-2xl mt-4 -mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 pb-2">
-            <button
+          <div className="mx-auto max-w-2xl mt-6 -mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-3 pb-2">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedCategory("all")}
               className={clsx(
-                "whitespace-nowrap px-5 py-2 rounded-xl text-xs font-black transition-all border",
-                selectedCategory === "all" ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                "whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black transition-all border shadow-sm",
+                selectedCategory === "all" ? "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-200" : "bg-white text-slate-500 border-slate-100 hover:border-orange-200"
               )}
             >
               الكل
-            </button>
+            </motion.button>
             {Array.from(new Set(productsQuery.data.map(p => p.category))).map(cat => (
-              <button
+              <motion.button
                 key={cat}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedCategory(cat)}
                 className={clsx(
-                  "whitespace-nowrap px-5 py-2 rounded-xl text-xs font-black transition-all border",
-                  selectedCategory === cat ? "bg-orange-600 text-white border-orange-600 shadow-lg shadow-orange-100" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                  "whitespace-nowrap px-6 py-3 rounded-2xl text-xs font-black transition-all border shadow-sm flex items-center gap-2",
+                  selectedCategory === cat ? "bg-orange-600 text-white border-orange-600 shadow-xl shadow-orange-100" : "bg-white text-slate-500 border-slate-100 hover:border-orange-200"
                 )}
               >
+                {getCategoryIcon(cat)}
                 {translateProductCategory(cat)}
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
@@ -509,73 +525,81 @@ export default function GuestOrderPage() {
                       const prods = productsQuery.data?.filter(p => p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
                       if (!prods?.length) return null;
                       return (
-                        <div key={category} className="space-y-5">
-                          <div className="flex items-center gap-3 px-1">
-                            <div className="h-10 w-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center shadow-sm border border-orange-100">{getCategoryIcon(category)}</div>
-                            <div>
-                              <h3 className="text-base font-black text-slate-900 leading-none">{translateProductCategory(category)}</h3>
-                              <p className="text-[10px] font-bold text-slate-400 mt-1">{prods.length} أصناف متوفرة</p>
+                        <div key={category} className="space-y-6">
+                          <div className="flex items-center justify-between px-2">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-2xl bg-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-200 ring-4 ring-orange-50">{getCategoryIcon(category)}</div>
+                              <div>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">{translateProductCategory(category)}</h3>
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{prods.length} أصناف متوفرة</p>
+                              </div>
                             </div>
-                            <div className="h-px flex-1 bg-gradient-to-l from-slate-200 to-transparent ml-4" />
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {prods.map(product => (
                               <motion.div 
                                 layout
                                 key={product.id} 
-                                className="group bg-white rounded-[2rem] border border-slate-100 p-4 flex flex-col gap-4 shadow-sm hover:shadow-xl hover:border-orange-200/50 transition-all duration-500"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="group relative bg-white rounded-[2.5rem] border border-slate-100 p-5 flex flex-col gap-5 shadow-sm hover:shadow-2xl hover:shadow-orange-200/40 hover:-translate-y-1 transition-all duration-500"
                               >
-                                <div className="flex items-start gap-4">
+                                <div className="flex items-start gap-5">
                                   {/* Product Image */}
-                                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl bg-slate-50 border border-slate-100">
+                                  <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[2rem] bg-slate-50 border border-slate-100 shadow-inner">
                                     <img 
-                                      src={getProductImage(product.name, product.category)} 
+                                      src={getProductImage(product)} 
                                       alt={product.name}
                                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                       loading="lazy"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                                   </div>
                                   
-                                  <div className="flex-1 min-w-0 pt-1">
-                                    <h4 className="text-sm font-black text-slate-800 group-hover:text-orange-600 transition-colors line-clamp-1">{product.name}</h4>
-                                    <p className="text-[10px] text-slate-400 font-bold mt-1 line-clamp-2 leading-relaxed">
-                                      {product.description || "استمتع بمشروبك المفضل المحضر بكل حب من باريستا إديوفيرس."}
+                                  <div className="flex-1 min-w-0 pt-2">
+                                    <Badge className="mb-2 bg-slate-50 text-slate-500 border-slate-100 text-[9px] font-black uppercase tracking-widest">{translateProductCategory(product.category)}</Badge>
+                                    <h4 className="text-base font-black text-slate-800 group-hover:text-orange-600 transition-colors line-clamp-1">{product.name}</h4>
+                                    <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-2 leading-relaxed">
+                                      {product.description || "استمتع بمذاق رائع محضر خصيصاً لك."}
                                     </p>
                                   </div>
                                 </div>
 
                                 <div className="flex items-center justify-between mt-auto pt-2">
                                   <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">السعر</span>
-                                    <span className="text-lg font-black text-slate-900 tracking-tight">{money(product.price)}</span>
+                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-0.5">سعر الصنف</span>
+                                    <span className="text-xl font-black text-slate-900 tracking-tight">{money(product.price)}</span>
                                   </div>
 
                                   <div className="flex items-center gap-2">
                                     {cart[product.id] ? (
-                                      <div className="flex items-center gap-3 bg-slate-900 text-white rounded-2xl p-1.5 shadow-xl shadow-slate-900/20">
-                                        <button 
+                                      <div className="flex items-center gap-3 bg-slate-900 text-white rounded-[1.25rem] p-2 shadow-xl shadow-slate-900/20">
+                                        <motion.button 
+                                          whileTap={{ scale: 0.8 }}
                                           onClick={() => removeFromCart(product.id)} 
-                                          className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                          className="h-9 w-9 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
                                         >
-                                          <Minus size={14} />
-                                        </button>
-                                        <span className="text-sm font-black w-4 text-center">{cart[product.id]}</span>
-                                        <button 
+                                          <Minus size={16} />
+                                        </motion.button>
+                                        <span className="text-base font-black w-5 text-center">{cart[product.id]}</span>
+                                        <motion.button 
+                                          whileTap={{ scale: 0.8 }}
                                           onClick={() => addToCart(product.id)} 
-                                          className="h-8 w-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                          className="h-9 w-9 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
                                         >
-                                          <Plus size={14} />
-                                        </button>
+                                          <Plus size={16} />
+                                        </motion.button>
                                       </div>
                                     ) : (
-                                      <button 
+                                      <motion.button 
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={() => addToCart(product.id)} 
-                                        className="h-12 px-6 rounded-2xl bg-orange-600 text-white font-black text-xs hover:bg-orange-500 hover:shadow-lg hover:shadow-orange-600/30 transition-all duration-300 flex items-center gap-2 shadow-md shadow-orange-900/10"
+                                        className="h-14 px-8 rounded-[1.25rem] bg-orange-600 text-white font-black text-sm hover:bg-orange-500 hover:shadow-2xl hover:shadow-orange-600/40 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-orange-900/10"
                                       >
-                                        <Plus size={16} />
+                                        <Plus size={20} />
                                         إضافة
-                                      </button>
+                                      </motion.button>
                                     )}
                                   </div>
                                 </div>

@@ -91,6 +91,7 @@ export default function BaristaPOSPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
   const [showCustomerResults, setShowCustomerResults] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [customerTab, setCustomerTab] = useState<"search" | "staff">("search");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 

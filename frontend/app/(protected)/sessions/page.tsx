@@ -171,6 +171,8 @@ export default function SessionsPage() {
   const [tableStatusFilter, setTableStatusFilter] = useState<"all" | "active" | "closed" | "cancelled">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const sessionsQuery = useQuery({
+    queryKey: ["sessions"],
     queryFn: async () => (await api.get("/sessions", { params: { page: 1, limit: 100 } })).data.data as Paginated<Session>,
     refetchInterval: 15_000,
   });

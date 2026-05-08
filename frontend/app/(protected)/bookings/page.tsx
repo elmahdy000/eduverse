@@ -658,7 +658,7 @@ export default function BookingsPage() {
                   <div className="flex items-center justify-between">
                     <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
                     <div className="text-right">
-                      <p className="font-bold text-slate-900">{b.customer?.fullName ?? b.organizerName ?? "—"}</p>
+                      <p className="font-bold text-slate-900">{b.customer?.fullName ?? "—"}</p>
                       <p className="text-xs text-slate-500">{b.room?.name ?? "—"} • {b.startTime ? new Date(b.startTime).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }) : "—"}</p>
                     </div>
                   </div>

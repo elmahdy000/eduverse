@@ -118,7 +118,9 @@ export default function GuestOrderPage() {
 
   const handleLogin = () => {
     if (guestCode.trim()) {
-      localStorage.setItem("eduverse_guest_code", guestCode.toUpperCase());
+      const upperCode = guestCode.trim().toUpperCase();
+      setGuestCode(upperCode);
+      localStorage.setItem("eduverse_guest_code", upperCode);
       setIsAuthorized(true);
     }
   };
@@ -292,7 +294,10 @@ export default function GuestOrderPage() {
                 {Array.from(new Set(productsQuery.data?.map(p => p.category) || []))
                   .filter(cat => selectedCategory === "all" || selectedCategory === cat)
                   .map(category => {
-                    const prods = productsQuery.data?.filter(p => p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+                    const prods = productsQuery.data?.filter(p => 
+                      (selectedCategory === "all" || p.category === category) && 
+                      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
                     if (!prods?.length) return null;
                     return (
                       <div key={category} className="space-y-4">

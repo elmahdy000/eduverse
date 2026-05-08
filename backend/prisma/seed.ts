@@ -44,9 +44,9 @@ async function main() {
   const permissionModules = [
     { m: 'products', actions: ['read', 'create', 'update', 'delete'] },
     { m: 'bar_orders', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'customers', actions: ['read', 'create', 'update'] },
-    { m: 'sessions', actions: ['read'] },
-    { m: 'dashboards', actions: ['view_owner', 'view_barista'] },
+    { m: 'customers', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'sessions', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'dashboards', actions: ['view_owner', 'view_barista', 'view_reception'] },
     { m: 'audit_logs', actions: ['read'] },
     { m: 'inventory', actions: ['read', 'create', 'update', 'delete'] },
     { m: 'expenses', actions: ['read', 'create', 'update', 'delete'] },
@@ -72,10 +72,11 @@ async function main() {
     await prisma.rolePermission.create({ data: { roleId: roles['Owner'].id, permissionId: perm.id } });
     await prisma.rolePermission.create({ data: { roleId: roles['Operations Manager'].id, permissionId: perm.id } });
 
-    const isOperational = ['read', 'create'].includes(perm.action) ||
+    const isOperational = ['read', 'create', 'update'].includes(perm.action) ||
       perm.module === 'dashboards' ||
       perm.module === 'sessions' ||
-      (perm.module === 'bar_orders' && perm.action === 'update');
+      perm.module === 'customers' ||
+      perm.module === 'bar_orders';
 
     if (isOperational) {
       await prisma.rolePermission.create({ data: { roleId: roles['Barista'].id, permissionId: perm.id } });

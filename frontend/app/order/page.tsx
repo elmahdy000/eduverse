@@ -6,7 +6,7 @@ import {
   Coffee, ShoppingCart, CheckCircle2, 
   ChevronRight, ArrowLeft, RefreshCw,
   Search, Plus, Minus, Send, Key, Timer, ChefHat, PackageCheck, History, Wallet,
-  LayoutGrid, ReceiptText, Sparkles, Bell, X, Trash2, Info, Flame, IceCream, Pizza, Utensils
+  LayoutGrid, ReceiptText, Sparkles, Bell, X, Trash2, Info, Flame, IceCream, Pizza, Utensils, List, StretchHorizontal
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../lib/api";
@@ -47,6 +47,7 @@ export default function GuestOrderPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<"menu" | "history">("menu");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "compact">("grid");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -195,12 +196,9 @@ export default function GuestOrderPage() {
     if (product.imageUrl) return product.imageUrl;
     const n = product.name.toLowerCase();
     const c = product.category.toLowerCase();
-    // Specific product keyword → Unsplash photo ID mapping
+    
+    // Improved specific product keyword → Unsplash mapping
     const imageMap: [string[], string][] = [
-      // Coffee
-      [['espresso', 'اسبرسو', 'إسبريسو'], 'photo-1510707577719-ae7c14805e3a'],
-      [['latte', 'لاتيه', 'لاتية'], 'photo-1534778101976-62847782c213'],
-      [['cappuccino', 'كابتشينو'], 'photo-1572442388796-11668a67e53d'],
       [['americano', 'أمريكانو', 'امريكانو'], 'photo-1551030173-122aabc4489c'],
       [['mocha', 'موكا'], 'photo-1578314675249-a6910f80cc4e'],
       [['macchiato', 'ماكياتو'], 'photo-1485808191679-5f86510681a2'],
@@ -356,15 +354,23 @@ export default function GuestOrderPage() {
         </div>
         
         {/* Animated Tabs */}
-        <div className="mx-auto max-w-2xl mt-6 relative flex p-1.5 bg-slate-200/30 backdrop-blur-md rounded-3xl border border-white/20">
-          <motion.div 
-            className="absolute top-1.5 bottom-1.5 bg-white rounded-[1.25rem] shadow-xl shadow-slate-200/50 z-0" 
-            layoutId="tabBackground"
-            animate={{ x: activeTab === "menu" ? "0%" : "-100%" }} 
-            style={{ width: "calc(50% - 6px)" }} 
-          />
-          <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 flex-1 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={18} /> المنيو</button>
-          <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 flex-1 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={18} /> طلباتي</button>
+        <div className="mx-auto max-w-2xl mt-6 relative flex items-center justify-between gap-4">
+          <div className="relative flex-1 p-1.5 bg-slate-200/30 backdrop-blur-md rounded-3xl border border-white/20">
+            <motion.div 
+              className="absolute top-1.5 bottom-1.5 bg-white rounded-[1.25rem] shadow-xl shadow-slate-200/50 z-0" 
+              layoutId="tabBackground"
+              animate={{ x: activeTab === "menu" ? "0%" : "-100%" }} 
+              style={{ width: "calc(50% - 6px)" }} 
+            />
+            <button onClick={() => setActiveTab("menu")} className={clsx("relative z-10 w-1/2 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "menu" ? "text-slate-900" : "text-slate-400")}><LayoutGrid size={18} /> المنيو</button>
+            <button onClick={() => setActiveTab("history")} className={clsx("relative z-10 w-1/2 py-3 text-sm font-black flex items-center justify-center gap-2 transition-all", activeTab === "history" ? "text-slate-900" : "text-slate-400")}><ReceiptText size={18} /> طلباتي</button>
+          </div>
+
+          <div className="flex bg-white/50 backdrop-blur-md rounded-2xl p-1 border border-white/50 shadow-sm shrink-0">
+             <button onClick={() => setViewMode("grid")} className={clsx("p-2 rounded-xl transition-all", viewMode === "grid" ? "bg-white text-orange-600 shadow-sm" : "text-slate-400")}><LayoutGrid size={18} /></button>
+             <button onClick={() => setViewMode("list")} className={clsx("p-2 rounded-xl transition-all", viewMode === "list" ? "bg-white text-orange-600 shadow-sm" : "text-slate-400")}><List size={18} /></button>
+             <button onClick={() => setViewMode("compact")} className={clsx("p-2 rounded-xl transition-all", viewMode === "compact" ? "bg-white text-orange-600 shadow-sm" : "text-slate-400")}><StretchHorizontal size={18} /></button>
+          </div>
         </div>
 
         {/* Categories Scroller */}
@@ -535,72 +541,86 @@ export default function GuestOrderPage() {
                               </div>
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div className={clsx(
+                            "grid gap-4",
+                            viewMode === "grid" ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"
+                          )}>
                             {prods.map(product => (
                               <motion.div 
                                 layout
                                 key={product.id} 
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="group relative bg-white rounded-[2.5rem] border border-slate-100 p-5 flex flex-col gap-5 shadow-sm hover:shadow-2xl hover:shadow-orange-200/40 hover:-translate-y-1 transition-all duration-500"
+                                className={clsx(
+                                  "group relative bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-orange-200/30 hover:-translate-y-1 transition-all duration-300",
+                                  viewMode === "grid" ? "rounded-[1.75rem] p-3 flex flex-col gap-3" : 
+                                  viewMode === "list" ? "rounded-[2rem] p-4 flex items-center gap-4" :
+                                  "rounded-2xl p-3 flex items-center gap-3" // Compact
+                                )}
                               >
-                                <div className="flex items-start gap-5">
-                                  {/* Product Image */}
-                                  <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[2rem] bg-slate-50 border border-slate-100 shadow-inner">
+                                {/* Product Image */}
+                                {viewMode !== "compact" && (
+                                  <div className={clsx(
+                                    "relative shrink-0 overflow-hidden bg-slate-50 border border-slate-100 shadow-inner",
+                                    viewMode === "grid" ? "h-24 w-full rounded-2xl" : "h-20 w-20 rounded-2xl"
+                                  )}>
                                     <img 
                                       src={getProductImage(product)} 
                                       alt={product.name}
                                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                       loading="lazy"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                                   </div>
-                                  
-                                  <div className="flex-1 min-w-0 pt-2">
-                                    <Badge className="mb-2 bg-slate-50 text-slate-500 border-slate-100 text-[9px] font-black uppercase tracking-widest">{translateProductCategory(product.category)}</Badge>
-                                    <h4 className="text-base font-black text-slate-800 group-hover:text-orange-600 transition-colors line-clamp-1">{product.name}</h4>
-                                    <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-2 leading-relaxed">
+                                )}
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{translateProductCategory(product.category)}</span>
+                                  </div>
+                                  <h4 className={clsx(
+                                    "font-black text-slate-800 group-hover:text-orange-600 transition-colors truncate",
+                                    viewMode === "compact" ? "text-sm" : "text-[15px]"
+                                  )}>{product.name}</h4>
+                                  {viewMode === "list" && (
+                                    <p className="text-[11px] text-slate-400 font-medium mt-1 line-clamp-1">
                                       {product.description || "استمتع بمذاق رائع محضر خصيصاً لك."}
                                     </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center justify-between mt-auto pt-2">
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-0.5">سعر الصنف</span>
-                                    <span className="text-xl font-black text-slate-900 tracking-tight">{money(product.price)}</span>
-                                  </div>
-
-                                  <div className="flex items-center gap-2">
-                                    {cart[product.id] ? (
-                                      <div className="flex items-center gap-3 bg-slate-900 text-white rounded-[1.25rem] p-2 shadow-xl shadow-slate-900/20">
+                                  )}
+                                  <div className="mt-2 flex items-center justify-between gap-2">
+                                    <span className="font-black text-slate-900">{money(product.price)}</span>
+                                    
+                                    <div className="flex items-center gap-1.5">
+                                      {cart[product.id] ? (
+                                        <div className="flex items-center gap-2 bg-slate-900 text-white rounded-xl p-1 shadow-lg">
+                                          <motion.button 
+                                            whileTap={{ scale: 0.8 }}
+                                            onClick={() => removeFromCart(product.id)} 
+                                            className="h-6 w-6 rounded-lg hover:bg-white/10 flex items-center justify-center"
+                                          >
+                                            <Minus size={12} />
+                                          </motion.button>
+                                          <span className="text-xs font-black w-3 text-center">{cart[product.id]}</span>
+                                          <motion.button 
+                                            whileTap={{ scale: 0.8 }}
+                                            onClick={() => addToCart(product.id)} 
+                                            className="h-6 w-6 rounded-lg hover:bg-white/10 flex items-center justify-center"
+                                          >
+                                            <Plus size={12} />
+                                          </motion.button>
+                                        </div>
+                                      ) : (
                                         <motion.button 
-                                          whileTap={{ scale: 0.8 }}
-                                          onClick={() => removeFromCart(product.id)} 
-                                          className="h-9 w-9 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
-                                        >
-                                          <Minus size={16} />
-                                        </motion.button>
-                                        <span className="text-base font-black w-5 text-center">{cart[product.id]}</span>
-                                        <motion.button 
-                                          whileTap={{ scale: 0.8 }}
+                                          whileTap={{ scale: 0.9 }}
                                           onClick={() => addToCart(product.id)} 
-                                          className="h-9 w-9 rounded-xl hover:bg-white/10 flex items-center justify-center transition-colors"
+                                          className={clsx(
+                                            "rounded-xl bg-orange-600 text-white font-black hover:bg-orange-500 transition-all flex items-center justify-center",
+                                            viewMode === "compact" ? "h-8 w-8" : "h-9 px-4 text-[11px]"
+                                          )}
                                         >
-                                          <Plus size={16} />
+                                          {viewMode === "compact" ? <Plus size={16} /> : "إضافة"}
                                         </motion.button>
-                                      </div>
-                                    ) : (
-                                      <motion.button 
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => addToCart(product.id)} 
-                                        className="h-14 px-8 rounded-[1.25rem] bg-orange-600 text-white font-black text-sm hover:bg-orange-500 hover:shadow-2xl hover:shadow-orange-600/40 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-orange-900/10"
-                                      >
-                                        <Plus size={20} />
-                                        إضافة
-                                      </motion.button>
-                                    )}
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </motion.div>

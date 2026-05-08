@@ -2,7 +2,8 @@
 
 import { PropsWithChildren, ReactNode, useState, useMemo } from "react";
 import clsx from "clsx";
-import { CalendarClock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CalendarClock, XCircle } from "lucide-react";
 
 /* ── Badge ── */
 type BadgeTone = "default" | "success" | "warn" | "danger" | "info" | "neutral";
@@ -480,5 +481,46 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: { isOpe
   );
 }
 
-import { XCircle } from "lucide-react";
+/* ── Sheet (Bottom Sheet) ── */
+export function Sheet({ open, onOpenChange, children }: { open: boolean; onOpenChange: (open: boolean) => void; children: ReactNode }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" 
+            onClick={() => onOpenChange(false)} 
+          />
+          <motion.div 
+            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="relative w-full max-w-2xl overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl"
+            dir="rtl"
+          >
+            {children}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function SheetHeader({ children, className }: PropsWithChildren<{ className?: string }>) {
+  return <div className={clsx("px-6 py-4 border-b border-slate-50", className)}>{children}</div>;
+}
+
+export function SheetTitle({ children, className }: PropsWithChildren<{ className?: string }>) {
+  return <h2 className={clsx("text-lg font-black text-slate-900", className)}>{children}</h2>;
+}
+
+/* ── ScrollArea ── */
+export function ScrollArea({ children, className }: PropsWithChildren<{ className?: string }>) {
+  return (
+    <div className={clsx("overflow-y-auto no-scrollbar", className)}>
+      {children}
+    </div>
+  );
+}
+
 

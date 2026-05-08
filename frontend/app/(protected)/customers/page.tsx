@@ -102,7 +102,7 @@ export default function CustomersPage() {
           phone: searchPhone || undefined,
         },
       });
-      return response.data.data as Paginated<Customer>;
+      return response.data as Paginated<Customer>;
     },
   });
 
@@ -153,7 +153,7 @@ export default function CustomersPage() {
       const response = await api.get("/bar-orders", {
         params: { page: 1, limit: 30, customerId: selectedCustomerId },
       });
-      return response.data.data as Paginated<BarOrder>;
+      return response.data as Paginated<BarOrder>;
     },
   });
 

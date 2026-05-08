@@ -24,7 +24,7 @@ export class BookingsService {
       where: {
         roomId,
         id: excludeBookingId ? { not: excludeBookingId } : undefined,
-        status: { in: ['draft', 'confirmed'] },
+        status: { in: ['draft', 'confirmed', 'in_progress'] },
         startTime: { lt: endTime },
         endTime: { gt: startTime },
       },

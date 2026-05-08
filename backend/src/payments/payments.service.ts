@@ -25,6 +25,14 @@ export class PaymentsService {
         throw new Error('Invoice not found');
       }
 
+      // Ensure user has an open shift to record payment
+      const openShift = await tx.shift.findFirst({
+        where: { userId, status: 'open' },
+      });
+      if (!openShift) {
+        throw new Error('يجب فتح شفت أولاً قبل تسجيل أي عملية دفع');
+      }
+
       const remainingAmount = Number(invoice.remainingAmount);
       if (recordPaymentDto.amount > remainingAmount) {
         throw new Error('Payment amount exceeds remaining invoice amount');

@@ -126,7 +126,7 @@ export class SessionsService {
 
       const guestCode = await this.generateUniqueGuestCode();
 
-      const newSession = await (tx.session as any).create({
+      const newSession = await tx.session.create({
         data: {
           customerId: createSessionDto.customerId,
           sessionType: createSessionDto.bookingId ? 'booking_linked' : createSessionDto.sessionType,
@@ -160,6 +160,14 @@ export class SessionsService {
         data: { lastVisitAt: new Date() },
       });
 
+      // Update booking status to reflect check-in
+      if (createSessionDto.bookingId) {
+        await tx.booking.update({
+          where: { id: createSessionDto.bookingId },
+          data: { status: 'in_progress' },
+        });
+      }
+
       return newSession;
     }, { isolationLevel: 'Serializable' });
 
@@ -167,7 +175,7 @@ export class SessionsService {
   }
 
   async closeSession(sessionId: string, closeSessionDto: CloseSessionDto, userId: string) {
-    const session: any = await (this.prisma.session as any).findUnique({
+    const session = await this.prisma.session.findUnique({
       where: { id: sessionId },
       include: { room: true, booking: true },
     });
@@ -178,6 +186,14 @@ export class SessionsService {
 
     if (session.status !== 'active') {
       throw new Error('Only active sessions can be closed');
+    }
+
+    // Ensure user has an open shift to close session (financial event)
+    const openShift = await this.prisma.shift.findFirst({
+      where: { userId, status: 'open' },
+    });
+    if (!openShift) {
+      throw new Error('يجب فتح شفت أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب');
     }
 
     const endTime = new Date();
@@ -200,7 +216,7 @@ export class SessionsService {
 
 
     const closedSession = await this.prisma.$transaction(async (tx) => {
-      const updatedSession: any = await (tx.session as any).update({
+      const updatedSession = await tx.session.update({
         where: { id: sessionId },
         data: {
           endTime,
@@ -252,10 +268,10 @@ export class SessionsService {
         },
       });
 
-      // Auto-complete linked booking
-      if (updatedSession.bookingId) {
+      // Auto-complete linked booking (Type-safe after prisma generate)
+      if ((session as any).bookingId) {
         await tx.booking.update({
-          where: { id: updatedSession.bookingId },
+          where: { id: (session as any).bookingId },
           data: { status: 'completed' },
         });
       }
@@ -349,6 +365,14 @@ export class SessionsService {
         await tx.room.update({
           where: { id: session.roomId },
           data: { status: 'available' },
+        });
+      }
+
+      // Revert booking status if session is cancelled
+      if ((session as any).bookingId) {
+        await tx.booking.update({
+          where: { id: (session as any).bookingId },
+          data: { status: 'confirmed' },
         });
       }
 

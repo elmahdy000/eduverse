@@ -9,7 +9,14 @@ export class ExpensesService {
   // Expenses
   async createExpense(userId: string, dto: CreateExpenseDto) {
     if (!userId) throw new Error('User ID is required');
-    
+
+    // Ensure user has an open shift to record expense
+    const openShift = await this.prisma.shift.findFirst({
+      where: { userId, status: 'open' },
+    });
+    if (!openShift) {
+      throw new Error('يجب فتح شفت أولاً قبل تسجيل أي مصروفات');
+    }
     return this.prisma.expense.create({
       data: {
         amount: dto.amount,

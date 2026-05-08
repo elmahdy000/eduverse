@@ -171,25 +171,23 @@ export default function SessionsPage() {
   const [tableStatusFilter, setTableStatusFilter] = useState<"all" | "active" | "closed" | "cancelled">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const sessionsQuery = useQuery({
-    queryKey: ["sessions"],
-    queryFn: async () => (await api.get("/sessions", { params: { page: 1, limit: 100 } })).data as Paginated<Session>,
+    queryFn: async () => (await api.get("/sessions", { params: { page: 1, limit: 100 } })).data.data as Paginated<Session>,
     refetchInterval: 15_000,
   });
   
   const customersQuery = useQuery({
     queryKey: ["customers", "for-sessions"],
-    queryFn: async () => (await api.get("/customers", { params: { page: 1, limit: 200 } })).data as Paginated<Customer>,
+    queryFn: async () => (await api.get("/customers", { params: { page: 1, limit: 200 } })).data.data as Paginated<Customer>,
   });
   
   const roomsQuery = useQuery({
     queryKey: ["rooms", "for-sessions"],
-    queryFn: async () => (await api.get("/rooms", { params: { page: 1, limit: 50 } })).data as Paginated<Room>,
+    queryFn: async () => (await api.get("/rooms", { params: { page: 1, limit: 50 } })).data.data as Paginated<Room>,
   });
   
   const bookingsQuery = useQuery({
     queryKey: ["bookings", "active"],
-    queryFn: async () => (await api.get("/bookings", { params: { status: "confirmed", page: 1, limit: 50 } })).data as Paginated<any>,
+    queryFn: async () => (await api.get("/bookings", { params: { status: "confirmed", page: 1, limit: 50 } })).data.data as Paginated<any>,
   });
 
   const availableBookings = useMemo(() => {

@@ -59,7 +59,7 @@ export default function BookingsPage() {
       const response = await api.get("/bookings", {
         params: { page: 1, limit: 200, status: statusFilter || undefined },
       });
-      return response.data as Paginated<Booking>;
+      return response.data.data as Paginated<Booking>;
     },
   });
 
@@ -67,7 +67,7 @@ export default function BookingsPage() {
     queryKey: ["customers", "for-bookings"],
     queryFn: async () => {
       const response = await api.get("/customers", { params: { page: 1, limit: 200 } });
-      return response.data as Paginated<Customer>;
+      return response.data.data as Paginated<Customer>;
     },
   });
 
@@ -76,7 +76,7 @@ export default function BookingsPage() {
     retry: 0,
     queryFn: async () => {
       const response = await api.get("/rooms", { params: { page: 1, limit: 100 } });
-      return response.data as Paginated<Room>;
+      return response.data.data as Paginated<Room>;
     },
   });
 

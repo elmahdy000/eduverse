@@ -110,7 +110,7 @@ export default function BaristaPOSPage() {
     queryKey: ["products", "pos"],
     queryFn: async () => {
       const response = await api.get("/products", { params: { page: 1, limit: 200, active: true, availability: true } });
-      return response.data as Paginated<Product>;
+      return response.data.data as Paginated<Product>;
     },
   });
 
@@ -118,7 +118,7 @@ export default function BaristaPOSPage() {
     queryKey: ["sessions", "active"],
     queryFn: async () => {
       const response = await api.get("/sessions", { params: { page: 1, limit: 50, status: "active" } });
-      return response.data as Paginated<Session>;
+      return response.data.data as Paginated<Session>;
     },
   });
 
@@ -127,7 +127,7 @@ export default function BaristaPOSPage() {
     enabled: customerSearchQuery.length > 1,
     queryFn: async () => {
       const response = await api.get("/customers", { params: { name: customerSearchQuery, page: 1, limit: 10 } });
-      return response.data as Paginated<Customer>;
+      return response.data.data as Paginated<Customer>;
     },
   });
 
@@ -135,7 +135,7 @@ export default function BaristaPOSPage() {
     queryKey: ["customers", "staff-list"],
     queryFn: async () => {
       const response = await api.get("/customers", { params: { customerType: "staff,owner_discount", limit: 50 } });
-      return response.data as Paginated<Customer>;
+      return response.data.data as Paginated<Customer>;
     },
   });
 

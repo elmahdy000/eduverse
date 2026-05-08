@@ -119,7 +119,7 @@ export default function ProductsPage() {
           active: activeFilter === "all" ? undefined : activeFilter === "true",
         },
       });
-      return r.data as Paginated<Product>;
+      return r.data.data as Paginated<Product>;
     },
   });
 

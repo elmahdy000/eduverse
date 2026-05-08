@@ -339,123 +339,298 @@ export default function InventoryPage() {
           {loading ? (
             Array(6)
               .fill(0)
-              .map((_, i) => <div key={i} className="h-48 animate-pulse rounded-3xl bg-slate-100" />)
+              .map((_, i) => (
+                <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+              ))
+          ) : items.filter(item => {
+            const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
+            const matchCat = !categoryFilter || item.category === categoryFilter;
+            return matchSearch && matchCat;
+          }).length === 0 ? (
+            <div className="col-span-3 flex flex-col items-center justify-center gap-4 py-20 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-300">
+                <Boxes size={28} />
+              </div>
+              <div>
+                <p className="font-bold text-slate-600">لا توجد أصناف</p>
+                <p className="mt-1 text-sm text-slate-400">جرّب تغيير البحث أو أضف صنف جديد</p>
+              </div>
+            </div>
           ) : (
-            items
-              .filter((item) =>
-                item.name.toLowerCase().includes(search.toLowerCase()) &&
-                (categoryFilter === "" || item.category === categoryFilter)
-              )
-              .map((item) => {
-                const stockNum = Number(item.currentStock);
-                const minStock = Number(item.minStockLevel);
-                const percentage = Math.min(100, Math.max(0, (stockNum / (minStock * 2 || 100)) * 100));
-
-                return (
-                  <div
-                    key={item.id}
-                    className="group flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.category || "خامات"}</p>
-                        <h3 className="font-bold text-slate-900">{item.name}</h3>
-                      </div>
-                      <button
-                        onClick={() => openHistory(item.id)}
-                        title="سجل حركة هذا الصنف"
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        <History size={16} />
-                      </button>
-                    </div>
-
-                    <div className="mt-6 space-y-3">
-                      <div className="flex items-end justify-between">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-bold text-slate-900">{stockNum}</span>
-                          <span className="text-xs font-medium text-slate-500">{item.unit}</span>
-                        </div>
-                        <span
-                          className={clsx(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight",
-                            stockNum <= minStock ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600",
-                          )}
-                        >
-                          {stockNum <= minStock ? "منخفض" : "متوفر"}
+            items.filter(item => {
+              const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
+              const matchCat = !categoryFilter || item.category === categoryFilter;
+              return matchSearch && matchCat;
+            }).map((item) => {
+              const stock = Number(item.currentStock);
+              const minStock = Number(item.minStockLevel);
+              const isLow = stock <= minStock;
+              const isOut = stock === 0;
+              return (
+                <div
+                  key={item.id}
+                  className={clsx(
+                    "group relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md",
+                    isOut ? "border-rose-300 bg-rose-50/30" : isLow ? "border-amber-300 bg-amber-50/20" : "border-slate-200",
+                  )}
+                >
+                  <div className="mb-3 flex items-start justify-between">
+                    <div className="flex flex-col gap-1">
+                      {isOut && (
+                        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">نفذ</span>
+                      )}
+                      {isLow && !isOut && (
+                        <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                          <AlertTriangle size={9} /> ناقص
                         </span>
-                      </div>
-
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={clsx(
-                            "h-full transition-all duration-1000",
-                            stockNum <= minStock ? "bg-rose-500" : "bg-emerald-500",
-                          )}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
+                      )}
                     </div>
-
-                    <div className="mt-6 grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => setShowAddStockModal(item.id)}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-slate-50 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100"
-                      >
-                        <Plus size={14} />
-                        إضافة مخزون
-                      </button>
-                      <button
-                        onClick={() => setShowWasteModal(item.id)}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-rose-50 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100"
-                      >
-                        <Trash2 size={14} />
-                        تسجيل هالك
-                      </button>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-900">{item.name}</p>
+                      {item.category && (
+                        <p className="text-xs text-slate-400">{item.category}</p>
+                      )}
                     </div>
                   </div>
-                );
-              })
+
+                  <div className="flex items-baseline justify-between mb-3">
+                    <span className="text-xs font-medium text-slate-400">{item.unit}</span>
+                    <div className="text-right">
+                      <span className={clsx("text-2xl font-black tabular-nums", isOut ? "text-rose-600" : isLow ? "text-amber-600" : "text-slate-900")}>
+                        {stock}
+                      </span>
+                      <span className="mr-1 text-xs text-slate-400">/ حد أدنى {minStock}</span>
+                    </div>
+                  </div>
+
+                  {/* Stock level bar */}
+                  <div className="mb-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className={clsx("h-full rounded-full transition-all", isOut ? "bg-rose-500" : isLow ? "bg-amber-400" : "bg-emerald-500")}
+                      style={{ width: `${minStock > 0 ? Math.min(100, Math.round((stock / (minStock * 2)) * 100)) : 100}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-auto flex gap-2">
+                    <button
+                      onClick={() => { setShowAddStockModal(item.id); setAddStockData({ quantity: "", reason: "" }); }}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      <Plus size={13} /> إضافة
+                    </button>
+                    <button
+                      onClick={() => { setShowWasteModal(item.id); setWasteData({ quantity: "", reason: "" }); }}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-amber-200 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition"
+                    >
+                      <Trash2 size={13} /> هالك
+                    </button>
+                    <button
+                      onClick={() => openHistory(item.id)}
+                      className="flex items-center justify-center rounded-xl border border-slate-200 px-2.5 py-2 text-slate-500 hover:bg-slate-50 transition"
+                    >
+                      <Clock size={13} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
 
+      {/* Add New Item Modal */}
       {showNewItemModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">إضافة صنف جديد</h3>
-            <p className="mt-1 text-sm text-slate-500">اكتب بيانات الصنف وهيظهر فورًا في القائمة.</p>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="اسم الصنف" value={newItemData.name} onChange={(e) => setNewItemData((p) => ({ ...p, name: e.target.value }))} />
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="الوحدة (كجم/لتر/قطعة)" value={newItemData.unit} onChange={(e) => setNewItemData((p) => ({ ...p, unit: e.target.value }))} />
-              <input className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="التصنيف" value={newItemData.category} onChange={(e) => setNewItemData((p) => ({ ...p, category: e.target.value }))} />
-              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm" placeholder="الحد الأدنى للمخزون" value={newItemData.minStockLevel} onChange={(e) => setNewItemData((p) => ({ ...p, minStockLevel: e.target.value }))} />
-              <input type="number" className="rounded-xl border border-slate-200 p-3 text-sm sm:col-span-2" placeholder="تكلفة الوحدة (اختياري)" value={newItemData.costPerUnit} onChange={(e) => setNewItemData((p) => ({ ...p, costPerUnit: e.target.value }))} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowNewItemModal(false)} />
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <h3 className="text-base font-black text-slate-900">إضافة صنف جديد</h3>
+              <button onClick={() => setShowNewItemModal(false)} className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
+                <X size={16} />
+              </button>
             </div>
-
-            <div className="mt-6 flex gap-3">
-              <button onClick={() => { setShowNewItemModal(false); setNewItemData(EMPTY_NEW_ITEM); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">إلغاء</button>
-              <button onClick={handleCreateItem} disabled={submitting} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "جاري الحفظ..." : "حفظ الصنف"}</button>
+            <div className="space-y-4 p-6">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">اسم الصنف *</label>
+                <input
+                  value={newItemData.name}
+                  onChange={e => setNewItemData(p => ({ ...p, name: e.target.value }))}
+                  placeholder="مثال: قهوة عربية"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                />
+              </div>
+              <div className="grid gap-4 grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">الوحدة *</label>
+                  <input
+                    value={newItemData.unit}
+                    onChange={e => setNewItemData(p => ({ ...p, unit: e.target.value }))}
+                    placeholder="كج / لتر / علبة"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">الفئة</label>
+                  <input
+                    value={newItemData.category}
+                    onChange={e => setNewItemData(p => ({ ...p, category: e.target.value }))}
+                    placeholder="بن / مشروبات..."
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">حد أدنى للمخزون</label>
+                  <input
+                    type="number" min={0} value={newItemData.minStockLevel}
+                    onChange={e => setNewItemData(p => ({ ...p, minStockLevel: e.target.value }))}
+                    placeholder="0"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">التكلفة للوحدة</label>
+                  <input
+                    type="number" min={0} step={0.01} value={newItemData.costPerUnit}
+                    onChange={e => setNewItemData(p => ({ ...p, costPerUnit: e.target.value }))}
+                    placeholder="0.00"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleCreateItem}
+                  disabled={submitting}
+                  className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 disabled:opacity-50 transition"
+                >
+                  {submitting ? "جاري الإضافة..." : "إضافة الصنف"}
+                </button>
+                <button
+                  onClick={() => setShowNewItemModal(false)}
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+                >
+                  إلغاء
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Add Stock Modal */}
       {showAddStockModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">إضافة مخزون</h3>
-            <p className="mt-1 text-sm text-slate-500">الصنف: {selectedStockItem?.name || "-"}</p>
-
-            <div className="mt-5 space-y-3">
-              <input type="number" autoFocus className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="الكمية" value={addStockData.quantity} onChange={(e) => setAddStockData((p) => ({ ...p, quantity: e.target.value }))} />
-              <input className="w-full rounded-xl border border-slate-200 p-3 text-sm" placeholder="سبب الإضافة (اختياري)" value={addStockData.reason} onChange={(e) => setAddStockData((p) => ({ ...p, reason: e.target.value }))} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowAddStockModal(null)} />
+          <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900">إضافة مخزون</h3>
+                <p className="text-xs text-slate-500">{selectedStockItem?.name}</p>
+              </div>
+              <button onClick={() => setShowAddStockModal(null)} className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
+                <X size={16} />
+              </button>
             </div>
+            <div className="space-y-4 p-6">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">
+                  الكمية ({selectedStockItem?.unit})
+                </label>
+                <input
+                  type="number" min={0.01} step={0.01}
+                  value={addStockData.quantity}
+                  onChange={e => setAddStockData(p => ({ ...p, quantity: e.target.value }))}
+                  placeholder="أدخل الكمية..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">السبب (اختياري)</label>
+                <input
+                  value={addStockData.reason}
+                  onChange={e => setAddStockData(p => ({ ...p, reason: e.target.value }))}
+                  placeholder="توريد / شراء..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleAddStock}
+                  disabled={submitting || !addStockData.quantity}
+                  className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50 transition"
+                >
+                  {submitting ? "جاري الإضافة..." : "تأكيد الإضافة"}
+                </button>
+                <button
+                  onClick={() => setShowAddStockModal(null)}
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <div className="mt-6 flex gap-3">
-              <button onClick={() => { setShowAddStockModal(null); setAddStockData({ quantity: "", reason: "" }); }} className="flex-1 rounded-xl bg-slate-100 py-3 font-semibold text-slate-700 hover:bg-slate-200">إلغاء</button>
-              <button onClick={handleAddStock} disabled={submitting || !addStockData.quantity} className="flex-1 rounded-xl bg-slate-900 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-50">{submitting ? "جاري الإضافة..." : "تأكيد"}</button>
+      {/* Waste Modal */}
+      {showWasteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowWasteModal(null)} />
+          <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center gap-3 border-b border-slate-100 bg-amber-50 px-6 py-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+                <Trash2 size={16} />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">تسجيل هالك</h3>
+                <p className="text-xs text-slate-500">{items.find(i => i.id === showWasteModal)?.name}</p>
+              </div>
+              <button onClick={() => setShowWasteModal(null)} className="mr-auto rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="space-y-4 p-6">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">
+                  الكمية ({items.find(i => i.id === showWasteModal)?.unit})
+                </label>
+                <input
+                  type="number" min={0.01} step={0.01}
+                  value={wasteData.quantity}
+                  onChange={e => setWasteData(p => ({ ...p, quantity: e.target.value }))}
+                  placeholder="أدخل الكمية..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">السبب</label>
+                <input
+                  value={wasteData.reason}
+                  onChange={e => setWasteData(p => ({ ...p, reason: e.target.value }))}
+                  placeholder="انتهاء صلاحية / تلف..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleRecordWaste}
+                  disabled={submitting || !wasteData.quantity}
+                  className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 disabled:opacity-50 transition"
+                >
+                  {submitting ? "جاري التسجيل..." : "تسجيل الهالك"}
+                </button>
+                <button
+                  onClick={() => setShowWasteModal(null)}
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+                >
+                  إلغاء
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -463,111 +638,67 @@ export default function InventoryPage() {
 
       {/* History Modal */}
       {showHistoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
-          <div className="flex h-[600px] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowHistoryModal(false)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-900">
-                  {historyItemName ? `سجل حركة: ${historyItemName}` : "سجل حركة المخزون"}
-                </h3>
-                <p className="text-sm text-slate-500">آخر 100 عملية</p>
+                <h3 className="text-base font-black text-slate-900">سجل حركة المخزون</h3>
+                <p className="text-xs text-slate-500">{historyItemName ?? "كل الأصناف"}</p>
               </div>
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="rounded-xl border border-slate-200 p-2 hover:bg-slate-50"
-              >
-                <X size={18} />
+              <button onClick={() => setShowHistoryModal(false)} className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
+                <X size={16} />
               </button>
             </div>
-
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-h-[70vh] overflow-y-auto p-6">
               {historyLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Clock size={24} className="animate-spin text-slate-400" />
+                <div className="flex items-center justify-center gap-2 py-12 text-slate-400">
+                  <History size={20} className="animate-spin" />
+                  جاري التحميل...
                 </div>
               ) : historyItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                  <History size={40} className="mb-3" />
-                  <p className="text-sm">لا توجد عمليات مسجلة بعد.</p>
-                </div>
+                <div className="py-12 text-center text-sm text-slate-400">لا توجد حركات مسجلة</div>
               ) : (
-                <div className="space-y-2">
-                  {historyItems.map((tx) => (
-                    <div
-                      key={tx.id}
-                      className={clsx(
-                        "flex items-start justify-between rounded-xl border p-3",
-                        tx.type === "in" ? "border-emerald-100 bg-emerald-50" :
-                        tx.type === "out" ? "border-rose-100 bg-rose-50" :
-                        "border-amber-100 bg-amber-50"
-                      )}
-                    >
-                      <div className="space-y-0.5 text-right">
-                        <p className="text-xs font-bold text-slate-700">
-                          {tx.inventoryItem.name}
-                        </p>
-                        <p className="text-[11px] text-slate-500">{tx.reason || "بدون سبب"}</p>
-                        <p className="text-[10px] text-slate-400">
-                          {tx.performedBy
-                            ? `${tx.performedBy.firstName || ""} ${tx.performedBy.lastName || ""}`.trim() || tx.performedBy.email
-                            : "نظام"}
-                        </p>
-                      </div>
-                      <div className="text-left">
-                        <span
-                          className={clsx(
-                            "text-sm font-black",
-                            tx.type === "in" ? "text-emerald-700" :
-                            tx.type === "out" ? "text-rose-700" : "text-amber-700"
-                          )}
-                        >
-                          {tx.type === "in" ? "+" : "-"}{tx.quantity} {tx.inventoryItem.unit}
-                        </span>
-                        <p className="text-[10px] text-slate-400 mt-1">
-                          {new Date(tx.createdAt).toLocaleString("ar-EG", {
-                            day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-right text-sm">
+                    <thead className="border-b border-slate-100 bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">الصنف</th>
+                        <th className="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">النوع</th>
+                        <th className="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">الكمية</th>
+                        <th className="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">السبب</th>
+                        <th className="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">المستخدم</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {historyItems.map((tx) => (
+                        <tr key={tx.id} className="hover:bg-amber-50/40 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-slate-800">{tx.inventoryItem.name}</td>
+                          <td className="px-4 py-3">
+                            <span className={clsx(
+                              "rounded-full px-2.5 py-0.5 text-[11px] font-bold",
+                              tx.type === "in" ? "bg-emerald-100 text-emerald-700" :
+                              tx.type === "out" ? "bg-rose-100 text-rose-700" :
+                              "bg-amber-100 text-amber-700"
+                            )}>
+                              {tx.type === "in" ? "إضافة" : tx.type === "out" ? "خصم" : "تعديل"}
+                            </span>
+                          </td>
+                          <td className={clsx("px-4 py-3 font-bold tabular-nums", tx.type === "out" ? "text-rose-600" : "text-emerald-600")}>
+                            {tx.type === "out" ? "-" : "+"}{tx.quantity} {tx.inventoryItem.unit}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 text-xs">{tx.reason ?? "—"}</td>
+                          <td className="px-4 py-3 text-xs text-slate-400">
+                            {tx.performedBy
+                              ? [tx.performedBy.firstName, tx.performedBy.lastName].filter(Boolean).join(" ") || tx.performedBy.email
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showWasteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 text-right backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-600">
-              <Trash2 size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900">تسجيل هالك</h3>
-            <p className="mt-2 text-sm text-slate-500">الكمية هتتخصم من المخزون وتتسجل للمراجعة.</p>
-
-            <div className="mt-8 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">الكمية</label>
-                <input type="number" autoFocus placeholder="0.00" className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-lg font-bold text-slate-900" value={wasteData.quantity} onChange={(e) => setWasteData({ ...wasteData, quantity: e.target.value })} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">السبب</label>
-                <select className="w-full rounded-2xl border-slate-200 bg-slate-50 p-4 text-sm text-slate-900" value={wasteData.reason} onChange={(e) => setWasteData({ ...wasteData, reason: e.target.value })}>
-                  <option value="">اختار السبب...</option>
-                  <option value="Breakage">كسر</option>
-                  <option value="Expired">انتهاء صلاحية</option>
-                  <option value="Preparation Error">خطأ تحضير</option>
-                  <option value="Spillage">انسكاب</option>
-                  <option value="Other">أخرى</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setShowWasteModal(null)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 transition hover:bg-slate-200">إلغاء</button>
-                <button onClick={handleRecordWaste} disabled={!wasteData.quantity || submitting} className="flex-1 rounded-2xl bg-rose-600 py-4 font-bold text-white shadow-lg transition hover:bg-rose-700 disabled:opacity-50">{submitting ? "جاري التسجيل..." : "تأكيد"}</button>
-              </div>
             </div>
           </div>
         </div>

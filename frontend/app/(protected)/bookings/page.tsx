@@ -653,21 +653,20 @@ export default function BookingsPage() {
                 <button 
                   key={b.id} 
                   onClick={() => { setSelectedBookingId(b.id); setSelectedDate(null); }}
-                  className={clsx(
-                    "w-full text-right p-4 rounded-2xl border transition-all hover:scale-[1.01]",
-                    getBookingStatusStyle(b.status)
-                  )}
+                  className="w-full text-right rounded-2xl border border-slate-100 bg-slate-50 p-4 hover:border-amber-300 hover:bg-amber-50/40 transition"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-black text-xs">{new Date(b.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
-                    <Badge tone={statusBadgeTone(b.status)} className="h-4 px-1.5 text-[8px] uppercase">{translateStatus(b.status)}</Badge>
-                  </div>
-                  <div className="font-bold text-sm text-slate-900">{b.customer?.fullName}</div>
-                  <div className="text-[10px] font-medium text-slate-500 mt-1 flex items-center gap-1">
-                    <MapPin size={10} /> {b.room?.name}
+                  <div className="flex items-center justify-between">
+                    <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-900">{b.customer?.fullName ?? b.organizerName ?? "—"}</p>
+                      <p className="text-xs text-slate-500">{b.room?.name ?? "—"} • {b.startTime ? new Date(b.startTime).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }) : "—"}</p>
+                    </div>
                   </div>
                 </button>
               ))}
+              {(!bookingsByDay[selectedDate] || bookingsByDay[selectedDate].length === 0) && (
+                <p className="py-8 text-center text-sm text-slate-400">لا توجد حجوزات في هذا اليوم</p>
+              )}
             </div>
           </div>
         </div>
@@ -675,5 +674,3 @@ export default function BookingsPage() {
     </div>
   );
 }
-
-

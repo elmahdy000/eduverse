@@ -371,13 +371,13 @@ export default function BaristaDashboardPage() {
                  onChange={e => setChatInput(e.target.value)}
                  className="flex-1 rounded-xl bg-slate-100 px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20"
                />
-               <button type="submit" disabled={!chatInput.trim()} className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-50">
-                 <Send size={18} className="rotate-180" />
+               <button type="submit" disabled={!chatInput.trim()} className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-40">
+                 <Send size={18} />
                </button>
              </form>
            </div>
-        </div>
-      )}
-    </div>
-  );
+         )}
+       </div>
+     </div>
+   );
 }

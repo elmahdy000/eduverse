@@ -379,209 +379,76 @@ export default function SessionsPage() {
                   ))}
                 </div>
               </div>
-            </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
-              <table className="w-full text-right text-[11px]">
-                <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100">
-                    {["العميل", "الغرفة", "الحالة", "البداية", "التكلفة"].map((h) => (
-                      <th key={h} className="px-4 py-3 font-black text-slate-400 uppercase tracking-widest">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {filteredHistory.slice(0, 10).map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{s.customer?.fullName ?? "عميل خارجي"}</div>
-                        <div className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">{s.guestCode}</div>
-                      </td>
-                      <td className="px-4 py-3 font-medium text-slate-600">{s.room?.name ?? "عامة"}</td>
-                      <td className="px-4 py-3">
-                        <Badge tone={statusBadgeTone(s.status)} className="h-5 px-2 text-[9px]">
-                          {translateStatus(s.status)}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-slate-400 font-medium">{dateTime(s.startTime)}</td>
-                      <td className="px-4 py-3 font-bold text-slate-900">{s.chargeAmount ? money(s.chargeAmount) : "-"}</td>
+              {/* Sessions Table */}
+              <div className="overflow-x-auto rounded-2xl border border-slate-200">
+                <table className="w-full text-right text-sm">
+                  <thead className="border-b border-slate-100 bg-slate-50">
+                    <tr>
+                      <th className="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">العميل</th>
+                      <th className="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">النوع</th>
+                      <th className="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">الحالة</th>
+                      <th className="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">البداية</th>
+                      <th className="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">الغرفة</th>
+                      <th className="px-4 py-3.5"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        {/* Right Column: Opening Form & Stats */}
-        <div className="lg:col-span-4 space-y-8">
-          
-          <section className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-900/10">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-6">
-              <UserPlus size={14} />
-              فتح جلسة جديدة
-            </h3>
-            
-            <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); openMutation.mutate(); }}>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">العميل</label>
-                <select 
-                  value={customerId} 
-                  onChange={(e) => setCustomerId(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
-                  required
-                >
-                  <option value="" className="text-slate-900">اختار العميل...</option>
-                  {customersQuery.data?.data?.map((c) => (
-                    <option key={c.id} value={c.id} className="text-slate-900">{c.fullName}</option>
-                  ))}
-                </select>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {allSessions.filter(s => {
+                      if (tableStatusFilter === "all") return true;
+                      return s.status === tableStatusFilter;
+                    }).length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-14 text-center text-sm text-slate-400">
+                          لا توجد جلسات
+                        </td>
+                      </tr>
+                    ) : (
+                      allSessions.filter(s => {
+                        if (tableStatusFilter === "all") return true;
+                        return s.status === tableStatusFilter;
+                      }).map((session) => (
+                        <tr key={session.id} className="transition-colors hover:bg-amber-50/40">
+                          <td className="px-4 py-3.5 font-semibold text-slate-800">
+                            {session.customer?.fullName ?? "—"}
+                          </td>
+                          <td className="px-4 py-3.5 text-slate-600 text-xs">
+                            {translateSessionType(session.sessionType)}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Badge tone={statusBadgeTone(session.status)}>
+                              {translateStatus(session.status)}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3.5 text-xs text-slate-500">
+                            {dateTime(session.startTime)}
+                          </td>
+                          <td className="px-4 py-3.5 text-xs text-slate-500">
+                            {session.room?.name ?? "—"}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            {session.status === "active" && (
+                              <div className="flex gap-1.5">
+                                <button
+                                  onClick={() => closeSession(session.id)}
+                                  disabled={closingSessionId === session.id}
+                                  className="rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition disabled:opacity-50"
+                                >
+                                  إغلاق
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">النوع</label>
-                  <select 
-                    value={sessionType} 
-                    onChange={(e) => setSessionType(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
-                  >
-                    <option value="hourly" className="text-slate-900">ساعة</option>
-                    <option value="daily" className="text-slate-900">يوم</option>
-                    <option value="package" className="text-slate-900">باقة</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">الغرفة</label>
-                  <select 
-                    value={roomId} 
-                    onChange={(e) => setRoomId(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
-                  >
-                    <option value="" className="text-slate-900">عامة</option>
-                    {roomsQuery.data?.data?.map((r) => (
-                      <option key={r.id} value={r.id} className="text-slate-900">{r.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {availableBookings.length > 0 && (
-                <div className="space-y-1.5 animate-in fade-in slide-in-from-right-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400 pr-1">حجوزات متاحة</label>
-                  <select 
-                    value={bookingId} 
-                    onChange={(e) => {
-                      const bId = e.target.value;
-                      setBookingId(bId);
-                      if (bId) {
-                        const b = availableBookings.find(x => x.id === bId);
-                        if (b?.roomId) setRoomId(b.roomId);
-                        setSessionType("booking_linked");
-                      }
-                    }}
-                    className="w-full h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 text-xs font-bold text-emerald-400 outline-none transition"
-                  >
-                    <option value="" className="text-slate-900">لا تربط بحجز</option>
-                    {availableBookings.map((b: any) => (
-                      <option key={b.id} value={b.id} className="text-slate-900">
-                        {b.room?.name} - {new Date(b.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">التكلفة المبدئية</label>
-                <div className="relative">
-                  <input 
-                    type="number" 
-                    value={chargeAmount} 
-                    onChange={(e) => setChargeAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 pr-10 pl-4 text-xs font-bold text-white outline-none transition focus:border-white/20 focus:ring-4 focus:ring-white/5"
-                  />
-                  <Banknote size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                </div>
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={openMutation.isPending}
-                className="w-full h-12 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-widest transition hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {openMutation.isPending ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} />}
-                تفعيل الجلسة
-              </button>
-            </form>
-          </section>
-
-          {/* Quick Stats Summary */}
-          <section className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-slate-100 bg-white p-4">
-              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">المغلقة اليوم</div>
-              <div className="text-xl font-black text-slate-900">{closed.length}</div>
-            </div>
-            <div className="rounded-2xl border border-slate-100 bg-white p-4">
-              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">إجمالي الحجوزات</div>
-              <div className="text-xl font-black text-slate-900">{bookingsQuery.data?.total ?? 0}</div>
-            </div>
-          </section>
+            </Panel>
+          </div>
         </div>
       </div>
-
-      {/* Invoice Modal Refined */}
-      <Modal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} size="lg">
-        {selectedInvoice && (
-          <div className="space-y-8 p-2">
-            <InvoiceReceipt invoice={selectedInvoice} onPrint={printInvoiceOnly} onDownload={() => downloadInvoiceSnapshot(selectedInvoice)} />
-
-            {selectedInvoice.paymentStatus !== "paid" && (
-              <div className="rounded-2xl bg-slate-900 p-6 text-white">
-                <div className="flex items-center gap-2 mb-6">
-                  <CreditCard size={18} className="text-emerald-400" />
-                  <h3 className="text-sm font-black uppercase tracking-widest">تحصيل سريع</h3>
-                </div>
-                
-                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); payMutation.mutate(); }}>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">الطريقة</label>
-                      <select 
-                        value={payMethod} 
-                        onChange={(e) => setPayMethod(e.target.value)}
-                        className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
-                      >
-                        <option value="cash" className="text-slate-900">نقدي</option>
-                        <option value="card" className="text-slate-900">فيزا</option>
-                        <option value="bank_transfer" className="text-slate-900">تحويل</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">المبلغ</label>
-                      <input 
-                        type="number" 
-                        value={payAmount || String(selectedInvoice.remainingAmount)} 
-                        onChange={(e) => setPayAmount(e.target.value)}
-                        className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
-                      />
-                    </div>
-                  </div>
-                  <button 
-                    type="submit" 
-                    disabled={payMutation.isPending}
-                    className="w-full h-12 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-widest transition hover:bg-emerald-400"
-                  >
-                    {payMutation.isPending ? "جاري التحصيل..." : `تأكيد دفع ${money(payAmount || selectedInvoice.remainingAmount)}`}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }
-

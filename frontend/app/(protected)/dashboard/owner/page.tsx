@@ -231,47 +231,29 @@ export default function OwnerDashboardPage() {
             </div>
           )}
         </Panel>
-      </div>
 
-      {/* Operations by Role */}
-      <Panel title="العمليات حسب الدور" icon={<Users size={16} />}>
-        {opsLoading ? (
-          <p className="text-sm text-slate-500">جاري التحميل...</p>
-        ) : !opsData ? (
-          <EmptyState icon={<Users size={36} />} title="لا توجد بيانات" />
-        ) : (
-          <div className="space-y-4">
-            <p className="text-xs text-slate-500">نشاط الفريق النهارده</p>
-            <div className="grid gap-3 sm:grid-cols-3">
+        {/* Operations by Role */}
+        {!opsLoading && opsData && (
+          <Panel title="العمليات حسب الدور" icon={<Activity size={16} />}>
+            <div className="space-y-4">
               {opsData.operationsByRole.map((roleData) => (
-                <div key={roleData.role} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-700">{roleData.role}</p>
-                  <p className="mt-2 text-2xl font-bold text-slate-900">{roleData.totalOperations}</p>
-                  <p className="text-xs text-slate-500">عملية اليوم</p>
-                  <p className="mt-1 text-xs text-slate-400">{roleData.userCount} مستخدم نشط</p>
+                <div key={roleData.role} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">{roleData.totalOperations} عملية</span>
+                    <span className="font-bold text-slate-800">{roleData.role}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-amber-400 transition-all"
+                      style={{ width: `${opsData.totalOperationsToday > 0 ? Math.min(100, Math.round((roleData.totalOperations / opsData.totalOperationsToday) * 100)) : 0}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="mt-4">
-              <p className="mb-2 text-xs font-semibold text-slate-600">آخر العمليات</p>
-              <div className="space-y-2">
-                {opsData.operationsByRole.flatMap((r) => r.recentLogs).slice(0, 10).map((log) => (
-                  <div key={log.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs">
-                    <div>
-                      <p className="font-medium text-slate-900">{log.action}</p>
-                      <p className="text-slate-500">{log.entityType}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-slate-500">{new Date(log.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
-                      <p className="text-slate-400">{log.user.firstName || log.user.email}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          </Panel>
         )}
-      </Panel>
+      </div>
     </div>
   );
 }

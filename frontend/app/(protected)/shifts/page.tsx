@@ -257,58 +257,10 @@ export default function ShiftsPage() {
               <div className="flex gap-3 pt-4">
                 <button onClick={() => setShowStartModal(false)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 hover:bg-slate-200">إلغاء</button>
                 <button
-                  onClick={() => startMutation.mutate()}
-                  disabled={!startCash || startMutation.isPending}
-                  className="flex-1 rounded-2xl bg-emerald-600 py-4 font-bold text-white shadow-lg hover:bg-emerald-700 disabled:opacity-50"
+                  onClick={() => startMutation.mutate()}                  disabled={!startCash || startMutation.isPending}
+                  className="flex-1 rounded-2xl bg-emerald-500 py-4 font-bold text-white hover:bg-emerald-600 disabled:opacity-50 transition"
                 >
-                  {startMutation.isPending ? "جاري الفتح..." : "تأكيد الفتح"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCloseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-600">
-              <StopCircle size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900">إنهاء الوردية</h3>
-            <p className="mt-2 text-slate-500">اكتب الكاش الفعلي في الدرج، والنظام هيحسبلك الفرق تلقائي.</p>
-
-            {errorMsg && <Alert tone="danger">{errorMsg}</Alert>}
-
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              <div className="flex items-center gap-2 font-bold"><AlertTriangle size={14} /> الكاش المتوقع حالياً</div>
-              <p className="mt-1 text-lg font-black">{expectedCash.toLocaleString("ar-EG")} ج.م</p>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">الكاش الفعلي (ج.م)</label>
-                <input
-                  type="number"
-                  autoFocus
-                  placeholder="0.00"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xl font-bold text-slate-900 focus:border-rose-500 focus:outline-none"
-                  value={actualCash}
-                  onChange={(e) => setActualCash(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && actualCash && closeMutation.mutate()}
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setShowCloseModal(false)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 hover:bg-slate-200">إلغاء</button>
-                <button
-                  onClick={() => closeMutation.mutate()}
-                  disabled={!actualCash || closeMutation.isPending}
-                  className="flex-1 rounded-2xl bg-slate-900 py-4 font-bold text-white shadow-lg hover:bg-slate-800 disabled:opacity-50"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <FileBarChart2 size={16} />
-                    {closeMutation.isPending ? "جاري الإغلاق..." : "إغلاق + تقرير"}
-                  </span>
+                  {startMutation.isPending ? "جاري البدء..." : "بدء الوردية"}
                 </button>
               </div>
             </div>

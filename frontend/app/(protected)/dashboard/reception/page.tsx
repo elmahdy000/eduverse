@@ -261,4 +261,3 @@ export default function ReceptionDashboardPage() {
     </div>
   );
 }
-

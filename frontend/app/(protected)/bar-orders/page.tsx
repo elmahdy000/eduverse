@@ -21,7 +21,8 @@ export default function BarOrdersPage() {
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [ordersTab, setOrdersTab] = useState<OrdersTab>("active");
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
+  const [cancelConfirm, setCancelConfirm] = useState<{ orderId: string; orderRef: string } | null>(null);
 
   const ordersQuery = useQuery({
     queryKey: ["bar-orders", "kanban"],
@@ -48,12 +49,14 @@ export default function BarOrdersPage() {
       await api.put(`/bar-orders/${orderId}/status`, { status });
     },
     onSuccess: () => {
-      setMessage("حالة الطلب اتغيرت.");
+      setMessage({ text: "تم تغيير حالة الطلب بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
-      if (selectedOrderId) {
-        queryClient.invalidateQueries({ queryKey: ["bar-orders", selectedOrderId] });
-      }
+      if (selectedOrderId) queryClient.invalidateQueries({ queryKey: ["bar-orders", selectedOrderId] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
+    },
+    onError: (err: unknown) => {
+      const m = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setMessage({ text: m ?? "فشل تغيير الحالة، حاول تاني.", ok: false });
     },
   });
 
@@ -62,12 +65,16 @@ export default function BarOrdersPage() {
       await api.put(`/bar-orders/${orderId}/cancel`, { reason });
     },
     onSuccess: () => {
-      setMessage("الطلب اتلغى.");
+      setMessage({ text: "تم إلغاء الطلب.", ok: true });
+      setCancelConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
-      if (selectedOrderId) {
-        queryClient.invalidateQueries({ queryKey: ["bar-orders", selectedOrderId] });
-      }
+      if (selectedOrderId) queryClient.invalidateQueries({ queryKey: ["bar-orders", selectedOrderId] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
+    },
+    onError: (err: unknown) => {
+      const m = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setMessage({ text: m ?? "فشل إلغاء الطلب، حاول تاني.", ok: false });
+      setCancelConfirm(null);
     },
   });
 
@@ -111,7 +118,7 @@ export default function BarOrdersPage() {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" dir="rtl">
       <SectionTitle
         title="طلبات البار"
         subtitle="إدارة الطلبات عبر لوحة كانبان - اسحب الطلبات بين الحالات"
@@ -135,8 +142,13 @@ export default function BarOrdersPage() {
       />
 
       {message && (
-        <div className={clsx("rounded-xl border px-4 py-3 text-sm", message.includes("بنجاح") || message.includes("اتسجل") ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-rose-50 border-rose-200 text-rose-800")}>
-          {message}
+        <div className={clsx(
+          "rounded-xl border px-4 py-3 text-sm font-medium",
+          message.ok
+            ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+            : "bg-rose-50 border-rose-200 text-rose-800"
+        )}>
+          {message.text}
         </div>
       )}
 
@@ -226,7 +238,8 @@ export default function BarOrdersPage() {
                                     e.stopPropagation();
                                     updateStatusMutation.mutate({ orderId: order.id, status: "in_preparation" });
                                   }}
-                                  className="flex-1 rounded bg-amber-500 py-1 text-[10px] font-bold text-white hover:bg-amber-600"
+                                  disabled={updateStatusMutation.isPending}
+                                  className="flex-1 rounded bg-amber-500 py-1 text-[10px] font-bold text-white hover:bg-amber-600 disabled:opacity-50"
                                 >
                                   بيتجهز
                                 </button>
@@ -237,7 +250,8 @@ export default function BarOrdersPage() {
                                     e.stopPropagation();
                                     updateStatusMutation.mutate({ orderId: order.id, status: "ready" });
                                   }}
-                                  className="flex-1 rounded bg-emerald-600 py-1 text-[10px] font-bold text-white hover:bg-emerald-700"
+                                  disabled={updateStatusMutation.isPending}
+                                  className="flex-1 rounded bg-emerald-600 py-1 text-[10px] font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
                                 >
                                   جاهز
                                 </button>
@@ -248,7 +262,8 @@ export default function BarOrdersPage() {
                                     e.stopPropagation();
                                     updateStatusMutation.mutate({ orderId: order.id, status: "delivered" });
                                   }}
-                                  className="flex-1 rounded bg-blue-600 py-1 text-[10px] font-bold text-white hover:bg-blue-700"
+                                  disabled={updateStatusMutation.isPending}
+                                  className="flex-1 rounded bg-blue-600 py-1 text-[10px] font-bold text-white hover:bg-blue-700 disabled:opacity-50"
                                 >
                                   تسليم
                                 </button>
@@ -256,15 +271,16 @@ export default function BarOrdersPage() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  cancelMutation.mutate({ orderId: order.id, reason: "إلغاء من الكانبان" });
+                                  setCancelConfirm({ orderId: order.id, orderRef: order.id.slice(0, 6) });
                                 }}
-                                className="rounded bg-rose-500 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-600"
+                                disabled={cancelMutation.isPending}
+                                className="rounded bg-rose-500 px-2 py-1 text-[10px] font-bold text-white hover:bg-rose-600 disabled:opacity-50"
                               >
                                 <XCircle size={12} />
                               </button>
                             </div>
                           ) : (
-                            <p className="text-[10px] font-medium text-slate-500">عرض فقط - بدون تعديل حالة</p>
+                            <p className="text-[10px] font-medium text-slate-500">عرض فقط</p>
                           )}
                         </div>
                       );
@@ -348,39 +364,110 @@ export default function BarOrdersPage() {
                       <p className="text-[11px] text-slate-500">الإجمالي</p>
                       <p className="font-semibold text-slate-900">{money(selectedOrderQuery.data.totalAmount ?? 0)}</p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                      <p className="text-[11px] text-slate-500">تاريخ الطلب</p>
-                      <p className="text-slate-700">{dateTime(selectedOrderQuery.data.createdAt)}</p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-slate-200">
-                    <div className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">الأصناف</div>
-                    <div className="space-y-2 p-3">
-                      {(selectedOrderQuery.data.items ?? []).map((item) => (
-                        <div key={item.id} className="flex items-center justify-between">
-                          <span className="text-slate-900">{item.product?.name ?? "منتج"}</span>
-                          <span className="text-xs text-slate-500">x{item.quantity}</span>
+                    {/* Items list */}
+                    {selectedOrderQuery.data.items && selectedOrderQuery.data.items.length > 0 && (
+                      <div>
+                        <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          العناصر ({selectedOrderQuery.data.items.length})
+                        </p>
+                        <div className="space-y-1.5">
+                          {selectedOrderQuery.data.items.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                              <span className="font-bold text-emerald-700">{money((item.unitPrice ?? 0) * item.quantity)}</span>
+                              <div className="text-right">
+                                <span className="text-sm font-semibold text-slate-800">{item.product?.name}</span>
+                                <span className="mr-1.5 text-xs text-slate-400">x{item.quantity}</span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    )}
 
-                  {selectedOrderQuery.data.notes ? (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                      <p className="mb-1 font-semibold">ملاحظات</p>
-                      <p>{selectedOrderQuery.data.notes}</p>
-                    </div>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="text-xs text-slate-500">مفيش تفاصيل متاحة للطلب ده.</p>
-              )}
-            </Panel>
+                    {/* Action buttons for non-ops manager */}
+                    {!isOpsManager && selectedOrderQuery.data.status !== "delivered" && selectedOrderQuery.data.status !== "cancelled" && (
+                      <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
+                        {selectedOrderQuery.data.status === "new" && (
+                          <button
+                            onClick={() => updateStatusMutation.mutate({ orderId: selectedOrderQuery.data!.id, status: "in_preparation" })}
+                            disabled={updateStatusMutation.isPending}
+                            className="w-full rounded-xl bg-amber-500 py-2 text-sm font-bold text-white hover:bg-amber-600 disabled:opacity-50 transition"
+                          >
+                            بدء التجهيز
+                          </button>
+                        )}
+                        {selectedOrderQuery.data.status === "in_preparation" && (
+                          <button
+                            onClick={() => updateStatusMutation.mutate({ orderId: selectedOrderQuery.data!.id, status: "ready" })}
+                            disabled={updateStatusMutation.isPending}
+                            className="w-full rounded-xl bg-emerald-600 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50 transition"
+                          >
+                            جاهز للتسليم
+                          </button>
+                        )}
+                        {selectedOrderQuery.data.status === "ready" && (
+                          <button
+                            onClick={() => updateStatusMutation.mutate({ orderId: selectedOrderQuery.data!.id, status: "delivered" })}
+                            disabled={updateStatusMutation.isPending}
+                            className="w-full rounded-xl bg-blue-600 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition"
+                          >
+                            تأكيد التسليم
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setCancelConfirm({ orderId: selectedOrderQuery.data!.id, orderRef: selectedOrderQuery.data!.id.slice(0, 6) })}
+                          disabled={cancelMutation.isPending}
+                          className="w-full rounded-xl border border-rose-200 bg-rose-50 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100 disabled:opacity-50 transition"
+                        >
+                          إلغاء الطلب
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </Panel>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Cancel Confirm Dialog */}
+      {cancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setCancelConfirm(null)} />
+          <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                <XCircle size={18} />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">تأكيد الإلغاء</h3>
+                <p className="text-xs text-slate-500">#{cancelConfirm.orderRef}</p>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="mb-5 text-sm text-slate-700">
+                هل أنت متأكد إنك عايز تلغي الطلب <span className="font-bold">#{cancelConfirm.orderRef}</span>؟ الإجراء ده مش قابل للتراجع.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => cancelMutation.mutate({ orderId: cancelConfirm.orderId })}
+                  disabled={cancelMutation.isPending}
+                  className="flex-1 rounded-xl bg-rose-600 py-2.5 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50 transition"
+                >
+                  {cancelMutation.isPending ? "جاري الإلغاء..." : "نعم، إلغاء الطلب"}
+                </button>
+                <button
+                  onClick={() => setCancelConfirm(null)}
+                  className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+                >
+                  لأ، رجوع
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

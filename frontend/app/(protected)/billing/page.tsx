@@ -521,25 +521,26 @@ export default function BillingPage() {
                     <tbody className="divide-y divide-slate-50">
                       {selectedInvoicePaymentsQuery.data?.data?.map((p) => (
                         <tr key={p.id} className="group">
-                          <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover:text-slate-900 transition-colors">#{p.id.slice(0, 8)}</td>
-                          <td className="py-3 px-4 text-slate-600">{dateTime(p.paidAt)}</td>
-                          <td className="py-3 px-4">
-                            <Badge tone="neutral">{translatePaymentMethod(p.paymentMethod)}</Badge>
+                          <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover                          <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover:text-slate-600">
+                            {p.id.slice(0, 8)}…
                           </td>
-                          <td className="py-3 pl-4 text-left font-black text-emerald-700">{money(p.amount)}</td>
+                          <td className="py-3 px-4 text-xs text-slate-600">{dateTime(p.paidAt)}</td>
+                          <td className="py-3 px-4">
+                            <Badge tone={p.amount < 0 ? "danger" : "success"}>
+                              {translatePaymentMethod(p.paymentMethod)}
+                            </Badge>
+                          </td>
+                          <td className={clsx("py-3 pl-4 text-left font-bold tabular-nums", p.amount < 0 ? "text-rose-700" : "text-emerald-700")}>
+                            {p.amount < 0 ? "-" : "+"}{money(Math.abs(p.amount))}
+                          </td>
                         </tr>
                       ))}
-                      {(selectedInvoicePaymentsQuery.data?.data?.length ?? 0) === 0 && (
-                        <tr>
-                          <td colSpan={4} className="py-8 text-center text-slate-400">لا توجد عمليات دفع مسجلة بعد.</td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
               </Panel>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

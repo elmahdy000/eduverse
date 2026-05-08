@@ -527,102 +527,31 @@ export default function CustomersPage() {
                     <div className="grid gap-3 sm:grid-cols-4">
                       <StatCard label="جلسات" value={historyQuery.data.sessionsCount} />
                       <StatCard label="حجوزات" value={historyQuery.data.bookingsCount} tone="info" />
-                      <StatCard label="فواتير" value={historyQuery.data.invoicesCount} tone="warn" />
-                      <StatCard label="إجمالي صرف" value={money(historyQuery.data.totalSpent)} tone="success" icon={<Wallet size={15} />} />
+                      <StatCard label="طلبات بار" value={historyQuery.data.ordersCount} tone="warn" />
+                      <StatCard label="مبالغ مدفوعة" value={historyQuery.data.totalPaid != null ? historyQuery.data.totalPaid.toLocaleString("ar-EG") + " ج" : "—"} tone="success" />
                     </div>
-                  ) : <EmptyState title="مفيش بيانات تاريخية" />}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-3 flex items-center gap-2 text-slate-600"><Coffee size={14} /><p className="text-sm font-semibold">طلبات البار الأخيرة</p></div>
-                  {barOrdersQuery.isLoading ? <p className="text-sm text-slate-500">جاري تحميل طلبات البار...</p> : (barOrdersQuery.data?.data?.length ?? 0) === 0 ? <EmptyState title="مفيش طلبات بار للعميل ده" /> : (
-                    <div className="space-y-2">
-                      {(barOrdersQuery.data?.data ?? []).slice(0, 6).map((order) => (
-                        <div key={order.id} className="rounded-lg border border-slate-200 bg-white p-3 text-xs">
-                          <div className="mb-1 flex items-center justify-between"><Badge tone={statusBadgeTone(order.status)}>{translateStatus(order.status)}</Badge><span className="font-mono text-slate-500">#{order.id.slice(0, 8)}</span></div>
-                          <div className="flex items-center justify-between text-slate-700"><span>{money(order.totalAmount ?? 0)}</span><span>{dateTime(order.createdAt)}</span></div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-3 flex items-center gap-2 text-slate-600"><Coffee size={14} /><p className="text-sm font-semibold">اقتراحات (الأكثر طلبًا)</p></div>
-                  {topProducts.length === 0 ? <EmptyState title="لسه مفيش بيانات كفاية للتوصية" sub="أول ما العميل يعمل طلبات، هتظهر هنا المنتجات المناسبة." /> : (
-                    <div className="space-y-2">
-                      {topProducts.map((p, idx) => (
-                        <div key={`${p.name}-${idx}`} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><span className="font-semibold text-slate-800">{p.name}</span><span className="text-xs text-slate-500">اتطلب {p.qty} مرة</span></div>
-                      ))}
-                    </div>
-                  )}
+                  ) : <EmptyState title="لا يوجد تاريخ" />}
                 </div>
               </div>
             </>
-          )}
+          ) : null}
         </Panel>
       )}
+      </div>
+
       {/* Edit Customer Modal */}
-      {showEditModal && selectedCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm" dir="rtl">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 p-5">
-              <div>
-                <h3 className="font-bold text-slate-900">تعديل بيانات العميل</h3>
-                <p className="text-xs text-slate-500">{selectedCustomer.fullName}</p>
-              </div>
-              <button onClick={() => setShowEditModal(false)} className="rounded-lg border border-slate-200 p-1.5 hover:bg-slate-50">
+      {editCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setEditCustomer(null)} />
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <h3 className="text-base font-black text-slate-900">تعديل بيانات العميل</h3>
+              <button onClick={() => setEditCustomer(null)} className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition">
                 <X size={16} />
               </button>
             </div>
-            <div className="max-h-[70vh] overflow-y-auto p-5 space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="الاسم الكامل">
-                  <Input value={editFullName} onChange={e => setEditFullName(e.target.value)} placeholder="الاسم الكامل" required />
-                </FormField>
-                <FormField label="رقم الموبايل">
-                  <Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" required />
-                </FormField>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="البريد الإلكتروني">
-                  <Input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="email@example.com" dir="ltr" />
-                </FormField>
-                <FormField label="العنوان">
-                  <Input value={editAddress} onChange={e => setEditAddress(e.target.value)} placeholder="العنوان" />
-                </FormField>
-              </div>
-              {selectedCustomer.customerType === "student" && (
-                <div className="grid gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 sm:grid-cols-3">
-                  <p className="col-span-3 text-[10px] font-bold uppercase tracking-wider text-blue-600">بيانات الطالب</p>
-                  <FormField label="الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
-                  <FormField label="المستوى"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
-                  <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
-                </div>
-              )}
-              {selectedCustomer.customerType === "employee" && (
-                <div className="grid gap-3 rounded-xl border border-violet-100 bg-violet-50/50 p-3 sm:grid-cols-2">
-                  <p className="col-span-2 text-[10px] font-bold uppercase tracking-wider text-violet-600">بيانات الموظف</p>
-                  <FormField label="جهة العمل"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
-                  <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
-                </div>
-              )}
-              <FormField label="ملاحظات">
-                <textarea
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-slate-400"
-                  rows={2}
-                  value={editNotes}
-                  onChange={e => setEditNotes(e.target.value)}
-                />
-              </FormField>
-            </div>
-            <div className="flex gap-3 border-t border-slate-100 p-5">
-              <Btn className="flex-1" loading={updateMutation.isPending} loadingText="جاري الحفظ..." icon={<Edit2 size={14} />} onClick={() => updateMutation.mutate()}>
-                حفظ التعديلات
-              </Btn>
-              <Btn variant="ghost" onClick={() => setShowEditModal(false)}>إلغاء</Btn>
+            <div className="max-h-[75vh] overflow-y-auto p-6">
+              <EditCustomerForm customer={editCustomer} onSuccess={() => { setEditCustomer(null); queryClient.invalidateQueries({ queryKey: ["customers"] }); }} />
             </div>
           </div>
         </div>

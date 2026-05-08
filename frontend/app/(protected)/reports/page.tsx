@@ -223,299 +223,204 @@ export default function ReportsPage() {
               </div>
               <p className="text-[10px] text-slate-400 mt-2 font-medium">صافي المحصل من المبيعات</p>
             </div>
-
             <div className="p-8 border-l border-slate-100 last:border-l-0">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">إجمالي المصروفات</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-slate-900">{money(summary?.expensesTotal ?? 0)}</span>
                 <TrendingDown size={16} className="text-rose-400" />
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 font-medium">تشمل المشتريات والمصاريف الإدارية</p>
+              <p className="text-[10px] text-slate-400 mt-2 font-medium">مصروفات التشغيل والمشتريات</p>
             </div>
-
-            <div className="p-8 bg-slate-50/50">
+            <div className="p-8">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">صافي الربح</p>
               <div className="flex items-baseline gap-2">
-                <span className={clsx("text-4xl font-black", (summary?.netProfit ?? 0) >= 0 ? "text-slate-900" : "text-rose-600")}>
+                <span className={clsx("text-3xl font-black", (summary?.netProfit ?? 0) >= 0 ? "text-emerald-700" : "text-rose-700")}>
                   {money(summary?.netProfit ?? 0)}
                 </span>
-                <DollarSign size={18} className="text-slate-400" />
+                {(summary?.netProfit ?? 0) >= 0
+                  ? <ArrowUpRight size={16} className="text-emerald-500" />
+                  : <ArrowDownRight size={16} className="text-rose-500" />}
               </div>
-              <p className="text-[10px] text-slate-500 mt-2 font-semibold">المبلغ المتبقي بعد التصفية</p>
+              <p className="text-[10px] text-slate-400 mt-2 font-medium">الإيرادات ناقص المصروفات</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Operational Efficiency: Shifts */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-tight text-slate-900">كفاءة الوردية والتشغيل</h2>
-                <Timer size={14} className="text-slate-300" />
+          {/* Expense Breakdown */}
+          {summary?.breakdown && summary.breakdown.length > 0 && (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                  <PieChartIcon size={14} />
+                </span>
+                <h3 className="text-sm font-bold text-slate-800">تفصيل المصروفات بالفئة</h3>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 rounded-xl border border-slate-200 bg-white">
-                  <span className="text-2xl font-bold text-slate-900">{shifts?.closedCount ?? 0}</span>
-                  <p className="text-xs text-slate-500 font-medium mt-1">ورديات مغلقة</p>
-                </div>
-                <div className="p-5 rounded-xl border border-slate-200 bg-white">
-                  <span className="text-2xl font-bold text-slate-900">{money(shifts?.avgSalesPerShift ?? 0)}</span>
-                  <p className="text-xs text-slate-500 font-medium mt-1">متوسط مبيعات الوردية</p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-                <table className="w-full text-xs text-right">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
-                      <th className="px-4 py-3 font-bold uppercase tracking-tighter">الكاشير</th>
-                      <th className="px-4 py-3 font-bold uppercase tracking-tighter text-left">المبيعات</th>
-                      <th className="px-4 py-3 font-bold uppercase tracking-tighter text-left">عجز الكاش</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {shifts?.recentShifts.slice(0, 5).map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-slate-700">{s.cashier}</td>
-                        <td className="px-4 py-3 font-bold text-slate-900 text-left">{money(s.totalSales)}</td>
-                        <td className="px-4 py-3 text-left font-mono">
-                          <VarianceIndicator value={s.variance} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Waste & Inventory Analysis */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-tight text-slate-900">تحليل الهالك والفاقد</h2>
-                <Trash2 size={14} className="text-slate-300" />
-              </div>
-
-              <div className="p-6 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">إجمالي تكلفة الفاقد</p>
-                  <p className="text-2xl font-black text-rose-600">{money(waste?.totalEstimatedCost ?? 0)}</p>
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">عدد الإدخالات</p>
-                  <p className="text-xl font-bold text-slate-900">{waste?.totalEntries ?? 0}</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">أكثر 5 أصناف هالكاً</p>
-                {waste?.topWastedItems && waste.topWastedItems.length > 0 ? (
-                  <div className="grid gap-2">
-                    {waste.topWastedItems.map((item) => (
-                      <div key={item.itemId} className="group flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/30 hover:border-slate-200 hover:bg-white transition-all">
-                        <div className="flex items-center gap-3">
-                          <div className="h-2 w-2 rounded-full bg-rose-400" />
-                          <span className="text-xs font-bold text-slate-700">{item.name}</span>
-                        </div>
-                        <div className="text-left flex items-center gap-4">
-                          <span className="text-xs font-medium text-slate-500">{item.totalQuantity} {item.unit}</span>
-                          <span className="text-xs font-black text-slate-900">{money(item.estimatedCost ?? 0)}</span>
+              <div className="p-5 space-y-3">
+                {summary.breakdown.map((cat) => {
+                  const pct = summary.expensesTotal > 0 ? Math.round((cat.total / summary.expensesTotal) * 100) : 0;
+                  return (
+                    <div key={cat.categoryId}>
+                      <div className="flex items-center justify-between mb-1 text-sm">
+                        <span className="font-bold text-emerald-700">{money(cat.total)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-400">{pct}%</span>
+                          <span className="font-semibold text-slate-800">{cat.categoryName}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-10 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
-                    <p className="text-xs text-slate-400 font-medium">لا توجد بيانات هالك مسجلة</p>
-                  </div>
-                )}
+                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div className="h-full rounded-full bg-amber-400 transition-all duration-700" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Booking Reports Section */}
-          <div className="space-y-6 pt-10 border-t border-slate-100">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h2 className="text-xl font-black text-slate-900">تقرير الحجوزات</h2>
-                <p className="text-xs text-slate-500">تحليل الحجوزات المؤكدة، الملغية، والـ No-Show.</p>
-              </div>
-              <Activity size={20} className="text-slate-300" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button 
-                onClick={() => setSelectedStatus(selectedStatus === 'completed' ? null : 'completed')}
-                className={clsx(
-                  "p-5 rounded-2xl border text-right transition-all",
-                  selectedStatus === 'completed' ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20" : "border-slate-200 bg-white hover:border-slate-300"
-                )}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle2 size={14} className="text-emerald-500" />
-                  <span className="text-[10px] font-black uppercase text-slate-400">حجوزات مكتملة</span>
-                </div>
-                <div className="text-2xl font-black text-slate-900">{bookings?.completedCount ?? 0}</div>
-                <p className="text-[9px] text-slate-400 mt-1">اضغط لعرض التفاصيل</p>
-              </button>
-
-              <button 
-                onClick={() => setSelectedStatus(selectedStatus === 'cancelled' ? null : 'cancelled')}
-                className={clsx(
-                  "p-5 rounded-2xl border text-right transition-all",
-                  selectedStatus === 'cancelled' ? "border-rose-500 bg-rose-50 ring-2 ring-rose-500/20" : "border-slate-200 bg-white hover:border-slate-300"
-                )}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <XCircle size={14} className="text-rose-500" />
-                  <span className="text-[10px] font-black uppercase text-slate-400">حجوزات ملغية</span>
-                </div>
-                <div className="text-2xl font-black text-slate-900">{bookings?.cancelledCount ?? 0}</div>
-                <p className="text-[9px] text-slate-400 mt-1">اضغط لعرض التفاصيل</p>
-              </button>
-
-              <button 
-                onClick={() => setSelectedStatus(selectedStatus === 'no_show' ? null : 'no_show')}
-                className={clsx(
-                  "p-5 rounded-2xl border text-right transition-all",
-                  selectedStatus === 'no_show' ? "border-amber-500 bg-amber-50 ring-2 ring-amber-500/20" : "border-slate-200 bg-white hover:border-slate-300"
-                )}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <UserX size={14} className="text-amber-500" />
-                  <span className="text-[10px] font-black uppercase text-slate-400">No-Show</span>
-                </div>
-                <div className="text-2xl font-black text-slate-900">{bookings?.noShowCount ?? 0}</div>
-                <p className="text-[9px] text-slate-400 mt-1">اضغط لعرض التفاصيل</p>
-              </button>
-
-              <div className="p-5 rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-900/10">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle size={14} className="text-amber-400" />
-                  <span className="text-[10px] font-black uppercase text-slate-500">خسائر محتملة</span>
-                </div>
-                <div className="text-2xl font-black">{money(bookings?.potentialLoss ?? 0)}</div>
-                <p className="text-[9px] text-slate-400 mt-1">قيمة الحجوزات الضائعة</p>
-              </div>
-            </div>
-
-            {/* Drill-down Table */}
-            {selectedStatus && details && (
-              <div className="animate-in slide-in-from-top-4 duration-300">
-                <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xl">
-                  <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                    <h3 className="text-xs font-black uppercase text-slate-900">تفاصيل الحجوزات ({selectedStatus})</h3>
-                    <button onClick={() => setSelectedStatus(null)} className="text-[10px] font-bold text-slate-400 hover:text-slate-900 uppercase">إغلاق</button>
-                  </div>
-                  <table className="w-full text-xs text-right">
-                    <thead>
-                      <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-500">
-                        <th className="px-4 py-3 font-bold">العميل</th>
-                        <th className="px-4 py-3 font-bold">الغرفة</th>
-                        <th className="px-4 py-3 font-bold">الموعد</th>
-                        <th className="px-4 py-3 font-bold">المبلغ</th>
-                        <th className="px-4 py-3 font-bold">الملاحظات / سبب الإلغاء</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {details.length > 0 ? details.map((d: any) => (
-                        <tr 
-                          key={d.id} 
-                          onClick={() => window.location.href = `/bookings?id=${d.id}`}
-                          className="hover:bg-slate-50 cursor-pointer transition-colors group"
-                        >
-                          <td className="px-4 py-3">
-                            <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{d.customer?.fullName}</div>
-                            <div className="text-[9px] text-slate-400">{d.customer?.phoneNumber}</div>
-                          </td>
-                          <td className="px-4 py-3 font-medium text-slate-600">{d.room?.name}</td>
-                          <td className="px-4 py-3 text-slate-500">
-                            {new Date(d.startTime).toLocaleDateString('ar-EG')} {new Date(d.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
-                          </td>
-                          <td className="px-4 py-3 font-black text-slate-900">{money(d.totalAmount)}</td>
-                          <td className="px-4 py-3 text-slate-500 italic truncate max-w-[200px]" title={d.notes || ""}>
-                            {d.notes || "—"}
-                          </td>
-                        </tr>
-                      )) : (
-                        <tr>
-                          <td colSpan={5} className="px-4 py-10 text-center text-slate-400">لا توجد بيانات متاحة لهذا الفلتر</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Completion Rate Bar */}
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-black text-slate-900 uppercase">معدل تنفيذ الحجوزات</span>
-                <span className="text-xs font-black text-slate-900">
-                  {bookings?.totalCount ? Math.round(((bookings.completedCount) / bookings.totalCount) * 100) : 0}%
+          {/* Shifts Summary */}
+          {shifts && (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                  <Timer size={14} />
                 </span>
+                <h3 className="text-sm font-bold text-slate-800">ملخص الورديات</h3>
               </div>
-              <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden flex">
-                <div 
-                  className="h-full bg-emerald-500" 
-                  style={{ width: `${bookings?.totalCount ? (bookings.completedCount / bookings.totalCount) * 100 : 0}%` }}
-                  title="مكتمل"
-                />
-                <div 
-                  className="h-full bg-rose-500" 
-                  style={{ width: `${bookings?.totalCount ? (bookings.cancelledCount / bookings.totalCount) * 100 : 0}%` }}
-                  title="ملغي"
-                />
-                <div 
-                  className="h-full bg-amber-500" 
-                  style={{ width: `${bookings?.totalCount ? (bookings.noShowCount / bookings.totalCount) * 100 : 0}%` }}
-                  title="No-Show"
-                />
-              </div>
-              <div className="flex gap-4 mt-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-bold text-slate-500">ناجح</span>
+              <div className="p-5 space-y-5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: "ورديات مغلقة", value: shifts.closedCount, color: "border-l-slate-400" },
+                    { label: "ورديات مفتوحة", value: shifts.openCount, color: "border-l-amber-500" },
+                    { label: "إجمالي المبيعات", value: money(shifts.totalSales), color: "border-l-emerald-500" },
+                    { label: "متوسط وردية", value: money(shifts.avgSalesPerShift), color: "border-l-blue-500" },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className={clsx("rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm", color)}>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">{label}</p>
+                      <p className="text-2xl font-black text-slate-900">{value}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-rose-500" />
-                  <span className="text-[10px] font-bold text-slate-500">ملغي</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-amber-500" />
-                  <span className="text-[10px] font-bold text-slate-500">No-Show</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="pt-10 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-bold uppercase tracking-tight text-slate-900">توزيع المصروفات التشغيلية</h2>
-              <PieChartIcon size={14} className="text-slate-300" />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6">
-              {summary?.breakdown?.map((item) => {
-                const percent = summary.expensesTotal > 0 ? (item.total / summary.expensesTotal) * 100 : 0;
-                return (
-                  <div key={item.categoryId} className="space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-slate-700">{item.categoryName}</span>
-                      <span className="text-xs font-black text-slate-900">{money(item.total)}</span>
-                    </div>
-                    <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-slate-900 rounded-full" 
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium">{Math.round(percent)}% من الإجمالي</p>
+                {shifts.recentShifts.length > 0 && (
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full text-right text-xs">
+                      <thead className="border-b border-slate-100 bg-slate-50">
+                        <tr>
+                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الكاشير</th>
+                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">المبيعات</th>
+                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">المصروفات</th>
+                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الصافي</th>
+                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الفارق</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {shifts.recentShifts.map((shift) => (
+                          <tr key={shift.id} className="hover:bg-amber-50/40 transition-colors">
+                            <td className="px-4 py-3 font-semibold text-slate-800">{shift.cashier}</td>
+                            <td className="px-4 py-3 text-emerald-700 font-bold">{money(shift.totalSales)}</td>
+                            <td className="px-4 py-3 text-rose-600">{money(shift.totalExpenses)}</td>
+                            <td className="px-4 py-3 font-bold text-slate-900">{money(shift.netSales)}</td>
+                            <td className="px-4 py-3">
+                              <VarianceIndicator value={shift.variance} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                );
-              })}
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Waste Summary */}
+          {waste && (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
+                  <Trash2 size={14} />
+                </span>
+                <h3 className="text-sm font-bold text-slate-800">ملخص الهالك</h3>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-rose-400 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">عدد الإدخالات</p>
+                    <p className="text-2xl font-black text-slate-900">{waste.totalEntries}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-amber-400 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">إجمالي الكميات</p>
+                    <p className="text-2xl font-black text-slate-900">{waste.totalQuantity}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-slate-400 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">التكلفة التقديرية</p>
+                    <p className="text-2xl font-black text-rose-700">{money(waste.totalEstimatedCost)}</p>
+                  </div>
+                </div>
+
+                {waste.topWastedItems.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-black uppercase tracking-wider text-slate-500">أكثر المواد هالكاً</p>
+                    <div className="space-y-2">
+                      {waste.topWastedItems.map((item) => (
+                        <div key={item.itemId} className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-4 py-2.5">
+                          <div className="flex items-center gap-2">
+                            {item.estimatedCost != null && (
+                              <span className="text-xs font-bold text-rose-600">{money(item.estimatedCost)}</span>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span className="text-sm font-bold text-slate-800">{item.name}</span>
+                            <span className="mr-2 text-xs text-slate-400">
+                              {item.totalQuantity} {item.unit}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Bookings Summary */}
+          {bookings && (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
+                  <Activity size={14} />
+                </span>
+                <h3 className="text-sm font-bold text-slate-800">ملخص الحجوزات</h3>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { label: "إجمالي الحجوزات", value: bookings.totalCount, icon: <Activity size={14} />, color: "border-l-blue-500" },
+                    { label: "مؤكدة", value: bookings.confirmedCount, icon: <CheckCircle2 size={14} />, color: "border-l-emerald-500" },
+                    { label: "مكتملة", value: bookings.completedCount, icon: <CheckCircle2 size={14} />, color: "border-l-green-500" },
+                    { label: "ملغاة", value: bookings.cancelledCount, icon: <XCircle size={14} />, color: "border-l-rose-500" },
+                    { label: "لم يحضر", value: bookings.noShowCount, icon: <UserX size={14} />, color: "border-l-amber-500" },
+                    { label: "إيراد الحجوزات", value: money(bookings.totalRevenue), icon: <DollarSign size={14} />, color: "border-l-emerald-600" },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className={clsx("rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm", color)}>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">{label}</p>
+                      <p className="text-xl font-black text-slate-900">{value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {bookings.potentialLoss > 0 && (
+                  <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                    <AlertTriangle size={16} className="shrink-0 text-amber-600" />
+                    <p className="text-sm text-amber-800">
+                      خسارة محتملة من الحجوزات الملغاة والغياب:{" "}
+                      <span className="font-black">{money(bookings.potentialLoss)}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

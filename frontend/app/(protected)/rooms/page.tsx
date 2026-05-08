@@ -426,11 +426,15 @@ export default function RoomsPage() {
               </button>
               <button
                 onClick={() => {
-                  statusMutation.mutate({ roomId: confirmAction.roomId, action: confirmAction.action });
+                  statusMutation.mutate({ id: confirmAction.roomId, action: confirmAction.action });
                   setConfirmAction(null);
                 }}
                 disabled={statusMutation.isPending}
-                className={`flex-1 rounded-2xl py-3 font-bold text-white shadow-md transition disabled:opacity-50 ${confirmAction.action === "deactivate" ? "bg-rose-500 hover:bg-rose-600" : "bg-emerald-600 hover:bg-emerald-700"}`}
+                className={`flex-1 rounded-2xl py-3 font-bold text-white transition disabled:opacity-50 ${
+                  confirmAction.action === "deactivate"
+                    ? "bg-rose-500 hover:bg-rose-600"
+                    : "bg-emerald-500 hover:bg-emerald-600"
+                }`}
               >
                 {confirmAction.action === "deactivate" ? "إيقاف" : "تفعيل"}
               </button>
@@ -438,49 +442,6 @@ export default function RoomsPage() {
           </div>
         </div>
       )}
-
-      {/* Availability Checker */}
-      <Panel title="فحص إتاحة الغرف" icon={<Clock size={15} />}>
-        <div className="grid gap-4 md:grid-cols-3">
-          <FormField label="من">
-            <DateTimeInput value={availabilityStart} onChange={(e) => setAvailabilityStart(e.target.value)} />
-          </FormField>
-          <FormField label="إلى">
-            <DateTimeInput value={availabilityEnd} onChange={(e) => setAvailabilityEnd(e.target.value)} />
-          </FormField>
-          <div className="flex items-end">
-            <Btn
-              onClick={() => availabilityMutation.mutate()}
-              loading={availabilityMutation.isPending}
-              loadingText="جاري الفحص..."
-              disabled={!availabilityStart || !availabilityEnd}
-              className="w-full"
-              variant="secondary"
-              icon={<Search size={14} />}
-            >
-              فحص الإتاحة
-            </Btn>
-          </div>
-        </div>
-
-        {availabilityResult && (
-          <div className="mt-4">
-            {availabilityResult.length === 0 ? (
-              <EmptyState icon={<DoorOpen size={32} />} title="لا توجد غرف متاحة" sub="جرب وقتاً مختلفاً." />
-            ) : (
-              <DataTable
-                headers={["الغرفة", "النوع", "السعة", "سعر الساعة"]}
-                rows={availabilityResult.map((r) => [
-                  r.name,
-                  translateRoomType(r.roomType),
-                  r.capacity,
-                  r.hourlyRate ? money(r.hourlyRate) : "—",
-                ])}
-              />
-            )}
-          </div>
-        )}
-      </Panel>
     </div>
   );
 }

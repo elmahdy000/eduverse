@@ -113,9 +113,9 @@ export default function Home() {
                   إديوفيرس: حيث تولد الأفكار الكبيرة
                 </div>
                 <h1 className="text-5xl font-black leading-[1.1] text-slate-900 md:text-7xl">
-                  مكان واحد <br />
-                  لكل فكرة محتاجة <br />
-                  <span className="text-amber-600 italic">مساحة تبدع فيها</span>
+                  منصتك المتكاملة <br />
+                  لإدارة <span className="text-amber-600">مساحات العمل</span> <br />
+                  والإنتاج الإبداعي
                 </h1>
                 <p className="mt-8 max-w-xl text-lg leading-relaxed text-slate-600 md:text-xl">
                   سواء كنت صانع محتوى، مدرب، أو صاحب مشروع.. بنوفرلك المساحة المجهزة والأدوات اللي تخليك تركز في "إبداعك" بس، وسيب علينا التفاصيل.
@@ -158,7 +158,7 @@ export default function Home() {
                 <div className="relative z-10 overflow-hidden rounded-[2.5rem] border-[12px] border-white shadow-2xl shadow-slate-200">
                   <img
                     src="/images/hero.png"
-                    alt="Eduvers Space"
+                    alt="مساحات عمل مشتركة مجهزة بأحدث التقنيات في إديوفيرس"
                     className="aspect-[4/3] w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
@@ -197,7 +197,7 @@ export default function Home() {
         <section id="features" className="bg-white py-24 md:py-32">
           <div className="mx-auto max-w-7xl px-5 md:px-10">
             <div className="mb-20 text-center">
-              <h2 className="text-3xl font-black text-slate-900 md:text-5xl">مساحاتنا المتخصصة</h2>
+              <h2 className="text-3xl font-black text-slate-900 md:text-5xl">خدماتنا ومساحاتنا المتخصصة</h2>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-500">
                 صممنا كل ركن في إديوفيرس ليكون له طابع خاص يخدم هدفك، سواء كان تعليمي، إنتاجي أو حتى للراحة.
               </p>

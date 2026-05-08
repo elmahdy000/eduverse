@@ -299,22 +299,22 @@ export default function GuestOrderPage() {
     <div className="min-h-screen bg-slate-50 pb-28 lg:pb-8 text-slate-800 font-sans selection:bg-orange-100" dir="rtl">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-lg">E</div>
+        <div className="max-w-[1200px] mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-slate-900 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg">E</div>
             <div>
-              <h2 className="text-sm font-bold leading-tight">Eduvers Cafe</h2>
-              <p className="text-[11px] text-slate-500 font-medium">طاولة {guestCode}</p>
+              <h2 className="text-xs sm:text-sm font-bold leading-tight">Eduvers Cafe</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">طاولة {guestCode}</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100">
-            <LogOut size={20} />
+          <button onClick={handleLogout} className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100">
+            <LogOut size={18} className="sm:w-5 sm:h-5" />
           </button>
         </div>
       </header>
 
-      <main className="max-w-[1200px] mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-[1fr_360px] gap-8">
+      <main className="max-w-[1200px] mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="grid lg:grid-cols-[1fr_360px] gap-4 sm:gap-8">
           
           {/* Main Content Area */}
           <div className="space-y-6">
@@ -322,15 +322,15 @@ export default function GuestOrderPage() {
             {/* Active Orders Status */}
             {activeOrders.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                  <Bell size={16} className="text-orange-500" /> طلباتك الحالية
+                <h3 className="text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-2">
+                  <Bell size={14} className="sm:w-4 sm:h-4 text-orange-500" /> طلباتك الحالية
                 </h3>
                 {activeOrders.map(order => (
-                  <div key={order.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                  <div key={order.id} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-1">
                       <div>
-                        <span className="text-xs font-bold text-slate-400">طلب #{order.id.slice(-4)}</span>
-                        <div className="text-sm font-bold text-slate-900 mt-1">{money(order.totalAmount)}</div>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-400">طلب #{order.id.slice(-4)}</span>
+                        <div className="text-xs sm:text-sm font-bold text-slate-900 mt-1">{money(order.totalAmount)}</div>
                       </div>
                     </div>
                     <CompactProgress status={order.status} />
@@ -340,29 +340,29 @@ export default function GuestOrderPage() {
             )}
 
             {/* Navigation Tabs & Search */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex bg-slate-200/50 p-1 rounded-xl shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex bg-slate-200/50 p-1 rounded-lg sm:rounded-xl shrink-0">
                 <button 
                   onClick={() => setActiveTab("menu")} 
-                  className={cn("px-6 py-2 text-sm font-bold rounded-lg transition-colors", activeTab === "menu" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                  className={cn("px-4 py-1.5 sm:px-6 sm:py-2 text-xs sm:text-sm font-bold rounded-md sm:rounded-lg transition-colors", activeTab === "menu" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
                 >
                   القائمة
                 </button>
                 <button 
                   onClick={() => setActiveTab("history")} 
-                  className={cn("px-6 py-2 text-sm font-bold rounded-lg transition-colors", activeTab === "history" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                  className={cn("px-4 py-1.5 sm:px-6 sm:py-2 text-xs sm:text-sm font-bold rounded-md sm:rounded-lg transition-colors", activeTab === "history" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
                 >
                   السجل
                 </button>
               </div>
               <div className="relative flex-1">
-                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={14} className="sm:w-4 sm:h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input 
                   type="text"
                   placeholder="ابحث عن صنف..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full h-10 bg-white border border-slate-200 rounded-xl pr-10 pl-4 text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                  className="w-full h-9 sm:h-10 bg-white border border-slate-200 rounded-lg sm:rounded-xl pr-9 sm:pr-10 pl-4 text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
                 />
               </div>
             </div>
@@ -371,16 +371,16 @@ export default function GuestOrderPage() {
             {activeTab === "menu" && (
               <div className="space-y-8">
                 {/* Categories */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
                   <button 
                     onClick={() => setSelectedCategory("all")} 
-                    className={cn("whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-colors border", selectedCategory === "all" ? "bg-slate-800 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50")}
+                    className={cn("whitespace-nowrap px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-colors border", selectedCategory === "all" ? "bg-slate-800 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50")}
                   >الكل</button>
                   {Array.from(new Set(productsQuery.data?.map(p => p.category) || [])).map(cat => (
                     <button 
                       key={cat} 
                       onClick={() => setSelectedCategory(cat)} 
-                      className={cn("whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-colors border flex items-center gap-2", selectedCategory === cat ? "bg-slate-800 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50")}
+                      className={cn("whitespace-nowrap px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-colors border flex items-center gap-1.5 sm:gap-2", selectedCategory === cat ? "bg-slate-800 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50")}
                     >
                       {getCategoryIcon(cat)} {translateProductCategory(cat)}
                     </button>
@@ -388,7 +388,7 @@ export default function GuestOrderPage() {
                 </div>
 
                 {/* Products */}
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   {Array.from(new Set(productsQuery.data?.map(p => p.category) || []))
                     .filter(cat => selectedCategory === "all" || selectedCategory === cat)
                     .map(category => {
@@ -398,34 +398,36 @@ export default function GuestOrderPage() {
                       if (!prods?.length) return null;
                       
                       return (
-                        <div key={category} className="space-y-4">
-                          <h3 className="text-lg font-bold text-slate-800">{translateProductCategory(category)}</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div key={category} className="space-y-3 sm:space-y-4">
+                          <h3 className="text-base sm:text-lg font-bold text-slate-800">{translateProductCategory(category)}</h3>
+                          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
                             {prods.map(product => (
                               <div 
                                 key={product.id} 
                                 onClick={() => !cart[product.id] && addToCart(product.id)}
                                 className={cn(
-                                  "bg-white rounded-2xl p-3 border transition-all flex items-center gap-4 group select-none",
+                                  "bg-white rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 group select-none",
                                   cart[product.id] ? "border-orange-500 shadow-sm" : "border-slate-200 hover:border-slate-300 cursor-pointer"
                                 )}
                               >
-                                <img src={getProductImage(product)} alt={product.name} className="h-20 w-20 rounded-xl object-cover border border-slate-100 shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-sm font-bold text-slate-900 truncate">{product.name}</h4>
-                                  <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{product.description || "بدون وصف"}</p>
-                                  <div className="flex items-center justify-between mt-2">
-                                    <span className="text-sm font-bold text-slate-800">{money(product.price)}</span>
+                                <img src={getProductImage(product)} alt={product.name} className="h-24 sm:h-20 w-full sm:w-20 rounded-lg sm:rounded-xl object-cover border border-slate-100 shrink-0" />
+                                <div className="flex-1 min-w-0 flex flex-col justify-between w-full h-full">
+                                  <div>
+                                    <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 line-clamp-1">{product.name}</h4>
+                                    <p className="text-[9px] sm:text-[10px] text-slate-500 line-clamp-1 sm:line-clamp-2 mt-0.5">{product.description || "بدون وصف"}</p>
+                                  </div>
+                                  <div className="flex items-center justify-between mt-2 pt-2 border-t sm:border-t-0 border-slate-50">
+                                    <span className="text-xs sm:text-sm font-bold text-slate-800">{money(product.price)}</span>
                                     
                                     {cart[product.id] ? (
-                                      <div className="flex items-center gap-3 bg-slate-50 rounded-lg px-2 py-1 border border-slate-200">
-                                        <button onClick={(e) => removeFromCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-0.5"><Minus size={14} /></button>
-                                        <span className="text-xs font-bold w-4 text-center">{cart[product.id]}</span>
-                                        <button onClick={(e) => addToCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-0.5"><Plus size={14} /></button>
+                                      <div className="flex items-center gap-2 sm:gap-3 bg-slate-50 rounded-lg px-1.5 sm:px-2 py-0.5 sm:py-1 border border-slate-200" onClick={e => e.stopPropagation()}>
+                                        <button onClick={(e) => removeFromCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-0.5"><Minus size={12} className="sm:w-3.5 sm:h-3.5" /></button>
+                                        <span className="text-[11px] sm:text-xs font-bold w-3 sm:w-4 text-center">{cart[product.id]}</span>
+                                        <button onClick={(e) => addToCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-0.5"><Plus size={12} className="sm:w-3.5 sm:h-3.5" /></button>
                                       </div>
                                     ) : (
-                                      <button className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-slate-200 transition-colors">
-                                        <Plus size={14} />
+                                      <button className="h-6 w-6 sm:h-7 sm:w-7 rounded-md sm:rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-slate-200 transition-colors">
+                                        <Plus size={12} className="sm:w-3.5 sm:h-3.5" />
                                       </button>
                                     )}
                                   </div>
@@ -450,22 +452,22 @@ export default function GuestOrderPage() {
                   </div>
                 ) : (
                   ordersQuery.data?.slice().reverse().map(order => (
-                    <div key={order.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                      <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
+                    <div key={order.id} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
+                      <div className="flex justify-between items-center mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-100">
                         <div>
-                          <p className="text-xs text-slate-400 font-bold">{new Date(order.createdAt).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
-                          <p className="text-sm font-bold text-slate-800 mt-0.5">طلب #{order.id.slice(-4)}</p>
+                          <p className="text-[10px] sm:text-xs text-slate-400 font-bold">{new Date(order.createdAt).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
+                          <p className="text-xs sm:text-sm font-bold text-slate-800 mt-0.5">طلب #{order.id.slice(-4)}</p>
                         </div>
                         <div className="text-left">
-                          <p className="text-lg font-bold text-slate-900">{money(order.totalAmount)}</p>
-                          <span className="text-[10px] text-slate-500">
+                          <p className="text-base sm:text-lg font-bold text-slate-900">{money(order.totalAmount)}</p>
+                          <span className="text-[9px] sm:text-[10px] text-slate-500">
                             {order.status === "completed" || order.status === "delivered" ? "مكتمل" : order.status === "cancelled" ? "ملغي" : "حالي"}
                           </span>
                         </div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-1.5 sm:space-y-2">
                         {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between text-xs text-slate-600">
+                          <div key={item.id} className="flex justify-between text-[11px] sm:text-xs text-slate-600">
                             <span>{item.quantity} × {item.product.name}</span>
                             <span className="font-medium">{money(item.subtotal)}</span>
                           </div>
@@ -533,24 +535,24 @@ export default function GuestOrderPage() {
         {cartItems.length > 0 && (
           <motion.div 
             initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} 
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-3 sm:p-4 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
           >
-            <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
+            <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="relative">
-                  <div className="h-12 w-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
-                    <ShoppingCart size={20} />
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 bg-orange-100 text-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
                   </div>
-                  <span className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-slate-900 text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 sm:h-5 sm:w-5 bg-slate-900 text-white rounded-full text-[9px] sm:text-[10px] font-bold flex items-center justify-center border-2 border-white">
                     {cartItems.length}
                   </span>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-500 font-bold">الإجمالي</p>
-                  <p className="text-base font-bold text-slate-900 leading-none">{money(grandTotal)}</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold">الإجمالي</p>
+                  <p className="text-sm sm:text-base font-bold text-slate-900 leading-none mt-0.5">{money(grandTotal)}</p>
                 </div>
               </div>
-              <Btn onClick={() => setIsCartOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white px-6 h-12 rounded-xl font-bold border-none text-sm">
+              <Btn onClick={() => setIsCartOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white px-4 sm:px-6 h-10 sm:h-12 rounded-lg sm:rounded-xl font-bold border-none text-xs sm:text-sm">
                 عرض السلة
               </Btn>
             </div>

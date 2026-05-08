@@ -394,20 +394,14 @@ export default function SessionsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {allSessions.filter(s => {
-                      if (tableStatusFilter === "all") return true;
-                      return s.status === tableStatusFilter;
-                    }).length === 0 ? (
+                    {filteredHistory.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="py-14 text-center text-sm text-slate-400">
                           لا توجد جلسات
                         </td>
                       </tr>
                     ) : (
-                      allSessions.filter(s => {
-                        if (tableStatusFilter === "all") return true;
-                        return s.status === tableStatusFilter;
-                      }).map((session) => (
+                      filteredHistory.map((session: Session) => (
                         <tr key={session.id} className="transition-colors hover:bg-amber-50/40">
                           <td className="px-4 py-3.5 font-semibold text-slate-800">
                             {session.customer?.fullName ?? "—"}

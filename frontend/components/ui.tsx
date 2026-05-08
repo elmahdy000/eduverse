@@ -229,16 +229,17 @@ export function Select({ children, className, ...props }: React.SelectHTMLAttrib
 }
 
 /* ── Btn ── */
-type BtnVariant = "primary" | "secondary" | "danger" | "ghost" | "success" | "warn";
+type BtnVariant = "primary" | "secondary" | "danger" | "ghost" | "success" | "warn" | "orange";
 type BtnSize = "sm" | "md" | "lg";
 
 const btnVariants: Record<BtnVariant, string> = {
-  primary: "bg-slate-900 text-white hover:bg-slate-700 border-transparent",
-  secondary: "bg-white text-slate-700 border-slate-300 hover:bg-slate-50",
-  danger: "bg-rose-600 text-white hover:bg-rose-700 border-transparent",
-  success: "bg-emerald-600 text-white hover:bg-emerald-700 border-transparent",
-  warn: "bg-amber-500 text-white hover:bg-amber-600 border-transparent",
-  ghost: "bg-transparent text-slate-600 border-slate-200 hover:bg-slate-100",
+  primary: "bg-slate-900 text-white hover:bg-slate-800 border-transparent shadow-sm active:scale-[0.98]",
+  secondary: "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 active:scale-[0.98]",
+  danger: "bg-rose-500 text-white hover:bg-rose-600 border-transparent active:scale-[0.98]",
+  success: "bg-emerald-500 text-white hover:bg-emerald-600 border-transparent active:scale-[0.98]",
+  warn: "bg-amber-500 text-white hover:bg-amber-600 border-transparent active:scale-[0.98]",
+  orange: "bg-orange-600 text-white hover:bg-orange-700 border-transparent shadow-md shadow-orange-200 active:scale-[0.98]",
+  ghost: "bg-transparent text-slate-500 hover:bg-slate-100 border-transparent",
 };
 
 const btnSizes: Record<BtnSize, string> = {

@@ -534,7 +534,7 @@ export default function CustomersPage() {
                 </div>
               </div>
             </>
-          ) : null}
+          )}
         </Panel>
       )}
       </div>

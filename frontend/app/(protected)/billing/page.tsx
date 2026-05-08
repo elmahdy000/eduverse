@@ -519,11 +519,11 @@ export default function BillingPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {selectedInvoicePaymentsQuery.data?.data?.map((p) => (
-                        <tr key={p.id} className="group">
-                          <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover                          <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover:text-slate-600">
-                            {p.id.slice(0, 8)}…
-                          </td>
+                        {selectedInvoicePaymentsQuery.data?.data?.map((p) => (
+                          <tr key={p.id} className="group">
+                            <td className="py-3 pr-4 font-mono text-[10px] text-slate-400 group-hover:text-slate-600">
+                              {p.id.slice(0, 8)}…
+                            </td>
                           <td className="py-3 px-4 text-xs text-slate-600">{dateTime(p.paidAt)}</td>
                           <td className="py-3 px-4">
                             <Badge tone={p.amount < 0 ? "danger" : "success"}>

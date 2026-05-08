@@ -374,10 +374,10 @@ export default function BaristaDashboardPage() {
                <button type="submit" disabled={!chatInput.trim()} className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-40">
                  <Send size={18} />
                </button>
-             </form>
-           </div>
-         )}
-       </div>
-     </div>
-   );
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
 }

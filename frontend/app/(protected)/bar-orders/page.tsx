@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -429,7 +429,6 @@ export default function BarOrdersPage() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Cancel Confirm Dialog */}
       {cancelConfirm && (

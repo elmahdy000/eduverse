@@ -445,7 +445,7 @@ export default function SessionsPage() {
                   </tbody>
                 </table>
               </div>
-            </Panel>
+            </div>
           </div>
         </div>
       </div>

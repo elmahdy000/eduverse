@@ -282,8 +282,8 @@ export function AppShell({ children }: PropsWithChildren) {
 
                 if (allowedItems.length === 1) {
                   const item = allowedItems[0];
-                  const isActive = item.href === "/reports" 
-                    ? pathname === "/reports" 
+                  const isActive = (item.href === "/reports" || item.href === "/dashboard")
+                    ? pathname === item.href 
                     : pathname === item.href || pathname.startsWith(item.href + "/");
                   return (
                     <Link
@@ -318,8 +318,8 @@ export function AppShell({ children }: PropsWithChildren) {
                     {isOpen && (
                       <div className="mt-1 space-y-0.5 pr-2">
                         {allowedItems.map((item) => {
-                          const isActive = item.href === "/reports" 
-                            ? pathname === "/reports" 
+                          const isActive = (item.href === "/reports" || item.href === "/dashboard")
+                            ? pathname === item.href 
                             : pathname === item.href || pathname.startsWith(item.href + "/");
                           return (
                             <Link

@@ -322,7 +322,7 @@ export default function GuestOrderPage() {
   const activeOrders = ordersQuery.data?.filter(o => ["new", "in_preparation", "ready"].includes(o.status)) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 lg:pb-8 text-slate-800 font-sans overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-slate-50 pb-24 lg:pb-8 text-slate-800 font-sans" dir="rtl">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center justify-between">
@@ -339,7 +339,7 @@ export default function GuestOrderPage() {
         </div>
       </header>
 
-      <main className="max-w-[1200px] mx-auto px-4 py-6 overflow-x-hidden">
+      <main className="max-w-[1200px] mx-auto px-4 py-6">
         <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           
           {/* Order Summary Sidebar (Desktop) - First in JSX, Right conceptually but we swap order in RTL using col-start if needed. But in RTL [1fr_320px] means 1fr on Right, 320px on Left. */}

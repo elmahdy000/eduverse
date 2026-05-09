@@ -63,6 +63,7 @@ export default function CustomersPage() {
   // Create form state
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumberSecondary, setPhoneNumberSecondary] = useState("");
   const [customerType, setCustomerType] = useState("visitor");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
@@ -85,6 +86,7 @@ export default function CustomersPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFullName, setEditFullName] = useState("");
   const [editPhoneNumber, setEditPhoneNumber] = useState("");
+  const [editPhoneNumberSecondary, setEditPhoneNumberSecondary] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editNotes, setEditNotes] = useState("");
@@ -165,6 +167,7 @@ export default function CustomersPage() {
       await api.post("/customers", {
         fullName,
         phoneNumber,
+        phoneNumberSecondary: phoneNumberSecondary || undefined,
         customerType,
         email: email || undefined,
         address: address || undefined,
@@ -194,6 +197,7 @@ export default function CustomersPage() {
       await api.put(`/customers/${selectedCustomerId}`, {
         fullName: editFullName,
         phoneNumber: editPhoneNumber,
+        phoneNumberSecondary: editPhoneNumberSecondary || undefined,
         email: editEmail || undefined,
         address: editAddress || undefined,
         notes: editNotes || undefined,
@@ -254,6 +258,7 @@ export default function CustomersPage() {
   function resetCreateForm() {
     setFullName("");
     setPhoneNumber("");
+    setPhoneNumberSecondary("");
     setCustomerType("visitor");
     setEmail("");
     setAddress("");
@@ -314,7 +319,7 @@ export default function CustomersPage() {
             <form className="space-y-4" onSubmit={onCreateSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="الاسم"><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></FormField>
-                <FormField label="الموبايل"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
+                <FormField label="الموبايل (الأساسي)"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="النوع">
@@ -325,10 +330,34 @@ export default function CustomersPage() {
                     <option value="trainer">مدرب</option>
                   </Select>
                 </FormField>
-                <FormField label="الايميل"><Input value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" /></FormField>
+                <FormField label="الموبايل (بديل)"><Input value={phoneNumberSecondary} onChange={(e) => setPhoneNumberSecondary(e.target.value)} dir="ltr" placeholder="اختياري" /></FormField>
               </div>
-              <div className="flex gap-2">
-                <Btn type="submit" className="flex-1" loading={createMutation.isPending}>حفظ</Btn>
+              
+              {/* الحقول الخاصة بناءً على النوع */}
+              {customerType === "student" && (
+                <div className="grid gap-4 md:grid-cols-3 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                  <FormField label="الكلية / الجامعة"><Input value={college} onChange={(e) => setCollege(e.target.value)} placeholder="مثال: هندسة" /></FormField>
+                  <FormField label="السنة الدراسية"><Input value={studyLevel} onChange={(e) => setStudyLevel(e.target.value)} placeholder="مثال: الفرقة الثالثة" /></FormField>
+                  <FormField label="التخصص"><Input value={specialization} onChange={(e) => setSpecialization(e.target.value)} placeholder="مثال: ميكاترونكس" /></FormField>
+                </div>
+              )}
+              {customerType === "employee" && (
+                <div className="grid gap-4 md:grid-cols-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
+                  <FormField label="جهة العمل / الشركة"><Input value={employerName} onChange={(e) => setEmployerName(e.target.value)} placeholder="اسم الشركة" /></FormField>
+                  <FormField label="المسمى الوظيفي"><Input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="مثال: مهندس برمجيات" /></FormField>
+                </div>
+              )}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="الايميل"><Input value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" placeholder="اختياري" /></FormField>
+                <FormField label="العنوان"><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="اختياري" /></FormField>
+              </div>
+              <FormField label="ملاحظات">
+                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="أضف أي ملاحظات تهمك عن العميل..." />
+              </FormField>
+
+              <div className="flex gap-2 pt-2 border-t border-slate-100">
+                <Btn type="submit" className="flex-1" loading={createMutation.isPending}>حفظ بيانات العميل</Btn>
                 <Btn variant="ghost" onClick={() => setShowCreateForm(false)}>إلغاء</Btn>
               </div>
             </form>
@@ -355,9 +384,15 @@ export default function CustomersPage() {
                 <Btn size="sm" variant="secondary" icon={<Edit2 size={14} />} onClick={() => {
                   setEditFullName(selectedCustomer.fullName);
                   setEditPhoneNumber(selectedCustomer.phoneNumber);
+                  setEditPhoneNumberSecondary(selectedCustomer.phoneNumberSecondary || "");
                   setEditEmail(selectedCustomer.email || "");
                   setEditAddress(selectedCustomer.address || "");
                   setEditNotes(selectedCustomer.notes || "");
+                  setEditCollege(selectedCustomer.college || "");
+                  setEditStudyLevel(selectedCustomer.studyLevel || "");
+                  setEditSpecialization(selectedCustomer.specialization || "");
+                  setEditEmployerName(selectedCustomer.employerName || "");
+                  setEditJobTitle(selectedCustomer.jobTitle || "");
                   setShowEditModal(true);
                 }}>تعديل</Btn>
                 <Btn size="sm" variant="danger" icon={<ShieldBan size={14} />} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" })}>حظر</Btn>
@@ -401,10 +436,31 @@ export default function CustomersPage() {
             <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
-                <FormField label="الموبايل"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} required /></FormField>
+                <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
               </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value)} dir="ltr" /></FormField>
+                <FormField label="الايميل"><Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" /></FormField>
+              </div>
+              
+              {selectedCustomer.customerType === "student" && (
+                <div className="grid gap-4 md:grid-cols-3 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                  <FormField label="الكلية / الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
+                  <FormField label="السنة الدراسية"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
+                  <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
+                </div>
+              )}
+              {selectedCustomer.customerType === "employee" && (
+                <div className="grid gap-4 md:grid-cols-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
+                  <FormField label="جهة العمل / الشركة"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
+                  <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
+                </div>
+              )}
+
+              <FormField label="العنوان"><Input value={editAddress} onChange={e => setEditAddress(e.target.value)} /></FormField>
+              
               <FormField label="ملاحظات">
-                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />
+                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />
               </FormField>
               <div className="flex gap-2">
                 <Btn type="submit" className="flex-1" loading={updateMutation.isPending}>حفظ التغييرات</Btn>

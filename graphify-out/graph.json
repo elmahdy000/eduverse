@@ -13128,7 +13128,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\customers\\page.tsx",
-      "source_location": "L294",
+      "source_location": "L407",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_customers_page_tsx",
       "_tgt": "page_statusbadgetone",

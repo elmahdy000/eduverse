@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  Calendar,
   Coffee,
   Clock3,
   Edit2,
@@ -24,7 +25,7 @@ import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
 import { translateCustomerType, translateSessionType, translateStatus } from "../../../lib/labels";
-import type { BarOrder, Customer, Paginated, Session } from "../../../lib/types";
+import type { BarOrder, Booking, Customer, Invoice, Paginated, Session } from "../../../lib/types";
 import {
   Alert,
   Badge,
@@ -41,7 +42,12 @@ import {
 } from "../../../components/ui";
 
 interface CustomerHistory {
-  customer: Customer & { barOrders?: any[] };
+  customer: Customer & { 
+    barOrders?: BarOrder[];
+    sessions?: Session[];
+    invoices?: Invoice[];
+    bookings?: Booking[];
+  };
   sessionsCount: number;
   invoicesCount: number;
   bookingsCount: number;

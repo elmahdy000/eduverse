@@ -302,7 +302,7 @@ export default function BookingsPage() {
                             onClick={() => startSessionMutation.mutate(b)}
                             loading={startSessionMutation.isPending}
                             icon={<PlayCircle size={14} />}
-                            tone="success"
+                            variant="success"
                           >
                             بدء الجلسة
                           </Btn>
@@ -611,7 +611,7 @@ export default function BookingsPage() {
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-500">إجمالي العربون</span>
                 <span className="font-bold text-emerald-600">
-                  {money(bookings.reduce((sum, b) => sum + (b.depositAmount || 0), 0))}
+                  {money(bookings.reduce((sum, b) => sum + Number(b.depositAmount || 0), 0))}
                 </span>
               </div>
             </div>

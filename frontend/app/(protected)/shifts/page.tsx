@@ -85,10 +85,11 @@ export default function ShiftsPage() {
 
   const expectedCash = useMemo(() => {
     if (!currentShift) return 0;
+    const stats = (currentShift as any).stats || {};
     return (
-      Number((currentShift as Record<string, unknown>).startCash ?? 0) +
-      Number((currentShift as Record<string, unknown> & { stats?: Record<string, unknown> }).stats?.totalSales ?? 0) -
-      Number((currentShift as Record<string, unknown> & { stats?: Record<string, unknown> }).stats?.totalExpenses ?? 0)
+      Number((currentShift as any).startCash ?? 0) +
+      Number(stats.totalCashSales ?? 0) -
+      Number(stats.totalCashExpenses ?? 0)
     );
   }, [currentShift]);
 
@@ -257,10 +258,57 @@ export default function ShiftsPage() {
               <div className="flex gap-3 pt-4">
                 <button onClick={() => setShowStartModal(false)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 hover:bg-slate-200">إلغاء</button>
                 <button
-                  onClick={() => startMutation.mutate()}                  disabled={!startCash || startMutation.isPending}
+                  onClick={() => startMutation.mutate()}
+                  disabled={!startCash || startMutation.isPending}
                   className="flex-1 rounded-2xl bg-emerald-500 py-4 font-bold text-white hover:bg-emerald-600 disabled:opacity-50 transition"
                 >
                   {startMutation.isPending ? "جاري البدء..." : "بدء الوردية"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCloseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-600">
+              <StopCircle size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900">إنهاء الوردية</h3>
+            <p className="mt-2 text-slate-500">من فضلك عد الكاش الفعلي اللي في الدرج بدقة.</p>
+            
+            <div className="mt-6 rounded-2xl bg-slate-50 p-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">الكاش المتوقع (حسب السيستم):</span>
+                <span className="font-bold text-slate-900">{expectedCash.toLocaleString("ar-EG")} ج.م</span>
+              </div>
+            </div>
+
+            {errorMsg && <div className="mt-4"><Alert tone="danger">{errorMsg}</Alert></div>}
+            
+            <div className="mt-8 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-slate-700">الكاش الفعلي (ج.م)</label>
+                <input
+                  type="number"
+                  autoFocus
+                  placeholder="0.00"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xl font-bold text-slate-900 focus:border-rose-500 focus:outline-none"
+                  value={actualCash}
+                  onChange={(e) => setActualCash(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && actualCash && closeMutation.mutate()}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setShowCloseModal(false)} className="flex-1 rounded-2xl bg-slate-100 py-4 font-bold text-slate-600 hover:bg-slate-200">إلغاء</button>
+                <button
+                  onClick={() => closeMutation.mutate()}
+                  disabled={!actualCash || closeMutation.isPending}
+                  className="flex-1 rounded-2xl bg-rose-500 py-4 font-bold text-white hover:bg-rose-600 disabled:opacity-50 transition"
+                >
+                  {closeMutation.isPending ? "جاري الإغلاق..." : "إغلاق وتسوية"}
                 </button>
               </div>
             </div>

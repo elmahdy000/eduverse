@@ -77,7 +77,8 @@ export class ShiftsService {
       endTime,
       shift.userId,
     );
-    const expectedCash = Number(shift.startCash) + stats.totalSales - stats.totalExpenses;
+    // Important: Expected cash is based ONLY on cash transactions
+    const expectedCash = Number(shift.startCash) + stats.totalCashSales - stats.totalCashExpenses;
     const variance = Number((actualCash - expectedCash).toFixed(2));
 
     const updatedShift = await this.prisma.shift.update({
@@ -115,7 +116,7 @@ export class ShiftsService {
   }
 
   private async getShiftStats(startTime: Date, endTime: Date, userId: string) {
-    const [sales, expenses] = await Promise.all([
+    const [sales, expenses, cashSales, cashExpenses] = await Promise.all([
       this.prisma.payment.aggregate({
         where: {
           recordedByUserId: userId,
@@ -131,11 +132,30 @@ export class ShiftsService {
         },
         _sum: { amount: true },
       }),
+      this.prisma.payment.aggregate({
+        where: {
+          recordedByUserId: userId,
+          paymentMethod: 'cash',
+          paidAt: { gte: startTime, lte: endTime },
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.expense.aggregate({
+        where: {
+          recordedByUserId: userId,
+          paymentMethod: 'cash',
+          date: { gte: startTime, lte: endTime },
+          status: 'paid',
+        },
+        _sum: { amount: true },
+      }),
     ]);
 
     return {
       totalSales: Number(sales._sum.amount || 0),
       totalExpenses: Number(expenses._sum.amount || 0),
+      totalCashSales: Number(cashSales._sum.amount || 0),
+      totalCashExpenses: Number(cashExpenses._sum.amount || 0),
     };
   }
 
@@ -144,7 +164,7 @@ export class ShiftsService {
     endTime: Date,
     userId: string,
   ) {
-    const [sales, expenses, paymentsByMethodRaw, expensesByCategoryRaw, recentPayments, recentExpenses] =
+    const [sales, expenses, cashSales, cashExpenses, paymentsByMethodRaw, expensesByCategoryRaw, recentPayments, recentExpenses] =
       await Promise.all([
         this.prisma.payment.aggregate({
           where: {
@@ -156,6 +176,23 @@ export class ShiftsService {
         this.prisma.expense.aggregate({
           where: {
             recordedByUserId: userId,
+            date: { gte: startTime, lte: endTime },
+            status: 'paid',
+          },
+          _sum: { amount: true },
+        }),
+        this.prisma.payment.aggregate({
+          where: {
+            recordedByUserId: userId,
+            paymentMethod: 'cash',
+            paidAt: { gte: startTime, lte: endTime },
+          },
+          _sum: { amount: true },
+        }),
+        this.prisma.expense.aggregate({
+          where: {
+            recordedByUserId: userId,
+            paymentMethod: 'cash',
             date: { gte: startTime, lte: endTime },
             status: 'paid',
           },
@@ -225,6 +262,8 @@ export class ShiftsService {
     return {
       totalSales: Number(sales._sum.amount || 0),
       totalExpenses: Number(expenses._sum.amount || 0),
+      totalCashSales: Number(cashSales._sum.amount || 0),
+      totalCashExpenses: Number(cashExpenses._sum.amount || 0),
       paymentsByMethod: paymentsByMethodRaw.map((x) => ({
         paymentMethod: x.paymentMethod,
         count: x._count._all,

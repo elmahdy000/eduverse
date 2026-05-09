@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useState, useEffect } from "react";
 import clsx from "clsx";
 import {
   LayoutDashboard, Users, Calendar, BookOpen, Receipt,
@@ -12,7 +12,7 @@ import {
   Menu, X,
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
-import { roleLabel } from "../lib/api";
+import { roleLabel, api } from "../lib/api";
 
 type NavItem = { label: string; href: string; roles: string[]; icon: React.ReactNode };
 type NavGroup = {
@@ -47,12 +47,12 @@ const navGroups: NavGroup[] = [
   {
     label: "الإدارة",
     icon: <Settings size={15} />,
-    roles: ["Owner", "Operations Manager"],
+    roles: ["Owner", "Operations Manager", "Receptionist"],
     defaultOpen: false,
     items: [
       { label: "المنتجات", href: "/products", roles: ["Owner", "Operations Manager", "Barista"], icon: <Package size={14} /> },
       { label: "المخازن", href: "/inventory", roles: ["Owner", "Operations Manager"], icon: <Boxes size={14} /> },
-      { label: "الورديات", href: "/shifts", roles: ["Owner", "Operations Manager", "Barista"], icon: <Timer size={14} /> },
+      { label: "الورديات", href: "/shifts", roles: ["Owner", "Operations Manager", "Barista", "Receptionist"], icon: <Timer size={14} /> },
       { label: "التقارير المالية", href: "/reports", roles: ["Owner", "Operations Manager"], icon: <BarChartHorizontal size={14} /> },
       { label: "تقارير الحجوزات", href: "/reports/bookings", roles: ["Owner", "Operations Manager"], icon: <FileText size={14} /> },
       { label: "المستخدمين", href: "/users", roles: ["Owner", "Operations Manager"], icon: <UserCog size={14} /> },
@@ -107,6 +107,23 @@ export function AppShell({ children }: PropsWithChildren) {
   const toggleGroup = (label: string) =>
     setOpenGroups((p) => ({ ...p, [label]: !p[label] }));
   const handleLogout = () => { clearAuth(); window.location.href = "/login"; };
+
+  // Auto-start shift for Receptionist and Barista
+  useEffect(() => {
+    if (roleName === "Receptionist" || roleName === "Barista") {
+      api.get("/shifts/current")
+        .then((res) => {
+          if (!res.data) {
+            return api.post("/shifts/start", { startCash: 0 });
+          }
+        })
+        .catch((err) => {
+          if (err.response?.status === 404) {
+            api.post("/shifts/start", { startCash: 0 }).catch(console.error);
+          }
+        });
+    }
+  }, [roleName]);
 
   const Sidebar = (
     <aside className="flex h-full flex-col bg-[#0f172a]">

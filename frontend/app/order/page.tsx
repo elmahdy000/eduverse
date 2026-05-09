@@ -592,13 +592,13 @@ export default function GuestOrderPage() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="border-t border-slate-100"
+                            className="border-t border-slate-100 overflow-hidden"
                           >
                             <div className="p-4 bg-slate-50/50 space-y-1.5 min-w-0">
                               <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">تفاصيل الطلب</p>
-                              {order.items.map(item => (
+                              {order.items?.map(item => (
                                 <div key={item.id} className="flex justify-between items-center text-[11px] text-slate-700 bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
-                                  <span className="truncate font-medium">{item.quantity} × {item.product.name}</span>
+                                  <span className="truncate font-medium">{item.quantity} × {item.product?.name || "صنف محذوف"}</span>
                                   <span className="font-bold shrink-0 ml-2">{money(item.subtotal)}</span>
                                 </div>
                               ))}

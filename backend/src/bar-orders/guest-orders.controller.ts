@@ -77,8 +77,8 @@ export class GuestOrdersController {
   @ApiOperation({ summary: 'Get status of orders for a guest code' })
   async getStatus(@Param('guestCode') guestCode: string) {
     try {
-      const result = await this.barOrdersService.listOrders(1, 10, {
-        status: 'new,in_preparation,ready,delivered',
+      const result = await this.barOrdersService.listOrders(1, 20, {
+        status: 'new,in_preparation,ready,delivered,completed,cancelled',
         guestCode,
       });
 

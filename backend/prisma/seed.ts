@@ -45,12 +45,12 @@ async function main() {
     { m: 'products', actions: ['read', 'create', 'update', 'delete'] },
     { m: 'bar_orders', actions: ['read', 'create', 'update', 'delete'] },
     { m: 'customers', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'sessions', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'bookings', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'sessions', actions: ['read', 'create', 'close', 'cancel', 'update', 'delete'] },
+    { m: 'bookings', actions: ['read', 'create', 'update', 'cancel', 'delete'] },
     { m: 'rooms', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'invoices', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'payments', actions: ['read', 'create', 'update', 'delete', 'refund'] },
-    { m: 'dashboards', actions: ['view_owner', 'view_barista', 'view_reception'] },
+    { m: 'invoices', actions: ['read', 'generate', 'create', 'update', 'delete'] },
+    { m: 'payments', actions: ['read', 'record', 'create', 'update', 'delete', 'refund'] },
+    { m: 'dashboards', actions: ['view_owner', 'view_ops_manager', 'view_barista', 'view_reception'] },
     { m: 'audit_logs', actions: ['read'] },
     { m: 'inventory', actions: ['read', 'create', 'update', 'delete'] },
     { m: 'expenses', actions: ['read', 'create', 'update', 'delete'] },
@@ -72,18 +72,55 @@ async function main() {
 
   // 4. Assign Permissions
   console.log('🔗 Assigning permissions...');
+
+  // Owner and Operations Manager get ALL permissions
   for (const perm of allCreatedPermissions) {
     await prisma.rolePermission.create({ data: { roleId: roles['Owner'].id, permissionId: perm.id } });
     await prisma.rolePermission.create({ data: { roleId: roles['Operations Manager'].id, permissionId: perm.id } });
+  }
 
-    const isOperational = ['read', 'create', 'update'].includes(perm.action) ||
-      perm.module === 'dashboards' ||
-      perm.module === 'sessions' ||
-      perm.module === 'customers' ||
-      perm.module === 'bar_orders';
+  // Barista: bar orders (r/c/u), products (r), inventory (r/c/u), sessions (r), customers (r), barista dashboard
+  const baristaAllowed: Array<{ module: string; action: string }> = [
+    { module: 'bar_orders', action: 'read' },
+    { module: 'bar_orders', action: 'create' },
+    { module: 'bar_orders', action: 'update' },
+    { module: 'products', action: 'read' },
+    { module: 'inventory', action: 'read' },
+    { module: 'inventory', action: 'create' },
+    { module: 'inventory', action: 'update' },
+    { module: 'sessions', action: 'read' },
+    { module: 'customers', action: 'read' },
+    { module: 'dashboards', action: 'view_barista' },
+  ];
 
-    if (isOperational) {
+  // Receptionist: customers (r/c/u), sessions (r/c/close/cancel), bookings (r/c/u/cancel),
+  //               rooms (r), bar_orders (r), invoices (r/generate), payments (r/record), reception dashboard
+  const receptionistAllowed: Array<{ module: string; action: string }> = [
+    { module: 'customers', action: 'read' },
+    { module: 'customers', action: 'create' },
+    { module: 'customers', action: 'update' },
+    { module: 'sessions', action: 'read' },
+    { module: 'sessions', action: 'create' },
+    { module: 'sessions', action: 'close' },
+    { module: 'sessions', action: 'cancel' },
+    { module: 'bookings', action: 'read' },
+    { module: 'bookings', action: 'create' },
+    { module: 'bookings', action: 'update' },
+    { module: 'bookings', action: 'cancel' },
+    { module: 'rooms', action: 'read' },
+    { module: 'bar_orders', action: 'read' },
+    { module: 'invoices', action: 'read' },
+    { module: 'invoices', action: 'generate' },
+    { module: 'payments', action: 'read' },
+    { module: 'payments', action: 'record' },
+    { module: 'dashboards', action: 'view_reception' },
+  ];
+
+  for (const perm of allCreatedPermissions) {
+    if (baristaAllowed.some(a => a.module === perm.module && a.action === perm.action)) {
       await prisma.rolePermission.create({ data: { roleId: roles['Barista'].id, permissionId: perm.id } });
+    }
+    if (receptionistAllowed.some(a => a.module === perm.module && a.action === perm.action)) {
       await prisma.rolePermission.create({ data: { roleId: roles['Receptionist'].id, permissionId: perm.id } });
     }
   }
@@ -235,19 +272,11 @@ async function main() {
   for (const r of rooms) {
     await prisma.room.create({ data: r });
   }
-
-  console.log('✅ SEEDING COMPLETE!');
-  console.log('-----------------------------------');
-  console.log('Barista: barista@eduvers.com / 123456');
-  console.log('Owner: owner@eduvers.com / 123456');
-  console.log('-----------------------------------');
+  console.log('✅ Seeding complete! Database is ready.');
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
+  .catch(console.error)
   .finally(async () => {
     await prisma.$disconnect();
   });

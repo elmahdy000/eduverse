@@ -321,7 +321,7 @@ export default function BookingsPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1">المتبقي</p>
-                        <p className="text-lg font-black text-slate-900">{money(b.totalAmount - (b.depositAmount || 0))}</p>
+                        <p className="text-lg font-black text-slate-900">{money(Number(b.totalAmount) - Number(b.depositAmount || 0))}</p>
                       </div>
                     </div>
 

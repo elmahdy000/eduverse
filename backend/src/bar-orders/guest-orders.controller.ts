@@ -93,4 +93,29 @@ export class GuestOrdersController {
       throw new BadRequestException(error.message);
     }
   }
+  @Post(':id/cancel')
+  @ApiOperation({ summary: 'Cancel guest order within 10 seconds window' })
+  async cancelOrder(
+    @Param('id') orderId: string,
+    @Body('guestCode') guestCode: string,
+  ) {
+    try {
+      if (!guestCode) throw new Error('Guest code is required');
+      const order = await this.barOrdersService.cancelGuestOrder(orderId, guestCode);
+
+      // Emit real-time event
+      this.barOrdersGateway.emitOrderStatusUpdate(order);
+      this.barOrdersGateway.emitDashboardRefresh();
+
+      return {
+        success: true,
+        data: order,
+        message: 'Order cancelled successfully.',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
 }

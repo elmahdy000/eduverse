@@ -172,6 +172,34 @@ const CompactProgress = ({ status }: { status: string }) => {
   );
 };
 
+const CancellationTimer = ({ orderId, createdAt, onCancel }: { orderId: string, createdAt: string, onCancel: (id: string) => void }) => {
+  const [timeLeft, setTimeLeft] = useState(10);
+  
+  useEffect(() => {
+    const start = new Date(createdAt).getTime();
+    const tick = () => {
+      const now = Date.now();
+      const diff = Math.max(0, 10 - Math.floor((now - start) / 1000));
+      setTimeLeft(diff);
+    };
+    
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [createdAt]);
+
+  if (timeLeft <= 0) return null;
+
+  return (
+    <button 
+      onClick={() => onCancel(orderId)}
+      className="mt-2 text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-1.5 w-full"
+    >
+      <X size={12} /> إلغاء الطلب ({timeLeft}ث)
+    </button>
+  );
+};
+
 export default function GuestOrderPage() {
   const [guestCode, setGuestCode] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -298,6 +326,20 @@ export default function GuestOrderPage() {
       const errMsg = err.response?.data?.message || "عذراً، فشل إرسال الطلب.";
       setMessage({ text: errMsg, ok: false });
     },
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      return api.post(`/public/orders/${orderId}/cancel`, { guestCode });
+    },
+    onSuccess: () => {
+      setMessage({ text: "تم إلغاء الطلب بنجاح.", ok: true });
+      queryClient.invalidateQueries({ queryKey: ["guest-orders"] });
+      setTimeout(() => setMessage(null), 3000);
+    },
+    onError: (err: any) => {
+      setMessage({ text: err.response?.data?.message || "فشل إلغاء الطلب.", ok: false });
+    }
   });
 
   const addToCart = (id: string, e?: React.MouseEvent) => {
@@ -445,6 +487,13 @@ export default function GuestOrderPage() {
                       </div>
                     </div>
                     <CompactProgress status={order.status} />
+                    {order.status === "new" && (
+                      <CancellationTimer 
+                        orderId={order.id} 
+                        createdAt={order.createdAt} 
+                        onCancel={(id) => cancelOrderMutation.mutate(id)} 
+                      />
+                    )}
                   </div>
                 ))}
               </div>

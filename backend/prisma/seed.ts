@@ -43,7 +43,7 @@ async function main() {
   console.log('🔐 Creating permissions...');
   const permissionModules = [
     { m: 'products', actions: ['read', 'create', 'update', 'delete'] },
-    { m: 'bar_orders', actions: ['read', 'create', 'update', 'delete'] },
+    { m: 'bar_orders', actions: ['read', 'create', 'update', 'delete', 'cancel', 'items'] },
     { m: 'customers', actions: ['read', 'create', 'update', 'delete', 'deactivate', 'blacklist', 'reactivate'] },
     { m: 'sessions', actions: ['read', 'create', 'close', 'cancel', 'update', 'delete'] },
     { m: 'bookings', actions: ['read', 'create', 'update', 'cancel', 'delete', 'complete', 'no_show'] },
@@ -84,6 +84,7 @@ async function main() {
     { module: 'bar_orders', action: 'read' },
     { module: 'bar_orders', action: 'create' },
     { module: 'bar_orders', action: 'update' },
+    { module: 'bar_orders', action: 'cancel' },
     { module: 'products', action: 'read' },
     { module: 'inventory', action: 'read' },
     { module: 'inventory', action: 'create' },

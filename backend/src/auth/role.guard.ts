@@ -102,7 +102,7 @@ export class RoleGuard implements CanActivate {
 
 
 
-    const actions = ['cancel', 'close', 'refund', 'complete', 'no-show', 'deactivate', 'blacklist', 'reactivate'];
+    const actions = ['cancel', 'close', 'refund', 'complete', 'no-show', 'deactivate', 'blacklist', 'reactivate', 'items'];
     if (lastSegment && actions.includes(lastSegment)) {
       return lastSegment.replace(/-/g, '_');
     }
@@ -214,14 +214,25 @@ export class RoleGuard implements CanActivate {
         bookings:   ['read', 'create', 'update', 'cancel', 'delete', 'complete', 'no_show'],
         customers:  ['read', 'create', 'update', 'delete', 'deactivate', 'blacklist', 'reactivate'],
         rooms:      ['read'],
-        bar_orders: ['read', 'create'],
+        bar_orders: ['read', 'create', 'update', 'cancel', 'delete', 'items'],
         invoices:   ['read', 'generate', 'refund', 'delete'],
         payments:   ['read', 'record', 'refund', 'delete'],
         dashboards: ['view_reception'],
       };
-      // Normalize module alias (e.g. 'session' -> 'sessions')
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = receptionist[moduleName] ?? receptionist[normalizedModule];
+      if (allowed && allowed.includes(action)) return true;
+      throw new ForbiddenException('Insufficient permissions');
+    }
+
+    if (role.name === 'Barista') {
+      const barista: Record<string, string[]> = {
+        bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
+        products:   ['read'],
+        dashboards: ['view_barista'],
+      };
+      const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
+      const allowed = barista[moduleName] ?? barista[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
       throw new ForbiddenException('Insufficient permissions');
     }

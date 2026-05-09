@@ -172,4 +172,31 @@ export class BarOrdersController {
       throw new BadRequestException(error.message);
     }
   }
+
+  @Put(':id/items')
+  @ApiOperation({ summary: 'Update bar order items (Edit order)' })
+  async updateItems(
+    @Param('id') orderId: string,
+    @Body('items') items: { productId: string; quantity: number }[],
+    @Request() req: any,
+  ) {
+    try {
+      await this.assertCanMutateOrder(req.user);
+      const order = await this.barOrdersService.updateOrderItems(orderId, items);
+
+      // Emit real-time event
+      this.barOrdersGateway.emitOrderStatusUpdate(order);
+      this.barOrdersGateway.emitDashboardRefresh();
+
+      return {
+        success: true,
+        data: order,
+        message: 'Order items updated successfully',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
 }

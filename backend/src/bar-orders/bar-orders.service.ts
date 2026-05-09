@@ -301,6 +301,89 @@ export class BarOrdersService {
     });
   }
 
+  async cancelGuestOrder(orderId: string, guestCode: string) {
+    const order = await this.getOrder(orderId);
+    if (order.guestCode !== guestCode) {
+      throw new Error('Unauthorized access to this order');
+    }
+
+    const now = Date.now();
+    const createdAt = new Date(order.createdAt).getTime();
+    const diffSeconds = (now - createdAt) / 1000;
+
+    if (diffSeconds > 10) {
+      throw new Error('Cancellation window (10s) has expired');
+    }
+
+    if (order.status !== 'new') {
+      throw new Error('Order is already being prepared and cannot be cancelled');
+    }
+
+    return this.prisma.barOrder.update({
+      where: { id: orderId },
+      data: { status: 'cancelled' },
+      include: {
+        customer: true,
+        items: { include: { product: true } },
+      },
+    });
+  }
+
+  async updateOrderItems(orderId: string, items: { productId: string; quantity: number }[]) {
+    const order = await this.getOrder(orderId);
+    if (order.status === 'delivered') {
+      throw new Error('Cannot edit a delivered order');
+    }
+
+    const customer = order.customer;
+    const productIds = items.map((item) => item.productId);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+    });
+
+    const productsMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
+    const itemsToCreate = items.map((item) => {
+      const product = productsMap.get(item.productId);
+      if (!product) throw new Error('Product not found');
+
+      let unitPrice = Number(product.price);
+      const isWater =
+        product.category?.toLowerCase().includes('water') ||
+        product.name?.toLowerCase().includes('مياه') ||
+        product.name?.toLowerCase().includes('مياة');
+
+      if (customer.customerType === 'owner_discount') {
+        unitPrice = isWater ? Number(product.costPrice) : Number(product.price) * 0.3;
+      } else if (customer.customerType === 'staff') {
+        unitPrice = isWater ? Number(product.costPrice) : Number(product.price) * 0.5;
+      }
+
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice,
+        subtotal: unitPrice * item.quantity,
+      };
+    });
+
+    const totalAmount = itemsToCreate.reduce((sum, item) => sum + item.subtotal, 0);
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.barOrderItem.deleteMany({ where: { orderId } });
+      return tx.barOrder.update({
+        where: { id: orderId },
+        data: {
+          totalAmount,
+          items: { create: itemsToCreate },
+        },
+        include: {
+          customer: true,
+          items: { include: { product: true } },
+        },
+      });
+    });
+  }
+
   async getBaristaDashboard() {
     const now = new Date();
     const startOfDay = new Date(now);

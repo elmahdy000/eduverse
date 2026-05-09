@@ -379,67 +379,223 @@ export default function CustomersPage() {
       </Panel>
 
       {selectedCustomerId && (
-        <Panel className="scroll-mt-6" title={`ملف العميل: ${selectedCustomer?.fullName ?? "..."}`} icon={<UserCheck size={15} />} action={<Btn size="sm" variant="ghost" onClick={() => setSelectedCustomerId(null)}>إغلاق</Btn>}>
-          {customerDetailsQuery.isLoading ? <p>جاري تحميل البيانات...</p> : selectedCustomer ? (
-            <div className="space-y-6">
-              <div className="flex flex-wrap gap-2">
-                <Btn size="sm" variant="secondary" icon={<Edit2 size={14} />} onClick={() => {
-                  setEditFullName(selectedCustomer.fullName);
-                  setEditPhoneNumber(selectedCustomer.phoneNumber);
-                  setEditPhoneNumberSecondary(selectedCustomer.phoneNumberSecondary || "");
-                  setEditEmail(selectedCustomer.email || "");
-                  setEditAddress(selectedCustomer.address || "");
-                  setEditNotes(selectedCustomer.notes || "");
-                  setEditCollege(selectedCustomer.college || "");
-                  setEditStudyLevel(selectedCustomer.studyLevel || "");
-                  setEditSpecialization(selectedCustomer.specialization || "");
-                  setEditEmployerName(selectedCustomer.employerName || "");
-                  setEditJobTitle(selectedCustomer.jobTitle || "");
-                  setShowEditModal(true);
-                }}>تعديل</Btn>
-                <Btn size="sm" variant="danger" icon={<ShieldBan size={14} />} onClick={() => statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" })}>حظر</Btn>
+        <Panel 
+          className="scroll-mt-6 border-2 border-slate-900 shadow-xl overflow-hidden" 
+          title={`ملف العميل: ${selectedCustomer?.fullName ?? "..."}`} 
+          icon={<UserCheck size={18} className="text-emerald-500" />} 
+          action={<Btn size="sm" variant="ghost" className="hover:bg-rose-50 hover:text-rose-600" onClick={() => setSelectedCustomerId(null)}><X size={16} /></Btn>}
+        >
+          {customerDetailsQuery.isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+               <RefreshCw size={32} className="animate-spin text-slate-300 mb-4" />
+               <p className="text-sm text-slate-400 font-bold">جاري تحميل الملف الكامل...</p>
+            </div>
+          ) : selectedCustomer ? (
+            <div className="space-y-8">
+              {/* Header Info Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
+                <div className="flex items-center gap-4">
+                   <div className={clsx("flex h-16 w-16 items-center justify-center rounded-[1.5rem] border-2 shadow-inner text-2xl font-black", ctypeColors[selectedCustomer.customerType] ?? ctypeColors.visitor)}>
+                      {selectedCustomer.fullName.charAt(0)}
+                   </div>
+                   <div>
+                      <h2 className="text-2xl font-black text-slate-900">{selectedCustomer.fullName}</h2>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={clsx("rounded-full px-3 py-0.5 text-[10px] font-black uppercase tracking-wider border", ctypeColors[selectedCustomer.customerType] ?? ctypeColors.visitor)}>
+                          {translateCustomerType(selectedCustomer.customerType)}
+                        </span>
+                        <Badge tone={statusBadgeTone(selectedCustomer.status)}>{translateStatus(selectedCustomer.status)}</Badge>
+                      </div>
+                   </div>
+                </div>
+                <div className="flex gap-2">
+                  <Btn size="sm" variant="secondary" icon={<Edit2 size={14} />} onClick={() => {
+                    setEditFullName(selectedCustomer.fullName);
+                    setEditPhoneNumber(selectedCustomer.phoneNumber);
+                    setEditPhoneNumberSecondary(selectedCustomer.phoneNumberSecondary || "");
+                    setEditEmail(selectedCustomer.email || "");
+                    setEditAddress(selectedCustomer.address || "");
+                    setEditNotes(selectedCustomer.notes || "");
+                    setEditCollege(selectedCustomer.college || "");
+                    setEditStudyLevel(selectedCustomer.studyLevel || "");
+                    setEditSpecialization(selectedCustomer.specialization || "");
+                    setEditEmployerName(selectedCustomer.employerName || "");
+                    setEditJobTitle(selectedCustomer.jobTitle || "");
+                    setShowEditModal(true);
+                  }}>تعديل البيانات</Btn>
+                  <Btn size="sm" variant="danger" icon={<ShieldBan size={14} />} onClick={() => {
+                    if (confirm("هل أنت متأكد من حظر هذا العميل؟")) {
+                      statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" });
+                    }
+                  }}>حظر العميل</Btn>
+                </div>
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="mb-2 text-sm font-bold text-slate-600">الجلسة الحالية</p>
-                  {activeSessionQuery.data ? (
-                    <div className="space-y-1 text-xs">
-                      <p>النوع: {translateSessionType(activeSessionQuery.data.sessionType)}</p>
-                      <p>منذ: {dateTime(activeSessionQuery.data.startTime)}</p>
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* 1. Personal & Contact Details */}
+                <div className="space-y-6">
+                  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
+                       <Phone size={14} /> بيانات التواصل
+                    </h4>
+                    <div className="space-y-4">
+                       <div>
+                          <p className="text-[10px] font-bold text-slate-400">الموبايل الأساسي</p>
+                          <p className="text-sm font-black text-slate-900 font-mono" dir="ltr">{selectedCustomer.phoneNumber}</p>
+                       </div>
+                       {selectedCustomer.phoneNumberSecondary && (
+                         <div>
+                            <p className="text-[10px] font-bold text-slate-400">الموبايل البديل</p>
+                            <p className="text-sm font-black text-slate-900 font-mono" dir="ltr">{selectedCustomer.phoneNumberSecondary}</p>
+                         </div>
+                       )}
+                       {selectedCustomer.email && (
+                         <div>
+                            <p className="text-[10px] font-bold text-slate-400">البريد الإلكتروني</p>
+                            <p className="text-sm font-black text-slate-900 font-mono" dir="ltr">{selectedCustomer.email}</p>
+                         </div>
+                       )}
+                       {selectedCustomer.address && (
+                         <div>
+                            <p className="text-[10px] font-bold text-slate-400">العنوان</p>
+                            <p className="text-sm font-bold text-slate-800">{selectedCustomer.address}</p>
+                         </div>
+                       )}
                     </div>
-                  ) : <p className="text-xs text-slate-400">لا توجد جلسة نشطة</p>}
+                  </div>
+
+                  {/* 2. Education / Work Details */}
+                  {(selectedCustomer.customerType === "student" || selectedCustomer.customerType === "employee") && (
+                    <div className={clsx("rounded-2xl border p-5 shadow-sm", selectedCustomer.customerType === "student" ? "bg-blue-50/50 border-blue-100" : "bg-violet-50/50 border-violet-100")}>
+                      <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
+                         <History size={14} /> {selectedCustomer.customerType === "student" ? "البيانات الدراسية" : "بيانات العمل"}
+                      </h4>
+                      <div className="space-y-4">
+                         {selectedCustomer.customerType === "student" ? (
+                           <>
+                              <div>
+                                <p className="text-[10px] font-bold text-slate-400">الكلية / الجامعة</p>
+                                <p className="text-sm font-black text-blue-900">{selectedCustomer.college || "غير محدد"}</p>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <p className="text-[10px] font-bold text-slate-400">السنة</p>
+                                  <p className="text-xs font-bold text-blue-800">{selectedCustomer.studyLevel || "غير محدد"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-bold text-slate-400">التخصص</p>
+                                  <p className="text-xs font-bold text-blue-800">{selectedCustomer.specialization || "غير محدد"}</p>
+                                </div>
+                              </div>
+                           </>
+                         ) : (
+                           <>
+                              <div>
+                                <p className="text-[10px] font-bold text-slate-400">جهة العمل</p>
+                                <p className="text-sm font-black text-violet-900">{selectedCustomer.employerName || "غير محدد"}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-bold text-slate-400">المسمى الوظيفي</p>
+                                <p className="text-sm font-bold text-violet-800">{selectedCustomer.jobTitle || "غير محدد"}</p>
+                              </div>
+                           </>
+                         )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-amber-600 mb-2">ملاحظات العميل</h4>
+                    <p className="text-sm font-medium text-amber-900 italic leading-relaxed">
+                      {selectedCustomer.notes || "لا توجد ملاحظات مسجلة لهذا العميل."}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 lg:col-span-2">
-                  <p className="mb-2 text-sm font-bold text-slate-600">تاريخ العميل</p>
-                  {historyQuery.data ? (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                      <StatCard label="جلسات" value={historyQuery.data.sessionsCount} />
-                      <StatCard label="حجوزات" value={historyQuery.data.bookingsCount} />
-                      <StatCard label="طلبات بار" value={historyQuery.data.barOrdersCount || historyQuery.data.ordersCount} />
-                      <StatCard label="إجمالي المدفوع" value={money(historyQuery.data.totalSpent || historyQuery.data.totalPaid)} tone="success" />
+                {/* 3. Stats & History */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Current Activity Status */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
+                           <Clock3 size={20} />
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-slate-400 uppercase">الحالة الحالية</p>
+                           {activeSessionQuery.data ? (
+                             <p className="text-sm font-black text-emerald-900">في جلسة نشطة ({translateSessionType(activeSessionQuery.data.sessionType)})</p>
+                           ) : <p className="text-sm font-bold text-slate-500">خارج المكان حالياً</p>}
+                        </div>
                     </div>
-                  ) : <p className="text-xs text-slate-400">جاري تحميل التاريخ...</p>}
-                  
+                    <div className="rounded-2xl border border-slate-100 bg-white p-4 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                           <Calendar size={20} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 w-full">
+                           <div>
+                              <p className="text-[10px] font-black text-slate-400 uppercase">أول زيارة</p>
+                              <p className="text-xs font-bold text-slate-700">{selectedCustomer.firstVisitAt ? dateTime(selectedCustomer.firstVisitAt).split(' ')[0] : "جديد"}</p>
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black text-slate-400 uppercase">آخر زيارة</p>
+                              <p className="text-xs font-bold text-slate-700">{dateTime(selectedCustomer.lastVisitAt)}</p>
+                           </div>
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Summary Cards */}
+                  <div className="rounded-[2rem] bg-slate-900 p-8 text-white shadow-2xl relative overflow-hidden">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
+                    <p className="mb-6 text-xs font-black uppercase tracking-[0.3em] text-slate-500">إحصائيات العميل التاريخية</p>
+                    {historyQuery.data ? (
+                      <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">الجلسات</p>
+                          <p className="text-3xl font-black">{historyQuery.data.sessionsCount}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">الحجوزات</p>
+                          <p className="text-3xl font-black">{historyQuery.data.bookingsCount}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">البار</p>
+                          <p className="text-3xl font-black">{historyQuery.data.barOrdersCount || historyQuery.data.ordersCount}</p>
+                        </div>
+                        <div className="space-y-1 text-emerald-400">
+                          <p className="text-[10px] font-bold text-emerald-500/50 uppercase">إجمالي الإنفاق</p>
+                          <p className="text-3xl font-black">{money(historyQuery.data.totalSpent || historyQuery.data.totalPaid)}</p>
+                        </div>
+                      </div>
+                    ) : <p className="animate-pulse text-sm text-slate-600 font-bold">جاري حساب الإحصائيات...</p>}
+                  </div>
+
+                  {/* Orders History Tab-like section */}
                   {historyQuery.data?.customer?.barOrders && historyQuery.data.customer.barOrders.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-200">
-                      <p className="mb-3 text-xs font-bold text-slate-500 uppercase tracking-wider">سجل طلبات البار</p>
-                      <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                      <div className="flex items-center justify-between mb-6">
+                        <h4 className="flex items-center gap-2 font-black text-slate-900">
+                          <Coffee size={18} className="text-amber-500" /> آخر طلبات البار
+                        </h4>
+                        <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">تاريخ المشتريات</span>
+                      </div>
+                      <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                         {historyQuery.data.customer.barOrders.map((order: any) => (
-                          <div key={order.id} className="bg-white border border-slate-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-100">
-                              <div>
-                                <span className="text-[10px] text-slate-400 font-bold">{new Date(order.createdAt).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
-                                <span className="mr-2 text-xs font-bold text-slate-800">#{order.id.slice(-4)}</span>
+                          <div key={order.id} className="group relative rounded-2xl border border-slate-50 bg-slate-50/30 p-4 transition-all hover:bg-white hover:shadow-md">
+                            <div className="flex justify-between items-center mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">
+                                   #{order.id.slice(-4)}
+                                </div>
+                                <span className="text-xs font-black text-slate-800">{dateTime(order.createdAt)}</span>
                               </div>
-                              <span className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</span>
+                              <span className="text-base font-black text-slate-900">{money(order.totalAmount)}</span>
                             </div>
-                            <div className="space-y-1">
+                            <div className="grid gap-2 sm:grid-cols-2">
                               {order.items?.map((item: any) => (
-                                <div key={item.id} className="flex justify-between text-[11px] text-slate-600">
-                                  <span>{item.quantity} × {item.product?.name || "منتج"}</span>
-                                  <span className="font-medium">{money(item.subtotal)}</span>
+                                <div key={item.id} className="flex items-center justify-between rounded-lg bg-white/50 px-3 py-1.5 text-xs text-slate-600 border border-slate-100/50">
+                                  <span><span className="font-black text-slate-900">{item.quantity}</span> × {item.product?.name || "منتج"}</span>
+                                  <span className="font-mono font-bold text-[10px]">{money(item.subtotal)}</span>
                                 </div>
                               ))}
                             </div>
@@ -451,7 +607,7 @@ export default function CustomersPage() {
                 </div>
               </div>
             </div>
-          ) : <Alert tone="danger">خطأ في تحميل العميل</Alert>}
+          ) : <Alert tone="danger">فشل تحميل ملف العميل. حاول مرة أخرى.</Alert>}
         </Panel>
       )}
 

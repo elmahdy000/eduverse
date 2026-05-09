@@ -6,14 +6,18 @@ import { useSearchParams } from "next/navigation";
 import { 
   ChevronLeft, ChevronRight, Calendar, Clock, User, MapPin, 
   Plus, RefreshCw, X, Search, Filter, LayoutGrid, List,
-  CheckCircle2, AlertCircle, Ban, History, Users, Zap
+  CheckCircle2, AlertCircle, Ban, History, Users, Zap,
+  PlayCircle
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import type { Booking, Customer, Paginated, Room } from "../../../lib/types";
-import { Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Panel, SectionTitle, StatCard, statusBadgeTone } from "../../../components/ui";
+import { 
+  Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Panel, SectionTitle, StatCard, 
+  statusBadgeTone, FormField, Input, Select 
+} from "../../../components/ui";
 import clsx from "clsx";
 
 function toIso(datetimeLocal: string) {
@@ -43,6 +47,7 @@ export default function BookingsPage() {
       setSelectedBookingId(id);
     }
   }, [searchParams]);
+
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
@@ -185,149 +190,259 @@ export default function BookingsPage() {
     return map;
   }, [weekDates, bookings]);
 
-  const goToToday = () => {
-    const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    setCurrentWeekStart(new Date(now.setDate(diff)));
+  const changeWeek = (weeks: number) => {
+    const newStart = new Date(currentWeekStart);
+    newStart.setDate(newStart.getDate() + (weeks * 7));
+    setCurrentWeekStart(newStart);
   };
 
   const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-  const getBookingStatusStyle = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'border-emerald-100 bg-emerald-50/50 text-emerald-700';
-      case 'completed': return 'border-blue-100 bg-blue-50/50 text-blue-700';
-      case 'cancelled': return 'border-rose-100 bg-rose-50/50 text-rose-700';
-      case 'no_show': return 'border-amber-100 bg-amber-50/50 text-amber-700';
-      default: return 'border-slate-100 bg-slate-50/50 text-slate-600';
-    }
-  };
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6 space-y-8" dir="rtl">
-      {/* Header Section */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">إدارة الحجوزات</h1>
-          <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Calendar & Booking Control</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 items-center gap-1 rounded-xl bg-slate-100 p-1">
-            <button
-              onClick={() => setViewMode("calendar")}
-              className={clsx(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase transition",
-                viewMode === "calendar" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              )}
+    <div className="space-y-8 animate-in fade-in duration-700" dir="rtl">
+      <SectionTitle 
+        title="إدارة الحجوزات" 
+        subtitle="تنظيم حجوزات القاعات والفعاليات القادمة."
+        icon={<Calendar size={20} />}
+        action={
+          <div className="flex gap-2">
+            <button 
+              onClick={() => { queryClient.invalidateQueries({ queryKey: ["bookings"] }); }}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition"
             >
-              <LayoutGrid size={14} /> التقويم
+              <RefreshCw size={12} className={bookingsQuery.isFetching ? "animate-spin" : ""} /> تحديث
             </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={clsx(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase transition",
-                viewMode === "list" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              )}
-            >
-              <List size={14} /> القائمة
-            </button>
+            <div className="flex rounded-lg bg-slate-100 p-0.5">
+              <button 
+                onClick={() => setViewMode("calendar")}
+                className={clsx(
+                  "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[10px] font-bold transition",
+                  viewMode === "calendar" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-700"
+                )}
+              >
+                <LayoutGrid size={12} /> تقويم
+              </button>
+              <button 
+                onClick={() => setViewMode("list")}
+                className={clsx(
+                  "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[10px] font-bold transition",
+                  viewMode === "list" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-700"
+                )}
+              >
+                <List size={12} /> قائمة
+              </button>
+            </div>
           </div>
-          <button 
-            onClick={() => bookingsQuery.refetch()}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 transition hover:text-slate-900 hover:border-slate-200"
-          >
-            <RefreshCw size={16} className={bookingsQuery.isFetching ? "animate-spin" : ""} />
-          </button>
-        </div>
-      </header>
+        }
+      />
 
-      {message && (
-        <div className={clsx(
-          "flex items-center gap-3 rounded-xl border px-4 py-3 text-xs font-bold animate-in fade-in slide-in-from-top-2",
-          message.ok ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-red-50 border-red-100 text-red-700"
-        )}>
-          {message.ok ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
-          {message.text}
-        </div>
-      )}
+      {message && <Alert tone={message.ok ? "success" : "danger"}>{message.text}</Alert>}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard 
+          label="حجوزات اليوم" 
+          value={bookingsByDay[new Date().toISOString().split('T')[0]]?.length || 0} 
+          icon={<Calendar size={20} />} 
+          trend="نشط"
+        />
+        <StatCard 
+          label="حجوزات مؤكدة" 
+          value={bookings.filter(b => b.status === 'confirmed').length} 
+          icon={<CheckCircle2 size={20} />} 
+          tone="emerald"
+        />
+        <StatCard 
+          label="إجمالي العربون" 
+          value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + (b.depositAmount || 0), 0))} 
+          icon={<Zap size={20} />} 
+          tone="amber"
+        />
+        <StatCard 
+          label="بانتظار التأكيد" 
+          value={bookings.filter(b => b.status === 'draft').length} 
+          icon={<Clock size={20} />} 
+          tone="slate"
+        />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Content Area (Now on the Left) */}
-        <div className="lg:col-span-8 space-y-8 lg:order-2">
+        {/* ── Left Column: Views & Details ───────────────── */}
+        <div className="lg:col-span-8 space-y-6">
           
-          {viewMode === "calendar" ? (
-            <section className="space-y-4">
-              <div className="flex items-center justify-between px-2">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-sm font-black text-slate-900">
-                    {arabicMonths[currentWeekStart.getMonth()]} {currentWeekStart.getFullYear()}
-                  </h2>
-                  <button onClick={goToToday} className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 transition">اليوم</button>
-                </div>
-                <div className="flex gap-1">
-                  <button onClick={() => {
-                    const d = new Date(currentWeekStart);
-                    d.setDate(d.getDate() - 7);
-                    setCurrentWeekStart(d);
-                  }} className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-100 hover:bg-slate-50 transition">
-                    <ChevronRight size={16} />
-                  </button>
-                  <button onClick={() => {
-                    const d = new Date(currentWeekStart);
-                    d.setDate(d.getDate() + 7);
-                    setCurrentWeekStart(d);
-                  }} className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-100 hover:bg-slate-50 transition">
-                    <ChevronLeft size={16} />
-                  </button>
+          {/* Detail View (Selected Booking) */}
+          {selectedBookingId && (
+            <Panel 
+              title="تفاصيل الحجز" 
+              icon={<Zap size={15} />}
+              action={
+                <button onClick={() => setSelectedBookingId(null)} className="text-xs text-slate-400 hover:text-slate-700">إغلاق</button>
+              }
+            >
+              {(() => {
+                const b = bookings.find(x => x.id === selectedBookingId);
+                if (!b) return null;
+                return (
+                  <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">#{b.id.slice(0, 8)}</span>
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900">{b.customer?.fullName}</h2>
+                        <div className="flex flex-wrap gap-4 mt-2 text-xs font-bold text-slate-500">
+                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-300" /> {b.room?.name}</span>
+                          <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-300" /> {dateTime(b.startTime)}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 self-start">
+                        {b.status === 'confirmed' && (
+                          <Btn 
+                            onClick={() => startSessionMutation.mutate(b)}
+                            loading={startSessionMutation.isPending}
+                            icon={<PlayCircle size={14} />}
+                            tone="success"
+                          >
+                            بدء الجلسة
+                          </Btn>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-50 pt-6">
+                      <div>
+                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1">المبلغ الإجمالي</p>
+                        <p className="text-lg font-black text-slate-900">{money(b.totalAmount)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1">العربون</p>
+                        <p className="text-lg font-black text-emerald-600">{b.depositAmount ? money(b.depositAmount) : "0"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1">المتبقي</p>
+                        <p className="text-lg font-black text-slate-900">{money(b.totalAmount - (b.depositAmount || 0))}</p>
+                      </div>
+                    </div>
+
+                    {b.notes && (
+                      <div className="rounded-2xl bg-slate-50 p-4 text-xs text-slate-600 italic">
+                        "{b.notes}"
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-50">
+                      {b.status === 'confirmed' && (
+                        <>
+                          <button 
+                            onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "complete" })}
+                            disabled={bookingStatusMutation.isPending}
+                            className="rounded-lg bg-slate-900 px-4 py-2 text-[10px] font-black uppercase text-white hover:bg-slate-800 transition"
+                          >
+                            إنهاء الحجز
+                          </button>
+                          <button 
+                            onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "no-show" })}
+                            disabled={bookingStatusMutation.isPending}
+                            className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-[10px] font-black uppercase text-amber-700 hover:bg-amber-100"
+                          >
+                            No-Show
+                          </button>
+                          <button 
+                            onClick={() => {
+                              const reason = prompt("برجاء إدخال سبب الإلغاء:");
+                              if (reason !== null) bookingStatusMutation.mutate({ bookingId: b.id, action: "cancel", reason });
+                            }}
+                            disabled={bookingStatusMutation.isPending}
+                            className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-[10px] font-black uppercase text-rose-700 hover:bg-rose-100"
+                          >
+                            إلغاء
+                          </button>
+                        </>
+                      )}
+                      
+                      <div className="mr-auto flex items-center gap-2">
+                        <Select 
+                          value={newStatus}
+                          onChange={(e) => {
+                            const s = e.target.value;
+                            setNewStatus(s);
+                            if(s) updateBookingMutation.mutate({ bookingId: b.id, status: s });
+                          }}
+                          className="!py-1 !text-[10px] h-8"
+                        >
+                          <option value="">تغيير الحالة...</option>
+                          <option value="draft">مسودة</option>
+                          <option value="confirmed">تأكيد</option>
+                          <option value="completed">مكتمل</option>
+                          <option value="cancelled">ملغي</option>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </Panel>
+          )}
+
+          {/* Calendar View */}
+          {viewMode === "calendar" && (
+            <Panel title="تقويم الحجوزات" icon={<LayoutGrid size={15} />}>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-sm font-black text-slate-800">
+                    {currentWeekStart.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })}
+                  </h3>
+                  <div className="flex rounded-lg border border-slate-200 bg-white p-0.5">
+                    <button onClick={() => changeWeek(-1)} className="p-1 hover:bg-slate-50 rounded text-slate-400 hover:text-slate-900"><ChevronRight size={14} /></button>
+                    <button onClick={() => setCurrentWeekStart(new Date())} className="px-2 text-[9px] font-black uppercase text-slate-400 hover:text-slate-900">اليوم</button>
+                    <button onClick={() => changeWeek(1)} className="p-1 hover:bg-slate-50 rounded text-slate-400 hover:text-slate-900"><ChevronLeft size={14} /></button>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-px bg-slate-100 overflow-hidden rounded-2xl border border-slate-100">
-                {weekDates.map((date: Date) => {
-                  const dateStr = date.toISOString().split('T')[0];
+              <div className="grid grid-cols-7 gap-2">
+                {weekDates.map(day => {
+                  const dateStr = day.toISOString().split('T')[0];
                   const dayBookings = bookingsByDay[dateStr] || [];
                   const isToday = dateStr === new Date().toISOString().split('T')[0];
                   
                   return (
-                    <div key={dateStr} className="min-h-[160px] bg-white p-2 flex flex-col gap-2">
-                      <div className={clsx(
-                        "flex flex-col items-center justify-center py-2 rounded-xl transition-colors",
-                        isToday ? "bg-slate-900 text-white" : "text-slate-400"
-                      )}>
-                        <span className="text-[9px] font-black uppercase">{arabicDays[date.getDay()]}</span>
-                        <span className="text-lg font-black leading-none mt-0.5">{date.getDate()}</span>
+                    <div 
+                      key={dateStr} 
+                      onClick={() => setSelectedDate(dateStr)}
+                      className={clsx(
+                        "group min-h-[140px] flex flex-col rounded-2xl border p-2 transition-all cursor-pointer",
+                        isToday ? "border-amber-200 bg-amber-50/20" : "border-slate-100 bg-white hover:border-slate-300"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <span className={clsx("text-[9px] font-black uppercase", isToday ? "text-amber-600" : "text-slate-400")}>
+                          {arabicDays[day.getDay()]}
+                        </span>
+                        <span className={clsx(
+                          "flex h-5 w-5 items-center justify-center rounded-lg text-[10px] font-black",
+                          isToday ? "bg-amber-500 text-white" : "text-slate-900"
+                        )}>
+                          {day.getDate()}
+                        </span>
                       </div>
                       
                       <div className="flex-1 space-y-1">
-                        {dayBookings.slice(0, 3).map((b: Booking) => (
-                          <button
-                            key={b.id}
-                            onClick={() => setSelectedBookingId(b.id)}
+                        {dayBookings.slice(0, 3).map(b => (
+                          <div 
+                            key={b.id} 
                             className={clsx(
-                              "w-full text-right p-1.5 rounded-lg border text-[9px] font-bold transition-all hover:shadow-sm hover:scale-[1.02]",
-                              getBookingStatusStyle(b.status)
+                              "truncate rounded-lg px-2 py-1 text-[8px] font-bold shadow-sm",
+                              b.status === 'confirmed' ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-600"
                             )}
                           >
-                            <div className="flex items-center justify-between mb-0.5">
-                              <span>{new Date(b.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
-                              <div className="h-1 w-1 rounded-full bg-current opacity-30" />
-                            </div>
-                            <div className="truncate opacity-90">{b.customer?.fullName}</div>
-                          </button>
+                            {b.customer?.fullName.split(' ')[0]}
+                          </div>
                         ))}
                         {dayBookings.length > 3 && (
-                          <button 
-                            onClick={() => setSelectedDate(dateStr)}
-                            className="w-full py-1 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center hover:text-slate-900 transition"
-                          >
-                            + {dayBookings.length - 3} More
-                          </button>
-                        )}
-                        {dayBookings.length === 0 && (
-                          <div className="flex-1 flex items-center justify-center opacity-10">
-                            <Calendar size={24} className="text-slate-200" />
+                          <div className="text-center text-[8px] font-black text-slate-300 py-1">
+                            +{dayBookings.length - 3} المزيد
                           </div>
                         )}
                       </div>
@@ -335,317 +450,186 @@ export default function BookingsPage() {
                   );
                 })}
               </div>
-            </section>
-          ) : (
-            <section className="rounded-2xl border border-slate-100 bg-white overflow-hidden">
-              <div className="p-4 border-b border-slate-50 flex items-center justify-between">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">جميع الحجوزات</h3>
-                <select 
-                  value={statusFilter} 
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="h-8 rounded-lg bg-slate-100 border-none px-3 text-[10px] font-black outline-none"
-                >
-                  <option value="">كل الحالات</option>
-                  <option value="confirmed">متأكد</option>
-                  <option value="cancelled">ملغي</option>
-                  <option value="no_show">No-Show</option>
-                </select>
-              </div>
-              <DataTable 
-                headers={["العميل", "الغرفة", "الموعد", "الحالة", "المبلغ", "ملاحظات"]} 
-                rows={bookings.map(b => [
-                  <div key="c">
-                    <div className="font-bold text-slate-900">{b.customer?.fullName}</div>
-                    <div className="text-[9px] text-slate-400 font-medium">{b.customer?.phoneNumber}</div>
-                  </div>,
-                  b.room?.name,
-                  dateTime(b.startTime),
-                  <Badge key="s" tone={statusBadgeTone(b.status)}>
-                    {translateStatus(b.status)}
-                  </Badge>,
-                  money(b.totalAmount),
-                  <div key="n" className="text-[10px] text-slate-500 italic max-w-[150px] truncate" title={b.notes || ""}>
-                    {b.notes || "—"}
-                  </div>
-                ])} 
-              />
-            </section>
+            </Panel>
           )}
 
-          {/* Action Panel for Selected Booking */}
-          {selectedBookingId && (
-            <section className="animate-in fade-in slide-in-from-bottom-4">
-              {(() => {
-                const b = bookings.find(x => x.id === selectedBookingId);
-                if (!b) return null;
-                return (
-                  <div className="rounded-3xl border border-slate-900 bg-white p-6 shadow-2xl shadow-slate-900/10 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2">
-                      <button onClick={() => setSelectedBookingId(null)} className="h-8 w-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-900">
-                        <X size={16} />
+          {/* List View */}
+          {viewMode === "list" && (
+            <Panel 
+              title="قائمة الحجوزات" 
+              icon={<List size={15} />}
+              action={
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-100 p-0.5">
+                    {["all", "draft", "confirmed", "completed", "cancelled"].map(t => (
+                      <button 
+                        key={t}
+                        onClick={() => setStatusFilter(t === "all" ? "" : t)}
+                        className={clsx(
+                          "rounded-md px-2.5 py-1 text-[9px] font-bold transition",
+                          (statusFilter || "all") === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-700"
+                        )}
+                      >
+                        {t === "all" ? "الكل" : translateStatus(t)}
                       </button>
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row gap-8">
-                      <div className="flex-1 space-y-6">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge tone="info" className="h-5 px-2 text-[9px] font-black uppercase">ID: {b.id.slice(0, 8)}</Badge>
-                            <Badge tone={statusBadgeTone(b.status)} className="h-5 px-2 text-[9px] font-black uppercase">{translateStatus(b.status)}</Badge>
-                          </div>
-                          <h2 className="text-xl font-black text-slate-900">{b.customer?.fullName}</h2>
-                          <div className="flex items-center gap-4 mt-2 text-[10px] font-bold text-slate-400">
-                            <span className="flex items-center gap-1"><MapPin size={12} /> {b.room?.name}</span>
-                            <span className="flex items-center gap-1"><Clock size={12} /> {new Date(b.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                            <div className="text-[9px] font-black uppercase text-slate-400 mb-1">المبلغ الإجمالي</div>
-                            <div className="text-lg font-black text-slate-900">{money(b.totalAmount)}</div>
-                          </div>
-                          <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
-                            <div className="text-[9px] font-black uppercase text-emerald-600/50 mb-1">العربون المدفوع</div>
-                            <div className="text-lg font-black text-emerald-700">{b.depositAmount ? money(b.depositAmount) : "0"}</div>
-                          </div>
-                        </div>
-
-
-                        {b.notes && (
-                          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                            <div className="text-[9px] font-black uppercase text-slate-400 mb-2">ملاحظات / سبب الإلغاء</div>
-                            <p className="text-xs font-bold text-slate-700 leading-relaxed italic">
-                              "{b.notes}"
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="md:w-64 flex flex-col gap-3 justify-start pt-2">
-                        {b.status === 'confirmed' && (
-                          <button 
-                            onClick={() => startSessionMutation.mutate(b)}
-                            disabled={startSessionMutation.isPending}
-                            className="w-full h-12 rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 hover:bg-emerald-700 transition transform hover:scale-[1.02] active:scale-[0.98] ring-4 ring-emerald-500/10"
-                          >
-                            <Zap size={18} fill="currentColor" />
-                            <span className="text-xs font-black uppercase tracking-widest">بدء الجلسة الآن</span>
-                          </button>
-                        )}
-                        
-                        <div className="h-px bg-slate-100 my-1" />
-
-                        {b.status === 'confirmed' && (
-                          <>
-                            <button 
-                              onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "complete" })}
-                              disabled={bookingStatusMutation.isPending}
-                              className="w-full h-11 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition"
-                            >
-                              <CheckCircle2 size={14} /> إنهاء بنجاح
-                            </button>
-                            <div className="grid grid-cols-2 gap-2">
-                              <button 
-                                onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "no-show" })}
-                                disabled={bookingStatusMutation.isPending}
-                                className="h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 text-[9px] font-black uppercase hover:bg-amber-100 transition"
-                              >
-                                No-Show
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  const reason = prompt("برجاء إدخال سبب الإلغاء:");
-                                  if (reason !== null) {
-                                    bookingStatusMutation.mutate({ bookingId: b.id, action: "cancel", reason });
-                                  }
-                                }}
-                                disabled={bookingStatusMutation.isPending}
-                                className="h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-black uppercase hover:bg-rose-100 transition"
-                              >
-                                إلغاء
-                              </button>
-                            </div>
-                          </>
-                        )}
-                        <div className="mt-4">
-                          <label className="text-[9px] font-black uppercase text-slate-400 block mb-1.5 px-1">تغيير يدوي للحالة</label>
-                          <select 
-                            value={newStatus}
-                            onChange={(e) => {
-                              const s = e.target.value;
-                              setNewStatus(s);
-                              if(s) updateBookingMutation.mutate({ bookingId: b.id, status: s });
-                            }}
-                            className="w-full h-9 rounded-lg bg-slate-50 border border-slate-200 px-3 text-[10px] font-bold outline-none"
-                          >
-                            <option value="">اختار حالة...</option>
-                            <option value="draft">مسودة</option>
-                            <option value="confirmed">متأكد</option>
-                            <option value="completed">مكتمل</option>
-                            <option value="cancelled">ملغي</option>
-                          </select>
-                        </div>
-
-                        {/* History Section */}
-                        <div className="mt-6 space-y-3">
-                          <h4 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
-                            <History size={12} /> سجل التغييرات
-                          </h4>
-                          <div className="space-y-2">
-                            <div className="flex gap-2 text-[9px]">
-                              <div className="h-4 w-px bg-emerald-200 mt-1" />
-                              <div>
-                                <p className="font-bold text-slate-900">إنشاء الحجز</p>
-                                <p className="text-slate-400">{dateTime(b.createdAt)}</p>
-                              </div>
-                            </div>
-                            {b.status === 'cancelled' && (
-                              <div className="flex gap-2 text-[9px]">
-                                <div className="h-4 w-px bg-rose-200 mt-1" />
-                                <div>
-                                  <p className="font-bold text-rose-600">تم الإلغاء</p>
-                                  <p className="text-slate-400">راجع الملاحظات للسبب</p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                );
-              })()}
-            </section>
+                </div>
+              }
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      <th className="pb-3 pr-1">العميل</th>
+                      <th className="pb-3 px-3">الغرفة</th>
+                      <th className="pb-3 px-3">الموعد</th>
+                      <th className="pb-3 px-3">الحالة</th>
+                      <th className="pb-3 px-3">المبلغ</th>
+                      <th className="pb-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {bookings.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-sm text-slate-400">لا توجد حجوزات</td>
+                      </tr>
+                    ) : (
+                      bookings.map((b: Booking) => (
+                        <tr 
+                          key={b.id} 
+                          className="group transition-colors hover:bg-slate-50 cursor-pointer"
+                          onClick={() => setSelectedBookingId(b.id)}
+                        >
+                          <td className="py-3 pr-1">
+                            <div className="font-semibold text-slate-800">{b.customer?.fullName ?? "—"}</div>
+                            <div className="text-[9px] text-slate-400">{b.customer?.phoneNumber}</div>
+                          </td>
+                          <td className="py-3 px-3 text-xs text-slate-500">{b.room?.name ?? "—"}</td>
+                          <td className="py-3 px-3 text-xs text-slate-400 whitespace-nowrap">{dateTime(b.startTime)}</td>
+                          <td className="py-3 px-3">
+                            <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
+                          </td>
+                          <td className="py-3 px-3 font-bold text-slate-700">{money(b.totalAmount)}</td>
+                          <td className="py-3">
+                            <button className="text-slate-300 group-hover:text-slate-900 transition"><ChevronLeft size={14} /></button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
           )}
         </div>
 
-        {/* Right Column: New Booking Form (Now on the Right) */}
-        <div className="lg:col-span-4 space-y-8 lg:order-1">
-          <section className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-900/10">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-6">
-              <Plus size={14} />
-              حجز جديد
-            </h3>
-            
-            <form className="space-y-5" onSubmit={onSubmit}>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">العميل</label>
-                <select 
-                  value={customerId} onChange={(e) => setCustomerId(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20"
-                  required
-                >
-                  <option value="" className="text-slate-900">اختار العميل...</option>
+        {/* ── Right Column: Form ────────────────────────── */}
+        <div className="lg:col-span-4 space-y-6">
+          <Panel title="حجز جديد" icon={<Plus size={15} />}>
+            <form className="space-y-4" onSubmit={onSubmit}>
+              <FormField label="العميل">
+                <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)} required>
+                  <option value="">-- اختر العميل --</option>
                   {customersQuery.data?.data?.map((c) => (
-                    <option key={c.id} value={c.id} className="text-slate-900">{c.fullName}</option>
+                    <option key={c.id} value={c.id}>{c.fullName} ({c.phoneNumber})</option>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </FormField>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">الغرفة</label>
-                  <select 
-                    value={roomId} onChange={(e) => setRoomId(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none transition focus:border-white/20"
-                    required
-                  >
-                    <option value="" className="text-slate-900">اختار غرفة...</option>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <FormField label="الغرفة">
+                  <Select value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
+                    <option value="">-- اختر الغرفة --</option>
                     {roomsQuery.data?.data?.map((r) => (
-                      <option key={r.id} value={r.id} className="text-slate-900">{r.name}</option>
+                      <option key={r.id} value={r.id}>{r.name}</option>
                     ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">النوع</label>
-                  <select 
-                    value={bookingType} onChange={(e) => setBookingType(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
-                  >
-                    <option value="meeting" className="text-slate-900">اجتماع</option>
-                    <option value="training" className="text-slate-900">تدريب</option>
-                    <option value="event" className="text-slate-900">فعالية</option>
-                  </select>
-                </div>
+                  </Select>
+                </FormField>
+                <FormField label="نوع الحجز">
+                  <Select value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
+                    <option value="meeting">اجتماع</option>
+                    <option value="training">تدريب</option>
+                    <option value="event">فعالية</option>
+                  </Select>
+                </FormField>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">البداية</label>
-                  <input 
-                    type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-[10px] font-bold text-white outline-none"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">النهاية</label>
-                  <input 
-                    type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-[10px] font-bold text-white outline-none"
-                    required
-                  />
-                </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <FormField label="وقت البداية">
+                  <DateTimeInput value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
+                </FormField>
+                <FormField label="وقت النهاية">
+                  <DateTimeInput value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
+                </FormField>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">إجمالي المبلغ</label>
-                  <input 
-                    type="number" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
-                    required
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <FormField label="إجمالي المبلغ">
+                  <Input 
+                    type="number" 
+                    value={totalAmount} 
+                    onChange={(e) => setTotalAmount(e.target.value)} 
+                    required 
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pr-1">العربون</label>
-                  <input 
-                    type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white outline-none"
+                </FormField>
+                <FormField label="العربون">
+                  <Input 
+                    type="number" 
+                    value={depositAmount} 
+                    onChange={(e) => setDepositAmount(e.target.value)} 
                   />
-                </div>
+                </FormField>
               </div>
 
-              <button 
-                type="submit" 
-                disabled={createMutation.isPending}
-                className="w-full h-12 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-widest transition hover:bg-emerald-400 flex items-center justify-center gap-2"
-              >
-                {createMutation.isPending ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} />}
-                تأكيد الحجز
-              </button>
+              <FormField label="ملاحظات">
+                <textarea 
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs outline-none focus:border-slate-300"
+                  rows={2}
+                  placeholder="..."
+                />
+              </FormField>
+
+              <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الحجز..." className="w-full" icon={<Zap size={14} />}>
+                تأكيد الحجز الآن
+              </Btn>
             </form>
-          </section>
+          </Panel>
 
-          {/* Quick Stats Summary */}
-          <section className="space-y-4">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">نظرة سريعة</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">المؤكدة</div>
-                <div className="text-xl font-black text-slate-900">{bookings.filter(b => b.status === 'confirmed').length}</div>
+          <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 className="flex items-center gap-2 font-bold text-slate-900 mb-4">
+              <History size={18} className="text-slate-400" />
+              ملخص الحجوزات
+            </h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">حجوزات هذا الأسبوع</span>
+                <span className="font-bold">{bookings.length}</span>
               </div>
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">اليوم</div>
-                <div className="text-xl font-black text-slate-900">{bookingsByDay[new Date().toISOString().split('T')[0]]?.length || 0}</div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">إجمالي العربون</span>
+                <span className="font-bold text-emerald-600">
+                  {money(bookings.reduce((sum, b) => sum + (b.depositAmount || 0), 0))}
+                </span>
               </div>
             </div>
-          </section>
+          </div>
         </div>
       </div>
 
       {/* Day Details Modal */}
       {selectedDate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-50 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-black text-slate-900">{arabicDays[new Date(selectedDate).getDay()]}</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedDate}</p>
               </div>
-              <button onClick={() => setSelectedDate(null)} className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:text-slate-900 transition">
-                <X size={20} />
+              <button onClick={() => setSelectedDate(null)} className="h-8 w-8 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:text-slate-900 transition">
+                <X size={18} />
               </button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto space-y-3">
@@ -659,7 +643,7 @@ export default function BookingsPage() {
                     <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
                     <div className="text-right">
                       <p className="font-bold text-slate-900">{b.customer?.fullName ?? "—"}</p>
-                      <p className="text-xs text-slate-500">{b.room?.name ?? "—"} • {b.startTime ? new Date(b.startTime).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }) : "—"}</p>
+                      <p className="text-[10px] text-slate-500">{b.room?.name ?? "—"} • {new Date(b.startTime).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}</p>
                     </div>
                   </div>
                 </button>

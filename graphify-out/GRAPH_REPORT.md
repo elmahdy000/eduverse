@@ -1,11 +1,11 @@
-# Graph Report - D:\coders\eduvers  (2026-05-08)
+# Graph Report - D:\coders\eduvers  (2026-05-09)
 
 ## Corpus Check
-- 138 files · ~163,107 words
+- 138 files · ~164,084 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 643 nodes · 688 edges · 105 communities detected
+- 646 nodes · 692 edges · 105 communities detected
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 85 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -143,16 +143,16 @@
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (5): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController, InventoryService
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
-Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
+Nodes (5): CustomersService, ProductsService, SessionsService, main(), UsersService
 
 ### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (5): CustomersService, ProductsService, RoomsService, SessionsService, main()
+Cohesion: 0.06
+Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.08
@@ -160,51 +160,51 @@ Nodes (19): dateTime(), money(), translatePaymentMethod(), translateStatus(), ac
 
 ### Community 4 - "Community 4"
 Cohesion: 0.11
-Nodes (4): AuthService, JwtConfigService, PasswordService, UsersService
-
-### Community 5 - "Community 5"
-Cohesion: 0.11
 Nodes (2): BookingsController, BookingsService
 
-### Community 6 - "Community 6"
-Cohesion: 0.11
-Nodes (5): refreshAccessToken(), roleHomePath(), AuthController, translateApiError(), onSubmit()
+### Community 5 - "Community 5"
+Cohesion: 0.12
+Nodes (2): RoomsController, RoomsService
 
-### Community 7 - "Community 7"
+### Community 6 - "Community 6"
 Cohesion: 0.12
 Nodes (5): BaristaGuard, OpsManagerGuard, OwnerGuard, ReceptionistGuard, RoleGuard
 
-### Community 8 - "Community 8"
+### Community 7 - "Community 7"
 Cohesion: 0.12
 Nodes (2): InvoicesController, InvoicesService
 
+### Community 8 - "Community 8"
+Cohesion: 0.11
+Nodes (5): refreshAccessToken(), roleHomePath(), AuthController, translateApiError(), onSubmit()
+
 ### Community 9 - "Community 9"
-Cohesion: 0.13
-Nodes (4): cn(), getCategoryIcon(), translateProductCategory(), clsx()
+Cohesion: 0.18
+Nodes (3): AuthService, JwtConfigService, PasswordService
 
 ### Community 10 - "Community 10"
+Cohesion: 0.13
+Nodes (6): cn(), getCategoryIcon(), getProductImage(), ProductImage(), translateProductCategory(), clsx()
+
+### Community 11 - "Community 11"
 Cohesion: 0.23
 Nodes (1): ShiftsService
 
-### Community 11 - "Community 11"
+### Community 12 - "Community 12"
 Cohesion: 0.17
 Nodes (1): UsersController
 
-### Community 12 - "Community 12"
+### Community 13 - "Community 13"
 Cohesion: 0.17
 Nodes (1): CustomersController
 
-### Community 13 - "Community 13"
+### Community 14 - "Community 14"
 Cohesion: 0.2
 Nodes (1): InventoryController
 
-### Community 14 - "Community 14"
+### Community 15 - "Community 15"
 Cohesion: 0.29
 Nodes (1): DashboardsService
-
-### Community 15 - "Community 15"
-Cohesion: 0.18
-Nodes (1): RoomsController
 
 ### Community 16 - "Community 16"
 Cohesion: 0.24
@@ -255,36 +255,36 @@ Cohesion: 0.33
 Nodes (5): ChangePasswordDto, CreateUserDto, UpdateUserDto, UserResponseDto, UsersListResponseDto
 
 ### Community 28 - "Community 28"
+Cohesion: 0.33
+Nodes (1): WaitBadge()
+
+### Community 29 - "Community 29"
 Cohesion: 0.53
 Nodes (4): fetchInventory(), handleAddStock(), handleCreateItem(), handleRecordWaste()
 
-### Community 29 - "Community 29"
+### Community 30 - "Community 30"
 Cohesion: 0.4
 Nodes (1): AppController
 
-### Community 30 - "Community 30"
+### Community 31 - "Community 31"
 Cohesion: 0.4
 Nodes (1): AuditLogsController
 
-### Community 31 - "Community 31"
+### Community 32 - "Community 32"
 Cohesion: 0.4
 Nodes (4): AuthResponseDto, LoginDto, LoginResponseDto, RegisterDto
 
-### Community 32 - "Community 32"
+### Community 33 - "Community 33"
 Cohesion: 0.4
 Nodes (1): PrismaService
 
-### Community 33 - "Community 33"
+### Community 34 - "Community 34"
 Cohesion: 0.4
 Nodes (4): CreateCategoryDto, CreateExpenseDto, CreateVendorDto, UpdateExpenseDto
 
-### Community 34 - "Community 34"
-Cohesion: 0.4
-Nodes (4): CreateRoomDto, RoomAvailabilityDto, RoomResponseDto, UpdateRoomDto
-
 ### Community 35 - "Community 35"
 Cohesion: 0.4
-Nodes (1): WaitBadge()
+Nodes (4): CreateRoomDto, RoomAvailabilityDto, RoomResponseDto, UpdateRoomDto
 
 ### Community 36 - "Community 36"
 Cohesion: 0.4
@@ -681,17 +681,17 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `InvoicesService` connect `Community 8` to `Community 2`?**
+- **Why does `InvoicesService` connect `Community 7` to `Community 1`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **Why does `RoomsService` connect `Community 2` to `Community 15`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
-- **Why does `ExpensesController` connect `Community 1` to `Community 2`?**
+- **Why does `ExpensesController` connect `Community 2` to `Community 1`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.07 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._

@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Coffee, Clock, CheckCircle2, XCircle, RefreshCw, ArrowLeft, Timer } from "lucide-react";
 import Link from "next/link";
+import { io, Socket } from "socket.io-client";
 import { api } from "../../../lib/api";
 import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
@@ -43,6 +44,27 @@ export default function BarOrdersPage() {
       return response.data.data as BarOrder;
     },
   });
+
+  // Real-time updates via Socket.IO
+  useEffect(() => {
+    const socket: Socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/bar-orders`);
+
+    const handleOrderUpdate = () => {
+      queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
+    };
+
+    socket.on("order:new", handleOrderUpdate);
+    socket.on("order:status-updated", handleOrderUpdate);
+    socket.on("dashboard:refresh", handleOrderUpdate);
+
+    return () => {
+      socket.off("order:new", handleOrderUpdate);
+      socket.off("order:status-updated", handleOrderUpdate);
+      socket.off("dashboard:refresh", handleOrderUpdate);
+      socket.disconnect();
+    };
+  }, [queryClient]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {

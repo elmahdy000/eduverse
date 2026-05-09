@@ -102,11 +102,10 @@ export class RoleGuard implements CanActivate {
 
 
 
-    if (lastSegment === 'cancel') return 'cancel';
-
-    if (lastSegment === 'close') return 'close';
-
-    if (lastSegment === 'refund') return 'refund';
+    const actions = ['cancel', 'close', 'refund', 'complete', 'no-show', 'deactivate', 'blacklist', 'reactivate'];
+    if (lastSegment && actions.includes(lastSegment)) {
+      return lastSegment.replace(/-/g, '_');
+    }
 
 
 
@@ -211,13 +210,13 @@ export class RoleGuard implements CanActivate {
     // Receptionist: precise action-level bypass (matches roles_permissions.md)
     if (role.name === 'Receptionist') {
       const receptionist: Record<string, string[]> = {
-        sessions:   ['read', 'create', 'close', 'cancel'],
-        bookings:   ['read', 'create', 'update', 'cancel'],
-        customers:  ['read', 'create', 'update'],
+        sessions:   ['read', 'create', 'update', 'close', 'cancel', 'delete'],
+        bookings:   ['read', 'create', 'update', 'cancel', 'delete', 'complete', 'no_show'],
+        customers:  ['read', 'create', 'update', 'delete', 'deactivate', 'blacklist', 'reactivate'],
         rooms:      ['read'],
-        bar_orders: ['read'],
-        invoices:   ['read', 'generate'],
-        payments:   ['read', 'record'],
+        bar_orders: ['read', 'create'],
+        invoices:   ['read', 'generate', 'refund', 'delete'],
+        payments:   ['read', 'record', 'refund', 'delete'],
         dashboards: ['view_reception'],
       };
       // Normalize module alias (e.g. 'session' -> 'sessions')

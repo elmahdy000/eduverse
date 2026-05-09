@@ -5,7 +5,8 @@ import {
   Coffee, ShoppingCart, CheckCircle2, 
   Search, Plus, Minus, Send, History,
   LogOut, MessageCircle, X, Info, Utensils,
-  GlassWater, IceCream, Soup, Pizza, Sandwich, Bell
+  GlassWater, IceCream, Soup, Pizza, Sandwich, Bell,
+  ChevronDown, ChevronUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../lib/api";
@@ -182,6 +183,7 @@ export default function GuestOrderPage() {
   const [orderNotes, setOrderNotes] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -530,27 +532,45 @@ export default function GuestOrderPage() {
                   </div>
                 ) : (
                   ordersQuery.data?.slice().reverse().map(order => (
-                    <div key={order.id} className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm min-w-0">
-                      <div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-100">
+                    <div key={order.id} className="bg-white rounded-xl p-0 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
+                      <button 
+                        onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                        className="w-full flex justify-between items-center p-4 text-right transition-colors hover:bg-slate-50 focus:outline-none"
+                      >
                         <div className="min-w-0">
                           <p className="text-[10px] text-slate-400 font-bold">{new Date(order.createdAt).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
                           <p className="text-xs font-bold text-slate-800 mt-0.5">طلب #{order.id.slice(-4)}</p>
                         </div>
-                        <div className="text-left shrink-0">
-                          <p className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</p>
-                          <span className="text-[9px] text-slate-500">
-                            {order.status === "completed" || order.status === "delivered" ? "مكتمل" : order.status === "cancelled" ? "ملغي" : "حالي"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5 min-w-0">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between text-[11px] text-slate-600">
-                            <span className="truncate">{item.quantity} × {item.product.name}</span>
-                            <span className="font-medium shrink-0 ml-2">{money(item.subtotal)}</span>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <div className="text-left">
+                            <p className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</p>
+                            <span className="text-[9px] text-slate-500">
+                              {order.status === "completed" || order.status === "delivered" ? "مكتمل" : order.status === "cancelled" ? "ملغي" : "حالي"}
+                            </span>
                           </div>
-                        ))}
-                      </div>
+                          {expandedOrderId === order.id ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+                        </div>
+                      </button>
+                      <AnimatePresence>
+                        {expandedOrderId === order.id && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="border-t border-slate-100"
+                          >
+                            <div className="p-4 bg-slate-50/50 space-y-1.5 min-w-0">
+                              <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">تفاصيل الطلب</p>
+                              {order.items.map(item => (
+                                <div key={item.id} className="flex justify-between items-center text-[11px] text-slate-700 bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
+                                  <span className="truncate font-medium">{item.quantity} × {item.product.name}</span>
+                                  <span className="font-bold shrink-0 ml-2">{money(item.subtotal)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ))
                 )}

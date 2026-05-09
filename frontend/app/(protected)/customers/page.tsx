@@ -625,15 +625,7 @@ export default function CustomersPage() {
                              <History size={40} className="mx-auto text-slate-100 mb-4" />
                              <p className="text-xs text-slate-400 font-medium">لا يوجد سجل جلسات سابق لهذا العميل</p>
                           </div>
-                        );
-                      })}
-                      
-                      {!historyQuery.data?.customer?.sessions?.length && (
-                        <div className="text-center py-12">
-                           <History size={48} className="mx-auto text-slate-100 mb-4" />
-                           <p className="text-sm text-slate-400 font-medium">لا يوجد سجل جلسات سابق لهذا العميل</p>
-                        </div>
-                      )}
+                        )}
                     </div>
                   </div>
                 </div>

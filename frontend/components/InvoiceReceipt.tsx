@@ -210,7 +210,5 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
         </div>
       </div>
     </div>
-      </div>
-    </div>
   );
 }

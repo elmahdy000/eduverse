@@ -115,6 +115,13 @@ export class BarOrdersService {
     return order;
   }
 
+  async validateGuestCode(guestCode: string) {
+    const session = await this.prisma.session.findFirst({
+      where: { guestCode, status: 'active' },
+    });
+    return !!session;
+  }
+
   async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[]) {
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },

@@ -131,6 +131,11 @@ export class CustomersService {
         barOrders: {
           orderBy: { createdAt: 'desc' },
           take: 50,
+          include: {
+            items: {
+              include: { product: true },
+            },
+          },
         },
       },
     });

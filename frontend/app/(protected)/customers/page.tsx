@@ -41,12 +41,14 @@ import {
 } from "../../../components/ui";
 
 interface CustomerHistory {
-  customer: Customer;
+  customer: Customer & { barOrders?: any[] };
   sessionsCount: number;
   invoicesCount: number;
   bookingsCount: number;
   ordersCount: number;
+  barOrdersCount?: number;
   totalPaid: number;
+  totalSpent?: number;
 }
 
 const ctypeColors: Record<string, string> = {
@@ -415,10 +417,37 @@ export default function CustomersPage() {
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                       <StatCard label="جلسات" value={historyQuery.data.sessionsCount} />
                       <StatCard label="حجوزات" value={historyQuery.data.bookingsCount} />
-                      <StatCard label="طلبات بار" value={historyQuery.data.ordersCount} />
-                      <StatCard label="إجمالي المدفوع" value={money(historyQuery.data.totalPaid)} tone="success" />
+                      <StatCard label="طلبات بار" value={historyQuery.data.barOrdersCount || historyQuery.data.ordersCount} />
+                      <StatCard label="إجمالي المدفوع" value={money(historyQuery.data.totalSpent || historyQuery.data.totalPaid)} tone="success" />
                     </div>
                   ) : <p className="text-xs text-slate-400">جاري تحميل التاريخ...</p>}
+                  
+                  {historyQuery.data?.customer?.barOrders && historyQuery.data.customer.barOrders.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <p className="mb-3 text-xs font-bold text-slate-500 uppercase tracking-wider">سجل طلبات البار</p>
+                      <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                        {historyQuery.data.customer.barOrders.map((order: any) => (
+                          <div key={order.id} className="bg-white border border-slate-200 rounded-lg p-3">
+                            <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-100">
+                              <div>
+                                <span className="text-[10px] text-slate-400 font-bold">{new Date(order.createdAt).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span className="mr-2 text-xs font-bold text-slate-800">#{order.id.slice(-4)}</span>
+                              </div>
+                              <span className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</span>
+                            </div>
+                            <div className="space-y-1">
+                              {order.items?.map((item: any) => (
+                                <div key={item.id} className="flex justify-between text-[11px] text-slate-600">
+                                  <span>{item.quantity} × {item.product?.name || "منتج"}</span>
+                                  <span className="font-medium">{money(item.subtotal)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

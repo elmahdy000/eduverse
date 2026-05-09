@@ -192,31 +192,65 @@ export default function GuestOrderPage() {
 
   const queryClient = useQueryClient();
 
+  const validateCodeMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const r = await api.get(`/public/orders/validate/${code}`);
+      return r.data.data.isValid as boolean;
+    },
+    onSuccess: (isValid, code) => {
+      if (isValid) {
+        setGuestCode(code);
+        localStorage.setItem("eduverse_guest_code", code);
+        setIsAuthorized(true);
+        setMessage(null);
+      } else {
+        setMessage({ text: "الكود غير صالح أو انتهت صلاحية الجلسة.", ok: false });
+        handleLogout();
+      }
+    },
+    onError: () => {
+      setMessage({ text: "حدث خطأ أثناء التحقق من الكود.", ok: false });
+    }
+  });
+
   useEffect(() => {
     const savedCode = localStorage.getItem("eduverse_guest_code");
     if (savedCode) {
-      setGuestCode(savedCode);
-      setIsAuthorized(true);
+      validateCodeMutation.mutate(savedCode);
     }
   }, []);
 
   const handleLogin = () => {
     if (guestCode.trim()) {
       const upperCode = guestCode.trim().toUpperCase();
-      setGuestCode(upperCode);
-      localStorage.setItem("eduverse_guest_code", upperCode);
-      setIsAuthorized(true);
+      validateCodeMutation.mutate(upperCode);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("eduverse_guest_code");
     setIsAuthorized(false);
+    setGuestCode("");
     setCart({});
   };
 
+  // Periodic check to ensure session is still active
+  useQuery({
+    queryKey: ["validate-guest", guestCode],
+    queryFn: async () => {
+      const r = await api.get(`/public/orders/validate/${guestCode}`);
+      if (!r.data.data.isValid) {
+        handleLogout();
+        setMessage({ text: "انتهت الجلسة. شكراً لزيارتك!", ok: true });
+      }
+      return r.data.data.isValid;
+    },
+    enabled: isAuthorized && Boolean(guestCode),
+    refetchInterval: 30000,
+  });
+
   useEffect(() => {
-    if (isAuthorized) {
+    if (isAuthorized && guestCode) {
       const s = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
       setSocket(s);
       s.emit("join_guest", guestCode);
@@ -241,13 +275,14 @@ export default function GuestOrderPage() {
       const r = await api.get(`/public/orders/status/${guestCode}`);
       return r.data.data as Order[];
     },
-    enabled: isAuthorized,
+    enabled: isAuthorized && Boolean(guestCode),
     refetchInterval: 10000,
   });
 
   const createOrderMutation = useMutation({
     mutationFn: async (items: any[]) => {
       return api.post("/public/orders", { guestCode, items, notes: orderNotes });
+
     },
     onSuccess: () => {
       setCart({});

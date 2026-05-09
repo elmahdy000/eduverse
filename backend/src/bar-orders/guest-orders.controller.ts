@@ -57,6 +57,22 @@ export class GuestOrdersController {
     }
   }
 
+  @Get('validate/:guestCode')
+  @ApiOperation({ summary: 'Check if a guest code is active' })
+  async validateGuestCode(@Param('guestCode') guestCode: string) {
+    try {
+      const isValid = await this.barOrdersService.validateGuestCode(guestCode);
+      return {
+        success: true,
+        data: { isValid },
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Get('status/:guestCode')
   @ApiOperation({ summary: 'Get status of orders for a guest code' })
   async getStatus(@Param('guestCode') guestCode: string) {

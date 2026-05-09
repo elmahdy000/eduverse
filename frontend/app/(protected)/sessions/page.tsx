@@ -12,7 +12,7 @@ import { dateTime, money } from "../../../lib/format";
 import { translateSessionType, translateStatus } from "../../../lib/labels";
 import type { Customer, Paginated, Room, Session, Invoice } from "../../../lib/types";
 import {
-  Alert, Badge, Btn, EmptyState, FormField, Input, Panel,
+  Alert, Badge, Btn, EmptyState, FormField, Input, Modal, Panel,
   SectionTitle, Select, StatCard, statusBadgeTone
 } from "../../../components/ui";
 import { InvoiceReceipt } from "../../../components/InvoiceReceipt";
@@ -479,48 +479,84 @@ export default function SessionsPage() {
             </form>
           </Panel>
 
-          {/* Invoice panel — shown after closing a session */}
-          {selectedInvoice && (
-            <Panel title="الفاتورة" icon={<ChevronRight size={15} />} action={
-              <button onClick={() => setSelectedInvoice(null)} className="text-xs text-slate-400 hover:text-slate-700">إغلاق</button>
-            }>
-              <div id="printable-invoice">
-                <InvoiceReceipt
-                  invoice={selectedInvoice}
-                  onPrint={printInvoiceOnly}
-                  onDownload={() => downloadInvoiceSnapshot(selectedInvoice)}
-                />
-              </div>
-              {Number(selectedInvoice.remainingAmount) > 0 && (
+      {/* ── Invoice Modal ── */}
+      <Modal
+        isOpen={!!selectedInvoice}
+        onClose={() => setSelectedInvoice(null)}
+        size="lg"
+        title="فاتورة العميل"
+      >
+        {selectedInvoice && (
+          <div className="space-y-6">
+            <div id="printable-invoice">
+              <InvoiceReceipt
+                invoice={selectedInvoice}
+                onPrint={printInvoiceOnly}
+                onDownload={() => downloadInvoiceSnapshot(selectedInvoice)}
+              />
+            </div>
+
+            {Number(selectedInvoice.remainingAmount) > 0 && (
+              <div className="rounded-3xl border border-amber-100 bg-amber-50/50 p-6">
                 <form
-                  className="mt-4 space-y-3 border-t border-slate-100 pt-4"
-                  onSubmit={(e: FormEvent) => { e.preventDefault(); payMutation.mutate(); }}
+                  className="space-y-4"
+                  onSubmit={(e: FormEvent) => {
+                    e.preventDefault();
+                    payMutation.mutate();
+                  }}
                 >
-                  <p className="text-xs font-bold text-slate-600">تحصيل المبلغ المتبقي</p>
-                  <div className="grid gap-3 grid-cols-2">
-                    <FormField label="المبلغ">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                    <p className="text-sm font-black text-amber-900">تحصيل المبلغ المتبقي</p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField label="المبلغ المستلم">
                       <Input
-                        type="number" min={0.01} step={0.01}
+                        type="number"
+                        min={0.01}
+                        step={0.01}
                         value={payAmount}
                         onChange={(e) => setPayAmount(e.target.value)}
                         placeholder={String(selectedInvoice.remainingAmount)}
+                        className="bg-white"
                       />
                     </FormField>
                     <FormField label="طريقة الدفع">
-                      <Select value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>
-                        <option value="cash">نقدي</option>
-                        <option value="card">بطاقة</option>
-                        <option value="bank_transfer">تحويل</option>
+                      <Select
+                        value={payMethod}
+                        onChange={(e) => setPayMethod(e.target.value)}
+                        className="bg-white"
+                      >
+                        <option value="cash">نقدي 💵</option>
+                        <option value="card">بطاقة 💳</option>
+                        <option value="bank_transfer">تحويل بنكي 🏦</option>
                       </Select>
                     </FormField>
                   </div>
-                  <Btn type="submit" loading={payMutation.isPending} loadingText="جاري..." className="w-full">
-                    تأكيد التحصيل
+                  <Btn
+                    type="submit"
+                    variant="primary"
+                    loading={payMutation.isPending}
+                    className="w-full shadow-lg shadow-amber-200"
+                  >
+                    تأكيد تحصيل {money(Number(payAmount) || 0)}
                   </Btn>
                 </form>
-              )}
-            </Panel>
-          )}
+              </div>
+            )}
+
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                إغلاق المعاينة
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
         </div>
       </div>
     </div>

@@ -249,19 +249,19 @@ export default function BookingsPage() {
           label="حجوزات مؤكدة" 
           value={bookings.filter(b => b.status === 'confirmed').length} 
           icon={<CheckCircle2 size={20} />} 
-          tone="emerald"
+          tone="success"
         />
         <StatCard 
           label="إجمالي العربون" 
           value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + Number(b.depositAmount || 0), 0))} 
           icon={<Zap size={20} />} 
-          tone="amber"
+          tone="warn"
         />
         <StatCard 
           label="بانتظار التأكيد" 
           value={bookings.filter(b => b.status === 'draft').length} 
           icon={<Clock size={20} />} 
-          tone="slate"
+          tone="neutral"
         />
       </div>
 

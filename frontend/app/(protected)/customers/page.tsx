@@ -432,7 +432,7 @@ export default function CustomersPage() {
               </div>
 
               <div className="grid gap-6 lg:grid-cols-3">
-                {/* 1. Personal & Contact Details */}
+                {/* Side Info */}
                 <div className="space-y-6">
                   <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                     <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
@@ -455,16 +455,9 @@ export default function CustomersPage() {
                             <p className="text-sm font-black text-slate-900 font-mono" dir="ltr">{selectedCustomer.email}</p>
                          </div>
                        )}
-                       {selectedCustomer.address && (
-                         <div>
-                            <p className="text-[10px] font-bold text-slate-400">العنوان</p>
-                            <p className="text-sm font-bold text-slate-800">{selectedCustomer.address}</p>
-                         </div>
-                       )}
                     </div>
                   </div>
 
-                  {/* 2. Education / Work Details */}
                   {(selectedCustomer.customerType === "student" || selectedCustomer.customerType === "employee") && (
                     <div className={clsx("rounded-2xl border p-5 shadow-sm", selectedCustomer.customerType === "student" ? "bg-blue-50/50 border-blue-100" : "bg-violet-50/50 border-violet-100")}>
                       <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
@@ -512,103 +505,164 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                {/* 3. Stats & History */}
+                {/* Detailed Timeline & History */}
                 <div className="lg:col-span-2 space-y-6">
-                  {/* Current Activity Status */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
-                           <Clock3 size={20} />
-                        </div>
-                        <div>
-                           <p className="text-[10px] font-black text-slate-400 uppercase">الحالة الحالية</p>
-                           {activeSessionQuery.data ? (
-                             <p className="text-sm font-black text-emerald-900">في جلسة نشطة ({translateSessionType(activeSessionQuery.data.sessionType)})</p>
-                           ) : <p className="text-sm font-bold text-slate-500">خارج المكان حالياً</p>}
-                        </div>
+                  {/* Stats Cards Row */}
+                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase">إجمالي الجلسات</p>
+                      <p className="text-2xl font-black text-slate-900">{historyQuery.data?.sessionsCount ?? 0}</p>
                     </div>
-                    <div className="rounded-2xl border border-slate-100 bg-white p-4 flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                           <Calendar size={20} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 w-full">
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase">أول زيارة</p>
-                              <p className="text-xs font-bold text-slate-700">{selectedCustomer.firstVisitAt ? dateTime(selectedCustomer.firstVisitAt).split(' ')[0] : "جديد"}</p>
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase">آخر زيارة</p>
-                              <p className="text-xs font-bold text-slate-700">{dateTime(selectedCustomer.lastVisitAt)}</p>
-                           </div>
-                        </div>
+                    <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase">إجمالي الحجوزات</p>
+                      <p className="text-2xl font-black text-slate-900">{historyQuery.data?.bookingsCount ?? 0}</p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase">طلبات البار</p>
+                      <p className="text-2xl font-black text-slate-900">{historyQuery.data?.barOrdersCount ?? 0}</p>
+                    </div>
+                    <div className="rounded-2xl bg-emerald-600 p-4 text-white">
+                      <p className="text-[10px] font-black text-emerald-200 uppercase">إجمالي المدفوع</p>
+                      <p className="text-2xl font-black font-mono tracking-tighter">{money(historyQuery.data?.totalSpent ?? 0)}</p>
                     </div>
                   </div>
 
-                  {/* Summary Cards */}
-                  <div className="rounded-[2rem] bg-slate-900 p-8 text-white shadow-2xl relative overflow-hidden">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
-                    <p className="mb-6 text-xs font-black uppercase tracking-[0.3em] text-slate-500">إحصائيات العميل التاريخية</p>
-                    {historyQuery.data ? (
-                      <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">الجلسات</p>
-                          <p className="text-3xl font-black">{historyQuery.data.sessionsCount}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">الحجوزات</p>
-                          <p className="text-3xl font-black">{historyQuery.data.bookingsCount}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">البار</p>
-                          <p className="text-3xl font-black">{historyQuery.data.barOrdersCount || historyQuery.data.ordersCount}</p>
-                        </div>
-                        <div className="space-y-1 text-emerald-400">
-                          <p className="text-[10px] font-bold text-emerald-500/50 uppercase">إجمالي الإنفاق</p>
-                          <p className="text-3xl font-black">{money(historyQuery.data.totalSpent || historyQuery.data.totalPaid)}</p>
-                        </div>
-                      </div>
-                    ) : <p className="animate-pulse text-sm text-slate-600 font-bold">جاري حساب الإحصائيات...</p>}
-                  </div>
+                  {/* Visit Feed */}
+                  <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                       <h3 className="flex items-center gap-2 text-lg font-black text-slate-900">
+                          <Clock3 size={20} className="text-blue-500" /> سجل الزيارات التفصيلي
+                       </h3>
+                       <Badge tone="success">مكتمل</Badge>
+                    </div>
 
-                  {/* Orders History Tab-like section */}
-                  {historyQuery.data?.customer?.barOrders && historyQuery.data.customer.barOrders.length > 0 && (
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                      <div className="flex items-center justify-between mb-6">
-                        <h4 className="flex items-center gap-2 font-black text-slate-900">
-                          <Coffee size={18} className="text-amber-500" /> آخر طلبات البار
-                        </h4>
-                        <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">تاريخ المشتريات</span>
-                      </div>
-                      <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                        {historyQuery.data.customer.barOrders.map((order: any) => (
-                          <div key={order.id} className="group relative rounded-2xl border border-slate-50 bg-slate-50/30 p-4 transition-all hover:bg-white hover:shadow-md">
-                            <div className="flex justify-between items-center mb-3">
-                              <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">
-                                   #{order.id.slice(-4)}
+                    <div className="space-y-12 relative before:absolute before:right-6 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-50">
+                      {historyQuery.data?.customer?.sessions?.map((session: any) => {
+                        const durationHrs = session.durationMinutes ? Math.floor(session.durationMinutes / 60) : 0;
+                        const durationMins = session.durationMinutes ? (session.durationMinutes % 60) : 0;
+                        const visitDate = new Date(session.startTime);
+                        
+                        // Find orders linked to this session if any
+                        const sessionOrders = historyQuery.data?.customer?.barOrders?.filter((o: any) => o.sessionId === session.id);
+                        const sessionInvoice = historyQuery.data?.customer?.invoices?.find((i: any) => i.sessionId === session.id);
+
+                        return (
+                          <div key={session.id} className="relative pr-14 group">
+                             {/* Timeline Dot */}
+                             <div className="absolute right-[21px] top-0 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-blue-50 group-hover:scale-125 transition-transform" />
+                             
+                             <div className="grid gap-6 md:grid-cols-[1fr_2.5fr]">
+                                <div className="space-y-1 pt-0.5">
+                                   <p className="text-sm font-black text-slate-900">{visitDate.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{visitDate.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
                                 </div>
-                                <span className="text-xs font-black text-slate-800">{dateTime(order.createdAt)}</span>
-                              </div>
-                              <span className="text-base font-black text-slate-900">{money(order.totalAmount)}</span>
-                            </div>
-                            <div className="grid gap-2 sm:grid-cols-2">
-                              {order.items?.map((item: any) => (
-                                <div key={item.id} className="flex items-center justify-between rounded-lg bg-white/50 px-3 py-1.5 text-xs text-slate-600 border border-slate-100/50">
-                                  <span><span className="font-black text-slate-900">{item.quantity}</span> × {item.product?.name || "منتج"}</span>
-                                  <span className="font-mono font-bold text-[10px]">{money(item.subtotal)}</span>
+                                <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-6 transition-all hover:bg-white hover:shadow-xl hover:border-blue-100">
+                                   <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                                      <div className="flex items-center gap-3">
+                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                                            <Clock3 size={18} />
+                                         </div>
+                                         <div>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase">مدة الزيارة</p>
+                                            <p className="text-sm font-black text-slate-900">{durationHrs} ساعة و {durationMins} دقيقة</p>
+                                         </div>
+                                      </div>
+                                      <div className="text-left">
+                                         <p className="text-[10px] font-black text-slate-400 uppercase">الحساب الإجمالي</p>
+                                         <p className="text-base font-black text-slate-900">{sessionInvoice ? money(sessionInvoice.totalAmount) : money(0)}</p>
+                                      </div>
+                                   </div>
+
+                                   {sessionOrders && sessionOrders.length > 0 && (
+                                     <div className="mt-4 border-t border-slate-100 pt-4">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1.5">
+                                          <Coffee size={12} className="text-amber-500" /> طلبات البار خلال الجلسة
+                                        </p>
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                           {sessionOrders.map((order: any) => (
+                                             order.items?.map((item: any) => (
+                                               <div key={item.id} className="flex items-center justify-between rounded-lg bg-white p-2 text-xs border border-slate-100">
+                                                  <span className="font-medium text-slate-700">{item.quantity} × {item.product?.name}</span>
+                                                  <span className="font-mono font-bold text-[10px] text-slate-400">{money(item.subtotal)}</span>
+                                               </div>
+                                             ))
+                                           ))}
+                                        </div>
+                                     </div>
+                                   )}
+                                   
+                                   {sessionInvoice && (
+                                     <div className="mt-4 flex items-center justify-between text-[10px] font-bold text-slate-400">
+                                        <span>رقم الفاتورة: #{sessionInvoice.invoiceNumber.split('-').pop()}</span>
+                                        <span className={clsx(sessionInvoice.paymentStatus === 'paid' ? "text-emerald-500" : "text-amber-500")}>
+                                          حالة الدفع: {translateStatus(sessionInvoice.paymentStatus)}
+                                        </span>
+                                     </div>
+                                   )}
                                 </div>
-                              ))}
-                            </div>
+                             </div>
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })}
+                      
+                      {!historyQuery.data?.customer?.sessions?.length && (
+                        <div className="text-center py-12">
+                           <History size={48} className="mx-auto text-slate-100 mb-4" />
+                           <p className="text-sm text-slate-400 font-medium">لا يوجد سجل جلسات سابق لهذا العميل</p>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
           ) : <Alert tone="danger">فشل تحميل ملف العميل. حاول مرة أخرى.</Alert>}
         </Panel>
+      )}
+
+      {showEditModal && selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl bg-white shadow-xl" dir="rtl">
+            <div className="flex items-center justify-between border-b p-4">
+              <h3 className="font-bold">تعديل العميل</h3>
+              <button onClick={() => setShowEditModal(false)}><X size={20} /></button>
+            </div>
+            <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
+                <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value)} dir="ltr" /></FormField>
+                <FormField label="الايميل"><Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" /></FormField>
+              </div>
+              
+              {selectedCustomer.customerType === "student" && (
+                <div className="grid gap-4 md:grid-cols-3 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                  <FormField label="الكلية / الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
+                  <FormField label="السنة الدراسية"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
+                  <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
+                </div>
+              )}
+              {selectedCustomer.customerType === "employee" && (
+                <div className="grid gap-4 md:grid-cols-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
+                  <FormField label="جهة العمل / الشركة"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
+                  <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
+                </div>
+              )}
+
+              <FormField label="العنوان"><Input value={editAddress} onChange={e => setEditAddress(e.target.value)} /></FormField>
+              
+              <FormField label="ملاحظات">
+                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />
+              </FormField>
+              <div className="flex gap-2">
+                <Btn type="submit" className="flex-1" loading={updateMutation.isPending}>حفظ التغييرات</Btn>
+                <Btn variant="ghost" onClick={() => setShowEditModal(false)}>إلغاء</Btn>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {showEditModal && selectedCustomer && (

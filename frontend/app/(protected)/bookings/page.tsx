@@ -253,7 +253,7 @@ export default function BookingsPage() {
         />
         <StatCard 
           label="إجمالي العربون" 
-          value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + (b.depositAmount || 0), 0))} 
+          value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + Number(b.depositAmount || 0), 0))} 
           icon={<Zap size={20} />} 
           tone="amber"
         />

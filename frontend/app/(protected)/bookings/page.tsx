@@ -401,7 +401,7 @@ export default function BookingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
                 {weekDates.map(day => {
                   const dateStr = day.toISOString().split('T')[0];
                   const dayBookings = bookingsByDay[dateStr] || [];

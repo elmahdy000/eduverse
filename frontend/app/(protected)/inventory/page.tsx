@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import {
@@ -459,7 +459,7 @@ export default function InventoryPage() {
                   className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
                 />
               </div>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">الوحدة *</label>
                   <input
@@ -479,7 +479,7 @@ export default function InventoryPage() {
                   />
                 </div>
               </div>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">حد أدنى للمخزون</label>
                   <input

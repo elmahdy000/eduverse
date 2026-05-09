@@ -342,7 +342,7 @@ export default function ReportsPage() {
                 <h3 className="text-sm font-bold text-slate-800">ملخص الهالك</h3>
               </div>
               <div className="p-5 space-y-4">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="rounded-xl border border-slate-200 border-l-4 border-l-rose-400 bg-white p-4 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">عدد الإدخالات</p>
                     <p className="text-2xl font-black text-slate-900">{waste.totalEntries}</p>

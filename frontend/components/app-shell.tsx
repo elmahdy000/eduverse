@@ -38,7 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "العملاء", href: "/customers", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <Users size={14} /> },
       { label: "الجلسات", href: "/sessions", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <Calendar size={14} /> },
-      { label: "الغرف", href: "/rooms", roles: ["Owner", "Operations Manager"], icon: <DoorOpen size={14} /> },
+      { label: "الغرف", href: "/rooms", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <DoorOpen size={14} /> },
       { label: "الحجوزات", href: "/bookings", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <BookOpen size={14} /> },
       { label: "طلبات البار", href: "/bar-orders", roles: ["Owner", "Operations Manager", "Receptionist", "Barista"], icon: <Coffee size={14} /> },
       { label: "الفواتير والدفع", href: "/billing", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <Receipt size={14} /> },

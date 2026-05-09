@@ -243,7 +243,7 @@ export default function BookingsPage() {
           label="حجوزات اليوم" 
           value={bookingsByDay[new Date().toISOString().split('T')[0]]?.length || 0} 
           icon={<Calendar size={20} />} 
-          trend="نشط"
+          sub="نشط"
         />
         <StatCard 
           label="حجوزات مؤكدة" 

@@ -103,9 +103,11 @@ export class RoleGuard implements CanActivate {
 
     const action = this.resolveAction(request, moduleName);
 
-    // ✅ Exception: Allow Receptionists to read rooms (needed for session/booking management)
-    if (role.name === 'Receptionist' && moduleName === 'rooms' && action === 'read') {
-      return true;
+    // ✅ Exception: Allow Receptionists to manage rooms & sessions (core operations)
+    const isSessionModule = moduleName === 'sessions' || moduleName === 'session';
+    if (role.name === 'Receptionist') {
+      if (moduleName === 'rooms' && action === 'read') return true;
+      if (isSessionModule && ['read', 'create', 'close', 'cancel'].includes(action)) return true;
     }
     const permission = await this.prisma.permission.findUnique({
       where: {

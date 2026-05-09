@@ -631,8 +631,9 @@ export default function CustomersPage() {
                 </div>
               </div>
             </div>
-          ) : <Alert tone="danger">فشل تحميل ملف العميل. حاول مرة أخرى.</Alert>}
-        </Panel>
+            ) : <Alert tone="danger">فشل تحميل ملف العميل. حاول مرة أخرى.</Alert>}
+          </Panel>
+        </div>
       )}
 
       {showEditModal && selectedCustomer && (

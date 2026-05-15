@@ -33,7 +33,7 @@ export class BookingsService {
       },
     });
 
-    let activeSessionConflict = null;
+    let activeSessionConflict: any = null;
 
     // Active session with no end time should only block very near-future bookings,
     // otherwise we cannot safely assume the room remains occupied for a later booking.

@@ -145,6 +145,7 @@ export class BookingsService {
       status?: string;
       roomId?: string;
       customerId?: string;
+      customerName?: string;
       fromDate?: string;
       toDate?: string;
     },
@@ -162,6 +163,11 @@ export class BookingsService {
     }
     if (filters?.customerId) {
       where.customerId = filters.customerId;
+    }
+    if (filters?.customerName) {
+      where.customer = {
+        fullName: { contains: filters.customerName, mode: 'insensitive' },
+      };
     }
     if (filters?.fromDate || filters?.toDate) {
       where.startTime = {};

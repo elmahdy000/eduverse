@@ -55,9 +55,10 @@ export class SessionsController {
   async listActiveSessions(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 20,
+    @Query('customerName') customerName?: string,
   ) {
     try {
-      const result = await this.sessionsService.listActiveSessions(page, limit);
+      const result = await this.sessionsService.listActiveSessions(page, limit, customerName);
       return {
         success: true,
         data: result,

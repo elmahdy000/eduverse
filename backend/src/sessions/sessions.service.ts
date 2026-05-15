@@ -304,12 +304,18 @@ export class SessionsService {
     return session;
   }
 
-  async listActiveSessions(page: number = 1, limit: number = 20) {
+  async listActiveSessions(page: number = 1, limit: number = 20, customerName?: string) {
     const skip = (page - 1) * limit;
+    const where: any = { status: 'active' };
+    if (customerName) {
+      where.customer = {
+        fullName: { contains: customerName, mode: 'insensitive' },
+      };
+    }
 
     const [sessions, total] = await Promise.all([
       this.prisma.session.findMany({
-        where: { status: 'active' },
+        where,
         include: {
           customer: true,
           room: true,
@@ -318,7 +324,7 @@ export class SessionsService {
         take: limit,
         orderBy: { startTime: 'desc' },
       }),
-      this.prisma.session.count({ where: { status: 'active' } }),
+      this.prisma.session.count({ where }),
     ]);
 
     const hasMore = skip + sessions.length < total;

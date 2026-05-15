@@ -102,6 +102,7 @@ export class BookingsController {
     @Query('status') status?: string,
     @Query('roomId') roomId?: string,
     @Query('customerId') customerId?: string,
+    @Query('customerName') customerName?: string,
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
   ) {
@@ -110,6 +111,7 @@ export class BookingsController {
         status,
         roomId,
         customerId,
+        customerName,
         fromDate,
         toDate,
       });

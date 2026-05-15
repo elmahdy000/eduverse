@@ -681,45 +681,51 @@ export default function BaristaPOSPage() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                <User size={14} className="text-slate-400" />
-                <select
-                  className="flex-1 bg-transparent border-none text-[11px] font-bold focus:ring-0 p-0"
-                  onChange={(e) => {
-                    const session = activeSessionsQuery.data?.data?.find((s) => s.id === e.target.value);
-                    setSessionId(e.target.value);
-                    if (session?.customer) setSelectedCustomer(session.customer as any);
-                  }}
-                  value={sessionId}
-                >
-                  <option value="">ضيف خارجي</option>
-                  {activeSessionsQuery.data?.data?.map((s) => (
-                    <option key={s.id} value={s.id}>{s.customer?.fullName || "جلسة نشطة"}</option>
-                  ))}
-                </select>
-              </div>
-              {selectedCustomer ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <div className="font-bold text-slate-900">{selectedCustomer.fullName}</div>
-                      <div className="text-slate-500">{selectedCustomer.phoneNumber || "بدون هاتف"}</div>
-                    </div>
+            <div className="space-y-4">
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">العميل المختار</p>
+                    <p className="mt-1 text-sm font-bold text-slate-900">
+                      {selectedCustomer?.fullName || (sessionId ? "العميل من الجلسة" : "لم يتم اختيار عميل")}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      {selectedCustomer?.phoneNumber || (sessionId ? "سيتم استخدام العميل المرتبط بالجلسة" : "اختر عميلًا من القائمة أو جلسة نشطة")}
+                    </p>
+                  </div>
+                  {selectedCustomer && (
                     <button
                       type="button"
                       onClick={() => setSelectedCustomer(null)}
-                      className="text-[11px] text-slate-500 hover:text-slate-900"
+                      className="rounded-2xl border border-slate-200 px-3 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
                     >
                       مسح
                     </button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-500">
-                  اختر عميلًا من القائمة أو حدد جلسة نشطة.
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">الجلسة النشطة</p>
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-white">
+                  <select
+                    className="w-full bg-transparent px-4 py-3 text-[12px] font-bold outline-none"
+                    onChange={(e) => {
+                      const session = activeSessionsQuery.data?.data?.find((s) => s.id === e.target.value);
+                      setSessionId(e.target.value);
+                      if (session?.customer) setSelectedCustomer(session.customer as any);
+                    }}
+                    value={sessionId}
+                  >
+                    <option value="">لا توجد جلسة</option>
+                    {activeSessionsQuery.data?.data?.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.customer?.fullName || "جلسة نشطة"} - {s.room?.name || "بدون غرفة"}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 

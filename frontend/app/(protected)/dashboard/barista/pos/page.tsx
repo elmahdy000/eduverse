@@ -90,7 +90,6 @@ export default function BaristaPOSPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
-  const [showCustomerResults, setShowCustomerResults] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [customerTab, setCustomerTab] = useState<"search" | "staff">("search");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
@@ -124,9 +123,10 @@ export default function BaristaPOSPage() {
 
   const customersQuery = useQuery({
     queryKey: ["customers", "search", customerSearchQuery],
-    enabled: customerSearchQuery.length > 1,
     queryFn: async () => {
-      const response = await api.get("/customers", { params: { name: customerSearchQuery, page: 1, limit: 10 } });
+      const params: Record<string, any> = { page: 1, limit: 50 };
+      if (customerSearchQuery.trim()) params.name = customerSearchQuery.trim();
+      const response = await api.get("/customers", { params });
       return response.data.data as Paginated<Customer>;
     },
   });
@@ -568,24 +568,158 @@ export default function BaristaPOSPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">تخصيص الطلب</p>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-slate-200">
-              <User size={14} className="text-slate-400" />
-              <select 
-                className="flex-1 bg-transparent border-none text-[11px] font-bold focus:ring-0 p-0"
-                onChange={(e) => {
-                  const session = activeSessionsQuery.data?.data?.find(s => s.id === e.target.value);
-                  setSessionId(e.target.value);
-                  if (session?.customer) setSelectedCustomer(session.customer as any);
-                }}
-                value={sessionId}
+          <div className="space-y-3">
+            <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">اختيار العميل</p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCustomerTab("search")}
+                className={clsx(
+                  "flex-1 rounded-2xl border px-3 py-2 text-[10px] font-bold transition",
+                  customerTab === "search"
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                )}
               >
-                <option value="">ضيف خارجي</option>
-                {activeSessionsQuery.data?.data?.map(s => (
-                  <option key={s.id} value={s.id}>{s.customer?.fullName || "جلسة نشطة"}</option>
-                ))}
-              </select>
+                بحث العملاء
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerTab("staff")}
+                className={clsx(
+                  "flex-1 rounded-2xl border px-3 py-2 text-[10px] font-bold transition",
+                  customerTab === "staff"
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                )}
+              >
+                موظفين / خصومات
+              </button>
+            </div>
+
+            {customerTab === "search" ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                  <Search size={14} className="text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="ابحث باسم أو هاتف العميل"
+                    value={customerSearchQuery}
+                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent border-none text-[11px] font-bold focus:ring-0 outline-none"
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-2">
+                  {customersQuery.isLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, idx) => (
+                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (customersQuery.data?.data.length ?? 0) > 0 ? (
+                    customersQuery.data?.data.map((customer) => (
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setSessionId("");
+                        }}
+                        className={clsx(
+                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
+                          selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
+                        )}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span>{customer.fullName}</span>
+                          <span className="text-[10px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
+                        </div>
+                        {customer.customerType && (
+                          <div className="mt-1 text-[10px] text-slate-500">{customer.customerType}</div>
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-[11px] text-slate-500">لا يوجد عملاء مطابقين.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="rounded-2xl border border-slate-200 bg-white p-2 max-h-48 overflow-y-auto">
+                  {staffQuery.isLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, idx) => (
+                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (staffQuery.data?.data.length ?? 0) > 0 ? (
+                    staffQuery.data?.data.map((customer) => (
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setSessionId("");
+                          setCustomerTab("search");
+                        }}
+                        className={clsx(
+                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
+                          selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
+                        )}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span>{customer.fullName}</span>
+                          <span className="text-[10px] text-slate-400">{customer.customerType}</span>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-[11px] text-slate-500">لا يوجد موظفين أو خصومات.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                <User size={14} className="text-slate-400" />
+                <select
+                  className="flex-1 bg-transparent border-none text-[11px] font-bold focus:ring-0 p-0"
+                  onChange={(e) => {
+                    const session = activeSessionsQuery.data?.data?.find((s) => s.id === e.target.value);
+                    setSessionId(e.target.value);
+                    if (session?.customer) setSelectedCustomer(session.customer as any);
+                  }}
+                  value={sessionId}
+                >
+                  <option value="">ضيف خارجي</option>
+                  {activeSessionsQuery.data?.data?.map((s) => (
+                    <option key={s.id} value={s.id}>{s.customer?.fullName || "جلسة نشطة"}</option>
+                  ))}
+                </select>
+              </div>
+              {selectedCustomer ? (
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="font-bold text-slate-900">{selectedCustomer.fullName}</div>
+                      <div className="text-slate-500">{selectedCustomer.phoneNumber || "بدون هاتف"}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCustomer(null)}
+                      className="text-[11px] text-slate-500 hover:text-slate-900"
+                    >
+                      مسح
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-500">
+                  اختر عميلًا من القائمة أو حدد جلسة نشطة.
+                </div>
+              )}
             </div>
           </div>
 

@@ -33,32 +33,23 @@ export class BookingsService {
       },
     });
 
-    const activeSessionConflict = await this.prisma.session.findFirst({
-      where: {
-        roomId,
-        status: 'active',
-        // Only conflict if the booking starts in the immediate future (e.g., today)
-        // or if there's a real overlap. Since active sessions have no endTime,
-        // we assume they only block the room for the CURRENT time.
-        startTime: { lt: endTime },
-        OR: [
-          { endTime: { gt: startTime } },
-          {
-            AND: [
-              { endTime: null },
-              { startTime: { lt: new Date() } }, // It's currently active
-              { 
-                // If the booking is starting now or in the very near future (e.g. next 30 mins)
-                startTime: { lt: new Date(Date.now() + 30 * 60000) } 
-              }
-            ]
-          }
-        ],
-      },
-      include: {
-        customer: true,
-      },
-    });
+    let activeSessionConflict = null;
+
+    // Active session with no end time should only block very near-future bookings,
+    // otherwise we cannot safely assume the room remains occupied for a later booking.
+    if (startTime < new Date(Date.now() + 30 * 60000)) {
+      activeSessionConflict = await this.prisma.session.findFirst({
+        where: {
+          roomId,
+          status: 'active',
+          endTime: null,
+          startTime: { lt: new Date() },
+        },
+        include: {
+          customer: true,
+        },
+      });
+    }
 
     return {
       hasConflict: Boolean(bookingConflict || activeSessionConflict),

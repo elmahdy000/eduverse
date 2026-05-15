@@ -44,9 +44,14 @@ export class BarOrdersController {
       select: { name: true },
     });
 
-    if (role?.name === 'Operations Manager') {
+    if (!role) {
+      throw new ForbiddenException('User role not found');
+    }
+
+    const allowedRoles = ['Barista', 'Receptionist', 'Owner'];
+    if (!allowedRoles.includes(role.name)) {
       throw new ForbiddenException(
-        'Operations Manager can view bar orders but cannot change order status',
+        'Only Barista, Receptionist, or Owner can modify bar orders',
       );
     }
   }

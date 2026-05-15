@@ -200,7 +200,21 @@ export class InvoicesService {
       where: { id: invoiceId },
       include: {
         customer: true,
-        session: true,
+        session: {
+          include: {
+            room: true,
+            booking: true,
+            barOrders: {
+              include: {
+                items: {
+                  include: {
+                    product: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         items: true,
         payments: {
           orderBy: { paidAt: 'desc' },

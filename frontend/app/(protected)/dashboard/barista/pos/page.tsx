@@ -122,9 +122,9 @@ export default function BaristaPOSPage() {
   });
 
   const customersQuery = useQuery({
-    queryKey: ["customers", "search", customerSearchQuery],
+    queryKey: ["customers", customerSearchQuery ? "search" : "all", customerSearchQuery],
     queryFn: async () => {
-      const params: Record<string, any> = { page: 1, limit: 50 };
+      const params: Record<string, any> = { page: 1, limit: 200 };
       if (customerSearchQuery.trim()) params.name = customerSearchQuery.trim();
       const response = await api.get("/customers", { params });
       return response.data.data as Paginated<Customer>;
@@ -134,7 +134,7 @@ export default function BaristaPOSPage() {
   const staffQuery = useQuery({
     queryKey: ["customers", "staff-list"],
     queryFn: async () => {
-      const response = await api.get("/customers", { params: { customerType: "staff,owner_discount", limit: 50 } });
+      const response = await api.get("/customers", { params: { customerType: "staff,owner_discount", limit: 200 } });
       return response.data.data as Paginated<Customer>;
     },
   });
@@ -617,28 +617,33 @@ export default function BaristaPOSPage() {
                       ))}
                     </div>
                   ) : (customersQuery.data?.data.length ?? 0) > 0 ? (
-                    customersQuery.data?.data.map((customer) => (
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedCustomer(customer);
-                          setSessionId("");
-                        }}
-                        className={clsx(
-                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
-                          selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
-                        )}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span>{customer.fullName}</span>
-                          <span className="text-[10px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
-                        </div>
-                        {customer.customerType && (
-                          <div className="mt-1 text-[10px] text-slate-500">{customer.customerType}</div>
-                        )}
-                      </button>
-                    ))
+                    <>
+                      <div className="mb-2 text-[11px] font-semibold text-slate-500">
+                        عرض {customersQuery.data?.data.length ?? 0} من أصل {customersQuery.data?.total ?? 0} عميل
+                      </div>
+                      {customersQuery.data?.data.map((customer) => (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCustomer(customer);
+                            setSessionId("");
+                          }}
+                          className={clsx(
+                            "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
+                            selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span>{customer.fullName}</span>
+                            <span className="text-[10px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
+                          </div>
+                          {customer.customerType && (
+                            <div className="mt-1 text-[10px] text-slate-500">{customer.customerType}</div>
+                          )}
+                        </button>
+                      ))}
+                    </>
                   ) : (
                     <p className="text-[11px] text-slate-500">لا يوجد عملاء مطابقين.</p>
                   )}

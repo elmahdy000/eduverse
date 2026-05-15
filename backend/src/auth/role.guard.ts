@@ -229,6 +229,8 @@ export class RoleGuard implements CanActivate {
       const barista: Record<string, string[]> = {
         bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
         products:   ['read'],
+        customers:  ['read'],
+        sessions:   ['read'],
         dashboards: ['view_barista'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';

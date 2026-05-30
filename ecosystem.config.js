@@ -3,8 +3,8 @@ module.exports = {
     {
       name: 'eduverse-backend',
       cwd: './backend',
-      script: 'npm',
-      args: 'run start:prod',
+      script: 'node',
+      args: 'dist/src/main',
       env: {
         PORT: 3008,
         NODE_ENV: 'production'

@@ -593,7 +593,7 @@ export function Sheet({
           <motion.div
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="relative w-full max-w-2xl overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200"
+            className="relative w-full max-w-2xl overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl ring-1 ring-slate-200 max-h-[85vh] flex flex-col"
             dir="rtl"
           >
             {children}

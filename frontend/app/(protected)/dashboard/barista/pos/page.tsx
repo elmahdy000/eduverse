@@ -301,7 +301,9 @@ export default function BaristaPOSPage() {
     queryKey: ["customers", "staff-list"],
     queryFn: async () => {
       const response = await api.get("/customers", { params: { customerType: "staff,owner_discount", limit: 200 } });
-      return response.data.data as Paginated<Customer>;
+      // Backend returns paginated: { data: { data: [...], total, ... } }
+      const payload = response.data.data;
+      return (payload?.data ?? payload ?? []) as Customer[];
     },
   });
 
@@ -968,6 +970,9 @@ export default function BaristaPOSPage() {
 
             {customerTab === "staff" && (
               <div className="space-y-2">
+                <p className="text-[10px] text-slate-400 font-semibold px-1">
+                  اختر موظف أو مالك لتطبيق الخصم على الطلب تلقائياً.
+                </p>
                 <div className="rounded-2xl border border-slate-200 bg-white p-2 max-h-48 overflow-y-auto">
                   {staffQuery.isLoading ? (
                     <div className="space-y-2">
@@ -975,8 +980,8 @@ export default function BaristaPOSPage() {
                         <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
                       ))}
                     </div>
-                  ) : (staffQuery.data?.data.length ?? 0) > 0 ? (
-                    staffQuery.data?.data.map((customer) => (
+                  ) : (staffQuery.data?.length ?? 0) > 0 ? (
+                    staffQuery.data?.map((customer) => (
                       <button
                         key={customer.id}
                         type="button"
@@ -985,18 +990,32 @@ export default function BaristaPOSPage() {
                           setSessionId("");
                         }}
                         className={clsx(
-                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
-                          selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
+                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition mb-1 border",
+                          selectedCustomer?.id === customer.id
+                            ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-800 hover:bg-slate-50 border-slate-100"
                         )}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span>{customer.fullName}</span>
-                          <span className="text-[10px] text-slate-400">{customer.customerType}</span>
+                          <span className="font-bold truncate">{customer.fullName}</span>
+                          <span className={clsx(
+                            "shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black",
+                            customer.customerType === "owner_discount"
+                              ? selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
+                              : selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700"
+                          )}>
+                            {customer.customerType === "owner_discount" ? "مالك 70%" : "موظف 50%"}
+                          </span>
                         </div>
+                        {customer.phoneNumber && (
+                          <span className={clsx("text-[9px]", selectedCustomer?.id === customer.id ? "text-slate-300" : "text-slate-400")}>
+                            {customer.phoneNumber}
+                          </span>
+                        )}
                       </button>
                     ))
                   ) : (
-                    <p className="text-[11px] text-slate-500">لا يوجد موظفين أو خصومات.</p>
+                    <p className="text-[11px] text-slate-500 text-center py-4">لا يوجد موظفين أو أصحاب خصومات مسجلين.</p>
                   )}
                 </div>
               </div>

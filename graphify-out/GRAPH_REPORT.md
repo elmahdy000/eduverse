@@ -1,12 +1,12 @@
 # Graph Report - D:\coders\eduvers  (2026-06-01)
 
 ## Corpus Check
-- 138 files · ~310,941 words
+- 138 files · ~311,132 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 651 nodes · 706 edges · 105 communities detected
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 92 edges (avg confidence: 0.8)
+- 652 nodes · 709 edges · 105 communities detected
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 93 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -155,8 +155,8 @@ Cohesion: 0.06
 Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.06
-Nodes (14): dateTime(), money(), translatePaymentMethod(), ActiveSessionCard(), cn(), downloadInvoiceSnapshot(), getCategoryIcon(), getProductImage() (+6 more)
+Cohesion: 0.07
+Nodes (11): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryIcon(), getCategoryMeta(), getProductImage(), money() (+3 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.08
@@ -203,88 +203,88 @@ Cohesion: 0.18
 Nodes (1): RoomsController
 
 ### Community 15 - "Community 15"
+Cohesion: 0.24
+Nodes (6): dateTime(), money(), ActiveSessionCard(), downloadInvoiceSnapshot(), printInvoiceOnly(), useSessionTimer()
+
+### Community 16 - "Community 16"
 Cohesion: 0.36
 Nodes (1): AuditLogsInterceptor
 
-### Community 16 - "Community 16"
+### Community 17 - "Community 17"
 Cohesion: 0.22
 Nodes (1): ProductsController
 
-### Community 17 - "Community 17"
+### Community 18 - "Community 18"
 Cohesion: 0.31
 Nodes (1): ProductsService
 
-### Community 18 - "Community 18"
+### Community 19 - "Community 19"
 Cohesion: 0.22
 Nodes (1): ShiftsController
 
-### Community 19 - "Community 19"
+### Community 20 - "Community 20"
 Cohesion: 0.25
 Nodes (1): DashboardsController
 
-### Community 20 - "Community 20"
+### Community 21 - "Community 21"
 Cohesion: 0.25
 Nodes (1): PaymentsService
 
-### Community 21 - "Community 21"
+### Community 22 - "Community 22"
 Cohesion: 0.25
 Nodes (1): SessionsController
 
-### Community 22 - "Community 22"
+### Community 23 - "Community 23"
 Cohesion: 0.29
 Nodes (1): PaymentsController
 
-### Community 23 - "Community 23"
+### Community 24 - "Community 24"
 Cohesion: 0.73
 Nodes (5): apiRequest(), assertSuccess(), firstListItem(), login(), main()
 
-### Community 24 - "Community 24"
+### Community 25 - "Community 25"
 Cohesion: 0.73
 Nodes (5): apiRequest(), isAllowedStatus(), login(), main(), runRoleSimulation()
 
-### Community 25 - "Community 25"
+### Community 26 - "Community 26"
 Cohesion: 0.33
 Nodes (5): CreateCustomerDto, CustomerResponseDto, CustomersListResponseDto, SearchCustomerDto, UpdateCustomerDto
 
-### Community 26 - "Community 26"
+### Community 27 - "Community 27"
 Cohesion: 0.33
 Nodes (5): ChangePasswordDto, CreateUserDto, UpdateUserDto, UserResponseDto, UsersListResponseDto
 
-### Community 27 - "Community 27"
+### Community 28 - "Community 28"
 Cohesion: 0.33
 Nodes (1): WaitBadge()
 
-### Community 28 - "Community 28"
+### Community 29 - "Community 29"
 Cohesion: 0.53
 Nodes (4): fetchInventory(), handleAddStock(), handleCreateItem(), handleRecordWaste()
 
-### Community 29 - "Community 29"
+### Community 30 - "Community 30"
 Cohesion: 0.4
 Nodes (1): AppController
 
-### Community 30 - "Community 30"
+### Community 31 - "Community 31"
 Cohesion: 0.4
 Nodes (1): AuditLogsController
 
-### Community 31 - "Community 31"
+### Community 32 - "Community 32"
 Cohesion: 0.4
 Nodes (4): AuthResponseDto, LoginDto, LoginResponseDto, RegisterDto
 
-### Community 32 - "Community 32"
+### Community 33 - "Community 33"
 Cohesion: 0.4
 Nodes (1): PrismaService
 
-### Community 33 - "Community 33"
+### Community 34 - "Community 34"
 Cohesion: 0.4
 Nodes (4): CreateCategoryDto, CreateExpenseDto, CreateVendorDto, UpdateExpenseDto
 
-### Community 34 - "Community 34"
-Cohesion: 0.4
-Nodes (4): CreateRoomDto, RoomAvailabilityDto, RoomResponseDto, UpdateRoomDto
-
 ### Community 35 - "Community 35"
 Cohesion: 0.4
-Nodes (0): 
+Nodes (4): CreateRoomDto, RoomAvailabilityDto, RoomResponseDto, UpdateRoomDto
 
 ### Community 36 - "Community 36"
 Cohesion: 0.4
@@ -694,4 +694,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07 - nodes in this community are weakly interconnected._

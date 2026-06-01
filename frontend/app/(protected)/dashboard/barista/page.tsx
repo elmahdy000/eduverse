@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X } from "lucide-react";
+import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X, Bell } from "lucide-react";
 
 import Link from "next/link";
 import { api } from "../../../../lib/api";
@@ -114,6 +114,19 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
 
 export default function BaristaDashboardPage() {
   const [isSocketLive, setIsSocketLive] = useState(false);
+  const [newOrderFlash, setNewOrderFlash] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unknown">("unknown");
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Request browser notification permission on mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPermission(Notification.permission);
+      if (Notification.permission === "default") {
+        Notification.requestPermission().then((p) => setNotifPermission(p));
+      }
+    }
+  }, []);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["dashboard", "barista"],
@@ -129,10 +142,49 @@ export default function BaristaDashboardPage() {
   const [prevNewCount, setPrevNewCount] = useState<number | null>(null);
 
   const playNotificationSound = useCallback(() => {
+    // 1. Web Audio API beep (always works, no CDN needed)
     try {
-      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-      audio.play().catch(() => {});
-    } catch {}
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioContext();
+      }
+      const ctx = audioCtxRef.current;
+      const playBeep = (freq: number, start: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + duration);
+      };
+      // Triple chime: 880 → 1046 → 1318 Hz
+      playBeep(880, 0.0, 0.25);
+      playBeep(1046, 0.3, 0.25);
+      playBeep(1318, 0.6, 0.4);
+    } catch (e) {
+      // 2. External CDN fallback
+      try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(() => {});
+      } catch {}
+    }
+
+    // 3. Visual flash
+    setNewOrderFlash(true);
+    setTimeout(() => setNewOrderFlash(false), 1200);
+
+    // 4. Browser Push Notification
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      new Notification("☕ طلب جديد وصل!", {
+        body: "في طلب جديد ينتظر التحضير — شوف لوحة الباريستا.",
+        icon: "/favicon.ico",
+        tag: "new-bar-order",
+        requireInteraction: false,
+      });
+    }
   }, []);
 
   const [chatMessages, setChatMessages] = useState<any[]>([]);
@@ -221,7 +273,22 @@ export default function BaristaDashboardPage() {
   const hasUrgent = [...data.newOrders, ...data.inPreparationOrders].some(o => (o.waitMinutes ?? 0) > 15);
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 transition-all duration-300 ${newOrderFlash ? 'ring-4 ring-amber-400/60 rounded-2xl' : ''}`}>
+      {/* Browser notification prompt */}
+      {notifPermission === "default" && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Bell size={15} className="text-amber-600" />
+            <p className="text-xs font-bold text-amber-700">فعّل إشعارات المتصفح عشان تتنبه بالطلبات الجديدة حتى لو النافذة مش في المقدمة.</p>
+          </div>
+          <button
+            onClick={() => Notification.requestPermission().then((p) => setNotifPermission(p))}
+            className="shrink-0 rounded-xl bg-amber-500 px-3 py-1.5 text-[11px] font-black text-white hover:bg-amber-600 transition"
+          >
+            تفعيل
+          </button>
+        </div>
+      )}
       <SectionTitle
         title="لوحة الباريستا ☕"
         subtitle="الطلبات بالترتيب — شيل من هنا وحطه هناك، ومتخليش حاجة تتأخر."

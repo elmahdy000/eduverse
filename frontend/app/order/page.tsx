@@ -15,6 +15,7 @@ import { io, Socket } from "socket.io-client";
 import { Input, Btn, Sheet, SheetHeader, SheetTitle, ScrollArea, Modal } from "@/components/ui";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { translateProductCategory, translateProductName } from "@/lib/labels";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,26 +45,6 @@ interface Order {
   createdAt: string;
   items: OrderItem[];
 }
-
-// --- Helpers ---
-const translateProductCategory = (category: string) => {
-  const map: Record<string, string> = {
-    'Hot Drinks': 'مشروبات ساخنة',
-    'Cold Drinks': 'مشروبات باردة',
-    'Juices': 'عصائر طازجة',
-    'Desserts': 'حلويات',
-    'Snacks': 'سناكس',
-    'Appetizers': 'مقبلات',
-    'Main Courses': 'أطباق رئيسية',
-    'Coffee': 'ركن القهوة',
-    'Tea': 'شاي ومنكهات',
-    'Soft Drinks': 'مشروبات غازية',
-    'Water': 'مياه معدنية',
-    'Bakery': 'مخبوزات',
-    'Breakfast': 'فطور',
-  };
-  return map[category] || category;
-};
 
 const getCategoryIcon = (category: string) => {
   const c = category.toLowerCase();
@@ -279,12 +260,59 @@ export default function GuestOrderPage() {
 
   useEffect(() => {
     if (isAuthorized && guestCode) {
-      const s = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
+      const getBaseUrl = () => {
+        if (typeof window !== "undefined") {
+          const envBase = process.env.NEXT_PUBLIC_API_URL;
+          if (envBase) return envBase;
+
+          const origin = window.location.origin;
+          if (origin.includes(":3000")) {
+            return origin.replace(":3000", ":3001");
+          }
+          return origin;
+        }
+        return "http://localhost:3001";
+      };
+
+      const RAW_BASE = getBaseUrl();
+      const SOCKET_BASE = RAW_BASE.replace(/\/api\/?$/, "");
+      const SOCKET_URL = SOCKET_BASE + "/bar-orders";
+
+      const s = io(SOCKET_URL, {
+        transports: ["websocket", "polling"],
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 500,
+        reconnectionDelayMax: 3000,
+        timeout: 10000,
+      });
+
       setSocket(s);
-      s.emit("join_guest", guestCode);
-      s.on("order_status_updated", () => queryClient.invalidateQueries({ queryKey: ["guest-orders"] }));
-      s.on("new_chat_message", (msg) => setChatMessages(prev => [...prev, msg]));
-      return () => { s.disconnect(); };
+
+      s.on("connect", () => {
+        console.log("[Socket.IO] Connected to bar-orders as guest:", guestCode);
+        s.emit("chat:ping");
+      });
+
+      s.on("order:status-updated", (order) => {
+        console.log("[Socket.IO] order:status-updated received:", order);
+        queryClient.invalidateQueries({ queryKey: ["guest-orders"] });
+      });
+
+      s.on("chat:message", (msg) => {
+        console.log("[Socket.IO] chat:message received by guest:", msg);
+        if (msg.orderId === guestCode) {
+          setChatMessages(prev => {
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          });
+        }
+      });
+
+      return () => {
+        s.disconnect();
+      };
     }
   }, [isAuthorized, guestCode, queryClient]);
 
@@ -564,7 +592,7 @@ export default function GuestOrderPage() {
                             <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{prods.length}</span>
                           </div>
                           
-                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                             {prods.map(product => (
                               <div 
                                 key={product.id} 
@@ -577,7 +605,7 @@ export default function GuestOrderPage() {
                                 <ProductImage product={product} className="h-16 w-16 rounded-lg shrink-0" />
                                 <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
                                   <div className="min-w-0">
-                                    <h4 className="text-sm font-bold text-slate-900 truncate">{product.name}</h4>
+                                    <h4 className="text-sm font-bold text-slate-900 truncate">{translateProductName(product.name)}</h4>
                                     <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{product.description || translateProductCategory(product.category)}</p>
                                   </div>
                                   <div className="flex items-center justify-between mt-2 min-w-0">
@@ -647,7 +675,7 @@ export default function GuestOrderPage() {
                               <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">تفاصيل الطلب</p>
                               {order.items?.map(item => (
                                 <div key={item.id} className="flex justify-between items-center text-[11px] text-slate-700 bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
-                                  <span className="truncate font-medium">{item.quantity} × {item.product?.name || "صنف محذوف"}</span>
+                                  <span className="truncate font-medium">{item.quantity} × {item.product ? translateProductName(item.product.name) : "صنف محذوف"}</span>
                                   <span className="font-bold shrink-0 ml-2">{money(item.subtotal)}</span>
                                 </div>
                               ))}
@@ -697,7 +725,7 @@ export default function GuestOrderPage() {
 
       {/* Mobile Cart Sheet */}
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-        <div className="flex flex-col h-full bg-white overflow-x-hidden">
+        <div className="flex flex-col h-[80vh] bg-white overflow-x-hidden">
           <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto my-3 shrink-0" />
           <div className="px-4 pb-2 border-b border-slate-100 flex justify-between items-center shrink-0">
             <h2 className="text-base font-bold text-slate-900">سلة المشتريات</h2>
@@ -710,7 +738,7 @@ export default function GuestOrderPage() {
                   <ProductImage product={item.product} className="h-14 w-14 rounded-lg shrink-0" />
                   <div className="flex-1 flex flex-col justify-between min-w-0">
                     <div className="flex justify-between items-start min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">{item.product.name}</p>
+                      <p className="text-xs font-bold text-slate-900 truncate">{translateProductName(item.product.name)}</p>
                       <p className="text-xs font-bold text-slate-900 shrink-0 ml-2">{money(item.product.price * item.qty)}</p>
                     </div>
                     <div className="flex justify-between items-center mt-2">
@@ -747,7 +775,7 @@ export default function GuestOrderPage() {
                 <div key={item.id} className="flex justify-between items-center text-xs min-w-0">
                   <div className="flex items-center gap-2 text-slate-700 min-w-0">
                     <span className="font-bold text-slate-900 bg-white border border-slate-200 h-5 w-5 rounded flex items-center justify-center text-[10px] shrink-0">{item.qty}</span>
-                    <span className="truncate">{item.product.name}</span>
+                    <span className="truncate">{translateProductName(item.product.name)}</span>
                   </div>
                   <span className="font-bold text-slate-900 shrink-0 ml-2">{money(item.product.price * item.qty)}</span>
                 </div>
@@ -831,10 +859,10 @@ export default function GuestOrderPage() {
                 onChange={(e: any) => setChatInput(e.target.value)} 
                 placeholder="رسالتك..." 
                 className="h-8 text-[11px] rounded-md border-slate-200 flex-1 bg-slate-50 focus:bg-white" 
-                onKeyDown={e => e.key === 'Enter' && chatInput && socket && (() => { socket.emit("guest_message", { tableCode: guestCode, text: chatInput }); setChatInput(""); })()}
+                onKeyDown={e => e.key === 'Enter' && chatInput.trim() && socket && (() => { socket.emit("chat:send", { orderId: guestCode, sender: "GUEST", text: chatInput.trim() }); setChatInput(""); })()}
               />
               <button 
-                onClick={() => { if (chatInput && socket) { socket.emit("guest_message", { tableCode: guestCode, text: chatInput }); setChatInput(""); } }} 
+                onClick={() => { if (chatInput.trim() && socket) { socket.emit("chat:send", { orderId: guestCode, sender: "GUEST", text: chatInput.trim() }); setChatInput(""); } }} 
                 className="h-8 w-8 bg-slate-900 text-white rounded-md flex items-center justify-center hover:bg-slate-800 transition-colors shrink-0"
               >
                 <Send size={12} className="rotate-180" />

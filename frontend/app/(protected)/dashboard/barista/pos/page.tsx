@@ -91,7 +91,7 @@ export default function BaristaPOSPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [customerTab, setCustomerTab] = useState<"search" | "staff">("search");
+  const [customerTab, setCustomerTab] = useState<"active" | "search" | "staff">("active");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
   useEffect(() => {
@@ -573,9 +573,21 @@ export default function BaristaPOSPage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => setCustomerTab("active")}
+                className={clsx(
+                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
+                  customerTab === "active"
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                )}
+              >
+                العملاء المتواجدين
+              </button>
+              <button
+                type="button"
                 onClick={() => setCustomerTab("search")}
                 className={clsx(
-                  "flex-1 rounded-2xl border px-3 py-2 text-[10px] font-bold transition",
+                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
                   customerTab === "search"
                     ? "bg-slate-900 text-white border-slate-900"
                     : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
@@ -587,7 +599,7 @@ export default function BaristaPOSPage() {
                 type="button"
                 onClick={() => setCustomerTab("staff")}
                 className={clsx(
-                  "flex-1 rounded-2xl border px-3 py-2 text-[10px] font-bold transition",
+                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
                   customerTab === "staff"
                     ? "bg-slate-900 text-white border-slate-900"
                     : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
@@ -597,7 +609,54 @@ export default function BaristaPOSPage() {
               </button>
             </div>
 
-            {customerTab === "search" ? (
+            {customerTab === "active" && (
+              <div className="space-y-2">
+                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-2">
+                  {activeSessionsQuery.isLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, idx) => (
+                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (activeSessionsQuery.data?.data?.length ?? 0) > 0 ? (
+                    activeSessionsQuery.data?.data?.map((session) => {
+                      const cust = session.customer;
+                      if (!cust) return null;
+                      const isSelected = sessionId === session.id;
+                      return (
+                        <button
+                          key={session.id}
+                          type="button"
+                          onClick={() => {
+                            setSessionId(session.id);
+                            setSelectedCustomer(cust as any);
+                          }}
+                          className={clsx(
+                            "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 flex flex-col gap-1 border",
+                            isSelected ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-100"
+                          )}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="font-bold">{cust.fullName}</span>
+                            <span className={clsx("text-[9px] px-1.5 py-0.5 rounded-md font-bold", isSelected ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600")}>
+                              {session.room?.name ? `غرفة ${session.room.name}` : "المساحة العامة"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between w-full text-[9px] text-slate-400">
+                            <span>{cust.phoneNumber || "بدون هاتف"}</span>
+                            {session.guestCode && <span>كود: {session.guestCode}</span>}
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="text-[11px] text-slate-500 text-center py-4">لا يوجد عملاء متواجدين حالياً.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {customerTab === "search" && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
                   <Search size={14} className="text-slate-400" />
@@ -649,7 +708,9 @@ export default function BaristaPOSPage() {
                   )}
                 </div>
               </div>
-            ) : (
+            )}
+
+            {customerTab === "staff" && (
               <div className="space-y-2">
                 <div className="rounded-2xl border border-slate-200 bg-white p-2 max-h-48 overflow-y-auto">
                   {staffQuery.isLoading ? (
@@ -666,7 +727,6 @@ export default function BaristaPOSPage() {
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setSessionId("");
-                          setCustomerTab("search");
                         }}
                         className={clsx(
                           "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",

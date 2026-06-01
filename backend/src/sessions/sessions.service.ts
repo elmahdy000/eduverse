@@ -92,13 +92,22 @@ export class SessionsService {
           throw new Error('هذه الغرفة خارج الخدمة حالياً');
         }
 
-        if (room.status === 'occupied') {
-          const activeRoomSession = await tx.session.findFirst({
-            where: { roomId: createSessionDto.roomId, status: 'active' },
-          });
-          if (activeRoomSession) {
-            throw new Error('الغرفة مشغولة حالياً بجلسة أخرى');
-          }
+        // Get all active sessions in this room
+        const activeRoomSessions = await tx.session.findMany({
+          where: { roomId: createSessionDto.roomId, status: 'active' },
+          include: { customer: true },
+        });
+
+        const hasTrainerActive = activeRoomSessions.some(
+          (s) => s.customer.customerType === 'trainer'
+        );
+
+        if (hasTrainerActive) {
+          throw new Error('الغرفة محجوزة بالكامل لمحاضر حالياً بجلسة أخرى ولا يمكن تسجيل عملاء آخرين فيها');
+        }
+
+        if (customer.customerType === 'trainer' && activeRoomSessions.length > 0) {
+          throw new Error('لا يمكن حجز الغرفة للمحاضر لوجود جلسات نشطة أخرى بها حالياً');
         }
 
         // تحذير: لو فيه حجز مؤكد على الغرفة خلال الساعتين الجايين
@@ -146,11 +155,12 @@ export class SessionsService {
         },
       });
 
-      // Update room status to occupied
+      // Update room status to occupied if it's a trainer/lecturer
       if (createSessionDto.roomId) {
+        const isTrainer = customer.customerType === 'trainer';
         await tx.room.update({
           where: { id: createSessionDto.roomId },
-          data: { status: 'occupied' },
+          data: { status: isTrainer ? 'occupied' : 'available' },
         });
       }
 
@@ -236,12 +246,21 @@ export class SessionsService {
         },
       });
 
-      // Update room status to available
+      // Update room status to available if no other active sessions remain
       if (updatedSession.roomId) {
-        await tx.room.update({
-          where: { id: updatedSession.roomId },
-          data: { status: 'available' },
+        const otherActiveSessionsCount = await tx.session.count({
+          where: {
+            roomId: updatedSession.roomId,
+            status: 'active',
+            id: { not: updatedSession.id }
+          }
         });
+        if (otherActiveSessionsCount === 0) {
+          await tx.room.update({
+            where: { id: updatedSession.roomId },
+            data: { status: 'available' },
+          });
+        }
       }
 
       // Generate invoice within the same transaction
@@ -366,12 +385,21 @@ export class SessionsService {
         },
       });
 
-      // Update room status to available
+      // Update room status to available if no other active sessions remain
       if (session.roomId) {
-        await tx.room.update({
-          where: { id: session.roomId },
-          data: { status: 'available' },
+        const otherActiveSessionsCount = await tx.session.count({
+          where: {
+            roomId: session.roomId,
+            status: 'active',
+            id: { not: session.id }
+          }
         });
+        if (otherActiveSessionsCount === 0) {
+          await tx.room.update({
+            where: { id: session.roomId },
+            data: { status: 'available' },
+          });
+        }
       }
 
       // Revert booking status if session is cancelled

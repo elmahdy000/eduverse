@@ -77,6 +77,54 @@ function getCategoryMeta(cat: string): CategoryMeta {
   return categoryConfig[cat] ?? categoryConfig.all;
 }
 
+const vintagePages = [
+  {
+    id: 1,
+    title: "Hot Drinks & Desserts",
+    image: "/images/vintage_coffee.png",
+    sections: [
+      { title: "HOT DRINKS", categories: ["coffee", "hot-drinks"] },
+      { title: "DESSERTS", categories: ["dessert"] }
+    ]
+  },
+  {
+    id: 2,
+    title: "Iced Drinks & Yogurt",
+    image: "/images/vintage_iced_coffee.png",
+    sections: [
+      { title: "ICE COFFEE", categories: ["cold-coffee", "frappuccino"] },
+      { title: "ICE TEA & YOGURT", categories: ["tea", "yougert"] }
+    ]
+  },
+  {
+    id: 3,
+    title: "Mocktails & Frappes",
+    image: "/images/vintage_cake.png",
+    sections: [
+      { title: "MOCKTAILS", categories: ["mocktails"] },
+      { title: "FRAPPE & BOBA", categories: ["frappe", "boba-drinks"] }
+    ]
+  },
+  {
+    id: 4,
+    title: "Milkshakes & Smoothies",
+    image: "/images/vintage_milkshake.png",
+    sections: [
+      { title: "MILK SHAKE", categories: ["milk-shake"] },
+      { title: "SMOOTHIE", categories: ["smoothies"] }
+    ]
+  },
+  {
+    id: 5,
+    title: "Cans & Additions",
+    image: "/images/vintage_smoothie.png",
+    sections: [
+      { title: "CANS & FOOD", categories: ["cans", "indomy"] },
+      { title: "ADDITIONS", categories: ["additions"] }
+    ]
+  }
+];
+
 export default function BaristaPOSPage() {
   const queryClient = useQueryClient();
 
@@ -94,6 +142,20 @@ export default function BaristaPOSPage() {
   const [customerTab, setCustomerTab] = useState<"active" | "search" | "staff">("active");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
+  // Vintage Mode States
+  const [viewMode, setViewMode] = useState<"grid" | "vintage">("grid");
+  const [vintagePageIndex, setVintagePageIndex] = useState(0);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     const stored = localStorage.getItem(FAVORITES_KEY);
     if (stored) {
@@ -104,6 +166,110 @@ export default function BaristaPOSPage() {
   useEffect(() => {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
   }, [favorites]);
+
+  const selectCategoryAndFlip = (cat: string) => {
+    setSelectedCategory(cat);
+    setShowFavorites(false);
+    
+    const pageIndex = vintagePages.findIndex(page => 
+      page.sections.some(sect => sect.categories.includes(cat))
+    );
+    if (pageIndex !== -1) {
+      const targetIndex = isLargeScreen 
+        ? Math.floor(pageIndex / 2) * 2 
+        : pageIndex;
+      setVintagePageIndex(targetIndex);
+    }
+  };
+
+  const renderVintagePage = (pageIndex: number) => {
+    const page = vintagePages[pageIndex];
+    if (!page) return null;
+
+    const products = productsQuery.data?.data ?? [];
+
+    return (
+      <div className="flex-1 flex flex-col p-6 min-h-[500px] bg-[#fbf7f0] border-4 border-[#8B7355] rounded-t-[80px] lg:rounded-t-[100px] rounded-b-[24px] shadow-lg relative text-[#4A3525] select-none font-serif">
+        {/* Page Top Header */}
+        <div className="text-center space-y-1 mb-5 border-b border-[#8B7355]/30 pb-3 relative">
+          <h1 className="text-4xl font-normal leading-none" style={{ fontFamily: "'Alex Brush', cursive" }}>Menu</h1>
+          <div className="text-[9px] tracking-widest uppercase font-bold text-[#8B7355]">
+            Page {page.id} • {page.title}
+          </div>
+          <div className="text-[10px] text-[#8B7355] mt-0.5">♡</div>
+        </div>
+
+        {/* Page Sections */}
+        <div className="flex-1 flex flex-col gap-6 relative justify-between">
+          <div className="space-y-6">
+            {page.sections.map((sect) => {
+              const sectionProducts = products.filter(p => sect.categories.includes(p.category));
+              const filteredSectProducts = sectionProducts.filter(p => {
+                if (!searchQuery.trim()) return true;
+                return p.name.toLowerCase().includes(searchQuery.toLowerCase());
+              });
+
+              if (filteredSectProducts.length === 0) return null;
+
+              return (
+                <div key={sect.title} className="space-y-2">
+                  <h3 className="text-lg font-black tracking-wider border-b border-[#8B7355]/20 pb-0.5 mb-2 text-right" style={{ fontFamily: "'Caveat', cursive" }}>
+                    {sect.title} ♡
+                  </h3>
+                  <div className="space-y-1">
+                    {filteredSectProducts.map((prod) => {
+                      const inCart = cart.find(i => i.productId === prod.id);
+                      return (
+                        <div
+                          key={prod.id}
+                          onClick={() => addToCart(prod)}
+                          className={clsx(
+                            "flex items-center justify-between py-1 px-1.5 rounded-lg cursor-pointer transition-all hover:bg-[#8B7355]/10 group",
+                            inCart ? "bg-[#8B7355]/15 font-bold" : ""
+                          )}
+                        >
+                          <div className="flex items-center min-w-0">
+                            {inCart && (
+                              <span className="bg-[#4A3525] text-[#fbf7f0] text-[9px] font-black px-1.5 py-0.5 rounded-full ml-1.5 shrink-0">
+                                {inCart.quantity}
+                              </span>
+                            )}
+                            <span className="text-[11px] font-bold truncate leading-tight">
+                              {translateProductName(prod.name)}
+                            </span>
+                          </div>
+                          <div className="flex-1 border-b border-dashed border-[#8B7355]/40 mx-2 h-3" />
+                          <span className="text-xs font-black shrink-0">
+                            {money(Number(prod.price))}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Sketch Illustration at bottom/side */}
+          {page.image && (
+            <div className="w-full flex items-center justify-end shrink-0 pt-2">
+              <img
+                src={page.image}
+                alt={page.title}
+                className="h-24 w-24 object-contain mix-blend-multiply opacity-80"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Decorative bottom separator */}
+        <div className="mt-4 pt-2 border-t border-[#8B7355]/20 flex justify-center text-[10px] text-[#8B7355]/60">
+          <span>🌿 eduverse cafe 🌿</span>
+        </div>
+      </div>
+    );
+  };
 
   const productsQuery = useQuery({
     queryKey: ["products", "pos"],
@@ -273,10 +439,15 @@ export default function BaristaPOSPage() {
   }, []);
 
   return (
-    <div
-      className="relative flex h-[calc(100vh-80px)] flex-col lg:flex-row overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm"
-      dir="rtl"
-    >
+    <>
+      <link 
+        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@700&display=swap" 
+        rel="stylesheet" 
+      />
+      <div
+        className="relative flex h-[calc(100vh-80px)] flex-col lg:flex-row overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm"
+        dir="rtl"
+      >
 
       {/* Categories Sidebar */}
       <aside className="hidden lg:flex w-16 lg:w-56 border-l border-slate-100 flex-col bg-slate-50/50 shrink-0">
@@ -313,7 +484,7 @@ export default function BaristaPOSPage() {
             return (
               <button
                 key={cat}
-                onClick={() => { setSelectedCategory(cat); setShowFavorites(false); }}
+                onClick={() => selectCategoryAndFlip(cat)}
                 className={clsx(
                   "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all group",
                   isActive
@@ -359,6 +530,29 @@ export default function BaristaPOSPage() {
             />
           </div>
           
+          <div className="flex bg-slate-100 p-1 rounded-xl gap-1 select-none">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={clsx(
+                "px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center gap-1",
+                viewMode === "grid" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              )}
+            >
+              <LayoutGrid size={12} />
+              <span>شبكة (Grid)</span>
+            </button>
+            <button
+              onClick={() => setViewMode("vintage")}
+              className={clsx(
+                "px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center gap-1",
+                viewMode === "vintage" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              )}
+            >
+              <Sparkles size={12} />
+              <span>كلاسيكي (Vintage)</span>
+            </button>
+          </div>
+
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["products", "pos"] })}
             className="h-10 px-3 lg:px-4 flex items-center gap-2 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors"
@@ -385,7 +579,7 @@ export default function BaristaPOSPage() {
             return (
               <button
                 key={cat}
-                onClick={() => { setSelectedCategory(cat); setShowFavorites(false); }}
+                onClick={() => selectCategoryAndFlip(cat)}
                 className={clsx(
                   "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all border",
                   isActive ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-500 border-slate-100"
@@ -407,10 +601,72 @@ export default function BaristaPOSPage() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 scroll-smooth">
+        <div className={clsx(
+          "flex-1 overflow-y-auto scroll-smooth",
+          viewMode === "vintage" ? "bg-[#5c4033] p-4 lg:p-6" : "px-6 py-6"
+        )}>
           {productsQuery.isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse" />)}
+            </div>
+          ) : viewMode === "vintage" ? (
+            <div className="max-w-6xl mx-auto flex flex-col h-full justify-between gap-6">
+              {/* Double page spread on large screens, single page on small */}
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {renderVintagePage(vintagePageIndex)}
+                
+                {/* On desktop, show the next page, or the decorative cover if we are at the end */}
+                <div className="hidden lg:flex flex-1">
+                  {vintagePageIndex + 1 < vintagePages.length ? (
+                    renderVintagePage(vintagePageIndex + 1)
+                  ) : (
+                    /* End Cover */
+                    <div className="flex-1 flex flex-col p-6 min-h-[500px] bg-[#fbf7f0] border-4 border-[#8B7355] rounded-t-[100px] rounded-b-[24px] shadow-lg relative text-[#4A3525] select-none font-serif items-center justify-center text-center">
+                      <h1 className="text-5xl font-normal leading-none mb-4" style={{ fontFamily: "'Alex Brush', cursive" }}>Eduverse</h1>
+                      <p className="text-xs tracking-widest uppercase font-bold text-[#8B7355] mb-2">🌿 Cafe & Study Space 🌿</p>
+                      <div className="w-16 h-px bg-[#8B7355]/40 my-4" />
+                      <p className="text-xs italic text-[#8B7355]/80 max-w-[200px]">"A space designed for productivity, learning, and premium coffee."</p>
+                      <img
+                        src="/images/vintage_coffee.png"
+                        alt="Eduverse Cafe"
+                        className="h-28 mt-6 object-contain mix-blend-multiply opacity-50 animate-pulse"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Book Page Navigation Controls */}
+              <div className="flex items-center justify-between bg-[#fbf7f0]/10 p-3 rounded-2xl border border-white/10 shrink-0 select-none">
+                <button
+                  disabled={vintagePageIndex === 0}
+                  onClick={() => {
+                    const step = isLargeScreen ? 2 : 1;
+                    setVintagePageIndex(prev => Math.max(0, prev - step));
+                  }}
+                  className="px-4 py-2 bg-[#fbf7f0] text-[#4A3525] font-black rounded-xl text-xs shadow-md disabled:opacity-40 disabled:pointer-events-none hover:bg-[#8B7355]/10 hover:text-black transition-colors"
+                >
+                  السابق (Previous)
+                </button>
+                
+                <span className="text-[11px] font-black text-white tracking-widest uppercase">
+                  {isLargeScreen 
+                    ? `Pages ${vintagePageIndex + 1}-${Math.min(vintagePages.length, vintagePageIndex + 2)} of ${vintagePages.length}`
+                    : `Page ${vintagePageIndex + 1} of ${vintagePages.length}`
+                  }
+                </span>
+
+                <button
+                  disabled={isLargeScreen ? vintagePageIndex >= vintagePages.length - 2 : vintagePageIndex >= vintagePages.length - 1}
+                  onClick={() => {
+                    const step = isLargeScreen ? 2 : 1;
+                    setVintagePageIndex(prev => Math.min(vintagePages.length - 1, prev + step));
+                  }}
+                  className="px-4 py-2 bg-[#fbf7f0] text-[#4A3525] font-black rounded-xl text-xs shadow-md disabled:opacity-40 disabled:pointer-events-none hover:bg-[#8B7355]/10 hover:text-black transition-colors"
+                >
+                  التالي (Next)
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-10">
@@ -923,5 +1179,6 @@ export default function BaristaPOSPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

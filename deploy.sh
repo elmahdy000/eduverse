@@ -24,7 +24,7 @@ cd ..
 
 # 4. Restart Services with PM2
 echo "🔄 Restarting PM2 processes..."
-pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+pm2 restart ecosystem.config.js --update-env || pm2 start ecosystem.config.js --update-env
 pm2 save
 
 echo "✅ Deployment Successful! Eduverse is up and running."

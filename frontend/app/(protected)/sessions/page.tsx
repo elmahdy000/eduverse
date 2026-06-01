@@ -165,6 +165,8 @@ export default function SessionsPage() {
   const [payNotes, setPayNotes] = useState("");
   const [tableStatusFilter, setTableStatusFilter] = useState<"all" | "active" | "closed" | "cancelled">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
   /* queries */
   const sessionsQuery = useQuery({
@@ -189,6 +191,21 @@ export default function SessionsPage() {
     () => (bookingsQuery.data?.data ?? []).filter((b: any) => b.customerId === customerId),
     [bookingsQuery.data, customerId]
   );
+
+  const selectedCustomer = useMemo(() => {
+    if (!customerId) return null;
+    return (customersQuery.data?.data ?? []).find((c) => c.id === customerId);
+  }, [customerId, customersQuery.data]);
+
+  const filteredCustomers = useMemo(() => {
+    const list = customersQuery.data?.data ?? [];
+    if (!customerSearchQuery) return list.slice(0, 10);
+    const q = customerSearchQuery.toLowerCase();
+    return list.filter((c) =>
+      c.fullName.toLowerCase().includes(q) ||
+      c.phoneNumber.includes(q)
+    );
+  }, [customersQuery.data, customerSearchQuery]);
 
   /* mutations */
   const openMutation = useMutation({
@@ -427,12 +444,117 @@ export default function SessionsPage() {
           <Panel title="فتح جلسة جديدة" icon={<DoorOpen size={15} />}>
             <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); openMutation.mutate(); }}>
               <FormField label="العميل">
-                <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)} required>
-                  <option value="">-- اختر العميل --</option>
-                  {customersQuery.data?.data?.map((c) => (
-                    <option key={c.id} value={c.id}>{c.fullName} ({c.phoneNumber})</option>
-                  ))}
-                </Select>
+                {selectedCustomer ? (
+                  <div className="relative rounded-xl border border-blue-200 bg-blue-50/20 p-3 flex items-center justify-between transition-all hover:bg-blue-50/40">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-800">{selectedCustomer.fullName}</span>
+                        <Badge tone={
+                          selectedCustomer.customerType === "student" ? "info" :
+                          selectedCustomer.customerType === "employee" ? "success" :
+                          selectedCustomer.customerType === "trainer" ? "warn" : "default"
+                        }>
+                          {selectedCustomer.customerType === "student" ? "طالب" :
+                           selectedCustomer.customerType === "employee" ? "موظف" :
+                           selectedCustomer.customerType === "trainer" ? "مدرب" : "زائر"}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-slate-500 flex items-center gap-1.5">
+                        <span>{selectedCustomer.phoneNumber}</span>
+                        {selectedCustomer.college && (
+                          <>
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />
+                            <span>{selectedCustomer.college}</span>
+                          </>
+                        )}
+                        {selectedCustomer.employerName && (
+                          <>
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />
+                            <span>{selectedCustomer.employerName}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomerId("");
+                        setCustomerSearchQuery("");
+                      }}
+                      className="rounded-lg bg-white border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      تغيير
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <div className="relative">
+                      <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="ابحث بالاسم أو رقم الهاتف..."
+                        value={customerSearchQuery}
+                        onChange={(e) => {
+                          setCustomerSearchQuery(e.target.value);
+                          setIsCustomerDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsCustomerDropdownOpen(true)}
+                        className="pr-10"
+                      />
+                    </div>
+                    
+                    {isCustomerDropdownOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsCustomerDropdownOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg divide-y divide-slate-100">
+                          {filteredCustomers.length === 0 ? (
+                            <div className="p-3 text-center text-xs text-slate-400">
+                              لا يوجد عملاء يطابقون البحث
+                            </div>
+                          ) : (
+                            filteredCustomers.map((c) => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setCustomerId(c.id);
+                                  setIsCustomerDropdownOpen(false);
+                                  setCustomerSearchQuery("");
+                                }}
+                                className="w-full text-right px-3 py-2 text-sm transition hover:bg-slate-50 flex items-center justify-between"
+                              >
+                                <div className="space-y-0.5">
+                                  <div className="font-semibold text-slate-700">{c.fullName}</div>
+                                  <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                                    <span>{c.phoneNumber}</span>
+                                    {c.college && (
+                                      <>
+                                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                        <span>{c.college}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge tone={
+                                  c.customerType === "student" ? "info" :
+                                  c.customerType === "employee" ? "success" :
+                                  c.customerType === "trainer" ? "warn" : "default"
+                                }>
+                                  {c.customerType === "student" ? "طالب" :
+                                   c.customerType === "employee" ? "موظف" :
+                                   c.customerType === "trainer" ? "مدرب" : "زائر"}
+                                </Badge>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </FormField>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -473,7 +595,14 @@ export default function SessionsPage() {
                 />
               </FormField>
 
-              <Btn type="submit" loading={openMutation.isPending} loadingText="جاري الفتح..." className="w-full" icon={<Zap size={14} />}>
+              <Btn 
+                type="submit" 
+                loading={openMutation.isPending} 
+                loadingText="جاري الفتح..." 
+                className="w-full" 
+                disabled={!customerId}
+                icon={<Zap size={14} />}
+              >
                 فتح الجلسة الآن
               </Btn>
             </form>

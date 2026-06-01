@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
-import { Almarai, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../components/providers";
 
-const sans = Almarai({
-  variable: "--font-sans",
-  subsets: ["arabic"],
-  weight: ["300", "400", "700", "800"],
-  display: "swap",
-});
-
-const mono = Source_Code_Pro({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+// Fonts are loaded via globals.css @import to avoid build-time Google Fonts fetch failures
+const sans = { variable: "--font-sans" };
+const mono = { variable: "--font-mono" };
 
 export const metadata: Metadata = {
   title: {

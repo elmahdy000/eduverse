@@ -189,19 +189,22 @@ export default function BaristaPOSPage() {
     const products = productsQuery.data?.data ?? [];
 
     return (
-      <div className="flex-1 flex flex-col p-6 min-h-[500px] bg-[#fbf7f0] border-4 border-[#8B7355] rounded-t-[80px] lg:rounded-t-[100px] rounded-b-[24px] shadow-lg relative text-[#4A3525] select-none font-serif">
-        {/* Page Top Header */}
-        <div className="text-center space-y-1 mb-5 border-b border-[#8B7355]/30 pb-3 relative">
-          <h1 className="text-4xl font-normal leading-none" style={{ fontFamily: "'Alex Brush', cursive" }}>Menu</h1>
-          <div className="text-[9px] tracking-widest uppercase font-bold text-[#8B7355]">
-            Page {page.id} • {page.title}
+      <div className="flex-1 flex flex-col p-5 min-h-[500px] bg-white border border-slate-200 rounded-2xl shadow-sm relative text-slate-900 select-none">
+        {/* Page Header */}
+        <div className="text-center space-y-1 mb-4 border-b border-slate-100 pb-3">
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-xs font-black tracking-widest uppercase text-slate-400">Menu</span>
+            <div className="h-px flex-1 bg-slate-100" />
           </div>
-          <div className="text-[10px] text-[#8B7355] mt-0.5">♡</div>
+          <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">
+            {page.title}
+          </p>
         </div>
 
         {/* Page Sections */}
-        <div className="flex-1 flex flex-col gap-6 relative justify-between">
-          <div className="space-y-6">
+        <div className="flex-1 flex flex-col gap-5 relative justify-between">
+          <div className="space-y-5">
             {page.sections.map((sect) => {
               const sectionProducts = products.filter(p => sect.categories.map(c => normalizeCategoryKey(c)).includes(normalizeCategoryKey(p.category)));
               const filteredSectProducts = sectionProducts.filter(p => {
@@ -212,11 +215,14 @@ export default function BaristaPOSPage() {
               if (filteredSectProducts.length === 0) return null;
 
               return (
-                <div key={sect.title} className="space-y-2">
-                  <h3 className="text-lg font-black tracking-wider border-b border-[#8B7355]/20 pb-0.5 mb-2 text-right" style={{ fontFamily: "'Caveat', cursive" }}>
-                    {sect.title} ♡
-                  </h3>
-                  <div className="space-y-1">
+                <div key={sect.title} className="space-y-1.5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-500">
+                      {sect.title}
+                    </h3>
+                    <div className="flex-1 h-px bg-slate-100" />
+                  </div>
+                  <div className="space-y-0.5">
                     {filteredSectProducts.map((prod) => {
                       const inCart = cart.find(i => i.productId === prod.id);
                       return (
@@ -224,22 +230,27 @@ export default function BaristaPOSPage() {
                           key={prod.id}
                           onClick={() => addToCart(prod)}
                           className={clsx(
-                            "flex items-center justify-between py-1 px-1.5 rounded-lg cursor-pointer transition-all hover:bg-[#8B7355]/10 group",
-                            inCart ? "bg-[#8B7355]/15 font-bold" : ""
+                            "flex items-center justify-between py-1.5 px-2 rounded-xl cursor-pointer transition-all group",
+                            inCart
+                              ? "bg-slate-900 text-white"
+                              : "hover:bg-slate-50 text-slate-700"
                           )}
                         >
-                          <div className="flex items-center min-w-0">
+                          <div className="flex items-center min-w-0 gap-2">
                             {inCart && (
-                              <span className="bg-[#4A3525] text-[#fbf7f0] text-[9px] font-black px-1.5 py-0.5 rounded-full ml-1.5 shrink-0">
+                              <span className="bg-white text-slate-900 text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0">
                                 {inCart.quantity}
                               </span>
                             )}
-                            <span className="text-[11px] font-bold truncate leading-tight">
+                            <span className={clsx(
+                              "text-[11px] font-semibold truncate leading-tight",
+                              inCart ? "text-white" : "text-slate-700"
+                            )}>
                               {translateProductName(prod.name)}
                             </span>
                           </div>
-                          <div className="flex-1 border-b border-dashed border-[#8B7355]/40 mx-2 h-3" />
-                          <span className="text-xs font-black shrink-0">
+                          <div className={clsx("flex-1 border-b border-dashed mx-2 h-3", inCart ? "border-white/30" : "border-slate-200")} />
+                          <span className={clsx("text-xs font-black shrink-0", inCart ? "text-emerald-300" : "text-slate-900")}>
                             {money(Number(prod.price))}
                           </span>
                         </div>
@@ -251,21 +262,21 @@ export default function BaristaPOSPage() {
             })}
           </div>
 
-          {/* Sketch Illustration at bottom/side */}
+          {/* Illustration */}
           {page.image && (
-            <div className="w-full flex items-center justify-end shrink-0 pt-2">
+            <div className="w-full flex items-center justify-end shrink-0 pt-2 opacity-10">
               <img
                 src={page.image}
                 alt={page.title}
-                className="h-24 w-24 object-contain mix-blend-multiply opacity-80"
+                className="h-16 w-16 object-contain"
               />
             </div>
           )}
         </div>
 
-        {/* Decorative bottom separator */}
-        <div className="mt-4 pt-2 border-t border-[#8B7355]/20 flex justify-center text-[10px] text-[#8B7355]/60">
-          <span>🌿 eduverse cafe 🌿</span>
+        {/* Footer */}
+        <div className="mt-3 pt-2 border-t border-slate-100 flex justify-center text-[9px] text-slate-300 font-black tracking-widest uppercase">
+          <span>eduverse cafe</span>
         </div>
       </div>
     );
@@ -300,10 +311,15 @@ export default function BaristaPOSPage() {
   const staffQuery = useQuery({
     queryKey: ["customers", "staff-list"],
     queryFn: async () => {
-      const response = await api.get("/customers", { params: { customerType: "staff,owner_discount", limit: 200 } });
-      // Backend returns paginated: { data: { data: [...], total, ... } }
-      const payload = response.data.data;
-      return (payload?.data ?? payload ?? []) as Customer[];
+      const [staffRes, ownersRes] = await Promise.all([
+        api.get("/customers", { params: { customerType: "staff", limit: 200 } }),
+        api.get("/customers", { params: { customerType: "owner_discount", limit: 200 } }),
+      ]);
+      const extract = (res: any): Customer[] => {
+        const d = res.data.data;
+        return Array.isArray(d) ? d : (d?.data ?? []);
+      };
+      return [...extract(staffRes), ...extract(ownersRes)];
     },
   });
 
@@ -605,16 +621,16 @@ export default function BaristaPOSPage() {
 
         <div className={clsx(
           "flex-1 overflow-y-auto scroll-smooth",
-          viewMode === "vintage" ? "bg-[#5c4033] p-4 lg:p-6" : "px-6 py-6"
+          viewMode === "vintage" ? "bg-slate-50 p-4 lg:p-6" : "px-6 py-6"
         )}>
           {productsQuery.isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse" />)}
             </div>
           ) : viewMode === "vintage" ? (
-            <div className="max-w-6xl mx-auto flex flex-col h-full justify-between gap-6">
+            <div className="max-w-6xl mx-auto flex flex-col h-full justify-between gap-4">
               {/* Double page spread on large screens, single page on small */}
-              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
                 {renderVintagePage(vintagePageIndex)}
                 
                 {/* On desktop, show the next page, or the decorative cover if we are at the end */}
@@ -623,35 +639,33 @@ export default function BaristaPOSPage() {
                     renderVintagePage(vintagePageIndex + 1)
                   ) : (
                     /* End Cover */
-                    <div className="flex-1 flex flex-col p-6 min-h-[500px] bg-[#fbf7f0] border-4 border-[#8B7355] rounded-t-[100px] rounded-b-[24px] shadow-lg relative text-[#4A3525] select-none font-serif items-center justify-center text-center">
-                      <h1 className="text-5xl font-normal leading-none mb-4" style={{ fontFamily: "'Alex Brush', cursive" }}>Eduverse</h1>
-                      <p className="text-xs tracking-widest uppercase font-bold text-[#8B7355] mb-2">🌿 Cafe & Study Space 🌿</p>
-                      <div className="w-16 h-px bg-[#8B7355]/40 my-4" />
-                      <p className="text-xs italic text-[#8B7355]/80 max-w-[200px]">"A space designed for productivity, learning, and premium coffee."</p>
-                      <img
-                        src="/images/vintage_coffee.png"
-                        alt="Eduverse Cafe"
-                        className="h-28 mt-6 object-contain mix-blend-multiply opacity-50 animate-pulse"
-                      />
+                    <div className="flex-1 flex flex-col p-6 min-h-[500px] bg-slate-900 border border-slate-800 rounded-2xl shadow-sm relative text-white select-none items-center justify-center text-center">
+                      <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+                        <Coffee size={24} className="text-white" />
+                      </div>
+                      <h2 className="text-2xl font-black text-white mb-1">Eduverse</h2>
+                      <p className="text-[10px] tracking-widest uppercase font-bold text-slate-400 mb-4">Cafe &amp; Study Space</p>
+                      <div className="w-12 h-px bg-white/20 my-3" />
+                      <p className="text-xs text-slate-400 max-w-[180px] leading-relaxed">"A space designed for productivity, learning, and premium coffee."</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Book Page Navigation Controls */}
-              <div className="flex items-center justify-between bg-[#fbf7f0]/10 p-3 rounded-2xl border border-white/10 shrink-0 select-none">
+              {/* Page Navigation */}
+              <div className="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-2xl shrink-0 select-none">
                 <button
                   disabled={vintagePageIndex === 0}
                   onClick={() => {
                     const step = isLargeScreen ? 2 : 1;
                     setVintagePageIndex(prev => Math.max(0, prev - step));
                   }}
-                  className="px-4 py-2 bg-[#fbf7f0] text-[#4A3525] font-black rounded-xl text-xs shadow-md disabled:opacity-40 disabled:pointer-events-none hover:bg-[#8B7355]/10 hover:text-black transition-colors"
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-black rounded-xl text-xs shadow-sm disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-100 transition-colors"
                 >
-                  السابق (Previous)
+                  السابق
                 </button>
                 
-                <span className="text-[11px] font-black text-white tracking-widest uppercase">
+                <span className="text-[11px] font-black text-slate-500 tracking-widest uppercase">
                   {isLargeScreen 
                     ? `Pages ${vintagePageIndex + 1}-${Math.min(vintagePages.length, vintagePageIndex + 2)} of ${vintagePages.length}`
                     : `Page ${vintagePageIndex + 1} of ${vintagePages.length}`
@@ -664,9 +678,9 @@ export default function BaristaPOSPage() {
                     const step = isLargeScreen ? 2 : 1;
                     setVintagePageIndex(prev => Math.min(vintagePages.length - 1, prev + step));
                   }}
-                  className="px-4 py-2 bg-[#fbf7f0] text-[#4A3525] font-black rounded-xl text-xs shadow-md disabled:opacity-40 disabled:pointer-events-none hover:bg-[#8B7355]/10 hover:text-black transition-colors"
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-black rounded-xl text-xs shadow-sm disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-100 transition-colors"
                 >
-                  التالي (Next)
+                  التالي
                 </button>
               </div>
             </div>
@@ -757,8 +771,8 @@ export default function BaristaPOSPage() {
 
       {/* Checkout Section - Responsive Drawer */}
       <aside className={clsx(
-        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[20rem] lg:flex flex-col bg-white border-r border-slate-100 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0",
-        isMobileCartOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[22rem] lg:flex flex-col bg-white border-r border-slate-100 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0",
+        isMobileCartOpen ? "flex translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">

@@ -34,7 +34,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { money } from "@/lib/format";
 import { translateApiError } from "@/lib/errors";
-import { translateProductCategory } from "@/lib/labels";
+import { translateProductCategory, translateProductName } from "@/lib/labels";
 import type { Customer, Paginated, Product, Session } from "@/lib/types";
 import clsx from "clsx";
 
@@ -464,7 +464,7 @@ export default function BaristaPOSPage() {
 
                             <div className="space-y-2">
                               <p className="text-[11px] font-bold text-slate-800 leading-tight line-clamp-2 min-h-[2.2rem]">
-                                {product.name}
+                                {translateProductName(product.name)}
                               </p>
                               <p className={clsx("text-xs font-black", inCart ? "text-slate-900" : "text-slate-400")}>
                                 {money(Number(product.price))}
@@ -530,7 +530,7 @@ export default function BaristaPOSPage() {
               <div key={item.productId} className="group p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
                 <div className="flex justify-between items-start gap-3 mb-3">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-800 truncate">{item.productName}</p>
+                    <p className="text-xs font-bold text-slate-800 truncate">{translateProductName(item.productName)}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{money(item.unitPrice)}</p>
                   </div>
                   <span className="text-xs font-black text-slate-900">{money(item.unitPrice * item.quantity)}</span>
@@ -829,7 +829,7 @@ export default function BaristaPOSPage() {
                   {cart.map((item) => (
                     <div key={item.productId} className="flex items-center justify-between text-sm">
                       <span className="text-slate-700">
-                        {item.productName}
+                        {translateProductName(item.productName)}
                         <span className="text-slate-400 mx-1">×</span>
                         <span className="font-black text-slate-900">{item.quantity}</span>
                       </span>

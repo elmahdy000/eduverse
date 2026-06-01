@@ -202,3 +202,154 @@ export function translateAuditAction(action?: string | null) {
   };
   return map[action ?? ""] ?? action ?? "-";
 }
+
+const productTranslations: Record<string, string> = {
+  // Coffee
+  "Turkish Coffee (M)": "قهوة تركي (وسط)",
+  "Turkish Coffee (L)": "قهوة تركي (كبير)",
+  "French Coffee (M)": "قهوة فرنساوي (وسط)",
+  "French Coffee (L)": "قهوة فرنساوي (كبير)",
+  "Nescafe (M)": "نسكافيه (وسط)",
+  "Nescafe (L)": "نسكافيه (كبير)",
+  "Espresso (M)": "إسبريسو (وسط)",
+  "Espresso (L)": "إسبريسو (كبير)",
+  "Latte (M)": "لاتيه (وسط)",
+  "Latte (L)": "لاتيه (كبير)",
+  "Cappuccino (M)": "كابتشينو (وسط)",
+  "Cappuccino (L)": "كابتشينو (كبير)",
+  "Mocha (M)": "موكا (وسط)",
+  "Mocha (L)": "موكا (كبير)",
+  "Caramel Macchiato (M)": "كراميل ماكياتو (وسط)",
+  "Caramel Macchiato (L)": "كراميل ماكياتو (كبير)",
+  "Macchiato": "ماكياتو",
+  "Flat White": "فلات وايت",
+  "Cortada": "كورتادو",
+  "Coffee Flavour": "نكهة قهوة",
+  "Coffee Nutella": "قهوة نوتيلا",
+  "Latte Pistachio": "لاتيه بستاشيو",
+  "Latte Lotus": "لاتيه لوتس",
+  "Latte Kinder": "لاتيه كيندر",
+  "Spanish Latte": "سبانش لاتيه",
+
+  // Tea
+  "Tea": "شاي",
+  "Milk Tea": "شاي بلبن",
+  "Green Tea": "شاي أخضر",
+  "Tea Flavour": "نكهة شاي",
+  "Karak Tea": "شاي كرك",
+
+  // Cold Coffee
+  "Ice Latte": "آيس لاتيه",
+  "Ice Americano": "آيس أمريكانو",
+  "Ice Mocha": "آيس موكا",
+  "Ice Spanish Latte": "آيس سبانش لاتيه",
+  "Ice Caramel Macchiato": "آيس كراميل ماكياتو",
+  "Ice Special": "آيس سبيشيال",
+  "Ice Creme Brulee": "آيس كريم بروليه",
+  "Ice Latte Pistachio": "آيس لاتيه بستاشيو",
+  "Ice Latte Lotus": "آيس لاتيه لوتس",
+  "Ice Latte Kinder": "آيس لاتيه كيندر",
+
+  // Hot Drinks
+  "Hot Chocolate (M)": "هوت شوكليت (وسط)",
+  "Hot Chocolate (L)": "هوت شوكليت (كبير)",
+  "Hot Oreo (M)": "هوت أوريو (وسط)",
+  "Hot Oreo (L)": "هوت أوريو (كبير)",
+  "Hot Lotus (M)": "هوت لوتس (وسط)",
+  "Hot Lotus (L)": "هوت لوتس (كبير)",
+  "Hot Cidar (M)": "هوت سيدار (وسط)",
+  "Hot Cidar (L)": "هوت سيدار (كبير)",
+  "Herbs": "أعشاب",
+  "Mix Herbs": "ميكس أعشاب",
+  "Hot Kinder": "هوت كيندر",
+  "Hot Pistachio": "هوت بستاشيو",
+
+  // Frappe
+  "Dark Chocolate": "شوكولاتة داكنة",
+  "White Chocolate": "شوكولاتة بيضاء",
+  "Oreo": "أوريو",
+  "Lotus": "لوتس",
+  "Nutella": "نوتيلا",
+  "Frappe Special": "فرابيه سبيشيال",
+
+  // Frappuccino
+  "Creme Brulee": "كريم بروليه",
+  "Kinder": "كيندر",
+  "Pistachio": "بستاشيو",
+
+  // Milk Shake
+  "Vanilla": "فانيليا",
+  "Caramel": "كراميل",
+  "Cheese Cake": "تشيز كيك",
+  "Cheese Cake Kinder": "تشيز كيك كيندر",
+  "Cheese Cake Lotus": "تشيز كيك لوتس",
+  "Cheese Cake Blueberry": "تشيز كيك بلوبري",
+  "Cheese Cake Oreo": "تشيز كيك أوريو",
+  "Fruits": "فواكه",
+
+  // Yogurt
+  "Honey": "عسل",
+  "Mix Fruits": "ميكس فواكه",
+
+  // Cans
+  "Redbull": "ريدبول",
+  "Twist": "تويست",
+  "V7": "في 7",
+  "Spiro Spathes": "سبيرو سباتس",
+  "Buzz": "باز",
+  "Water": "مياه",
+  "Suntop": "سن توب",
+  "Mix Mara3y": "ميكس المراعي",
+
+  // Mocktails
+  "Sunshine (S)": "سان شاين (صغير)",
+  "Sunshine (R)": "سان شاين (كبير)",
+  "Sunrise (S)": "سان رايز (صغير)",
+  "Sunrise (R)": "سان رايز (كبير)",
+  "Mohito (S)": "موهيتو (صغير)",
+  "Mohito (R)": "موهيتو (كبير)",
+  "Cherry Cola (S)": "شيري كولا (صغير)",
+  "Cherry Cola (R)": "شيري كولا (كبير)",
+  "Hawaii (S)": "هاواي (صغير)",
+  "Hawaii (R)": "هاواي (كبير)",
+  "Apple Breeze (S)": "أبل بريز (صغير)",
+  "Apple Breeze (R)": "أبل بريز (كبير)",
+  "Tropical Fruits (S)": "فواكه استوائية (صغير)",
+  "Tropical Fruits (R)": "فواكه استوائية (كبير)",
+  "Pina Colada (S)": "بينا كولادا (صغير)",
+  "Pina Colada (R)": "بينا كولادا (كبير)",
+  "Soda Up (S)": "صودا أب (صغير)",
+  "Soda Up (R)": "صودا أب (كبير)",
+  "Phantom (S)": "فانتم (صغير)",
+  "Phantom (R)": "فانتم (كبير)",
+  "Mango Caller (S)": "مانجو كولر (صغير)",
+  "Mango Caller (R)": "مانجو كولر (كبير)",
+  "Power Drink (R)": "باور درينك (كبير)",
+
+  // Smoothies / Additions / Other
+  "Coffee": "قهوة",
+  "Bubble Gum": "بابل جوم",
+  "Mango": "مانجو",
+  "Strawberry": "فراولة",
+  "Peach": "خوخ",
+  "Blue Berry": "بلوبري",
+  "Passion Fruit": "باشون فروت",
+  "Smoothies": "سموذي",
+  "Fresh Juice": "عصير طازج",
+  "Indomy": "إندومي",
+  "Add Mix Cheese": "إضافة ميكس جبن",
+  "Add Hot Dog": "إضافة هوت دوج",
+  "Add Turkey": "إضافة تركي",
+  "Flavour": "نكهة",
+  "Milk": "حليب",
+  "Cheese": "جبنة",
+  "Hot Dog": "هوت دوج",
+  "Turkey": "تركي",
+};
+
+export function translateProductName(name: string): string {
+  const ar = productTranslations[name];
+  if (!ar) return name;
+  return `${name} - ${ar}`;
+}
+

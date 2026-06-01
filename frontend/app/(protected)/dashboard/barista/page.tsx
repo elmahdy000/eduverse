@@ -141,29 +141,62 @@ export default function BaristaDashboardPage() {
 
   const [prevNewCount, setPrevNewCount] = useState<number | null>(null);
 
+  // Auto-resume AudioContext on first user interaction to satisfy browser autoplay policies
+  useEffect(() => {
+    const handleGesture = () => {
+      if (typeof window !== "undefined") {
+        if (!audioCtxRef.current) {
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtxRef.current = new AudioContextClass();
+          }
+        }
+        if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+          audioCtxRef.current.resume().catch(() => {});
+        }
+      }
+    };
+    window.addEventListener("click", handleGesture, { capture: true, passive: true });
+    window.addEventListener("touchstart", handleGesture, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener("click", handleGesture);
+      window.removeEventListener("touchstart", handleGesture);
+    };
+  }, []);
+
   const playNotificationSound = useCallback(() => {
     // 1. Web Audio API beep (always works, no CDN needed)
     try {
       if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext();
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
       }
       const ctx = audioCtxRef.current;
-      const playBeep = (freq: number, start: number, duration: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-        gain.gain.setValueAtTime(0.4, ctx.currentTime + start);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
-        osc.start(ctx.currentTime + start);
-        osc.stop(ctx.currentTime + start + duration);
-      };
-      // Triple chime: 880 → 1046 → 1318 Hz
-      playBeep(880, 0.0, 0.25);
-      playBeep(1046, 0.3, 0.25);
-      playBeep(1318, 0.6, 0.4);
+      if (ctx) {
+        if (ctx.state === "suspended") {
+          ctx.resume().catch(() => {});
+        }
+        const playBeep = (freq: number, start: number, duration: number) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+          gain.gain.setValueAtTime(0.4, ctx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+          osc.start(ctx.currentTime + start);
+          osc.stop(ctx.currentTime + start + duration);
+        };
+        // Triple chime: 880 → 1046 → 1318 Hz
+        playBeep(880, 0.0, 0.25);
+        playBeep(1046, 0.3, 0.25);
+        playBeep(1318, 0.6, 0.4);
+      } else {
+        throw new Error("AudioContext class not supported");
+      }
     } catch (e) {
       // 2. External CDN fallback
       try {

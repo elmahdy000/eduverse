@@ -1,11 +1,11 @@
 # Graph Report - D:\coders\eduvers  (2026-06-01)
 
 ## Corpus Check
-- 138 files · ~311,132 words
+- 138 files · ~312,585 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 652 nodes · 709 edges · 105 communities detected
+- 653 nodes · 711 edges · 105 communities detected
 - Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 93 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -156,7 +156,7 @@ Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), boots
 
 ### Community 3 - "Community 3"
 Cohesion: 0.07
-Nodes (11): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryIcon(), getCategoryMeta(), getProductImage(), money() (+3 more)
+Nodes (9): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryMeta(), getProductImage(), money(), ProductImage() (+1 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.08
@@ -239,24 +239,24 @@ Cohesion: 0.29
 Nodes (1): PaymentsController
 
 ### Community 24 - "Community 24"
-Cohesion: 0.73
-Nodes (5): apiRequest(), assertSuccess(), firstListItem(), login(), main()
+Cohesion: 0.29
+Nodes (1): WaitBadge()
 
 ### Community 25 - "Community 25"
 Cohesion: 0.73
-Nodes (5): apiRequest(), isAllowedStatus(), login(), main(), runRoleSimulation()
+Nodes (5): apiRequest(), assertSuccess(), firstListItem(), login(), main()
 
 ### Community 26 - "Community 26"
-Cohesion: 0.33
-Nodes (5): CreateCustomerDto, CustomerResponseDto, CustomersListResponseDto, SearchCustomerDto, UpdateCustomerDto
+Cohesion: 0.73
+Nodes (5): apiRequest(), isAllowedStatus(), login(), main(), runRoleSimulation()
 
 ### Community 27 - "Community 27"
 Cohesion: 0.33
-Nodes (5): ChangePasswordDto, CreateUserDto, UpdateUserDto, UserResponseDto, UsersListResponseDto
+Nodes (5): CreateCustomerDto, CustomerResponseDto, CustomersListResponseDto, SearchCustomerDto, UpdateCustomerDto
 
 ### Community 28 - "Community 28"
 Cohesion: 0.33
-Nodes (1): WaitBadge()
+Nodes (5): ChangePasswordDto, CreateUserDto, UpdateUserDto, UserResponseDto, UsersListResponseDto
 
 ### Community 29 - "Community 29"
 Cohesion: 0.53
@@ -684,7 +684,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `RoomsService` connect `Community 0` to `Community 14`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Why does `ExpensesController` connect `Community 2` to `Community 0`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**

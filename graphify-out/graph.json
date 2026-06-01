@@ -225,7 +225,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scripts_customer_journey_simulation_ts",
-      "community": 24,
+      "community": 25,
       "norm_label": "customer-journey-simulation.ts"
     },
     {
@@ -234,7 +234,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L34",
       "id": "customer_journey_simulation_apirequest",
-      "community": 24,
+      "community": 25,
       "norm_label": "apirequest()"
     },
     {
@@ -243,7 +243,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L59",
       "id": "customer_journey_simulation_assertsuccess",
-      "community": 24,
+      "community": 25,
       "norm_label": "assertsuccess()"
     },
     {
@@ -252,7 +252,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L71",
       "id": "customer_journey_simulation_login",
-      "community": 24,
+      "community": 25,
       "norm_label": "login()"
     },
     {
@@ -261,7 +261,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L87",
       "id": "customer_journey_simulation_firstlistitem",
-      "community": 24,
+      "community": 25,
       "norm_label": "firstlistitem()"
     },
     {
@@ -270,7 +270,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L94",
       "id": "customer_journey_simulation_main",
-      "community": 24,
+      "community": 25,
       "norm_label": "main()"
     },
     {
@@ -279,7 +279,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scripts_role_simulation_ts",
-      "community": 25,
+      "community": 26,
       "norm_label": "role-simulation.ts"
     },
     {
@@ -288,7 +288,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L78",
       "id": "role_simulation_apirequest",
-      "community": 25,
+      "community": 26,
       "norm_label": "apirequest()"
     },
     {
@@ -297,7 +297,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L98",
       "id": "role_simulation_login",
-      "community": 25,
+      "community": 26,
       "norm_label": "login()"
     },
     {
@@ -306,7 +306,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L116",
       "id": "role_simulation_isallowedstatus",
-      "community": 25,
+      "community": 26,
       "norm_label": "isallowedstatus()"
     },
     {
@@ -315,7 +315,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L120",
       "id": "role_simulation_runrolesimulation",
-      "community": 25,
+      "community": 26,
       "norm_label": "runrolesimulation()"
     },
     {
@@ -324,7 +324,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L153",
       "id": "role_simulation_main",
-      "community": 25,
+      "community": 26,
       "norm_label": "main()"
     },
     {
@@ -2187,7 +2187,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_customers_dto_customer_dto_ts",
-      "community": 26,
+      "community": 27,
       "norm_label": "customer.dto.ts"
     },
     {
@@ -2196,7 +2196,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L3",
       "id": "customer_dto_createcustomerdto",
-      "community": 26,
+      "community": 27,
       "norm_label": "createcustomerdto"
     },
     {
@@ -2205,7 +2205,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L44",
       "id": "customer_dto_updatecustomerdto",
-      "community": 26,
+      "community": 27,
       "norm_label": "updatecustomerdto"
     },
     {
@@ -2214,7 +2214,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L86",
       "id": "customer_dto_searchcustomerdto",
-      "community": 26,
+      "community": 27,
       "norm_label": "searchcustomerdto"
     },
     {
@@ -2223,7 +2223,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L106",
       "id": "customer_dto_customerresponsedto",
-      "community": 26,
+      "community": 27,
       "norm_label": "customerresponsedto"
     },
     {
@@ -2232,7 +2232,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L127",
       "id": "customer_dto_customerslistresponsedto",
-      "community": 26,
+      "community": 27,
       "norm_label": "customerslistresponsedto"
     },
     {
@@ -4491,7 +4491,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_users_dto_user_dto_ts",
-      "community": 27,
+      "community": 28,
       "norm_label": "user.dto.ts"
     },
     {
@@ -4500,7 +4500,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L3",
       "id": "user_dto_createuserdto",
-      "community": 27,
+      "community": 28,
       "norm_label": "createuserdto"
     },
     {
@@ -4509,7 +4509,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L24",
       "id": "user_dto_updateuserdto",
-      "community": 27,
+      "community": 28,
       "norm_label": "updateuserdto"
     },
     {
@@ -4518,7 +4518,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L44",
       "id": "user_dto_changepassworddto",
-      "community": 27,
+      "community": 28,
       "norm_label": "changepassworddto"
     },
     {
@@ -4527,7 +4527,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L54",
       "id": "user_dto_userresponsedto",
-      "community": 27,
+      "community": 28,
       "norm_label": "userresponsedto"
     },
     {
@@ -4536,7 +4536,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L68",
       "id": "user_dto_userslistresponsedto",
-      "community": 27,
+      "community": 28,
       "norm_label": "userslistresponsedto"
     },
     {
@@ -4761,7 +4761,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\bar-orders\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_bar_orders_page_tsx",
-      "community": 28,
+      "community": 24,
       "norm_label": "page.tsx"
     },
     {
@@ -4770,7 +4770,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\bar-orders\\page.tsx",
       "source_location": "L52",
       "id": "page_handleorderupdate",
-      "community": 28,
+      "community": 24,
       "norm_label": "handleorderupdate()"
     },
     {
@@ -4779,7 +4779,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L37",
       "id": "page_waitbadge",
-      "community": 28,
+      "community": 24,
       "norm_label": "waitbadge()"
     },
     {
@@ -4914,7 +4914,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_barista_page_tsx",
-      "community": 28,
+      "community": 24,
       "norm_label": "page.tsx"
     },
     {
@@ -4923,16 +4923,25 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L49",
       "id": "page_ordercard",
-      "community": 28,
+      "community": 24,
       "norm_label": "ordercard()"
+    },
+    {
+      "label": "handleGesture()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
+      "source_location": "L146",
+      "id": "page_handlegesture",
+      "community": 24,
+      "norm_label": "handlegesture()"
     },
     {
       "label": "handleSendChat()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
-      "source_location": "L188",
+      "source_location": "L273",
       "id": "page_handlesendchat",
-      "community": 28,
+      "community": 24,
       "norm_label": "handlesendchat()"
     },
     {
@@ -4947,8 +4956,8 @@
     {
       "label": "getCategoryMeta()",
       "file_type": "code",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L76",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
+      "source_location": "L75",
       "id": "page_getcategorymeta",
       "community": 3,
       "norm_label": "getcategorymeta()"
@@ -4972,10 +4981,19 @@
       "norm_label": "selectcategoryandflip()"
     },
     {
+      "label": "extract()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L318",
+      "id": "page_extract",
+      "community": 3,
+      "norm_label": "extract()"
+    },
+    {
       "label": "renderVintagePage()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L616",
+      "source_location": "L634",
       "id": "page_rendervintagepage",
       "community": 3,
       "norm_label": "rendervintagepage()"
@@ -5380,28 +5398,10 @@
       "label": "cn()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L19",
+      "source_location": "L22",
       "id": "page_cn",
       "community": 3,
       "norm_label": "cn()"
-    },
-    {
-      "label": "translateProductCategory()",
-      "file_type": "code",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L49",
-      "id": "page_translateproductcategory",
-      "community": 3,
-      "norm_label": "translateproductcategory()"
-    },
-    {
-      "label": "getCategoryIcon()",
-      "file_type": "code",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L68",
-      "id": "page_getcategoryicon",
-      "community": 3,
-      "norm_label": "getcategoryicon()"
     },
     {
       "label": "getProductImage()",
@@ -5425,10 +5425,19 @@
       "label": "tick()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L180",
+      "source_location": "L182",
       "id": "page_tick",
       "community": 3,
       "norm_label": "tick()"
+    },
+    {
+      "label": "getBaseUrl()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
+      "source_location": "L284",
+      "id": "page_getbaseurl",
+      "community": 3,
+      "norm_label": "getbaseurl()"
     },
     {
       "label": "app-shell.tsx",
@@ -13257,7 +13266,19 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
-      "source_location": "L188",
+      "source_location": "L146",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_page_tsx",
+      "_tgt": "page_handlegesture",
+      "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_page_tsx",
+      "target": "page_handlegesture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
+      "source_location": "L273",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_page_tsx",
       "_tgt": "page_handlesendchat",
@@ -13305,12 +13326,48 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L616",
+      "source_location": "L318",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "_tgt": "page_extract",
+      "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "target": "page_extract",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L634",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_rendervintagepage",
       "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "target": "page_rendervintagepage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
+      "_tgt": "page_getcategorymeta",
+      "source": "page_getcategorymeta",
+      "target": "d_coders_eduvers_frontend_app_order_page_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_src": "page_productimage",
+      "_tgt": "page_getcategorymeta",
+      "source": "page_getcategorymeta",
+      "target": "page_productimage",
       "confidence_score": 1.0
     },
     {
@@ -13857,36 +13914,12 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L19",
+      "source_location": "L22",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
       "_tgt": "page_cn",
       "source": "d_coders_eduvers_frontend_app_order_page_tsx",
       "target": "page_cn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L49",
-      "weight": 1.0,
-      "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
-      "_tgt": "page_translateproductcategory",
-      "source": "d_coders_eduvers_frontend_app_order_page_tsx",
-      "target": "page_translateproductcategory",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L545",
-      "weight": 1.0,
-      "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
-      "_tgt": "page_getcategoryicon",
-      "source": "d_coders_eduvers_frontend_app_order_page_tsx",
-      "target": "page_getcategoryicon",
       "confidence_score": 1.0
     },
     {
@@ -13917,12 +13950,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L180",
+      "source_location": "L182",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
       "_tgt": "page_tick",
       "source": "d_coders_eduvers_frontend_app_order_page_tsx",
       "target": "page_tick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
+      "source_location": "L284",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_order_page_tsx",
+      "_tgt": "page_getbaseurl",
+      "source": "d_coders_eduvers_frontend_app_order_page_tsx",
+      "target": "page_getbaseurl",
       "confidence_score": 1.0
     },
     {
@@ -13936,18 +13981,6 @@
       "_tgt": "ui_clsx",
       "source": "page_cn",
       "target": "ui_clsx"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
-      "source_location": "L545",
-      "weight": 1.0,
-      "_src": "page_getcategoryicon",
-      "_tgt": "page_translateproductcategory",
-      "source": "page_translateproductcategory",
-      "target": "page_getcategoryicon",
-      "confidence_score": 1.0
     },
     {
       "relation": "calls",

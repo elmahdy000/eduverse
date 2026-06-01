@@ -34,7 +34,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { money } from "@/lib/format";
 import { translateApiError } from "@/lib/errors";
-import { translateProductCategory, translateProductName } from "@/lib/labels";
+import { translateProductCategory, translateProductName, normalizeCategoryKey } from "@/lib/labels";
 import type { Customer, Paginated, Product, Session } from "@/lib/types";
 import clsx from "clsx";
 
@@ -74,7 +74,7 @@ const categoryConfig: Record<string, CategoryMeta> = {
 };
 
 function getCategoryMeta(cat: string): CategoryMeta {
-  return categoryConfig[cat] ?? categoryConfig.all;
+  return categoryConfig[normalizeCategoryKey(cat)] ?? categoryConfig.all;
 }
 
 const vintagePages = [
@@ -172,7 +172,7 @@ export default function BaristaPOSPage() {
     setShowFavorites(false);
     
     const pageIndex = vintagePages.findIndex(page => 
-      page.sections.some(sect => sect.categories.includes(cat))
+      page.sections.some(sect => sect.categories.map(c => normalizeCategoryKey(c)).includes(normalizeCategoryKey(cat)))
     );
     if (pageIndex !== -1) {
       const targetIndex = isLargeScreen 
@@ -203,7 +203,7 @@ export default function BaristaPOSPage() {
         <div className="flex-1 flex flex-col gap-6 relative justify-between">
           <div className="space-y-6">
             {page.sections.map((sect) => {
-              const sectionProducts = products.filter(p => sect.categories.includes(p.category));
+              const sectionProducts = products.filter(p => sect.categories.map(c => normalizeCategoryKey(c)).includes(normalizeCategoryKey(p.category)));
               const filteredSectProducts = sectionProducts.filter(p => {
                 if (!searchQuery.trim()) return true;
                 return p.name.toLowerCase().includes(searchQuery.toLowerCase());

@@ -17,7 +17,7 @@ export class CreateCustomerDto {
   @IsOptional()
   address?: string;
 
-  @IsEnum(['student', 'employee', 'trainer', 'parent', 'visitor'])
+  @IsEnum(['student', 'employee', 'trainer', 'parent', 'visitor', 'staff', 'owner_discount'])
   customerType: string;
 
   // Conditional fields for students
@@ -59,6 +59,10 @@ export class UpdateCustomerDto {
 
   @IsOptional()
   address?: string;
+
+  @IsOptional()
+  @IsEnum(['student', 'employee', 'trainer', 'parent', 'visitor', 'staff', 'owner_discount'])
+  customerType?: string;
 
   @IsOptional()
   college?: string;

@@ -65,6 +65,8 @@ const ctypeColors: Record<string, string> = {
   trainer: "bg-emerald-100 text-emerald-700 border-emerald-200",
   parent: "bg-amber-100 text-amber-700 border-amber-200",
   visitor: "bg-slate-100 text-slate-600 border-slate-200",
+  staff: "bg-teal-100 text-teal-700 border-teal-200",
+  owner_discount: "bg-amber-100 text-amber-700 border-amber-200",
 };
 
 export default function CustomersPage() {
@@ -113,6 +115,7 @@ export default function CustomersPage() {
   const [editSpecialization, setEditSpecialization] = useState("");
   const [editEmployerName, setEditEmployerName] = useState("");
   const [editJobTitle, setEditJobTitle] = useState("");
+  const [editCustomerType, setEditCustomerType] = useState("visitor");
 
   const customersQuery = useQuery({
     queryKey: ["customers", searchName, searchPhone],
@@ -216,6 +219,7 @@ export default function CustomersPage() {
         fullName: editFullName,
         phoneNumber: editPhoneNumber,
         phoneNumberSecondary: editPhoneNumberSecondary || undefined,
+        customerType: editCustomerType,
         email: editEmail || undefined,
         address: editAddress || undefined,
         notes: editNotes || undefined,
@@ -269,6 +273,8 @@ export default function CustomersPage() {
     { key: "employee", label: "موظفين", count: customers.filter(c => c.customerType === "employee").length },
     { key: "trainer", label: "مدربين", count: customers.filter(c => c.customerType === "trainer").length },
     { key: "visitor", label: "زوار", count: customers.filter(c => c.customerType === "visitor").length },
+    { key: "staff", label: "طاقم عمل (50%)", count: customers.filter(c => c.customerType === "staff").length },
+    { key: "owner_discount", label: "ملاك (70%)", count: customers.filter(c => c.customerType === "owner_discount").length },
   ], [customers]);
 
   const selectedCustomer = customerDetailsQuery.data ?? null;
@@ -346,6 +352,8 @@ export default function CustomersPage() {
                     <option value="student">طالب</option>
                     <option value="employee">موظف</option>
                     <option value="trainer">مدرب</option>
+                    <option value="staff">موظف كافيه (خصم 50%)</option>
+                    <option value="owner_discount">مالك (خصم 70%)</option>
                   </Select>
                 </FormField>
                 <FormField label="الموبايل (بديل)"><Input value={phoneNumberSecondary} onChange={(e) => setPhoneNumberSecondary(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" placeholder="اختياري" /></FormField>
@@ -438,6 +446,7 @@ export default function CustomersPage() {
                       setEditSpecialization(selectedCustomer.specialization || "");
                       setEditEmployerName(selectedCustomer.employerName || "");
                       setEditJobTitle(selectedCustomer.jobTitle || "");
+                      setEditCustomerType(selectedCustomer.customerType);
                       setShowEditModal(true);
                     }}>تعديل البيانات</Btn>
                     <Btn size="sm" variant="danger" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
@@ -650,26 +659,37 @@ export default function CustomersPage() {
                 <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
                 <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" required /></FormField>
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" /></FormField>
                 <FormField label="الايميل"><Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" /></FormField>
               </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="النوع">
+                  <Select value={editCustomerType} onChange={(e) => setEditCustomerType(e.target.value)}>
+                    <option value="visitor">زائر</option>
+                    <option value="student">طالب</option>
+                    <option value="employee">موظف</option>
+                    <option value="trainer">مدرب</option>
+                    <option value="staff">موظف كافيه (خصم 50%)</option>
+                    <option value="owner_discount">مالك (خصم 70%)</option>
+                  </Select>
+                </FormField>
+                <FormField label="العنوان"><Input value={editAddress} onChange={e => setEditAddress(e.target.value)} /></FormField>
+              </div>
               
-              {selectedCustomer.customerType === "student" && (
+              {editCustomerType === "student" && (
                 <div className="grid gap-4 md:grid-cols-3 bg-blue-50 p-3 rounded-xl border border-blue-100">
                   <FormField label="الكلية / الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
                   <FormField label="السنة الدراسية"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
                   <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
                 </div>
               )}
-              {selectedCustomer.customerType === "employee" && (
+              {editCustomerType === "employee" && (
                 <div className="grid gap-4 md:grid-cols-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
                   <FormField label="جهة العمل / الشركة"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
                   <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
                 </div>
               )}
-
-              <FormField label="العنوان"><Input value={editAddress} onChange={e => setEditAddress(e.target.value)} /></FormField>
               
               <FormField label="ملاحظات">
                 <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />

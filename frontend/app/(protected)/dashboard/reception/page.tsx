@@ -30,6 +30,8 @@ const ctypeColors: Record<string, string> = {
   trainer:  "bg-emerald-100 text-emerald-700",
   parent:   "bg-amber-100 text-amber-700",
   visitor:  "bg-slate-100 text-slate-600",
+  staff:    "bg-teal-100 text-teal-700",
+  owner_discount: "bg-amber-100 text-amber-700",
 };
 
 const ctypeIcons: Record<string, React.ReactNode> = {
@@ -38,6 +40,8 @@ const ctypeIcons: Record<string, React.ReactNode> = {
   trainer:  <Dumbbell size={16} />,
   parent:   <Heart size={16} />,
   visitor:  <UserCircle size={16} />,
+  staff:    <Coffee size={16} />,
+  owner_discount: <User size={16} />,
 };
 
 function LiveDuration({ startTime }: { startTime: string }) {

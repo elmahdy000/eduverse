@@ -10,6 +10,10 @@ export function translateCustomerType(type?: string | null) {
       return "ولي أمر";
     case "visitor":
       return "زائر";
+    case "staff":
+      return "طاقم عمل (50%)";
+    case "owner_discount":
+      return "مالك (70%)";
     default:
       return type ?? "-";
   }

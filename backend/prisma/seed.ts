@@ -22,7 +22,11 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.room.deleteMany();
   await prisma.expense.deleteMany();
+  await prisma.expenseCategory.deleteMany();
+  await prisma.vendor.deleteMany();
+  await prisma.wasteEntry.deleteMany();
   await prisma.auditLog.deleteMany();
+  await prisma.shift.deleteMany();
   await prisma.user.deleteMany();
   await prisma.rolePermission.deleteMany();
   await prisma.permission.deleteMany();
@@ -140,6 +144,18 @@ async function main() {
     },
   });
 
+  const elmahdyHash = await bcrypt.hash('pass12345', 10);
+  await prisma.user.create({
+    data: {
+      email: 'elmahdy@eduvers.com',
+      passwordHash: elmahdyHash,
+      firstName: 'Elmahdy',
+      lastName: 'Owner',
+      roleId: roles['Owner'].id,
+      status: 'active',
+    },
+  });
+
   await prisma.user.create({
     data: {
       email: 'barista@eduvers.com',
@@ -154,6 +170,7 @@ async function main() {
   // 6. Create Customers (Including Staff/Owners for discounts)
   console.log('👥 Creating customers...');
   const customers = [
+    { fullName: 'المهدي (مالك)', phoneNumber: '01000000000', customerType: 'owner_discount' },
     { fullName: 'أحمد علي (موظف)', phoneNumber: '01011111111', customerType: 'staff' },
     { fullName: 'محمد محمود (مالك)', phoneNumber: '01022222222', customerType: 'owner_discount' },
     { fullName: 'سارة حسن (طالب)', phoneNumber: '01033333333', customerType: 'student' },

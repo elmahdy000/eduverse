@@ -142,6 +142,7 @@ export default function BaristaPOSPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [customerTab, setCustomerTab] = useState<"active" | "search" | "staff">("active");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  const [isSelectingCustomer, setIsSelectingCustomer] = useState(false);
 
   // Vintage Mode States
   const [viewMode, setViewMode] = useState<"grid" | "vintage">("grid");
@@ -844,246 +845,235 @@ export default function BaristaPOSPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">اختيار العميل</p>
-            <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-2xl border border-slate-200/60">
-              <button
-                type="button"
-                onClick={() => setCustomerTab("active")}
-                className={clsx(
-                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
-                  customerTab === "active"
-                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
-                    : "text-slate-500 hover:text-slate-900 border-none"
-                )}
-              >
-                العملاء المتواجدين
-              </button>
-              <button
-                type="button"
-                onClick={() => setCustomerTab("search")}
-                className={clsx(
-                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
-                  customerTab === "search"
-                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
-                    : "text-slate-500 hover:text-slate-900 border-none"
-                )}
-              >
-                بحث العملاء
-              </button>
-              <button
-                type="button"
-                onClick={() => setCustomerTab("staff")}
-                className={clsx(
-                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
-                  customerTab === "staff"
-                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
-                    : "text-slate-500 hover:text-slate-900 border-none"
-                )}
-              >
-                موظفين / خصومات
-              </button>
-            </div>
-
-            {customerTab === "active" && (
-              <div className="space-y-2">
-                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-2">
-                  {activeSessionsQuery.isLoading ? (
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, idx) => (
-                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
-                      ))}
+            {!isSelectingCustomer ? (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+                <div className="text-right space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 block uppercase tracking-wider">العميل المرتبط بالطلب</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      {selectedCustomer?.fullName || (sessionId ? "العميل من الجلسة" : "لم يتم اختيار عميل")}
+                    </span>
+                    {selectedCustomer?.customerType === 'owner_discount' && (
+                      <span className="bg-amber-100 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded-md">مالك 70%</span>
+                    )}
+                    {selectedCustomer?.customerType === 'staff' && (
+                      <span className="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded-md">موظف 50%</span>
+                    )}
+                  </div>
+                  {sessionId && (
+                    <div className="text-[10px] text-slate-500 font-bold">
+                      الجلسة: {activeSessionsQuery.data?.data?.find(s => s.id === sessionId)?.room?.name ? `غرفة ${activeSessionsQuery.data?.data?.find(s => s.id === sessionId)?.room?.name}` : "المساحة العامة"}
                     </div>
-                  ) : (activeSessionsQuery.data?.data?.length ?? 0) > 0 ? (
-                    activeSessionsQuery.data?.data?.map((session) => {
-                      const cust = session.customer;
-                      if (!cust) return null;
-                      const isSelected = sessionId === session.id;
-                      return (
-                        <button
-                          key={session.id}
-                          type="button"
-                          onClick={() => {
-                            setSessionId(session.id);
-                            setSelectedCustomer(cust as any);
-                          }}
-                          className={clsx(
-                            "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 flex flex-col gap-1 border",
-                            isSelected ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-150"
-                          )}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="font-bold">{cust.fullName}</span>
-                            <span className={clsx("text-[9px] px-1.5 py-0.5 rounded-md font-bold", isSelected ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600")}>
-                              {session.room?.name ? `غرفة ${session.room.name}` : "المساحة العامة"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between w-full text-[9px] text-slate-400 font-medium">
-                            <span>{cust.phoneNumber || "بدون هاتف"}</span>
-                            {session.guestCode && <span>كود: {session.guestCode}</span>}
-                          </div>
-                        </button>
-                      );
-                    })
-                  ) : (
-                    <p className="text-[11px] text-slate-500 text-center py-4">لا يوجد عملاء متواجدين حالياً.</p>
                   )}
                 </div>
-              </div>
-            )}
-
-            {customerTab === "search" && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                  <Search size={14} className="text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="ابحث باسم أو هاتف العميل"
-                    value={customerSearchQuery}
-                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                    className="flex-1 bg-transparent border-none text-[11px] font-bold focus:ring-0 outline-none"
-                  />
+                <div className="flex gap-1.5">
+                  {(selectedCustomer || sessionId) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCustomer(null);
+                        setSessionId("");
+                      }}
+                      className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-black text-rose-600 hover:bg-rose-50 transition-colors shadow-xs"
+                    >
+                      إزالة
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsSelectingCustomer(true)}
+                    className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-black text-slate-700 hover:bg-slate-100 transition-colors shadow-xs"
+                  >
+                    تغيير
+                  </button>
                 </div>
-                <div className="max-h-48 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-2">
-                  {customersQuery.isLoading ? (
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, idx) => (
-                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
-                      ))}
-                    </div>
-                  ) : (customersQuery.data?.data.length ?? 0) > 0 ? (
-                    <>
-                      <div className="mb-2 text-[11px] font-semibold text-slate-500">
-                        عرض {customersQuery.data?.data.length ?? 0} من أصل {customersQuery.data?.total ?? 0} عميل
+              </div>
+            ) : (
+              <div className="space-y-3 border border-slate-200 bg-slate-50/50 p-3 rounded-2xl transition-all">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">تحديد العميل أو الجلسة</p>
+                  <button
+                    type="button"
+                    onClick={() => setIsSelectingCustomer(false)}
+                    className="text-[10px] font-black text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-xs"
+                  >
+                    تم
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/40">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerTab("active")}
+                    className={clsx(
+                      "flex-1 rounded-lg py-1.5 text-[10px] font-black transition-all",
+                      customerTab === "active"
+                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/20"
+                        : "text-slate-500 hover:text-slate-900"
+                    )}
+                  >
+                    النشطين
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerTab("search")}
+                    className={clsx(
+                      "flex-1 rounded-lg py-1.5 text-[10px] font-black transition-all",
+                      customerTab === "search"
+                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/20"
+                        : "text-slate-500 hover:text-slate-900"
+                    )}
+                  >
+                    البحث
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerTab("staff")}
+                    className={clsx(
+                      "flex-1 rounded-lg py-1.5 text-[10px] font-black transition-all",
+                      customerTab === "staff"
+                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/20"
+                        : "text-slate-500 hover:text-slate-900"
+                    )}
+                  >
+                    الخصومات
+                  </button>
+                </div>
+
+                {customerTab === "active" && (
+                  <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5">
+                    {activeSessionsQuery.isLoading ? (
+                      <div className="space-y-1">
+                        {[...Array(2)].map((_, idx) => (
+                          <div key={idx} className="h-8 rounded-lg bg-slate-200 animate-pulse" />
+                        ))}
                       </div>
-                      {customersQuery.data?.data.map((customer) => (
+                    ) : (activeSessionsQuery.data?.data?.length ?? 0) > 0 ? (
+                      activeSessionsQuery.data?.data?.map((session) => {
+                        const cust = session.customer;
+                        if (!cust) return null;
+                        const isSelected = sessionId === session.id;
+                        return (
+                          <button
+                            key={session.id}
+                            type="button"
+                            onClick={() => {
+                              setSessionId(session.id);
+                              setSelectedCustomer(cust as any);
+                              setIsSelectingCustomer(false);
+                            }}
+                            className={clsx(
+                              "w-full rounded-lg px-2.5 py-1.5 text-right text-[10px] font-semibold transition mb-1 flex flex-col gap-0.5 border",
+                              isSelected ? "bg-slate-900 text-white border-slate-900 shadow-xs" : "bg-slate-50 text-slate-800 hover:bg-slate-100 border-slate-100"
+                            )}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-bold">{cust.fullName}</span>
+                              <span className={clsx("text-[8px] px-1 py-0.2 rounded-md font-bold", isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600")}>
+                                {session.room?.name ? `غرفة ${session.room.name}` : "المساحة العامة"}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <p className="text-[10px] text-slate-500 text-center py-3">لا يوجد عملاء نشطين.</p>
+                    )}
+                  </div>
+                )}
+
+                {customerTab === "search" && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
+                      <Search size={12} className="text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="ابحث باسم أو هاتف العميل"
+                        value={customerSearchQuery}
+                        onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                        className="flex-1 bg-transparent border-none text-[10px] font-bold focus:ring-0 outline-none"
+                      />
+                    </div>
+                    <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5">
+                      {customersQuery.isLoading ? (
+                        <div className="space-y-1">
+                          {[...Array(2)].map((_, idx) => (
+                            <div key={idx} className="h-8 rounded-lg bg-slate-200 animate-pulse" />
+                          ))}
+                        </div>
+                      ) : (customersQuery.data?.data.length ?? 0) > 0 ? (
+                        customersQuery.data?.data.map((customer) => (
+                          <button
+                            key={customer.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setSessionId("");
+                              setIsSelectingCustomer(false);
+                            }}
+                            className={clsx(
+                              "w-full rounded-lg px-2.5 py-1.5 text-right text-[10px] font-semibold transition mb-1 border",
+                              selectedCustomer?.id === customer.id ? "bg-slate-900 text-white border-slate-900 shadow-xs" : "bg-slate-50 text-slate-800 hover:bg-slate-100 border-slate-100"
+                            )}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold">{customer.fullName}</span>
+                              <span className="text-[9px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <p className="text-[10px] text-slate-500 text-center py-3">لا يوجد عملاء مطابقين.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {customerTab === "staff" && (
+                  <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5">
+                    {staffQuery.isLoading ? (
+                      <div className="space-y-1">
+                        {[...Array(2)].map((_, idx) => (
+                          <div key={idx} className="h-8 rounded-lg bg-slate-200 animate-pulse" />
+                        ))}
+                      </div>
+                    ) : (staffQuery.data?.length ?? 0) > 0 ? (
+                      staffQuery.data?.map((customer) => (
                         <button
                           key={customer.id}
                           type="button"
                           onClick={() => {
                             setSelectedCustomer(customer);
                             setSessionId("");
+                            setIsSelectingCustomer(false);
                           }}
                           className={clsx(
-                            "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 border",
-                            selectedCustomer?.id === customer.id ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-150"
+                            "w-full rounded-lg px-2.5 py-1.5 text-right text-[10px] font-semibold transition mb-1 border",
+                            selectedCustomer?.id === customer.id
+                              ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                              : "bg-slate-50 text-slate-800 hover:bg-slate-100 border-slate-100"
                           )}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold">{customer.fullName}</span>
-                            <span className="text-[10px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
+                            <span className="font-bold truncate">{customer.fullName}</span>
+                            <span className={clsx(
+                              "shrink-0 rounded-full px-1.5 py-0.2 text-[8px] font-black",
+                              customer.customerType === "owner_discount"
+                                ? selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
+                                : selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700"
+                            )}>
+                              {customer.customerType === "owner_discount" ? "مالك 70%" : "موظف 50%"}
+                            </span>
                           </div>
-                          {customer.customerType && (
-                            <div className="mt-1 text-[10px] text-slate-500 font-medium">{customer.customerType}</div>
-                          )}
                         </button>
-                      ))}
-                    </>
-                  ) : (
-                    <p className="text-[11px] text-slate-500">لا يوجد عملاء مطابقين.</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {customerTab === "staff" && (
-              <div className="space-y-2">
-                <p className="text-[10px] text-slate-400 font-semibold px-1">
-                  اختر موظف أو مالك لتطبيق الخصم على الطلب تلقائياً.
-                </p>
-                <div className="rounded-2xl border border-slate-200 bg-white p-2 max-h-48 overflow-y-auto">
-                  {staffQuery.isLoading ? (
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, idx) => (
-                        <div key={idx} className="h-10 rounded-xl bg-slate-200 animate-pulse" />
-                      ))}
-                    </div>
-                  ) : (staffQuery.data?.length ?? 0) > 0 ? (
-                    staffQuery.data?.map((customer) => (
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedCustomer(customer);
-                          setSessionId("");
-                        }}
-                        className={clsx(
-                          "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 border",
-                          selectedCustomer?.id === customer.id
-                            ? "bg-slate-900 text-white border-slate-900 shadow-md"
-                            : "bg-white text-slate-800 hover:bg-slate-50 border-slate-100"
-                        )}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold truncate">{customer.fullName}</span>
-                          <span className={clsx(
-                            "shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black",
-                            customer.customerType === "owner_discount"
-                              ? selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700 border border-amber-200/30"
-                              : selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700 border border-blue-200/30"
-                          )}>
-                            {customer.customerType === "owner_discount" ? "مالك 70%" : "موظف 50%"}
-                          </span>
-                        </div>
-                        {customer.phoneNumber && (
-                          <span className={clsx("text-[9px] font-medium", selectedCustomer?.id === customer.id ? "text-slate-300" : "text-slate-400")}>
-                            {customer.phoneNumber}
-                          </span>
-                        )}
-                      </button>
-                    ))
-                  ) : (
-                    <p className="text-[11px] text-slate-500 text-center py-4">لا يوجد موظفين أو أصحاب خصومات مسجلين.</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">العميل المختار</p>
-                    <p className="mt-1 text-sm font-bold text-slate-900">
-                      {selectedCustomer?.fullName || (sessionId ? "العميل من الجلسة" : "لم يتم اختيار عميل")}
-                    </p>
-                    <p className="mt-1 text-[11px] text-slate-500 leading-normal">
-                      {selectedCustomer?.phoneNumber || (sessionId ? "سيتم استخدام العميل المرتبط بالجلسة" : "اختر عميلًا من القائمة أو جلسة نشطة")}
-                    </p>
+                      ))
+                    ) : (
+                      <p className="text-[10px] text-slate-500 text-center py-3">لا يوجد أصحاب خصومات.</p>
+                    )}
                   </div>
-                  {selectedCustomer && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCustomer(null)}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black text-slate-500 hover:bg-slate-100 transition-colors shrink-0 shadow-sm"
-                    >
-                      مسح
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
-
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right">الجلسة النشطة</p>
-                <div className="mt-2.5 rounded-xl border border-slate-200 bg-white shadow-sm">
-                  <select
-                    className="w-full bg-transparent px-3 py-2.5 text-[11px] font-bold outline-none text-right cursor-pointer"
-                    onChange={(e) => {
-                      const session = activeSessionsQuery.data?.data?.find((s) => s.id === e.target.value);
-                      setSessionId(e.target.value);
-                      if (session?.customer) setSelectedCustomer(session.customer as any);
-                    }}
-                    value={sessionId}
-                  >
-                    <option value="">لا توجد جلسة</option>
-                    {activeSessionsQuery.data?.data?.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.customer?.fullName || "جلسة نشطة"} - {s.room?.name || "بدون غرفة"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           <button

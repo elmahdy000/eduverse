@@ -35,6 +35,17 @@ export class InventoryController {
     return this.inventoryService.addStock(itemId, body.quantity, req.user.userId, body.reason);
   }
 
+  @Post('items/:id/withdraw')
+  @UseGuards(OpsManagerGuard)
+  @ApiOperation({ summary: 'Withdraw/consume stock from item directly' })
+  async withdrawStock(
+    @Param('id') itemId: string,
+    @Body() body: { quantity: number; reason: string },
+    @Request() req: any
+  ) {
+    return this.inventoryService.withdrawStock(itemId, body.quantity, req.user.userId, body.reason);
+  }
+
   @Post('products/:productId/recipe')
   @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'Set recipe for a product' })
@@ -43,6 +54,12 @@ export class InventoryController {
     @Body() body: { items: { inventoryItemId: string; quantity: number }[] }
   ) {
     return this.inventoryService.setRecipe(productId, body.items);
+  }
+
+  @Get('products/:productId/recipe')
+  @ApiOperation({ summary: 'Get recipe for a product' })
+  async getRecipe(@Param('productId') productId: string) {
+    return this.inventoryService.getRecipe(productId);
   }
 
   @Post('waste')
@@ -95,4 +112,16 @@ export class InventoryController {
     }
   }
 
+  @Post('stocktake')
+  @UseGuards(OpsManagerGuard)
+  @ApiOperation({ summary: 'Perform a batch stocktake and adjust inventory items' })
+  async performStocktake(
+    @Body() body: { items: { inventoryItemId: string; actualStock: number; reason?: string }[] },
+    @Request() req: any
+  ) {
+    if (!body.items || !Array.isArray(body.items)) {
+      throw new BadRequestException('Items array is required');
+    }
+    return this.inventoryService.performStocktake(body.items, req.user.userId);
+  }
 }

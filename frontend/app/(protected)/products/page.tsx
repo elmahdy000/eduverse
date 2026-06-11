@@ -2,35 +2,54 @@
 
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Package, Plus, Search, Pencil, PowerOff, Power, Eye, EyeOff, RefreshCw, Coffee, Tag, ShoppingBag } from "lucide-react";
+import { Package, Plus, Search, Pencil, PowerOff, Power, Eye, EyeOff, RefreshCw, Coffee, Tag, ShoppingBag, Leaf, CupSoda, Snowflake, Flame, IceCream, Milk, Cherry, GlassWater, Soup, PlusCircle, Settings2, Trash } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { money } from "../../../lib/format";
 import { translateProductCategory } from "../../../lib/labels";
 import type { Paginated, Product } from "../../../lib/types";
-import { Alert, Btn, EmptyState, FormField, Panel, SectionTitle, StatCard } from "../../../components/ui";
+import { Alert, Btn, EmptyState, FormField, Panel, SectionTitle, StatCard, CardSkeleton } from "../../../components/ui";
 
 const CATEGORIES = [
   { value: "", label: "الكل" },
-  { value: "coffee", label: "☕ قهوة" },
-  { value: "tea", label: "🍵 شاي" },
-  { value: "frappe", label: "🥤 فرابيه" },
-  { value: "cold-coffee", label: "❄️ قهوة مثلجة" },
-  { value: "hot-drinks", label: "🔥 مشروبات ساخنة" },
-  { value: "frappuccino", label: "🍦 فرابوتشينو" },
-  { value: "milk-shake", label: "🥛 ميلك شيك" },
-  { value: "smoothies", label: "🍓 سموذي" },
-  { value: "yougert", label: "🥣 زبادي" },
-  { value: "cans", label: "🥫 كانز" },
-  { value: "mocktails", label: "🍹 موكتيل" },
-  { value: "indomy", label: "🍜 اندومي" },
-  { value: "boba-drinks", label: "🧋 بوبا" },
-  { value: "additions", label: "➕ إضافات" },
+  { value: "coffee", label: "قهوة" },
+  { value: "tea", label: "شاي" },
+  { value: "frappe", label: "فرابيه" },
+  { value: "cold-coffee", label: "قهوة مثلجة" },
+  { value: "hot-drinks", label: "مشروبات ساخنة" },
+  { value: "frappuccino", label: "فرابوتشينو" },
+  { value: "milk-shake", label: "ميلك شيك" },
+  { value: "smoothies", label: "سموذي" },
+  { value: "yougert", label: "زبادي" },
+  { value: "cans", label: "كانز" },
+  { value: "mocktails", label: "موكتيل" },
+  { value: "indomy", label: "اندومي" },
+  { value: "boba-drinks", label: "بوبا" },
+  { value: "additions", label: "إضافات" },
 ];
 
-function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
+const categoryIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  coffee: Coffee,
+  tea: Leaf,
+  frappe: CupSoda,
+  "cold-coffee": Snowflake,
+  "hot-drinks": Flame,
+  frappuccino: IceCream,
+  "milk-shake": Milk,
+  smoothies: Cherry,
+  yougert: CupSoda,
+  cans: CupSoda,
+  mocktails: GlassWater,
+  indomy: Soup,
+  "boba-drinks": CupSoda,
+  additions: PlusCircle,
+};
+
+
+function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail, busy }: {
   product: Product;
   onEdit: () => void;
+  onRecipe: () => void;
   onToggleActive: () => void;
   onToggleAvail: () => void;
   busy: boolean;
@@ -67,15 +86,18 @@ function ProductCard({ product, onEdit, onToggleActive, onToggleAvail, busy }: {
         </div>
       </div>
 
-      <div className="flex gap-1 border-t border-slate-100 p-2">
-        <button onClick={onEdit} className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
+      <div className="grid grid-cols-2 gap-1 border-t border-slate-100 p-2">
+        <button onClick={onEdit} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
           <Pencil size={11} /> تعديل
         </button>
-        <button onClick={onToggleAvail} disabled={busy} className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
+        <button onClick={onRecipe} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-violet-600 transition hover:bg-violet-50">
+          <Settings2 size={11} /> الوصفة
+        </button>
+        <button onClick={onToggleAvail} disabled={busy} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
           {product.availability ? <EyeOff size={11} /> : <Eye size={11} />}
           {product.availability ? "إيقاف الإتاحة" : "إتاحة"}
         </button>
-        <button onClick={onToggleActive} disabled={busy} className={`flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
+        <button onClick={onToggleActive} disabled={busy} className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
           {product.active ? <PowerOff size={11} /> : <Power size={11} />}
           {product.active ? "إيقاف" : "تفعيل"}
         </button>
@@ -107,6 +129,88 @@ export default function ProductsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editAvailability, setEditAvailability] = useState(true);
+
+  // Recipe State
+  const [recipeProduct, setRecipeProduct] = useState<Product | null>(null);
+  const [recipeItems, setRecipeItems] = useState<{ inventoryItemId: string; quantity: number; name?: string; unit?: string }[]>([]);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState("");
+  const [selectedQty, setSelectedQty] = useState("");
+  const [submittingRecipe, setSubmittingRecipe] = useState(false);
+
+  const openRecipeModal = async (product: Product) => {
+    setRecipeProduct(product);
+    setRecipeLoading(true);
+    setSelectedItemId("");
+    setSelectedQty("");
+    try {
+      if (inventoryItems.length === 0) {
+        const invRes = await api.get("/inventory/items");
+        setInventoryItems(invRes.data);
+      }
+      const recipeRes = await api.get(`/inventory/products/${product.id}/recipe`);
+      const mapped = recipeRes.data.map((item: any) => ({
+        inventoryItemId: item.inventoryItemId,
+        quantity: Number(item.quantity),
+        name: item.inventoryItem?.name,
+        unit: item.inventoryItem?.unit,
+      }));
+      setRecipeItems(mapped);
+    } catch (err) {
+      console.error(err);
+      setMessage({ text: "فشل تحميل مكونات المنتج.", ok: false });
+    } finally {
+      setRecipeLoading(false);
+    }
+  };
+
+  const handleAddRecipeItem = () => {
+    if (!selectedItemId || !selectedQty || isNaN(Number(selectedQty)) || Number(selectedQty) <= 0) {
+      setMessage({ text: "برجاء إدخال كمية صحيحة.", ok: false });
+      return;
+    }
+    const alreadyExists = recipeItems.some(i => i.inventoryItemId === selectedItemId);
+    if (alreadyExists) {
+      setMessage({ text: "هذا المكون مضاف بالفعل في الوصفة.", ok: false });
+      return;
+    }
+    const item = inventoryItems.find(i => i.id === selectedItemId);
+    if (!item) return;
+
+    setRecipeItems([...recipeItems, {
+      inventoryItemId: selectedItemId,
+      quantity: Number(selectedQty),
+      name: item.name,
+      unit: item.unit
+    }]);
+    setSelectedItemId("");
+    setSelectedQty("");
+  };
+
+  const handleRemoveRecipeItem = (itemId: string) => {
+    setRecipeItems(recipeItems.filter(i => i.inventoryItemId !== itemId));
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!recipeProduct) return;
+    setSubmittingRecipe(true);
+    try {
+      await api.post(`/inventory/products/${recipeProduct.id}/recipe`, {
+        items: recipeItems.map(item => ({
+          inventoryItemId: item.inventoryItemId,
+          quantity: Number(item.quantity),
+        })),
+      });
+      setMessage({ text: "تم تحديث وصفة المنتج بنجاح. ✓", ok: true });
+      setRecipeProduct(null);
+    } catch (err) {
+      console.error(err);
+      setMessage({ text: "فشل حفظ الوصفة، حاول مرة أخرى.", ok: false });
+    } finally {
+      setSubmittingRecipe(false);
+    }
+  };
 
   const productsQuery = useQuery({
     queryKey: ["products", search, catFilter, activeFilter],
@@ -300,6 +404,95 @@ export default function ProductsPage() {
         </Panel>
       )}
 
+      {/* Recipe management form */}
+      {recipeProduct && (
+        <Panel title={`إدارة مكونات وصفة المنتج: ${recipeProduct.name}`} icon={<Settings2 size={15} />} action={
+          <Btn size="sm" variant="ghost" onClick={() => setRecipeProduct(null)}>✕ إغلاق</Btn>
+        }>
+          {recipeLoading ? (
+            <div className="py-6 text-center text-slate-500 font-semibold">جاري تحميل المكونات والوصفة...</div>
+          ) : (
+            <div className="space-y-6">
+              {/* Add Ingredient form block */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <p className="text-sm font-bold text-slate-800 mb-3">إضافة مكون للوصفة</p>
+                <div className="grid gap-3 sm:grid-cols-3 items-end">
+                  <FormField label="الصنف في المخزن">
+                    <select value={selectedItemId} onChange={e => setSelectedItemId(e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900">
+                      <option value="">اختر صنف مخزني...</option>
+                      {inventoryItems.map(item => (
+                        <option key={item.id} value={item.id}>
+                          {item.name} ({item.unit}) - رصيد: {Number(item.currentStock)}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                  <FormField label="الكمية المطلوبة (لكل منتج)">
+                    <div className="relative">
+                      <input type="number" min={0.01} step={0.01} value={selectedQty} onChange={e => setSelectedQty(e.target.value)} placeholder="0.00"
+                        className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-right text-sm outline-none focus:border-slate-900" />
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                        {inventoryItems.find(i => i.id === selectedItemId)?.unit || ""}
+                      </span>
+                    </div>
+                  </FormField>
+                  <div>
+                    <Btn type="button" onClick={handleAddRecipeItem} icon={<Plus size={14} />} className="w-full py-2.5">
+                      إضافة للوصفة
+                    </Btn>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recipe items list */}
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-slate-800">مكونات الوصفة الحالية</p>
+                {recipeItems.length === 0 ? (
+                  <p className="text-sm text-slate-500 py-2">لا توجد مكونات مضاف لهذا الوصف بعد. عند بيع هذا المنتج، لن يتم خصم أي خامات من المخزن.</p>
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <table className="w-full text-right text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-semibold text-slate-600">الصنف</th>
+                          <th className="p-3 font-semibold text-slate-600">الكمية المطلوبة</th>
+                          <th className="p-3 font-semibold text-slate-600 w-16 text-center">إجراء</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {recipeItems.map(item => (
+                          <tr key={item.inventoryItemId}>
+                            <td className="p-3 font-medium text-slate-900">{item.name}</td>
+                            <td className="p-3 text-slate-700">
+                              {item.quantity} {item.unit}
+                            </td>
+                            <td className="p-3 text-center">
+                              <button type="button" onClick={() => handleRemoveRecipeItem(item.inventoryItemId)}
+                                className="p-1 rounded-lg text-rose-500 hover:bg-rose-50 transition">
+                                <Trash size={15} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Save actions */}
+              <div className="flex gap-2 border-t border-slate-100 pt-4">
+                <Btn type="button" onClick={handleSaveRecipe} loading={submittingRecipe} loadingText="جاري الحفظ..." icon={<Settings2 size={14} />}>
+                  حفظ الوصفة بالكامل
+                </Btn>
+                <Btn type="button" variant="ghost" onClick={() => setRecipeProduct(null)}>إلغاء</Btn>
+              </div>
+            </div>
+          )}
+        </Panel>
+      )}
+
       {/* Filters */}
       <Panel title="المنتجات" icon={<Search size={15} />} action={
         <div className="flex gap-2">
@@ -313,12 +506,16 @@ export default function ProductsPage() {
       }>
         {/* Category tabs */}
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-          {CATEGORIES.map(c => (
-            <button key={c.value} onClick={() => setCatFilter(c.value)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition ${catFilter === c.value ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-              {c.label}
-            </button>
-          ))}
+          {CATEGORIES.map(c => {
+            const Icon = categoryIcons[c.value];
+            return (
+              <button key={c.value} onClick={() => setCatFilter(c.value)}
+                className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${catFilter === c.value ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
+                {Icon && <Icon size={12} />}
+                {c.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Search */}
@@ -330,7 +527,11 @@ export default function ProductsPage() {
 
         {/* Products grid */}
         {productsQuery.isLoading ? (
-          <div className="flex justify-center py-10"><RefreshCw size={20} className="animate-spin text-slate-400" /></div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
         ) : products.length === 0 ? (
           <EmptyState icon={<Package size={36} />} title="ميش منتجات" sub="ضي أول منتج من الأعلى." />
         ) : (
@@ -338,6 +539,7 @@ export default function ProductsPage() {
             {products.map(product => (
               <ProductCard key={product.id} product={product}
                 onEdit={() => openEdit(product)}
+                onRecipe={() => openRecipeModal(product)}
                 onToggleActive={() => statusMutation.mutate({ id: product.id, action: product.active ? "deactivate" : "reactivate" })}
                 onToggleAvail={() => availMutation.mutate({ product })}
                 busy={statusMutation.isPending || availMutation.isPending} />

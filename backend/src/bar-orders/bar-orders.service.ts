@@ -275,7 +275,7 @@ export class BarOrdersService {
     });
 
     // Deduct inventory when delivered (if not already deducted)
-    if (updateStatusDto.status === 'delivered') {
+    if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
       try {
         await this.inventoryService.deductStockForOrder(orderId, userId);
       } catch (err) {

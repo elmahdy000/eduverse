@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { money } from "../../../lib/format";
-import { SectionTitle } from "../../../components/ui";
+import { SectionTitle, CardSkeleton } from "../../../components/ui";
 import clsx from "clsx";
 
 interface FinancialSummary {
@@ -198,7 +198,10 @@ export default function ReportsPage() {
             <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
           </button>
           
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm">
+          <button 
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm print:hidden"
+          >
             <Download size={14} />
             تصدير PDF
           </button>
@@ -208,7 +211,7 @@ export default function ReportsPage() {
       {isLoading ? (
         <div className="grid gap-8 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 rounded-xl bg-slate-50 animate-pulse border border-slate-100" />
+            <CardSkeleton key={i} />
           ))}
         </div>
       ) : (

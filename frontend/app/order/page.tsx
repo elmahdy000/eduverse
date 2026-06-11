@@ -222,6 +222,64 @@ export default function GuestOrderPage() {
 
   const queryClient = useQueryClient();
 
+  const audioCtxRef = React.useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    const handleGesture = () => {
+      if (typeof window !== "undefined") {
+        if (!audioCtxRef.current) {
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtxRef.current = new AudioContextClass();
+          }
+        }
+        if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+          audioCtxRef.current.resume().catch(() => {});
+        }
+      }
+    };
+    window.addEventListener("click", handleGesture, { capture: true, passive: true });
+    window.addEventListener("touchstart", handleGesture, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener("click", handleGesture);
+      window.removeEventListener("touchstart", handleGesture);
+    };
+  }, []);
+
+  const playBellSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx) {
+        if (ctx.state === "suspended") {
+          ctx.resume().catch(() => {});
+        }
+        const playTone = (freq: number, start: number, duration: number) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+          osc.start(ctx.currentTime + start);
+          osc.stop(ctx.currentTime + start + duration);
+        };
+        // Sweet double chime: 523Hz (C5) -> 659Hz (E5)
+        playTone(523, 0, 0.3);
+        playTone(659, 0.15, 0.4);
+      }
+    } catch (e) {
+      console.error("Failed to play bell sound:", e);
+    }
+  };
+
   const validateCodeMutation = useMutation({
     mutationFn: async (code: string) => {
       const r = await api.get(`/public/orders/validate/${code}`);
@@ -318,6 +376,9 @@ export default function GuestOrderPage() {
 
       s.on("order:status-updated", (order) => {
         console.log("[Socket.IO] order:status-updated received:", order);
+        if (order.guestCode === guestCode && (order.status === "ready" || order.status === "delivered" || order.status === "completed")) {
+          playBellSound();
+        }
         queryClient.invalidateQueries({ queryKey: ["guest-orders"] });
       });
 

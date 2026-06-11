@@ -7,7 +7,7 @@ import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, A
 import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useBarOrderSocket } from "../../../../lib/useBarOrderSocket";
-import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard } from "../../../../components/ui";
+import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard, CardSkeleton } from "../../../../components/ui";
 
 interface BarOrderItem {
   id: string;
@@ -211,7 +211,7 @@ export default function BaristaDashboardPage() {
 
     // 4. Browser Push Notification
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-      new Notification("☕ طلب جديد وصل!", {
+      new Notification("طلب جديد وصل!", {
         body: "في طلب جديد ينتظر التحضير — شوف لوحة الباريستا.",
         icon: "/favicon.ico",
         tag: "new-bar-order",
@@ -295,9 +295,21 @@ export default function BaristaDashboardPage() {
 
 
   if (isLoading) return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20">
-      <RefreshCw size={28} className="animate-spin text-slate-400" />
-      <p className="text-sm text-slate-500">بيجيب الطلبات...</p>
+    <div className="space-y-6 animate-pulse">
+      <div className="h-8 bg-slate-100 rounded-lg w-1/3" />
+      <div className="grid gap-3 sm:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+      <div className="border border-slate-200 bg-white rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="h-4 bg-slate-200 rounded w-1/4" />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-32 bg-slate-100 rounded-xl" />
+          ))}
+        </div>
+      </div>
     </div>
   );
   if (error || !data) return <div className="py-10"><Alert tone="danger">مش قادرين يجيبوا الطلبات.</Alert></div>;
@@ -323,7 +335,7 @@ export default function BaristaDashboardPage() {
         </div>
       )}
       <SectionTitle
-        title="لوحة الباريستا ☕"
+        title="لوحة الباريستا"
         subtitle="الطلبات بالترتيب — شيل من هنا وحطه هناك، ومتخليش حاجة تتأخر."
         icon={<Coffee size={20} />}
         action={
@@ -332,6 +344,13 @@ export default function BaristaDashboardPage() {
               {isSocketLive ? <Wifi size={10} /> : <WifiOff size={10} />}
               {isSocketLive ? "مباشر" : "polling"}
             </span>
+            <button 
+              onClick={() => playNotificationSound()} 
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+              title="تجربة صوت التنبيه وتنشيط جرس المتصفح"
+            >
+              <Bell size={12} className="text-amber-500 animate-pulse" /> تجربة الجرس
+            </button>
             <Link
               href="/dashboard/barista/pos"
               className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
@@ -354,7 +373,7 @@ export default function BaristaDashboardPage() {
       ) : totalActive === 0 ? (
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
           <CheckCircle2 size={15} className="text-emerald-600" />
-          <p className="text-sm font-medium text-emerald-700">استنى الطلبات الجديدة — دلوقتي ميش طلبات معلقة! 🎉</p>
+          <p className="text-sm font-medium text-emerald-700">استنى الطلبات الجديدة — دلوقتي لا توجد طلبات معلقة!</p>
         </div>
       ) : null}
 

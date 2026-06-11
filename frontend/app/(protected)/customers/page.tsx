@@ -39,6 +39,8 @@ import {
   Select,
   StatCard,
   statusBadgeTone,
+  TableSkeleton,
+  CardSkeleton,
 } from "../../../components/ui";
 
 interface CustomerHistory {
@@ -324,7 +326,7 @@ export default function CustomersPage() {
         <Panel title="بحث العملاء" icon={<Search size={15} />}>
           <div className="grid gap-3 md:grid-cols-2">
             <FormField label="بالاسم"><Input value={searchName} onChange={(e) => setSearchName(e.target.value)} placeholder="اسم العميل..." /></FormField>
-            <FormField label="بالموبايل"><Input value={searchPhone} onChange={(e) => setSearchPhone(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" /></FormField>
+            <FormField label="بالموبايل"><Input value={searchPhone} onChange={(e) => setSearchPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01xxxxxxxxx" dir="ltr" /></FormField>
           </div>
         </Panel>
 
@@ -335,7 +337,7 @@ export default function CustomersPage() {
             <form className="space-y-4" onSubmit={onCreateSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="الاسم"><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></FormField>
-                <FormField label="الموبايل (الأساسي)"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
+                <FormField label="الموبايل (الأساسي)"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" required /></FormField>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="النوع">
@@ -346,7 +348,7 @@ export default function CustomersPage() {
                     <option value="trainer">مدرب</option>
                   </Select>
                 </FormField>
-                <FormField label="الموبايل (بديل)"><Input value={phoneNumberSecondary} onChange={(e) => setPhoneNumberSecondary(e.target.value)} dir="ltr" placeholder="اختياري" /></FormField>
+                <FormField label="الموبايل (بديل)"><Input value={phoneNumberSecondary} onChange={(e) => setPhoneNumberSecondary(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" placeholder="اختياري" /></FormField>
               </div>
               
               {/* الحقول الخاصة بناءً على النوع */}
@@ -389,7 +391,7 @@ export default function CustomersPage() {
             </button>
           ))}
         </div>
-        {customersQuery.isLoading ? <p>جاري التحميل...</p> : <DataTable headers={["الاسم", "الموبايل", "النوع", "الحالة", "آخر زيارة", "الإجراء"]} rows={rows} />}
+        {customersQuery.isLoading ? <TableSkeleton rows={5} cols={6} /> : <DataTable headers={["الاسم", "الموبايل", "النوع", "الحالة", "آخر زيارة", "الإجراء"]} rows={rows} />}
       </Panel>
 
       {selectedCustomerId && (
@@ -646,55 +648,10 @@ export default function CustomersPage() {
             <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
-                <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
+                <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" required /></FormField>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value)} dir="ltr" /></FormField>
-                <FormField label="الايميل"><Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" /></FormField>
-              </div>
-              
-              {selectedCustomer.customerType === "student" && (
-                <div className="grid gap-4 md:grid-cols-3 bg-blue-50 p-3 rounded-xl border border-blue-100">
-                  <FormField label="الكلية / الجامعة"><Input value={editCollege} onChange={e => setEditCollege(e.target.value)} /></FormField>
-                  <FormField label="السنة الدراسية"><Input value={editStudyLevel} onChange={e => setEditStudyLevel(e.target.value)} /></FormField>
-                  <FormField label="التخصص"><Input value={editSpecialization} onChange={e => setEditSpecialization(e.target.value)} /></FormField>
-                </div>
-              )}
-              {selectedCustomer.customerType === "employee" && (
-                <div className="grid gap-4 md:grid-cols-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
-                  <FormField label="جهة العمل / الشركة"><Input value={editEmployerName} onChange={e => setEditEmployerName(e.target.value)} /></FormField>
-                  <FormField label="المسمى الوظيفي"><Input value={editJobTitle} onChange={e => setEditJobTitle(e.target.value)} /></FormField>
-                </div>
-              )}
-
-              <FormField label="العنوان"><Input value={editAddress} onChange={e => setEditAddress(e.target.value)} /></FormField>
-              
-              <FormField label="ملاحظات">
-                <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" rows={3} value={editNotes} onChange={e => setEditNotes(e.target.value)} />
-              </FormField>
-              <div className="flex gap-2">
-                <Btn type="submit" className="flex-1" loading={updateMutation.isPending}>حفظ التغييرات</Btn>
-                <Btn variant="ghost" onClick={() => setShowEditModal(false)}>إلغاء</Btn>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showEditModal && selectedCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-2xl bg-white shadow-xl" dir="rtl">
-            <div className="flex items-center justify-between border-b p-4">
-              <h3 className="font-bold">تعديل العميل</h3>
-              <button onClick={() => setShowEditModal(false)}><X size={20} /></button>
-            </div>
-            <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(); }}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField label="الاسم"><Input value={editFullName} onChange={e => setEditFullName(e.target.value)} required /></FormField>
-                <FormField label="الموبايل (الأساسي)"><Input value={editPhoneNumber} onChange={e => setEditPhoneNumber(e.target.value)} dir="ltr" required /></FormField>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value)} dir="ltr" /></FormField>
+                <FormField label="الموبايل (بديل)"><Input value={editPhoneNumberSecondary} onChange={e => setEditPhoneNumberSecondary(e.target.value.replace(/\D/g, "").slice(0, 11))} dir="ltr" /></FormField>
                 <FormField label="الايميل"><Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" /></FormField>
               </div>
               

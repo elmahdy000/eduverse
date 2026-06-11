@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +15,7 @@ import {
 import { api } from "../../../../lib/api";
 import { dateTime, money } from "../../../../lib/format";
 import { translateStatus } from "../../../../lib/labels";
-import { Badge, DataTable, Panel, SectionTitle } from "../../../../components/ui";
+import { Badge, DataTable, Panel, SectionTitle, TableSkeleton } from "../../../../components/ui";
 
 type BookingRow = {
   id: string;
@@ -182,7 +182,7 @@ export default function BookingReportsPage() {
 
       <Panel>
         {bookingsQuery.isLoading ? (
-          <div className="p-20 text-center text-slate-400">جاري تحميل البيانات...</div>
+          <TableSkeleton rows={5} cols={8} />
         ) : (
           <DataTable headers={["المعرف", "العميل", "الغرفة", "البداية", "النهاية", "الحالة", "الإجمالي", "ملاحظات"]} rows={rows} />
         )}

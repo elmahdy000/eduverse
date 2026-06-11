@@ -46,28 +46,46 @@ export class CustomersService {
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    const conditions: any[] = [];
 
     if (search?.name) {
-      where.fullName = { contains: search.name, mode: 'insensitive' };
+      const query = search.name.trim();
+      const nameConditions = this.buildArabicSearchConditions('fullName', query);
+      conditions.push({
+        OR: [
+          ...nameConditions,
+          { phoneNumber: { contains: query, mode: 'insensitive' } },
+          { phoneNumberSecondary: { contains: query, mode: 'insensitive' } },
+        ]
+      });
     }
+
     if (search?.phone) {
-      where.OR = [
-        { phoneNumber: { contains: search.phone, mode: 'insensitive' } },
-        { phoneNumberSecondary: { contains: search.phone, mode: 'insensitive' } },
-      ];
+      const query = search.phone.trim();
+      conditions.push({
+        OR: [
+          { phoneNumber: { contains: query, mode: 'insensitive' } },
+          { phoneNumberSecondary: { contains: query, mode: 'insensitive' } },
+        ]
+      });
     }
+
     if (search?.email) {
-      where.email = { contains: search.email, mode: 'insensitive' };
+      conditions.push({ email: { contains: search.email, mode: 'insensitive' } });
     }
     if (search?.customerType) {
       const types = search.customerType.split(",").map((t) => t.trim());
-      where.customerType = types.length > 1 ? { in: types } : types[0];
+      conditions.push(types.length > 1 ? { customerType: { in: types } } : { customerType: types[0] });
     }
     if (search?.college) {
-      where.college = { contains: search.college, mode: 'insensitive' };
+      conditions.push({ college: { contains: search.college, mode: 'insensitive' } });
     }
     if (search?.employerName) {
-      where.employerName = { contains: search.employerName, mode: 'insensitive' };
+      conditions.push({ employerName: { contains: search.employerName, mode: 'insensitive' } });
+    }
+
+    if (conditions.length > 0) {
+      where.AND = conditions;
     }
 
     const [customers, total] = await Promise.all([
@@ -89,6 +107,74 @@ export class CustomersService {
       limit,
       hasMore,
     };
+  }
+
+  private buildArabicSearchConditions(fieldName: string, searchStr: string) {
+    const normalized = searchStr.trim();
+    if (!normalized) return [];
+
+    const terms = new Set<string>();
+    terms.add(normalized);
+
+    const replaceAll = (str: string, from: string[], to: string) => {
+      let current = str;
+      for (const f of from) {
+        current = current.split(f).join(to);
+      }
+      return current;
+    };
+
+    const alifs = ['أ', 'إ', 'آ', 'ا'];
+    const yas = ['ي', 'ى'];
+    const tas = ['ة', 'ه'];
+
+    let base = normalized;
+    base = replaceAll(base, alifs, 'ا');
+    base = replaceAll(base, yas, 'ي');
+    base = replaceAll(base, tas, 'ه');
+
+    const spaceVariations = [base];
+    if (base.includes('عبد ')) {
+      spaceVariations.push(base.replace('عبد ', 'عبد'));
+    }
+    if (base.includes('عبد') && !base.includes('عبد ')) {
+      spaceVariations.push(base.replace('عبد', 'عبد '));
+    }
+
+    const finalTerms = new Set<string>([normalized]);
+    
+    for (const sv of spaceVariations) {
+      finalTerms.add(sv);
+      for (const a of alifs) {
+        if (sv.startsWith('ا') || sv.startsWith('أ') || sv.startsWith('إ') || sv.startsWith('آ')) {
+          finalTerms.add(a + sv.slice(1));
+        }
+        const parts = sv.split(' ');
+        if (parts.length > 1) {
+          for (let i = 0; i < parts.length; i++) {
+            if (parts[i].startsWith('ا') || parts[i].startsWith('أ') || parts[i].startsWith('إ') || parts[i].startsWith('آ')) {
+              const copy = [...parts];
+              copy[i] = a + parts[i].slice(1);
+              finalTerms.add(copy.join(' '));
+            }
+          }
+        }
+      }
+      if (sv.endsWith('ي') || sv.endsWith('ى')) {
+        for (const y of yas) {
+          finalTerms.add(sv.slice(0, -1) + y);
+        }
+      }
+      if (sv.endsWith('ة') || sv.endsWith('ه')) {
+        for (const t of tas) {
+          finalTerms.add(sv.slice(0, -1) + t);
+        }
+      }
+    }
+
+    return Array.from(finalTerms).map(term => ({
+      [fieldName]: { contains: term, mode: 'insensitive' }
+    }));
   }
 
   async updateCustomer(

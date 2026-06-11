@@ -23,6 +23,9 @@ export class InventoryService {
   }
 
   async addStock(itemId: string, quantity: number, userId: string, reason?: string) {
+    if (quantity <= 0) {
+      throw new BadRequestException('الكمية المضافة يجب أن تكون أكبر من صفر');
+    }
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.inventoryItem.findUnique({ where: { id: itemId } });
       if (!item) throw new NotFoundException('Inventory item not found');
@@ -54,7 +57,51 @@ export class InventoryService {
     });
   }
 
+  async withdrawStock(itemId: string, quantity: number, userId: string, reason: string) {
+    if (quantity <= 0) {
+      throw new BadRequestException('الكمية المسحوبة يجب أن تكون أكبر من صفر');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      const item = await tx.inventoryItem.findUnique({ where: { id: itemId } });
+      if (!item) throw new NotFoundException('Inventory item not found');
+
+      if (Number(item.currentStock) < quantity) {
+        throw new BadRequestException('الكمية المتاحة في المخزن غير كافية للسحب');
+      }
+
+      await tx.inventoryTransaction.create({
+        data: {
+          inventoryItemId: itemId,
+          type: 'out',
+          quantity,
+          reason: reason || 'سحب يدوي',
+          performedByUserId: userId,
+        },
+      });
+
+      const updated = await tx.inventoryItem.update({
+        where: { id: itemId },
+        data: { currentStock: { decrement: quantity } },
+      });
+
+      await this.auditLogsService.createAuditLog({
+        userId,
+        action: 'WITHDRAW_STOCK',
+        entityType: 'inventory_item',
+        entityId: itemId,
+        newValue: { quantity, reason, currentStock: updated.currentStock },
+      });
+
+      return updated;
+    });
+  }
+
   async setRecipe(productId: string, items: { inventoryItemId: string; quantity: number }[]) {
+    for (const item of items) {
+      if (item.quantity <= 0) {
+        throw new BadRequestException('كمية المكون يجب أن تكون أكبر من صفر');
+      }
+    }
     return this.prisma.$transaction(async (tx) => {
       await tx.recipeItem.deleteMany({ where: { productId } });
       const created = await Promise.all(
@@ -65,6 +112,13 @@ export class InventoryService {
         ),
       );
       return created;
+    });
+  }
+
+  async getRecipe(productId: string) {
+    return this.prisma.recipeItem.findMany({
+      where: { productId },
+      include: { inventoryItem: true },
     });
   }
 
@@ -81,6 +135,12 @@ export class InventoryService {
     if (!order) return;
 
     return this.prisma.$transaction(async (tx) => {
+      // Check if stock has already been deducted for this order to prevent duplicate deductions
+      const existingTx = await tx.inventoryTransaction.findFirst({
+        where: { referenceId: orderId, type: 'out' },
+      });
+      if (existingTx) return;
+
       for (const orderItem of order.items) {
         const recipeItems = orderItem.product.recipeItems;
         if (!recipeItems || recipeItems.length === 0) continue;
@@ -134,6 +194,9 @@ export class InventoryService {
   }
 
   async recordWaste(data: { inventoryItemId: string; quantity: number; reason?: string }, userId: string) {
+    if (data.quantity <= 0) {
+      throw new BadRequestException('الكمية التالفة يجب أن تكون أكبر من صفر');
+    }
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.inventoryItem.findUnique({ where: { id: data.inventoryItemId } });
       if (!item) throw new NotFoundException('Inventory item not found');
@@ -231,5 +294,62 @@ export class InventoryService {
       totalEstimatedCost: topItems.reduce((s, i) => s + (i.estimatedCost ?? 0), 0),
       topWastedItems: topItems,
     };
+  }
+
+  async performStocktake(items: { inventoryItemId: string; actualStock: number; reason?: string }[], userId: string) {
+    for (const entry of items) {
+      if (Number(entry.actualStock) < 0) {
+        throw new BadRequestException('الكمية الفعلية لا يمكن أن تكون أقل من صفر');
+      }
+    }
+    return this.prisma.$transaction(async (tx) => {
+      const results: any[] = [];
+      for (const entry of items) {
+        const item = await tx.inventoryItem.findUnique({ where: { id: entry.inventoryItemId } });
+        if (!item) throw new NotFoundException(`Item ${entry.inventoryItemId} not found`);
+
+        const current = Number(item.currentStock);
+        const actual = Number(entry.actualStock);
+        const diff = actual - current;
+
+        if (diff === 0) continue; // No change
+
+        const type = diff > 0 ? 'in' : 'out';
+        const absDiff = Math.abs(diff);
+
+        // Update inventory item stock
+        const updated = await tx.inventoryItem.update({
+          where: { id: entry.inventoryItemId },
+          data: { currentStock: actual },
+        });
+
+        // Record transaction
+        await tx.inventoryTransaction.create({
+          data: {
+            inventoryItemId: entry.inventoryItemId,
+            type: 'adjustment',
+            quantity: absDiff,
+            reason: entry.reason || `تسوية جرد: ${diff > 0 ? 'زيادة' : 'عجز'} بقيمة ${absDiff} ${item.unit}`,
+            performedByUserId: userId,
+          },
+        });
+
+        await this.auditLogsService.createAuditLog({
+          userId,
+          action: 'STOCKTAKE_ADJUSTMENT',
+          entityType: 'inventory_item',
+          entityId: entry.inventoryItemId,
+          newValue: {
+            previousStock: current,
+            actualStock: actual,
+            difference: diff,
+            reason: entry.reason,
+          },
+        });
+
+        results.push(updated);
+      }
+      return results;
+    });
   }
 }

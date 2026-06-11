@@ -449,10 +449,10 @@ export default function BillingPage() {
                       <div className="grid gap-4 sm:grid-cols-2">
                         <FormField label="طريقة الدفع">
                           <Select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-                            <option value="cash">💵 نقدي (كاش)</option>
-                            <option value="card">💳 بطاقة بنكية</option>
-                            <option value="bank_transfer"> تحويل بنكي</option>
-                            <option value="mixed">🔀 مختلط</option>
+                            <option value="cash">نقدي (كاش)</option>
+                            <option value="card">بطاقة بنكية</option>
+                            <option value="bank_transfer">تحويل بنكي</option>
+                            <option value="mixed">مختلط</option>
                           </Select>
                         </FormField>
                         <FormField label="المبلغ (جنيه)">

@@ -36,6 +36,7 @@ import { money } from "@/lib/format";
 import { translateApiError } from "@/lib/errors";
 import { translateProductCategory, translateProductName, normalizeCategoryKey } from "@/lib/labels";
 import type { Customer, Paginated, Product, Session } from "@/lib/types";
+import { CardSkeleton } from "@/components/ui";
 import clsx from "clsx";
 
 interface CartItem {
@@ -625,7 +626,9 @@ export default function BaristaPOSPage() {
         )}>
           {productsQuery.isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse" />)}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CardSkeleton key={i} />
+              ))}
             </div>
           ) : viewMode === "vintage" ? (
             <div className="max-w-6xl mx-auto flex flex-col h-full justify-between gap-4">

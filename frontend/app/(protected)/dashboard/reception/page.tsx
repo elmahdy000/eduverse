@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +12,8 @@ import { api } from "../../../../lib/api";
 import { money } from "../../../../lib/format";
 import { translateCustomerType } from "../../../../lib/labels";
 import type { BarOrder } from "../../../../lib/types";
-import { Alert, EmptyState, Panel, SectionTitle, StatCard, Badge } from "../../../../components/ui";
+import { useEffect } from "react";
+import { Alert, EmptyState, Panel, SectionTitle, StatCard, Badge, CardSkeleton } from "../../../../components/ui";
 
 interface ReceptionDashboard {
   activeSessionCount: number;
@@ -39,10 +40,23 @@ const ctypeIcons: Record<string, React.ReactNode> = {
   visitor:  <UserCircle size={16} />,
 };
 
-function minutesSince(iso: string) {
-  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m >= 60) return `${Math.floor(m / 60)}س ${m % 60}د`;
-  return `${m}د`;
+function LiveDuration({ startTime }: { startTime: string }) {
+  const [elapsed, setElapsed] = useState("");
+  useEffect(() => {
+    const update = () => {
+      const diffMs = Date.now() - new Date(startTime).getTime();
+      const m = Math.round(diffMs / 60000);
+      if (m >= 60) {
+        setElapsed(`${Math.floor(m / 60)}س ${m % 60}د`);
+      } else {
+        setElapsed(`${m}د`);
+      }
+    };
+    update();
+    const interval = setInterval(update, 30000);
+    return () => clearInterval(interval);
+  }, [startTime]);
+  return <>{elapsed}</>;
 }
 
 export default function ReceptionDashboardPage() {
@@ -65,9 +79,21 @@ export default function ReceptionDashboardPage() {
   });
 
   if (isLoading) return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20">
-      <RefreshCw size={28} className="animate-spin text-slate-400" />
-      <p className="text-sm text-slate-500">جارٍ تحميل بيانات الاستقبال...</p>
+    <div className="space-y-6 animate-pulse">
+      <div className="h-8 bg-slate-100 rounded-lg w-1/3" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+      <div className="border border-slate-200 bg-white rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="h-4 bg-slate-200 rounded w-1/4" />
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-16 bg-slate-100 rounded-xl" />
+          ))}
+        </div>
+      </div>
     </div>
   );
   if (error || !data) return <div className="py-10"><Alert tone="danger">تعذّر تحميل بيانات الاستقبال.</Alert></div>;
@@ -108,7 +134,7 @@ export default function ReceptionDashboardPage() {
                 <div className="min-w-0 flex-1 text-right">
                   <p className="truncate text-sm font-semibold text-slate-900">{s.customer?.fullName ?? "—"}</p>
                   <p className="text-[10px] text-slate-500">{s.room?.name ?? "بدون غرفة"}</p>
-                  <p className="text-[10px] font-medium text-blue-600">جوا من {minutesSince(s.startTime)}</p>
+                  <p className="text-[10px] font-medium text-blue-600">جوا من <LiveDuration startTime={s.startTime} /></p>
                 </div>
               </div>
             ))}

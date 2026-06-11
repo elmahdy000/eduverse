@@ -168,6 +168,8 @@ export default function SessionsPage() {
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
+  const [selectedCustomerObj, setSelectedCustomerObj] = useState<Customer | null>(null);
+
   /* queries */
   const sessionsQuery = useQuery({
     queryKey: ["sessions"],
@@ -175,8 +177,15 @@ export default function SessionsPage() {
     refetchInterval: 15_000,
   });
   const customersQuery = useQuery({
-    queryKey: ["customers", "for-sessions"],
-    queryFn: async () => (await api.get("/customers", { params: { page: 1, limit: 200 } })).data.data as Paginated<Customer>,
+    queryKey: ["customers", "for-sessions", customerSearchQuery],
+    queryFn: async () => {
+      const params: Record<string, any> = { page: 1, limit: 100 };
+      if (customerSearchQuery.trim()) {
+        params.name = customerSearchQuery.trim();
+      }
+      const response = await api.get("/customers", { params });
+      return response.data.data as Paginated<Customer>;
+    },
   });
   const roomsQuery = useQuery({
     queryKey: ["rooms", "for-sessions"],
@@ -194,18 +203,12 @@ export default function SessionsPage() {
 
   const selectedCustomer = useMemo(() => {
     if (!customerId) return null;
-    return (customersQuery.data?.data ?? []).find((c) => c.id === customerId);
-  }, [customerId, customersQuery.data]);
+    return selectedCustomerObj || (customersQuery.data?.data ?? []).find((c) => c.id === customerId) || null;
+  }, [customerId, selectedCustomerObj, customersQuery.data]);
 
   const filteredCustomers = useMemo(() => {
-    const list = customersQuery.data?.data ?? [];
-    if (!customerSearchQuery) return list.slice(0, 10);
-    const q = customerSearchQuery.toLowerCase();
-    return list.filter((c) =>
-      c.fullName.toLowerCase().includes(q) ||
-      c.phoneNumber.includes(q)
-    );
-  }, [customersQuery.data, customerSearchQuery]);
+    return customersQuery.data?.data ?? [];
+  }, [customersQuery.data]);
 
   /* mutations */
   const openMutation = useMutation({
@@ -216,7 +219,7 @@ export default function SessionsPage() {
       chargeAmount: chargeAmount ? Number(chargeAmount) : undefined,
     }),
     onSuccess: () => {
-      setCustomerId(""); setSessionType("hourly"); setRoomId(""); setBookingId(""); setChargeAmount("");
+      setCustomerId(""); setSelectedCustomerObj(null); setSessionType("hourly"); setRoomId(""); setBookingId(""); setChargeAmount("");
       setMessage({ text: "تم فتح الجلسة بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
@@ -521,6 +524,7 @@ export default function SessionsPage() {
                                 type="button"
                                 onClick={() => {
                                   setCustomerId(c.id);
+                                  setSelectedCustomerObj(c);
                                   setIsCustomerDropdownOpen(false);
                                   setCustomerSearchQuery("");
                                 }}
@@ -657,9 +661,9 @@ export default function SessionsPage() {
                         onChange={(e) => setPayMethod(e.target.value)}
                         className="bg-white"
                       >
-                        <option value="cash">نقدي 💵</option>
-                        <option value="card">بطاقة 💳</option>
-                        <option value="bank_transfer">تحويل بنكي 🏦</option>
+                        <option value="cash">نقدي</option>
+                        <option value="card">بطاقة</option>
+                        <option value="bank_transfer">تحويل بنكي</option>
                       </Select>
                     </FormField>
                   </div>

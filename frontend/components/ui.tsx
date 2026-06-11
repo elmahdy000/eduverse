@@ -620,3 +620,41 @@ export function ScrollArea({ children, className }: PropsWithChildren<{ classNam
     </div>
   );
 }
+
+/* ── Skeletons ── */
+export function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
+  return (
+    <div className="w-full space-y-4 animate-pulse">
+      <div className="h-8 bg-slate-100 rounded-lg w-full" />
+      <div className="space-y-2">
+        {Array.from({ length: rows }).map((_, r) => (
+          <div key={r} className="flex gap-4 items-center py-3 border-b border-slate-50">
+            {Array.from({ length: cols }).map((_, c) => (
+              <div
+                key={c}
+                className={clsx(
+                  "h-4 bg-slate-100 rounded",
+                  c === 0 ? "w-1/3" : "w-1/6"
+                )}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function CardSkeleton() {
+  return (
+    <div className="border border-slate-200 bg-white rounded-2xl p-5 shadow-sm space-y-4 animate-pulse">
+      <div className="flex justify-between items-center">
+        <div className="h-4 bg-slate-200 rounded w-1/3" />
+        <div className="h-6 w-6 bg-slate-100 rounded-lg" />
+      </div>
+      <div className="h-8 bg-slate-200 rounded w-1/2" />
+      <div className="h-3 bg-slate-100 rounded w-2/3" />
+    </div>
+  );
+}
+

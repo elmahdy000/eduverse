@@ -5,7 +5,7 @@ import { TrendingUp, TrendingDown, Users, DoorOpen, Calendar, Coffee, Receipt, B
 import { api } from "../../../../lib/api";
 import { money } from "../../../../lib/format";
 import { translateOperationalAlert } from "../../../../lib/labels";
-import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard } from "../../../../components/ui";
+import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard, CardSkeleton } from "../../../../components/ui";
 
 interface OwnerData {
   activeCustomersNow: number;
@@ -78,9 +78,14 @@ export default function OwnerDashboardPage() {
   const greeting = now.getHours() < 12 ? "صباح الخير" : now.getHours() < 17 ? "النهارده إيه أخباره" : "مساء الخير";
 
   if (isLoading) return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20">
-      <RefreshCw size={28} className="animate-spin text-slate-400" />
-      <p className="text-sm text-slate-500">جاري تحميل اللوحة...</p>
+    <div className="space-y-6">
+      <div className="h-8 bg-slate-100 rounded-lg animate-pulse w-1/3" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map(i => <CardSkeleton key={i} />)}
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[1, 2, 3].map(i => <CardSkeleton key={i} />)}
+      </div>
     </div>
   );
   if (error || !data) return <div className="py-10"><Alert tone="danger">مش قادرين يجيبوا بيانات اللوحة.</Alert></div>;

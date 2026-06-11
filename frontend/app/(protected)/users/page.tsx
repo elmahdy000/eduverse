@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { dateTime } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import { useAuthStore } from "../../../store/auth-store";
 import type { Paginated } from "../../../lib/types";
-import { Alert, Btn, EmptyState, FormField, Input, Panel, SectionTitle, Select, StatCard } from "../../../components/ui";
+import { Alert, Btn, EmptyState, FormField, Input, Panel, SectionTitle, Select, StatCard, CardSkeleton, TableSkeleton } from "../../../components/ui";
 
 interface RoleRecord {
   id: string;
@@ -230,7 +230,7 @@ export default function UsersPage() {
             </FormField>
             <FormField label="الاسم الأول"><Input value={firstName} onChange={(event) => setFirstName(event.target.value)} required /></FormField>
             <FormField label="الاسم الأخير"><Input value={lastName} onChange={(event) => setLastName(event.target.value)} required /></FormField>
-            <FormField label="الموبايل"><Input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} /></FormField>
+            <FormField label="الموبايل"><Input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value.replace(/\D/g, "").slice(0, 11))} /></FormField>
             <div className="md:col-span-3">
               <Btn type="submit" loading={createMutation.isPending} loadingText="جارٍ الإضافة...">إضافة مستخدم</Btn>
             </div>
@@ -251,7 +251,9 @@ export default function UsersPage() {
           </div>
 
           {usersQuery.isLoading ? (
-            <p className="text-sm text-slate-500">جاري تحميل المستخدمين...</p>
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <CardSkeleton key={i} />)}
+            </div>
           ) : filteredUsers.length === 0 ? (
             <EmptyState title="مفيش مستخدمين مطابقين للفلاتر" />
           ) : (
@@ -298,7 +300,7 @@ export default function UsersPage() {
                   <div className="grid gap-3 md:grid-cols-2">
                     <FormField label="الاسم الأول"><Input value={editFirstName} onChange={(event) => setEditFirstName(event.target.value)} required /></FormField>
                     <FormField label="الاسم الأخير"><Input value={editLastName} onChange={(event) => setEditLastName(event.target.value)} required /></FormField>
-                    <FormField label="الموبايل"><Input value={editPhoneNumber} onChange={(event) => setEditPhoneNumber(event.target.value)} /></FormField>
+                    <FormField label="الموبايل"><Input value={editPhoneNumber} onChange={(event) => setEditPhoneNumber(event.target.value.replace(/\D/g, "").slice(0, 11))} /></FormField>
                     <FormField label="الدور">
                       <Select value={editRoleId} onChange={(event) => setEditRoleId(event.target.value)}>
                         <option value="">اختار الدور</option>

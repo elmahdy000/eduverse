@@ -16,7 +16,7 @@ import { translateStatus } from "../../../lib/labels";
 import type { Booking, Customer, Paginated, Room } from "../../../lib/types";
 import { 
   Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Panel, SectionTitle, StatCard, 
-  statusBadgeTone, FormField, Input, Select 
+  statusBadgeTone, FormField, Input, Select, TableSkeleton, CardSkeleton 
 } from "../../../components/ui";
 import clsx from "clsx";
 
@@ -68,13 +68,30 @@ export default function BookingsPage() {
     },
   });
 
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
+  const [selectedCustomerObj, setSelectedCustomerObj] = useState<Customer | null>(null);
+
   const customersQuery = useQuery({
-    queryKey: ["customers", "for-bookings"],
+    queryKey: ["customers", "for-bookings", customerSearchQuery],
     queryFn: async () => {
-      const response = await api.get("/customers", { params: { page: 1, limit: 200 } });
+      const params: Record<string, any> = { page: 1, limit: 100 };
+      if (customerSearchQuery.trim()) {
+        params.name = customerSearchQuery.trim();
+      }
+      const response = await api.get("/customers", { params });
       return response.data.data as Paginated<Customer>;
     },
   });
+
+  const selectedCustomer = useMemo(() => {
+    if (!customerId) return null;
+    return selectedCustomerObj || (customersQuery.data?.data ?? []).find((c) => c.id === customerId) || null;
+  }, [customerId, selectedCustomerObj, customersQuery.data]);
+
+  const filteredCustomers = useMemo(() => {
+    return customersQuery.data?.data ?? [];
+  }, [customersQuery.data]);
 
   const roomsQuery = useQuery({
     queryKey: ["rooms", "for-bookings"],
@@ -83,6 +100,27 @@ export default function BookingsPage() {
       const response = await api.get("/rooms", { params: { page: 1, limit: 100 } });
       return response.data.data as Paginated<Room>;
     },
+  });
+
+  const conflictsQuery = useQuery({
+    queryKey: ["bookings", "conflicts", roomId, startTime, endTime],
+    queryFn: async () => {
+      if (!roomId || !startTime || !endTime) return null;
+      try {
+        const response = await api.get("/bookings/conflicts", {
+          params: {
+            roomId,
+            startTime: toIso(startTime),
+            endTime: toIso(endTime),
+          },
+        });
+        return response.data.data;
+      } catch (err) {
+        console.error("Conflict check failed:", err);
+        return null;
+      }
+    },
+    enabled: Boolean(roomId && startTime && endTime),
   });
 
   const createMutation = useMutation({
@@ -100,7 +138,7 @@ export default function BookingsPage() {
       });
     },
     onSuccess: () => {
-      setCustomerId(""); setRoomId(""); setBookingType("meeting"); setStartTime(""); setEndTime("");
+      setCustomerId(""); setSelectedCustomerObj(null); setRoomId(""); setBookingType("meeting"); setStartTime(""); setEndTime("");
       setParticipantCount(""); setTotalAmount("0"); setDepositAmount(""); setNotes("");
       setMessage({ text: "تم تسجيل الحجز بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
@@ -478,47 +516,51 @@ export default function BookingsPage() {
               }
             >
               <div className="overflow-x-auto">
-                <table className="w-full text-right text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                      <th className="pb-3 pr-1">العميل</th>
-                      <th className="pb-3 px-3">الغرفة</th>
-                      <th className="pb-3 px-3">الموعد</th>
-                      <th className="pb-3 px-3">الحالة</th>
-                      <th className="pb-3 px-3">المبلغ</th>
-                      <th className="pb-3" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {bookings.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="py-12 text-center text-sm text-slate-400">لا توجد حجوزات</td>
+                {bookingsQuery.isPending ? (
+                  <TableSkeleton rows={5} cols={5} />
+                ) : (
+                  <table className="w-full text-right text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        <th className="pb-3 pr-1">العميل</th>
+                        <th className="pb-3 px-3">الغرفة</th>
+                        <th className="pb-3 px-3">الموعد</th>
+                        <th className="pb-3 px-3">الحالة</th>
+                        <th className="pb-3 px-3">المبلغ</th>
+                        <th className="pb-3" />
                       </tr>
-                    ) : (
-                      bookings.map((b: Booking) => (
-                        <tr 
-                          key={b.id} 
-                          className="group transition-colors hover:bg-slate-50 cursor-pointer"
-                          onClick={() => setSelectedBookingId(b.id)}
-                        >
-                          <td className="py-3 pr-1">
-                            <div className="font-semibold text-slate-800">{b.customer?.fullName ?? "—"}</div>
-                            <div className="text-[9px] text-slate-400">{b.customer?.phoneNumber}</div>
-                          </td>
-                          <td className="py-3 px-3 text-xs text-slate-500">{b.room?.name ?? "—"}</td>
-                          <td className="py-3 px-3 text-xs text-slate-400 whitespace-nowrap">{dateTime(b.startTime)}</td>
-                          <td className="py-3 px-3">
-                            <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
-                          </td>
-                          <td className="py-3 px-3 font-bold text-slate-700">{money(b.totalAmount)}</td>
-                          <td className="py-3">
-                            <button className="text-slate-300 group-hover:text-slate-900 transition"><ChevronLeft size={14} /></button>
-                          </td>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {bookings.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-12 text-center text-sm text-slate-400">لا توجد حجوزات</td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        bookings.map((b: Booking) => (
+                          <tr 
+                            key={b.id} 
+                            className="group transition-colors hover:bg-slate-50 cursor-pointer"
+                            onClick={() => setSelectedBookingId(b.id)}
+                          >
+                            <td className="py-3 pr-1">
+                              <div className="font-semibold text-slate-800">{b.customer?.fullName ?? "—"}</div>
+                              <div className="text-[9px] text-slate-400">{b.customer?.phoneNumber}</div>
+                            </td>
+                            <td className="py-3 px-3 text-xs text-slate-500">{b.room?.name ?? "—"}</td>
+                            <td className="py-3 px-3 text-xs text-slate-400 whitespace-nowrap">{dateTime(b.startTime)}</td>
+                            <td className="py-3 px-3">
+                              <Badge tone={statusBadgeTone(b.status)}>{translateStatus(b.status)}</Badge>
+                            </td>
+                            <td className="py-3 px-3 font-bold text-slate-700">{money(b.totalAmount)}</td>
+                            <td className="py-3">
+                              <button className="text-slate-300 group-hover:text-slate-900 transition"><ChevronLeft size={14} /></button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </Panel>
           )}
@@ -529,12 +571,119 @@ export default function BookingsPage() {
           <Panel title="حجز جديد" icon={<Plus size={15} />}>
             <form className="space-y-4" onSubmit={onSubmit}>
               <FormField label="العميل">
-                <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)} required>
-                  <option value="">-- اختر العميل --</option>
-                  {customersQuery.data?.data?.map((c) => (
-                    <option key={c.id} value={c.id}>{c.fullName} ({c.phoneNumber})</option>
-                  ))}
-                </Select>
+                {selectedCustomer ? (
+                  <div className="relative rounded-xl border border-blue-200 bg-blue-50/20 p-3 flex items-center justify-between transition-all hover:bg-blue-50/40">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-800">{selectedCustomer.fullName}</span>
+                        <Badge tone={
+                          selectedCustomer.customerType === "student" ? "info" :
+                          selectedCustomer.customerType === "employee" ? "success" :
+                          selectedCustomer.customerType === "trainer" ? "warn" : "default"
+                        }>
+                          {selectedCustomer.customerType === "student" ? "طالب" :
+                           selectedCustomer.customerType === "employee" ? "موظف" :
+                           selectedCustomer.customerType === "trainer" ? "مدرب" : "زائر"}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-slate-500 flex items-center gap-1.5">
+                        <span>{selectedCustomer.phoneNumber}</span>
+                        {selectedCustomer.college && (
+                          <>
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />
+                            <span>{selectedCustomer.college}</span>
+                          </>
+                        )}
+                        {selectedCustomer.employerName && (
+                          <>
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />
+                            <span>{selectedCustomer.employerName}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomerId("");
+                        setSelectedCustomerObj(null);
+                        setCustomerSearchQuery("");
+                      }}
+                      className="rounded-lg bg-white border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      تغيير
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <div className="relative">
+                      <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        type="text"
+                        placeholder="ابحث بالاسم أو رقم الهاتف..."
+                        value={customerSearchQuery}
+                        onChange={(e) => {
+                          setCustomerSearchQuery(e.target.value);
+                          setIsCustomerDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsCustomerDropdownOpen(true)}
+                        className="pr-10"
+                      />
+                    </div>
+                    
+                    {isCustomerDropdownOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsCustomerDropdownOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg divide-y divide-slate-100">
+                          {filteredCustomers.length === 0 ? (
+                            <div className="p-3 text-center text-xs text-slate-400">
+                              لا يوجد عملاء يطابقون البحث
+                            </div>
+                          ) : (
+                            filteredCustomers.map((c) => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setCustomerId(c.id);
+                                  setSelectedCustomerObj(c);
+                                  setIsCustomerDropdownOpen(false);
+                                  setCustomerSearchQuery("");
+                                }}
+                                className="w-full text-right px-3 py-2 text-sm transition hover:bg-slate-50 flex items-center justify-between"
+                              >
+                                <div className="space-y-0.5">
+                                  <div className="font-semibold text-slate-700">{c.fullName}</div>
+                                  <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                                    <span>{c.phoneNumber}</span>
+                                    {c.college && (
+                                      <>
+                                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                        <span>{c.college}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge tone={
+                                  c.customerType === "student" ? "info" :
+                                  c.customerType === "employee" ? "success" :
+                                  c.customerType === "trainer" ? "warn" : "default"
+                                }>
+                                  {c.customerType === "student" ? "طالب" :
+                                   c.customerType === "employee" ? "موظف" :
+                                   c.customerType === "trainer" ? "مدرب" : "زائر"}
+                                </Badge>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </FormField>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -563,6 +712,13 @@ export default function BookingsPage() {
                   <DateTimeInput value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
                 </FormField>
               </div>
+
+              {conflictsQuery.data?.hasConflict && (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 flex flex-col gap-1 animate-in fade-in duration-300">
+                  <span className="font-bold">⚠️ تنبيه بتضارب المواعيد:</span>
+                  <span>الغرفة محجوزة بالفعل في هذه الفترة الزمنية أو بها جلسة نشطة.</span>
+                </div>
+              )}
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 <FormField label="إجمالي المبلغ">

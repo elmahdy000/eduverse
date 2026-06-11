@@ -71,9 +71,34 @@ export default function InventoryPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<FlashMessage>(null);
 
+  // Tab and Custom Operations States
+  const [activeTab, setActiveTab] = useState<"items" | "stocktake" | "withdraw">("items");
+
+  // Physical Stocktake States
+  const [stocktakeValues, setStocktakeValues] = useState<Record<string, string>>({});
+  const [stocktakeReasons, setStocktakeReasons] = useState<Record<string, string>>({});
+
+  // Direct Withdrawal States
+  const [withdrawItemId, setWithdrawItemId] = useState("");
+  const [withdrawQty, setWithdrawQty] = useState("");
+  const [withdrawReason, setWithdrawReason] = useState("");
+
   useEffect(() => {
     fetchInventory();
   }, []);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      const initialValues: Record<string, string> = {};
+      const initialReasons: Record<string, string> = {};
+      items.forEach(item => {
+        initialValues[item.id] = String(item.currentStock);
+        initialReasons[item.id] = "";
+      });
+      setStocktakeValues(initialValues);
+      setStocktakeReasons(initialReasons);
+    }
+  }, [items]);
 
   const fetchInventory = async () => {
     try {
@@ -84,6 +109,75 @@ export default function InventoryPage() {
       setMessage({ ok: false, text: "مش قادرين نحمل المخزون دلوقتي." });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveStocktake = async () => {
+    const payloadItems = items
+      .map(item => {
+        const actualValStr = stocktakeValues[item.id];
+        const actualVal = Number(actualValStr);
+        const currentVal = Number(item.currentStock);
+        if (actualValStr !== "" && !isNaN(actualVal) && actualVal !== currentVal) {
+          return {
+            inventoryItemId: item.id,
+            actualStock: actualVal,
+            reason: stocktakeReasons[item.id]?.trim() || undefined
+          };
+        }
+        return null;
+      })
+      .filter(Boolean) as { inventoryItemId: string; actualStock: number; reason?: string }[];
+
+    if (payloadItems.length === 0) {
+      setMessage({ ok: false, text: "لم تقم بتعديل أي كميات لإجراء الجرد." });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post("/inventory/stocktake", { items: payloadItems });
+      setMessage({ ok: true, text: "تم تسجيل الجرد الفعلي وتسوية المخزن بنجاح." });
+      await fetchInventory();
+      setActiveTab("items");
+    } catch (err) {
+      console.error(err);
+      setMessage({ ok: false, text: "فشل حفظ الجرد الفعلي، يرجى المحاولة مرة أخرى." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSaveWithdraw = async () => {
+    if (!withdrawItemId || !withdrawQty || isNaN(Number(withdrawQty)) || Number(withdrawQty) <= 0) {
+      setMessage({ ok: false, text: "برجاء إدخال صنف وكمية سحب صحيحة." });
+      return;
+    }
+    const item = items.find(i => i.id === withdrawItemId);
+    if (!item) return;
+
+    if (Number(item.currentStock) < Number(withdrawQty)) {
+      setMessage({ ok: false, text: "الكمية المتاحة في المخزن غير كافية للسحب." });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post(`/inventory/items/${withdrawItemId}/withdraw`, {
+        quantity: Number(withdrawQty),
+        reason: withdrawReason.trim() || "سحب يدوي للاستخدام",
+      });
+      setMessage({ ok: true, text: "تم تسجيل سحب الخامات بنجاح." });
+      setWithdrawItemId("");
+      setWithdrawQty("");
+      setWithdrawReason("");
+      await fetchInventory();
+      setActiveTab("items");
+    } catch (err) {
+      console.error(err);
+      setMessage({ ok: false, text: "فشل تسجيل السحب، يرجى المحاولة مرة أخرى." });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -306,137 +400,336 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/50 bg-white/50 p-2 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="ابحث عن صنف..."
-              className="w-full rounded-xl border-none bg-transparent pr-10 text-sm focus:ring-0"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-2 px-2">
-            <div className="relative">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none rounded-lg border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300"
-              >
-                <option value="">كل الفئات</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
-            </div>
-          </div>
-        </div>
+      {/* Tabs Selector */}
+      <div className="flex border-b border-slate-200" dir="rtl">
+        <button
+          onClick={() => setActiveTab("items")}
+          className={clsx(
+            "px-6 py-3 text-sm font-bold border-b-2 transition-all",
+            activeTab === "items"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          )}
+        >
+          أرصدة الأصناف الحالية
+        </button>
+        <button
+          onClick={() => setActiveTab("stocktake")}
+          className={clsx(
+            "px-6 py-3 text-sm font-bold border-b-2 transition-all",
+            activeTab === "stocktake"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          )}
+        >
+          تسجيل جرد فعلي (تسوية)
+        </button>
+        <button
+          onClick={() => setActiveTab("withdraw")}
+          className={clsx(
+            "px-6 py-3 text-sm font-bold border-b-2 transition-all",
+            activeTab === "withdraw"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          )}
+        >
+          سحب خامات (منصرف)
+        </button>
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {loading ? (
-            Array(6)
-              .fill(0)
-              .map((_, i) => (
-                <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />
-              ))
-          ) : items.filter(item => {
-            const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
-            const matchCat = !categoryFilter || item.category === categoryFilter;
-            return matchSearch && matchCat;
-          }).length === 0 ? (
-            <div className="col-span-3 flex flex-col items-center justify-center gap-4 py-20 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-300">
-                <Boxes size={28} />
-              </div>
-              <div>
-                <p className="font-bold text-slate-600">لا توجد أصناف</p>
-                <p className="mt-1 text-sm text-slate-400">جرّب تغيير البحث أو أضف صنف جديد</p>
+      {activeTab === "items" && (
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/50 bg-white/50 p-2 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                placeholder="ابحث عن صنف..."
+                className="w-full rounded-xl border-none bg-transparent pr-10 text-sm focus:ring-0"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2 px-2">
+              <div className="relative">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="appearance-none rounded-lg border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                >
+                  <option value="">كل الفئات</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <ChevronDown size={12} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
-          ) : (
-            items.filter(item => {
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {loading ? (
+              Array(6)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+                ))
+            ) : items.filter(item => {
               const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
               const matchCat = !categoryFilter || item.category === categoryFilter;
               return matchSearch && matchCat;
-            }).map((item) => {
-              const stock = Number(item.currentStock);
-              const minStock = Number(item.minStockLevel);
-              const isLow = stock <= minStock;
-              const isOut = stock === 0;
-              return (
-                <div
-                  key={item.id}
-                  className={clsx(
-                    "group relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md",
-                    isOut ? "border-rose-300 bg-rose-50/30" : isLow ? "border-amber-300 bg-amber-50/20" : "border-slate-200",
-                  )}
-                >
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex flex-col gap-1">
-                      {isOut && (
-                        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">نفذ</span>
-                      )}
-                      {isLow && !isOut && (
-                        <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                          <AlertTriangle size={9} /> ناقص
+            }).length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center gap-4 py-20 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-300">
+                  <Boxes size={28} />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-600">لا توجد أصناف</p>
+                  <p className="mt-1 text-sm text-slate-400">جرّب تغيير البحث أو أضف صنف جديد</p>
+                </div>
+              </div>
+            ) : (
+              items.filter(item => {
+                const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
+                const matchCat = !categoryFilter || item.category === categoryFilter;
+                return matchSearch && matchCat;
+              }).map((item) => {
+                const stock = Number(item.currentStock);
+                const minStock = Number(item.minStockLevel);
+                const isLow = stock <= minStock;
+                const isOut = stock === 0;
+                return (
+                  <div
+                    key={item.id}
+                    className={clsx(
+                      "group relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md",
+                      isOut ? "border-rose-300 bg-rose-50/30" : isLow ? "border-amber-300 bg-amber-50/20" : "border-slate-200",
+                    )}
+                  >
+                    <div className="mb-3 flex items-start justify-between">
+                      <div className="flex flex-col gap-1">
+                        {isOut && (
+                          <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">نفذ</span>
+                        )}
+                        {isLow && !isOut && (
+                          <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                            <AlertTriangle size={9} /> ناقص
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-slate-900">{item.name}</p>
+                        {item.category && (
+                          <p className="text-xs text-slate-400">{item.category}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-baseline justify-between mb-3">
+                      <span className="text-xs font-medium text-slate-400">{item.unit}</span>
+                      <div className="text-right">
+                        <span className={clsx("text-2xl font-black tabular-nums", isOut ? "text-rose-600" : isLow ? "text-amber-600" : "text-slate-900")}>
+                          {stock}
                         </span>
-                      )}
+                        <span className="mr-1 text-xs text-slate-400">/ حد أدنى {minStock}</span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-slate-900">{item.name}</p>
-                      {item.category && (
-                        <p className="text-xs text-slate-400">{item.category}</p>
-                      )}
+
+                    {/* Stock level bar */}
+                    <div className="mb-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className={clsx("h-full rounded-full transition-all", isOut ? "bg-rose-500" : isLow ? "bg-amber-400" : "bg-emerald-500")}
+                        style={{ width: `${minStock > 0 ? Math.min(100, Math.round((stock / (minStock * 2)) * 100)) : 100}%` }}
+                      />
+                    </div>
+
+                    <div className="mt-auto flex gap-2">
+                      <button
+                        onClick={() => { setShowAddStockModal(item.id); setAddStockData({ quantity: "", reason: "" }); }}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                      >
+                        <Plus size={13} /> إضافة
+                      </button>
+                      <button
+                        onClick={() => { setShowWasteModal(item.id); setWasteData({ quantity: "", reason: "" }); }}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-amber-200 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition"
+                      >
+                        <Trash2 size={13} /> هالك
+                      </button>
+                      <button
+                        onClick={() => openHistory(item.id)}
+                        className="flex items-center justify-center rounded-xl border border-slate-200 px-2.5 py-2 text-slate-500 hover:bg-slate-50 transition"
+                      >
+                        <Clock size={13} />
+                      </button>
                     </div>
                   </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
 
-                  <div className="flex items-baseline justify-between mb-3">
-                    <span className="text-xs font-medium text-slate-400">{item.unit}</span>
-                    <div className="text-right">
-                      <span className={clsx("text-2xl font-black tabular-nums", isOut ? "text-rose-600" : isLow ? "text-amber-600" : "text-slate-900")}>
-                        {stock}
-                      </span>
-                      <span className="mr-1 text-xs text-slate-400">/ حد أدنى {minStock}</span>
-                    </div>
-                  </div>
+      {activeTab === "stocktake" && (
+        <div className="space-y-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm animate-in fade-in duration-300" dir="rtl">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">تسجيل الجرد الفعلي للمخازن</h2>
+              <p className="text-xs text-slate-500">قم بإدخال الكميات الفعلية الموجودة على أرض الواقع لتسوية الأرصدة الدفترية.</p>
+            </div>
+            <button
+              onClick={handleSaveStocktake}
+              disabled={submitting}
+              className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-slate-800 disabled:opacity-50 transition"
+            >
+              {submitting ? "جاري حفظ الجرد..." : "حفظ وتأكيد تسوية الجرد"}
+            </button>
+          </div>
 
-                  {/* Stock level bar */}
-                  <div className="mb-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className={clsx("h-full rounded-full transition-all", isOut ? "bg-rose-500" : isLow ? "bg-amber-400" : "bg-emerald-500")}
-                      style={{ width: `${minStock > 0 ? Math.min(100, Math.round((stock / (minStock * 2)) * 100)) : 100}%` }}
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="p-4 font-bold text-slate-700">الصنف</th>
+                  <th className="p-4 font-bold text-slate-700">الفئة</th>
+                  <th className="p-4 font-bold text-slate-700">الرصيد الدفتري الحالي</th>
+                  <th className="p-4 font-bold text-slate-700">الكمية الفعلية بالجرد</th>
+                  <th className="p-4 font-bold text-slate-700">الفرق (عجز / زيادة)</th>
+                  <th className="p-4 font-bold text-slate-700">ملاحظات / سبب التسوية</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {items.map(item => {
+                  const current = Number(item.currentStock);
+                  const actualValStr = stocktakeValues[item.id] || "";
+                  const actual = actualValStr === "" ? current : Number(actualValStr);
+                  const diff = Number((actual - current).toFixed(4));
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/50 transition">
+                      <td className="p-4 font-semibold text-slate-955">{item.name}</td>
+                      <td className="p-4 text-slate-500">{item.category || "—"}</td>
+                      <td className="p-4 font-bold text-slate-600">{current} {item.unit}</td>
+                      <td className="p-4">
+                        <div className="relative max-w-[120px]">
+                          <input
+                            type="number"
+                            step={0.01}
+                            value={actualValStr}
+                            onChange={e => setStocktakeValues(prev => ({ ...prev, [item.id]: e.target.value }))}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-right text-sm outline-none focus:border-slate-950"
+                          />
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
+                            {item.unit}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4 font-bold tabular-nums">
+                        {diff === 0 ? (
+                          <span className="text-slate-400">—</span>
+                        ) : diff > 0 ? (
+                          <span className="text-emerald-600">+{diff} {item.unit} (زيادة)</span>
+                        ) : (
+                          <span className="text-rose-600">{diff} {item.unit} (عجز)</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <input
+                          type="text"
+                          placeholder="السبب..."
+                          value={stocktakeReasons[item.id] || ""}
+                          onChange={e => setStocktakeReasons(prev => ({ ...prev, [item.id]: e.target.value }))}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-right text-xs outline-none focus:border-slate-950"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+            <button
+              onClick={handleSaveStocktake}
+              disabled={submitting}
+              className="rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow hover:bg-slate-800 disabled:opacity-50 transition"
+            >
+              {submitting ? "جاري الحفظ..." : "تأكيد وحفظ الجرد الفعلي"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "withdraw" && (
+        <div className="space-y-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm animate-in fade-in duration-300 max-w-2xl mx-auto" dir="rtl">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">تسجيل سحب يدوي للخامات (منصرف)</h2>
+            <p className="text-xs text-slate-500">سجل سحب أي مواد خام للمطبخ أو الكافيه مباشرة لخصمها من الرصيد.</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold text-slate-700">الصنف المراد سحبه</label>
+              <select
+                value={withdrawItemId}
+                onChange={e => {
+                  setWithdrawItemId(e.target.value);
+                  setWithdrawQty("");
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900"
+              >
+                <option value="">اختر الصنف من المخزن...</option>
+                {items.map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} (الوحدة: {item.unit}) — الرصيد الحالي: {item.currentStock}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {withdrawItemId && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-700">الكمية المسحوبة</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0.01}
+                      step={0.01}
+                      value={withdrawQty}
+                      onChange={e => setWithdrawQty(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-3 py-2.5 text-right text-sm outline-none focus:border-slate-900"
                     />
-                  </div>
-
-                  <div className="mt-auto flex gap-2">
-                    <button
-                      onClick={() => { setShowAddStockModal(item.id); setAddStockData({ quantity: "", reason: "" }); }}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
-                    >
-                      <Plus size={13} /> إضافة
-                    </button>
-                    <button
-                      onClick={() => { setShowWasteModal(item.id); setWasteData({ quantity: "", reason: "" }); }}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-amber-200 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition"
-                    >
-                      <Trash2 size={13} /> هالك
-                    </button>
-                    <button
-                      onClick={() => openHistory(item.id)}
-                      className="flex items-center justify-center rounded-xl border border-slate-200 px-2.5 py-2 text-slate-500 hover:bg-slate-50 transition"
-                    >
-                      <Clock size={13} />
-                    </button>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                      {items.find(i => i.id === withdrawItemId)?.unit}
+                    </span>
                   </div>
                 </div>
-              );
-            })
-          )}
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-700">سبب السحب / الاستخدام</label>
+                  <input
+                    type="text"
+                    value={withdrawReason}
+                    onChange={e => setWithdrawReason(e.target.value)}
+                    placeholder="مثال: تحضير صوص، تشغيل اليوم..."
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900"
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleSaveWithdraw}
+              disabled={submitting || !withdrawItemId || !withdrawQty}
+              className="w-full rounded-xl bg-rose-600 py-3 text-sm font-bold text-white shadow hover:bg-rose-700 disabled:opacity-50 transition"
+            >
+              {submitting ? "جاري تسجيل السحب..." : "تأكيد تسجيل السحب وخصم الرصيد"}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Add New Item Modal */}
       {showNewItemModal && (

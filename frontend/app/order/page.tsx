@@ -556,7 +556,7 @@ export default function GuestOrderPage() {
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-6 py-6">
         {/* POS 3-Column Layout: categories, products grid, cart summary */}
-        <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[180px_1fr_320px]">
+        <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[190px_1fr_360px] xl:grid-cols-[210px_1fr_400px]">
           
           {/* Column 1: Category Sidebar (Desktop Only) */}
           <aside className="hidden lg:flex flex-col gap-1.5 shrink-0 select-none">
@@ -855,7 +855,7 @@ export default function GuestOrderPage() {
 
           {/* Column 3: Cart Sidebar (Desktop Only) */}
           <aside className="hidden lg:block min-w-0 select-none">
-            <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm p-5 sticky top-24 max-h-[calc(100vh-8rem)] flex flex-col">
+            <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-xl p-6 sticky top-24 max-h-[calc(100vh-8rem)] flex flex-col ring-1 ring-slate-100">
               <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
                 <ShoppingCart size={18} className="text-amber-500" /> سلة الطلبات ({cartItems.length})
               </h3>
@@ -869,19 +869,19 @@ export default function GuestOrderPage() {
               ) : (
                 <>
                   <ScrollArea className="flex-1 -mx-2 px-2">
-                    <div className="space-y-3.5 pr-1">
+                    <div className="space-y-3 pr-1">
                       {cartItems.map(item => (
-                        <div key={item.id} className="flex items-start justify-between gap-3 text-xs min-w-0">
+                        <div key={item.id} className="bg-slate-50/50 hover:bg-slate-50/80 rounded-2xl border border-slate-100 p-3.5 flex items-center justify-between gap-3 text-xs min-w-0 transition-all">
                           <div className="flex-1 min-w-0 text-right">
-                            <p className="font-black text-slate-800 leading-snug truncate">{translateProductName(item.product.name)}</p>
-                            <p className="text-[10px] text-slate-400 font-bold mt-0.5">{money(item.product.price)}</p>
+                            <p className="font-black text-slate-900 leading-snug truncate">{translateProductName(item.product.name)}</p>
+                            <p className="text-[10px] text-slate-500 font-bold mt-0.5">{money(item.product.price)}</p>
                           </div>
-                          <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <div className="flex flex-col items-end gap-2 shrink-0">
                             <span className="text-xs font-black text-slate-900">{money(item.product.price * item.qty)}</span>
-                            <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-0.5 border border-slate-200/60">
-                              <button onClick={(e) => removeFromCart(item.id, e)} className="p-1 text-slate-400 hover:text-slate-700 rounded"><Minus size={10} /></button>
-                              <span className="text-[10px] font-black w-3 text-center">{item.qty}</span>
-                              <button onClick={(e) => addToCart(item.id, e)} className="p-1 text-slate-400 hover:text-slate-700 rounded"><Plus size={10} /></button>
+                            <div className="flex items-center gap-2 bg-white rounded-lg p-0.5 border border-slate-200/60 shadow-sm">
+                              <button onClick={(e) => removeFromCart(item.id, e)} className="p-1 text-slate-400 hover:text-rose-500 rounded transition-colors"><Minus size={10} /></button>
+                              <span className="text-[10px] font-black w-3 text-center text-slate-800">{item.qty}</span>
+                              <button onClick={(e) => addToCart(item.id, e)} className="p-1 text-slate-400 hover:text-emerald-500 rounded transition-colors"><Plus size={10} /></button>
                             </div>
                           </div>
                         </div>

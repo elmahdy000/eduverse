@@ -774,10 +774,10 @@ export default function BaristaPOSPage() {
 
       {/* Checkout Section - Responsive Drawer */}
       <aside className={clsx(
-        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[22rem] lg:flex flex-col bg-white border-r border-slate-100 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0",
+        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[26rem] xl:w-[28rem] lg:flex flex-col bg-slate-50 border-r border-slate-200/80 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-[0_0_30px_rgba(0,0,0,0.03)] shrink-0",
         isMobileCartOpen ? "flex translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
-        <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100">
+        <div className="h-16 px-5 flex items-center justify-between border-b border-slate-200 bg-white shrink-0">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-slate-400" />
             <span className="text-sm font-black text-slate-900">سلة الطلب ({cartCount})</span>
@@ -796,27 +796,27 @@ export default function BaristaPOSPage() {
 
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {cart.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-slate-200">
-              <Receipt size={40} strokeWidth={1} className="mb-3" />
-              <p className="text-xs font-bold uppercase tracking-widest">السلة فارغة</p>
+            <div className="h-full flex flex-col items-center justify-center text-slate-200 py-12">
+              <Receipt size={40} strokeWidth={1} className="mb-3 text-slate-300" />
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">السلة فارغة</p>
             </div>
           ) : (
             cart.map((item) => (
-              <div key={item.productId} className="group p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
+              <div key={item.productId} className="group p-3.5 rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
                 <div className="flex justify-between items-start gap-3 mb-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-800 truncate">{translateProductName(item.productName)}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{money(item.unitPrice)}</p>
+                  <div className="min-w-0 text-right">
+                    <p className="text-xs font-black text-slate-900 truncate leading-snug">{translateProductName(item.productName)}</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-0.5">{money(item.unitPrice)}</p>
                   </div>
-                  <span className="text-xs font-black text-slate-900">{money(item.unitPrice * item.quantity)}</span>
+                  <span className="text-xs font-black text-slate-950">{money(item.unitPrice * item.quantity)}</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateQuantity(item.productId, -1)} className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center hover:bg-slate-100">
+                  <button onClick={() => updateQuantity(item.productId, -1)} className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-200/60 flex items-center justify-center hover:bg-slate-100 transition-colors">
                     <Minus size={12} className="text-slate-400" />
                   </button>
-                  <span className="w-6 text-center text-xs font-black">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.productId, 1)} className="h-7 w-7 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800">
+                  <span className="w-6 text-center text-xs font-black text-slate-800">{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.productId, 1)} className="h-7 w-7 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition-colors">
                     <Plus size={12} />
                   </button>
                 </div>
@@ -825,35 +825,35 @@ export default function BaristaPOSPage() {
           )}
         </div>
 
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-4">
+        <div className="p-5 border-t border-slate-200 bg-white space-y-4 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] shrink-0">
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold text-slate-400">
               <span>الإجمالي</span>
               <span>{money(cartSubtotal)}</span>
             </div>
             {discountInfo && (
-              <div className="flex justify-between text-xs font-bold text-emerald-600">
+              <div className="flex justify-between text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-100">
                 <span>{discountInfo.label}</span>
                 <span>-{money(discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between pt-2 border-t border-slate-100">
               <span className="text-sm font-black text-slate-900">المطلوب دفعه</span>
-              <span className="text-2xl font-black text-slate-900">{money(cartTotal)}</span>
+              <span className="text-2xl font-black text-slate-950">{money(cartTotal)}</span>
             </div>
           </div>
 
           <div className="space-y-3">
             <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">اختيار العميل</p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-2xl border border-slate-200/60">
               <button
                 type="button"
                 onClick={() => setCustomerTab("active")}
                 className={clsx(
-                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
+                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
                   customerTab === "active"
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
+                    : "text-slate-500 hover:text-slate-900 border-none"
                 )}
               >
                 العملاء المتواجدين
@@ -862,10 +862,10 @@ export default function BaristaPOSPage() {
                 type="button"
                 onClick={() => setCustomerTab("search")}
                 className={clsx(
-                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
+                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
                   customerTab === "search"
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
+                    : "text-slate-500 hover:text-slate-900 border-none"
                 )}
               >
                 بحث العملاء
@@ -874,10 +874,10 @@ export default function BaristaPOSPage() {
                 type="button"
                 onClick={() => setCustomerTab("staff")}
                 className={clsx(
-                  "flex-1 rounded-2xl border px-2 py-2 text-[9px] sm:text-[10px] font-bold transition",
+                  "flex-1 rounded-xl px-2 py-2 text-[9px] sm:text-[10px] font-black transition-all",
                   customerTab === "staff"
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
+                    : "text-slate-500 hover:text-slate-900 border-none"
                 )}
               >
                 موظفين / خصومات
@@ -908,7 +908,7 @@ export default function BaristaPOSPage() {
                           }}
                           className={clsx(
                             "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 flex flex-col gap-1 border",
-                            isSelected ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-100"
+                            isSelected ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-150"
                           )}
                         >
                           <div className="flex items-center justify-between w-full">
@@ -917,7 +917,7 @@ export default function BaristaPOSPage() {
                               {session.room?.name ? `غرفة ${session.room.name}` : "المساحة العامة"}
                             </span>
                           </div>
-                          <div className="flex justify-between w-full text-[9px] text-slate-400">
+                          <div className="flex justify-between w-full text-[9px] text-slate-400 font-medium">
                             <span>{cust.phoneNumber || "بدون هاتف"}</span>
                             {session.guestCode && <span>كود: {session.guestCode}</span>}
                           </div>
@@ -964,16 +964,16 @@ export default function BaristaPOSPage() {
                             setSessionId("");
                           }}
                           className={clsx(
-                            "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition",
-                            selectedCustomer?.id === customer.id ? "bg-slate-900 text-white" : "bg-white text-slate-800 hover:bg-slate-100"
+                            "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 border",
+                            selectedCustomer?.id === customer.id ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white text-slate-800 hover:bg-slate-100 border-slate-150"
                           )}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span>{customer.fullName}</span>
+                            <span className="font-bold">{customer.fullName}</span>
                             <span className="text-[10px] text-slate-400">{customer.phoneNumber || "بدون هاتف"}</span>
                           </div>
                           {customer.customerType && (
-                            <div className="mt-1 text-[10px] text-slate-500">{customer.customerType}</div>
+                            <div className="mt-1 text-[10px] text-slate-500 font-medium">{customer.customerType}</div>
                           )}
                         </button>
                       ))}
@@ -1007,9 +1007,9 @@ export default function BaristaPOSPage() {
                           setSessionId("");
                         }}
                         className={clsx(
-                          "w-full rounded-2xl px-3 py-2 text-left text-[11px] font-semibold transition mb-1 border",
+                          "w-full rounded-xl px-3 py-2 text-right text-[11px] font-semibold transition mb-1 border",
                           selectedCustomer?.id === customer.id
-                            ? "bg-slate-900 text-white border-slate-900"
+                            ? "bg-slate-900 text-white border-slate-900 shadow-md"
                             : "bg-white text-slate-800 hover:bg-slate-50 border-slate-100"
                         )}
                       >
@@ -1018,14 +1018,14 @@ export default function BaristaPOSPage() {
                           <span className={clsx(
                             "shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black",
                             customer.customerType === "owner_discount"
-                              ? selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
-                              : selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700"
+                              ? selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700 border border-amber-200/30"
+                              : selectedCustomer?.id === customer.id ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700 border border-blue-200/30"
                           )}>
                             {customer.customerType === "owner_discount" ? "مالك 70%" : "موظف 50%"}
                           </span>
                         </div>
                         {customer.phoneNumber && (
-                          <span className={clsx("text-[9px]", selectedCustomer?.id === customer.id ? "text-slate-300" : "text-slate-400")}>
+                          <span className={clsx("text-[9px] font-medium", selectedCustomer?.id === customer.id ? "text-slate-300" : "text-slate-400")}>
                             {customer.phoneNumber}
                           </span>
                         )}
@@ -1038,15 +1038,15 @@ export default function BaristaPOSPage() {
               </div>
             )}
 
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="text-right">
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">العميل المختار</p>
                     <p className="mt-1 text-sm font-bold text-slate-900">
                       {selectedCustomer?.fullName || (sessionId ? "العميل من الجلسة" : "لم يتم اختيار عميل")}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-500">
+                    <p className="mt-1 text-[11px] text-slate-500 leading-normal">
                       {selectedCustomer?.phoneNumber || (sessionId ? "سيتم استخدام العميل المرتبط بالجلسة" : "اختر عميلًا من القائمة أو جلسة نشطة")}
                     </p>
                   </div>
@@ -1054,7 +1054,7 @@ export default function BaristaPOSPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedCustomer(null)}
-                      className="rounded-2xl border border-slate-200 px-3 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black text-slate-500 hover:bg-slate-100 transition-colors shrink-0 shadow-sm"
                     >
                       مسح
                     </button>
@@ -1062,11 +1062,11 @@ export default function BaristaPOSPage() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">الجلسة النشطة</p>
-                <div className="mt-3 rounded-2xl border border-slate-200 bg-white">
+              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right">الجلسة النشطة</p>
+                <div className="mt-2.5 rounded-xl border border-slate-200 bg-white shadow-sm">
                   <select
-                    className="w-full bg-transparent px-4 py-3 text-[12px] font-bold outline-none"
+                    className="w-full bg-transparent px-3 py-2.5 text-[11px] font-bold outline-none text-right cursor-pointer"
                     onChange={(e) => {
                       const session = activeSessionsQuery.data?.data?.find((s) => s.id === e.target.value);
                       setSessionId(e.target.value);
@@ -1089,7 +1089,7 @@ export default function BaristaPOSPage() {
           <button
             onClick={() => setShowConfirm(true)}
             disabled={cart.length === 0 || (!selectedCustomer && !sessionId)}
-            className="w-full py-4 rounded-2xl bg-slate-900 text-white text-sm font-black shadow-xl shadow-slate-200 hover:bg-slate-800 disabled:opacity-30 transition-all active:scale-95 flex items-center justify-center gap-3"
+            className="w-full py-4 rounded-2xl bg-slate-900 text-white text-sm font-black shadow-xl shadow-slate-200 hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95 flex items-center justify-center gap-3"
           >
             تأكيد العملية
             <ChevronRight size={18} className="rotate-180" />

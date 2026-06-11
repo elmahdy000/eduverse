@@ -39,11 +39,13 @@ export class CustomersService {
   }
 
   async searchCustomers(
-    page: number = 1,
-    limit: number = 20,
+    page: any = 1,
+    limit: any = 20,
     search?: SearchCustomerDto,
   ) {
-    const skip = (page - 1) * limit;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.max(1, parseInt(limit) || 20);
+    const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
     const conditions: any[] = [];
@@ -92,7 +94,7 @@ export class CustomersService {
       this.prisma.customer.findMany({
         where,
         skip,
-        take: limit,
+        take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.customer.count({ where }),
@@ -103,8 +105,8 @@ export class CustomersService {
     return {
       data: customers,
       total,
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       hasMore,
     };
   }

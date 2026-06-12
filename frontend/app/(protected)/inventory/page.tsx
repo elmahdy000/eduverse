@@ -47,6 +47,7 @@ const EMPTY_NEW_ITEM = {
   category: "",
   minStockLevel: "",
   costPerUnit: "",
+  initialStock: "",
   isFridge: false,
   isBakery: false,
 };
@@ -233,6 +234,7 @@ export default function InventoryPage() {
         category: newItemData.category.trim() || undefined,
         minStockLevel: newItemData.minStockLevel ? Number(newItemData.minStockLevel) : undefined,
         costPerUnit: newItemData.costPerUnit ? Number(newItemData.costPerUnit) : undefined,
+        initialStock: newItemData.initialStock ? Number(newItemData.initialStock) : undefined,
         isFridge: newItemData.isFridge,
         isBakery: newItemData.isBakery,
       });
@@ -790,7 +792,16 @@ export default function InventoryPage() {
                   />
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">الرصيد الابتدائي</label>
+                  <input
+                    type="number" min={0} value={newItemData.initialStock}
+                    onChange={e => setNewItemData(p => ({ ...p, initialStock: e.target.value }))}
+                    placeholder="0"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
+                  />
+                </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">حد أدنى للمخزون</label>
                   <input

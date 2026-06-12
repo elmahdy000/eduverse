@@ -306,7 +306,9 @@ export class ShiftsService {
       shift.userId,
     );
     const expectedCash =
-      Number(shift.startCash) + stats.totalSales - stats.totalExpenses;
+      shift.status === 'closed'
+        ? Number(shift.endCash || 0)
+        : Number(shift.startCash) + stats.totalCashSales - stats.totalCashExpenses;
     const actualCash =
       shift.actualCash == null ? null : Number(shift.actualCash);
     const variance =
@@ -387,6 +389,7 @@ export class ShiftsService {
           startTime: true,
           endTime: true,
           startCash: true,
+          endCash: true,
           actualCash: true,
           totalSales: true,
           totalExpenses: true,
@@ -399,8 +402,7 @@ export class ShiftsService {
     ]);
 
     const shiftsWithVariance = closedShifts.map((s) => {
-      const expectedCash =
-        Number(s.startCash) + Number(s.totalSales) - Number(s.totalExpenses);
+      const expectedCash = Number(s.endCash || 0);
       const actualCash = s.actualCash != null ? Number(s.actualCash) : null;
       const variance = actualCash != null ? Number((actualCash - expectedCash).toFixed(2)) : null;
       return {

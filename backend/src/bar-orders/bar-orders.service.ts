@@ -213,6 +213,11 @@ export class BarOrdersService {
   async updateOrderStatus(orderId: string, updateStatusDto: UpdateBarOrderStatusDto, userId: string) {
     const order = await this.getOrder(orderId);
 
+    // Prevent changing the status of an already delivered order to avoid stock and invoice conflicts
+    if (order.status === 'delivered' && updateStatusDto.status !== 'delivered') {
+      throw new Error('Cannot change the status of an already delivered order');
+    }
+
     if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
       if (!order.customerId) throw new Error('Cannot deliver order without customer');
 
@@ -257,6 +262,13 @@ export class BarOrdersService {
             },
           });
         });
+
+        // Deduct inventory when delivered for standalone orders
+        try {
+          await this.inventoryService.deductStockForOrder(orderId, userId);
+        } catch (err) {
+          console.error('Failed to deduct inventory for standalone order:', err.message);
+        }
         
         // Return updated order
         return this.getOrder(orderId);

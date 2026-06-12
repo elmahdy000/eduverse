@@ -1,11 +1,11 @@
-# Graph Report - D:\coders\eduvers  (2026-06-11)
+# Graph Report - D:\coders\eduvers  (2026-06-12)
 
 ## Corpus Check
-- 138 files · ~317,245 words
+- 138 files · ~317,708 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 668 nodes · 756 edges · 102 communities detected
+- 669 nodes · 758 edges · 102 communities detected
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -140,16 +140,16 @@
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (5): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController, InventoryService
+Cohesion: 0.06
+Nodes (7): BookingsService, CustomersService, update(), ProductsService, RoomsService, main(), UsersService
 
 ### Community 1 - "Community 1"
-Cohesion: 0.08
-Nodes (6): BookingsService, CustomersService, update(), ProductsService, RoomsService, main()
-
-### Community 2 - "Community 2"
 Cohesion: 0.06
 Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
+
+### Community 2 - "Community 2"
+Cohesion: 0.07
+Nodes (4): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController
 
 ### Community 3 - "Community 3"
 Cohesion: 0.05
@@ -157,23 +157,23 @@ Nodes (13): normalizeCategoryKey(), translatePaymentMethod(), translateProductCa
 
 ### Community 4 - "Community 4"
 Cohesion: 0.08
-Nodes (3): InvoicesController, InvoicesService, SessionsService
+Nodes (20): dateTime(), money(), translateStatus(), actionLabel(), ActiveSessionCard(), asObject(), downloadInvoiceSnapshot(), entityLabel() (+12 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.11
-Nodes (4): AuthService, JwtConfigService, PasswordService, UsersService
+Cohesion: 0.08
+Nodes (3): InvoicesController, InvoicesService, SessionsService
 
 ### Community 6 - "Community 6"
-Cohesion: 0.11
-Nodes (14): translateStatus(), actionLabel(), asObject(), entityLabel(), explainAction(), friendlyTopAction(), getNestedObject(), getSnapshotLines() (+6 more)
-
-### Community 7 - "Community 7"
 Cohesion: 0.12
 Nodes (5): BaristaGuard, OpsManagerGuard, OwnerGuard, ReceptionistGuard, RoleGuard
 
-### Community 8 - "Community 8"
+### Community 7 - "Community 7"
 Cohesion: 0.11
 Nodes (5): refreshAccessToken(), roleHomePath(), AuthController, translateApiError(), onSubmit()
+
+### Community 8 - "Community 8"
+Cohesion: 0.18
+Nodes (3): AuthService, JwtConfigService, PasswordService
 
 ### Community 9 - "Community 9"
 Cohesion: 0.15
@@ -181,31 +181,31 @@ Nodes (1): InventoryController
 
 ### Community 10 - "Community 10"
 Cohesion: 0.15
-Nodes (1): BookingsController
+Nodes (2): inferInventoryDefaults(), InventoryService
 
 ### Community 11 - "Community 11"
+Cohesion: 0.15
+Nodes (1): BookingsController
+
+### Community 12 - "Community 12"
 Cohesion: 0.23
 Nodes (1): ShiftsService
 
-### Community 12 - "Community 12"
+### Community 13 - "Community 13"
 Cohesion: 0.17
 Nodes (1): UsersController
 
-### Community 13 - "Community 13"
+### Community 14 - "Community 14"
 Cohesion: 0.17
 Nodes (1): CustomersController
 
-### Community 14 - "Community 14"
+### Community 15 - "Community 15"
 Cohesion: 0.29
 Nodes (1): DashboardsService
 
-### Community 15 - "Community 15"
+### Community 16 - "Community 16"
 Cohesion: 0.18
 Nodes (1): RoomsController
-
-### Community 16 - "Community 16"
-Cohesion: 0.24
-Nodes (6): dateTime(), money(), ActiveSessionCard(), downloadInvoiceSnapshot(), printInvoiceOnly(), useSessionTimer()
 
 ### Community 17 - "Community 17"
 Cohesion: 0.36
@@ -660,17 +660,17 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `update()` connect `Community 1` to `Community 0`, `Community 11`, `Community 5`?**
+- **Why does `update()` connect `Community 0` to `Community 8`, `Community 2`, `Community 12`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **Why does `RoomsService` connect `Community 1` to `Community 15`?**
+- **Why does `RoomsService` connect `Community 0` to `Community 16`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `update()` (e.g. with `main()` and `.login()`) actually correct?**
   _`update()` has 25 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.07 - nodes in this community are weakly interconnected._

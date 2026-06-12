@@ -20,8 +20,8 @@ export class InventoryController {
   @Post('items')
   @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'Create new inventory item (Admin/Ops only)' })
-  async createItem(@Body() data: any) {
-    return this.inventoryService.createItem(data);
+  async createItem(@Body() data: any, @Request() req: any) {
+    return this.inventoryService.createItem(data, req?.user?.userId);
   }
 
   @Post('items/:id/add-stock')

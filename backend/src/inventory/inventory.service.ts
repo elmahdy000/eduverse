@@ -2,6 +2,97 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../common/prisma/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
+function inferInventoryDefaults(name: string): { unit: string; category: string; minStockLevel: number } {
+  const lowerName = name.toLowerCase();
+  
+  // Default fallback values
+  let unit = 'قطعة';
+  let category = 'خامات';
+  let minStockLevel = 10;
+
+  // Inference rules based on Arabic & English keywords
+  if (
+    lowerName.includes('بن') || 
+    lowerName.includes('قهوة') || 
+    lowerName.includes('اسبريسو') || 
+    lowerName.includes('سكر') || 
+    lowerName.includes('شوكولاتة') || 
+    lowerName.includes('بودرة') ||
+    lowerName.includes('ماتشا') ||
+    lowerName.includes('كوكو') ||
+    lowerName.includes('قرفة') ||
+    lowerName.includes('نعناع') ||
+    lowerName.includes('coffee') ||
+    lowerName.includes('sugar') ||
+    lowerName.includes('cocoa') ||
+    lowerName.includes('powder')
+  ) {
+    unit = 'جرام';
+    category = 'خامات';
+    minStockLevel = 500; // 500 grams default
+  } else if (
+    lowerName.includes('حليب') || 
+    lowerName.includes('لبن') || 
+    lowerName.includes('سيرب') || 
+    lowerName.includes('شراب') || 
+    lowerName.includes('عصير') ||
+    lowerName.includes('ماء') || 
+    lowerName.includes('مياه') ||
+    lowerName.includes('صودا') ||
+    lowerName.includes('كريمة') ||
+    lowerName.includes('milk') ||
+    lowerName.includes('syrup') ||
+    lowerName.includes('juice') ||
+    lowerName.includes('water') ||
+    lowerName.includes('cream')
+  ) {
+    unit = 'مل';
+    category = 'خامات';
+    minStockLevel = 1000; // 1000 ml (1 liter) default
+  } else if (
+    lowerName.includes('كوب') || 
+    lowerName.includes('أكواب') ||
+    lowerName.includes('غطا') || 
+    lowerName.includes('غطاء') || 
+    lowerName.includes('أغطية') || 
+    lowerName.includes('شفاط') || 
+    lowerName.includes('شاليموه') || 
+    lowerName.includes('معلقة') || 
+    lowerName.includes('ملاعق') ||
+    lowerName.includes('شوكة') ||
+    lowerName.includes('شوك') ||
+    lowerName.includes('شنطة') ||
+    lowerName.includes('شنط') ||
+    lowerName.includes('علبة') ||
+    lowerName.includes('علب') ||
+    lowerName.includes('cup') ||
+    lowerName.includes('lid') ||
+    lowerName.includes('straw') ||
+    lowerName.includes('spoon') ||
+    lowerName.includes('bag') ||
+    lowerName.includes('box')
+  ) {
+    unit = 'قطعة';
+    category = 'تعبئة';
+    minStockLevel = 100; // 100 pieces default
+  } else if (
+    lowerName.includes('صابون') || 
+    lowerName.includes('منظف') || 
+    lowerName.includes('كلور') || 
+    lowerName.includes('ديتول') || 
+    lowerName.includes('مناديل') ||
+    lowerName.includes('soap') ||
+    lowerName.includes('tissue') ||
+    lowerName.includes('cleaner')
+  ) {
+    unit = 'قطعة';
+    category = 'منظفات';
+    minStockLevel = 5;
+  }
+
+  return { unit, category, minStockLevel };
+}
+
 @Injectable()
 export class InventoryService {
   constructor(
@@ -16,9 +107,60 @@ export class InventoryService {
     });
   }
 
-  async createItem(data: { name: string; unit: string; category?: string; minStockLevel?: number; costPerUnit?: number }) {
-    return this.prisma.inventoryItem.create({
-      data: { ...data, currentStock: 0 },
+  async createItem(
+    data: {
+      name: string;
+      unit?: string;
+      category?: string;
+      minStockLevel?: number;
+      costPerUnit?: number;
+      initialStock?: number;
+    },
+    userId?: string,
+  ) {
+    const inferred = inferInventoryDefaults(data.name);
+
+    const unit = data.unit || inferred.unit;
+    const category = data.category || inferred.category;
+    const minStockLevel = data.minStockLevel !== undefined ? data.minStockLevel : inferred.minStockLevel;
+    const costPerUnit = data.costPerUnit || 0;
+    const initialStock = data.initialStock || 0;
+
+    return this.prisma.$transaction(async (tx) => {
+      const createdItem = await tx.inventoryItem.create({
+        data: {
+          name: data.name,
+          unit,
+          category,
+          minStockLevel,
+          costPerUnit,
+          currentStock: initialStock,
+        },
+      });
+
+      if (initialStock > 0) {
+        await tx.inventoryTransaction.create({
+          data: {
+            inventoryItemId: createdItem.id,
+            type: 'in',
+            quantity: initialStock,
+            reason: 'رصيد أول المدة (تلقائي عند الإنشاء)',
+            performedByUserId: userId || '00000000-0000-0000-0000-000000000000', // default fallback uuid if not provided
+          },
+        });
+
+        if (userId) {
+          await this.auditLogsService.createAuditLog({
+            userId,
+            action: 'INITIAL_STOCK_ENTRY',
+            entityType: 'inventory_item',
+            entityId: createdItem.id,
+            newValue: { initialStock, reason: 'Initial stock auto-fill' },
+          });
+        }
+      }
+
+      return createdItem;
     });
   }
 

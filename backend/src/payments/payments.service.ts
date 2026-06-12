@@ -184,6 +184,14 @@ export class PaymentsService {
         throw new Error('Payment not found');
       }
 
+      // Ensure user has an open shift to record refund
+      const openShift = await tx.shift.findFirst({
+        where: { userId, status: 'open' },
+      });
+      if (!openShift) {
+        throw new Error('يجب فتح شفت أولاً قبل تسجيل أي عملية إرجاع (استرداد مالي)');
+      }
+
       const originalAmount = Number(payment.amount);
       if (originalAmount <= 0) {
         throw new Error('Cannot refund a refund payment');

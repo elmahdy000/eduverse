@@ -6,6 +6,51 @@ import {
 } from './dto/bar-order.dto';
 import { InventoryService } from '../inventory/inventory.service';
 
+function isNonDiscountedProduct(product: any): boolean {
+  const nameLower = product.name?.toLowerCase() || '';
+  const categoryLower = product.category?.toLowerCase() || '';
+
+  // 1. Water
+  if (
+    categoryLower.includes('water') ||
+    nameLower.includes('مياه') ||
+    nameLower.includes('مياة') ||
+    nameLower.includes('ماء') ||
+    nameLower.includes('water')
+  ) {
+    return true;
+  }
+
+  // 2. Canned / Packed / Cold Cans
+  if (
+    categoryLower.includes('cans') ||
+    categoryLower.includes('can') ||
+    nameLower.includes('بيبسي') ||
+    nameLower.includes('pepsi') ||
+    nameLower.includes('كولا') ||
+    nameLower.includes('cola') ||
+    nameLower.includes('سفن') ||
+    nameLower.includes('seven') ||
+    nameLower.includes('سبرايت') ||
+    nameLower.includes('sprite') ||
+    nameLower.includes('ريد بول') ||
+    nameLower.includes('red bull') ||
+    nameLower.includes('redbull') ||
+    nameLower.includes('بيريل') ||
+    nameLower.includes('birell') ||
+    nameLower.includes('فيروز') ||
+    nameLower.includes('fayrouz') ||
+    nameLower.includes('شوويبس') ||
+    nameLower.includes('schweppes') ||
+    nameLower.includes('معلب') ||
+    nameLower.includes('ساقع')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 @Injectable()
 export class BarOrdersService {
   constructor(
@@ -62,23 +107,14 @@ export class BarOrdersService {
 
       let unitPrice = Number(product.price);
 
-      // Special pricing for Staff and Owners
-      // Categories 'water' or 'mineral_water' get costPrice
-      const isWater =
-        product.category?.toLowerCase().includes('water') ||
-        product.name?.toLowerCase().includes('مياه') ||
-        product.name?.toLowerCase().includes('مياة');
+      const isNonDiscounted = isNonDiscountedProduct(product);
 
       if (customer.customerType === 'owner_discount') {
-        if (isWater) {
-          unitPrice = Number(product.costPrice);
-        } else {
+        if (!isNonDiscounted) {
           unitPrice = Number(product.price) * 0.3; // 70% discount
         }
       } else if (customer.customerType === 'staff') {
-        if (isWater) {
-          unitPrice = Number(product.costPrice);
-        } else {
+        if (!isNonDiscounted) {
           unitPrice = Number(product.price) * 0.5; // 50% discount
         }
       }
@@ -359,15 +395,16 @@ export class BarOrdersService {
       if (!product) throw new Error('Product not found');
 
       let unitPrice = Number(product.price);
-      const isWater =
-        product.category?.toLowerCase().includes('water') ||
-        product.name?.toLowerCase().includes('مياه') ||
-        product.name?.toLowerCase().includes('مياة');
+      const isNonDiscounted = isNonDiscountedProduct(product);
 
       if (customer.customerType === 'owner_discount') {
-        unitPrice = isWater ? Number(product.costPrice) : Number(product.price) * 0.3;
+        if (!isNonDiscounted) {
+          unitPrice = Number(product.price) * 0.3; // 70% discount
+        }
       } else if (customer.customerType === 'staff') {
-        unitPrice = isWater ? Number(product.costPrice) : Number(product.price) * 0.5;
+        if (!isNonDiscounted) {
+          unitPrice = Number(product.price) * 0.5; // 50% discount
+        }
       }
 
       return {

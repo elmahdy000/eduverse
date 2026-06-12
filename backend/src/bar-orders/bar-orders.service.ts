@@ -7,6 +7,10 @@ import {
 import { InventoryService } from '../inventory/inventory.service';
 
 function isNonDiscountedProduct(product: any): boolean {
+  if (product.isFridge || product.isBakery) {
+    return true;
+  }
+
   const nameLower = product.name?.toLowerCase() || '';
   const categoryLower = product.category?.toLowerCase() || '';
 

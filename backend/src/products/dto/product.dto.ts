@@ -29,6 +29,14 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   availability?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isFridge?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isBakery?: boolean;
 }
 
 export class UpdateProductDto {
@@ -60,4 +68,12 @@ export class UpdateProductDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isFridge?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isBakery?: boolean;
 }

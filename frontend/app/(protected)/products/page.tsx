@@ -82,6 +82,16 @@ function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail,
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.availability ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
               {product.availability ? "متاح" : "مش متاح"}
             </span>
+            {product.isFridge && (
+              <span className="rounded-full bg-sky-100 text-sky-700 px-2 py-0.5 text-[10px] font-bold">
+                تلاجة
+              </span>
+            )}
+            {product.isBakery && (
+              <span className="rounded-full bg-purple-100 text-purple-700 px-2 py-0.5 text-[10px] font-bold">
+                بيكرى
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -119,6 +129,8 @@ export default function ProductsPage() {
   const [price, setPrice] = useState("0");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [isFridge, setIsFridge] = useState(false);
+  const [isBakery, setIsBakery] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   // Edit form
@@ -129,6 +141,8 @@ export default function ProductsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editAvailability, setEditAvailability] = useState(true);
+  const [editIsFridge, setEditIsFridge] = useState(false);
+  const [editIsBakery, setEditIsBakery] = useState(false);
 
   // Recipe State
   const [recipeProduct, setRecipeProduct] = useState<Product | null>(null);
@@ -234,9 +248,11 @@ export default function ProductsPage() {
       price: Number(price), 
       description: description || undefined,
       imageUrl: imageUrl || undefined,
+      isFridge,
+      isBakery,
     }),
     onSuccess: () => {
-      setName(""); setCategory("other"); setPrice("0"); setDescription(""); setImageUrl(""); setShowForm(false);
+      setName(""); setCategory("other"); setPrice("0"); setDescription(""); setImageUrl(""); setIsFridge(false); setIsBakery(false); setShowForm(false);
       setMessage({ text: "تم إضافة المنتج بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -256,6 +272,8 @@ export default function ProductsPage() {
         description: editDescription || undefined,
         imageUrl: editImageUrl || undefined,
         availability: editAvailability,
+        isFridge: editIsFridge,
+        isBakery: editIsBakery,
       });
     },
     onSuccess: () => {
@@ -296,6 +314,8 @@ export default function ProductsPage() {
     setEditDescription(product.description ?? "");
     setEditImageUrl(product.imageUrl ?? "");
     setEditAvailability(product.availability);
+    setEditIsFridge(product.isFridge ?? false);
+    setEditIsBakery(product.isBakery ?? false);
   }
 
   return (
@@ -350,6 +370,28 @@ export default function ProductsPage() {
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
             </div>
+
+            <div className="flex flex-wrap gap-6 py-2 border-t border-slate-100" dir="rtl">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isFridge}
+                  onChange={(e) => setIsFridge(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <span className="text-sm font-bold text-slate-700">منتج تلاجة (بيبسي، ماية، معلبات)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isBakery}
+                  onChange={(e) => setIsBakery(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <span className="text-sm font-bold text-slate-700">منتج بيكرى (مخبوزات، جاهز)</span>
+              </label>
+            </div>
+
             <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضاة..." icon={<Plus size={14} />}>
               ضي المنتج
             </Btn>
@@ -396,6 +438,28 @@ export default function ProductsPage() {
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
             </div>
+
+            <div className="flex flex-wrap gap-6 py-2 border-t border-slate-100" dir="rtl">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={editIsFridge}
+                  onChange={(e) => setEditIsFridge(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <span className="text-sm font-bold text-slate-700">منتج تلاجة (بيبسي، ماية، معلبات)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={editIsBakery}
+                  onChange={(e) => setEditIsBakery(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <span className="text-sm font-bold text-slate-700">منتج بيكرى (مخبوزات، جاهز)</span>
+              </label>
+            </div>
+
             <div className="flex gap-2">
               <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحظ..." icon={<Pencil size={14} />}>احظ التعديل</Btn>
               <Btn type="button" variant="ghost" onClick={() => setEditingProduct(null)}>إلغاء</Btn>

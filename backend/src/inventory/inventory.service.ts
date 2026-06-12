@@ -2,13 +2,35 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../common/prisma/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
-function inferInventoryDefaults(name: string): { unit: string; category: string; minStockLevel: number } {
+function inferInventoryDefaults(name: string): { unit: string; category: string; minStockLevel: number; isFridge: boolean; isBakery: boolean } {
   const lowerName = name.toLowerCase();
   
   // Default fallback values
   let unit = 'قطعة';
   let category = 'خامات';
   let minStockLevel = 10;
+  let isFridge = false;
+  let isBakery = false;
+
+  // Fridge keywords
+  const fridgeKeywords = [
+    'بيبسي', 'pepsi', 'كولا', 'cola', 'سفن', 'seven', 'سبرايت', 'sprite',
+    'ريد بول', 'red bull', 'redbull', 'بيريل', 'birell', 'فيروز', 'fayrouz',
+    'شويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
+  ];
+
+  // Bakery keywords
+  const bakeryKeywords = [
+    'كرواسون', 'croissant', 'باتيه', 'pate', 'مخبوز', 'مخبوزات', 'كيك', 'cake',
+    'كوكيز', 'cookies', 'muffin', 'مافن', 'دونات', 'donut', 'بيكرى', 'bakery'
+  ];
+
+  if (fridgeKeywords.some(kw => lowerName.includes(kw))) {
+    isFridge = true;
+  }
+  if (bakeryKeywords.some(kw => lowerName.includes(kw))) {
+    isBakery = true;
+  }
 
   // Inference rules based on Arabic & English keywords
   if (
@@ -90,7 +112,7 @@ function inferInventoryDefaults(name: string): { unit: string; category: string;
     minStockLevel = 5;
   }
 
-  return { unit, category, minStockLevel };
+  return { unit, category, minStockLevel, isFridge, isBakery };
 }
 
 @Injectable()
@@ -115,6 +137,8 @@ export class InventoryService {
       minStockLevel?: number;
       costPerUnit?: number;
       initialStock?: number;
+      isFridge?: boolean;
+      isBakery?: boolean;
     },
     userId?: string,
   ) {
@@ -125,6 +149,8 @@ export class InventoryService {
     const minStockLevel = data.minStockLevel !== undefined ? data.minStockLevel : inferred.minStockLevel;
     const costPerUnit = data.costPerUnit || 0;
     const initialStock = data.initialStock || 0;
+    const isFridge = data.isFridge !== undefined ? data.isFridge : inferred.isFridge;
+    const isBakery = data.isBakery !== undefined ? data.isBakery : inferred.isBakery;
 
     return this.prisma.$transaction(async (tx) => {
       const createdItem = await tx.inventoryItem.create({
@@ -135,6 +161,8 @@ export class InventoryService {
           minStockLevel,
           costPerUnit,
           currentStock: initialStock,
+          isFridge,
+          isBakery,
         },
       });
 
@@ -284,8 +312,24 @@ export class InventoryService {
       if (existingTx) return;
 
       for (const orderItem of order.items) {
-        const recipeItems = orderItem.product.recipeItems;
-        if (!recipeItems || recipeItems.length === 0) continue;
+        let recipeItems: any[] = orderItem.product.recipeItems || [];
+
+        // If no recipe is defined but it is a fridge or bakery item, auto-deduct 1-to-1 if there's a matching InventoryItem by name
+        if (recipeItems.length === 0 && (orderItem.product.isFridge || orderItem.product.isBakery)) {
+          const matchItem = await tx.inventoryItem.findFirst({
+            where: { name: { equals: orderItem.product.name, mode: 'insensitive' } },
+          });
+          if (matchItem) {
+            recipeItems = [
+              {
+                inventoryItemId: matchItem.id,
+                quantity: 1, // 1 unit per product item
+              },
+            ];
+          }
+        }
+
+        if (recipeItems.length === 0) continue;
 
         for (const recipe of recipeItems) {
           const totalDeduction = Number(recipe.quantity) * orderItem.quantity;

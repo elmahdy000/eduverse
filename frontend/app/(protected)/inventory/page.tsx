@@ -24,6 +24,8 @@ type InventoryItem = {
   category?: string | null;
   currentStock: number | string;
   minStockLevel: number | string;
+  isFridge?: boolean;
+  isBakery?: boolean;
   _count?: { recipes: number };
 };
 
@@ -45,6 +47,8 @@ const EMPTY_NEW_ITEM = {
   category: "",
   minStockLevel: "",
   costPerUnit: "",
+  isFridge: false,
+  isBakery: false,
 };
 
 export default function InventoryPage() {
@@ -229,6 +233,8 @@ export default function InventoryPage() {
         category: newItemData.category.trim() || undefined,
         minStockLevel: newItemData.minStockLevel ? Number(newItemData.minStockLevel) : undefined,
         costPerUnit: newItemData.costPerUnit ? Number(newItemData.costPerUnit) : undefined,
+        isFridge: newItemData.isFridge,
+        isBakery: newItemData.isBakery,
       });
       setShowNewItemModal(false);
       setNewItemData(EMPTY_NEW_ITEM);
@@ -518,7 +524,19 @@ export default function InventoryPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-slate-900">{item.name}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-bold text-slate-900">{item.name}</p>
+                          {item.isFridge && (
+                            <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[9px] font-bold text-sky-600 border border-sky-100 font-sans">
+                              تلاجة
+                            </span>
+                          )}
+                          {item.isBakery && (
+                            <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-600 border border-amber-100 font-sans">
+                              بيكرى
+                            </span>
+                          )}
+                        </div>
                         {item.category && (
                           <p className="text-xs text-slate-400">{item.category}</p>
                         )}
@@ -791,6 +809,26 @@ export default function InventoryPage() {
                     className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
                   />
                 </div>
+              </div>
+              <div className="flex flex-col gap-2 py-2 border-t border-slate-100" dir="rtl">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={newItemData.isFridge}
+                    onChange={(e) => setNewItemData(p => ({ ...p, isFridge: e.target.checked }))}
+                    className="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                  />
+                  <span className="text-sm font-bold text-slate-700 font-sans">صنف تلاجة (ساقع، ماية، كانز)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={newItemData.isBakery}
+                    onChange={(e) => setNewItemData(p => ({ ...p, isBakery: e.target.checked }))}
+                    className="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                  />
+                  <span className="text-sm font-bold text-slate-700 font-sans">صنف بيكرى (مخبوزات، جاهز)</span>
+                </label>
               </div>
               <div className="flex gap-3 pt-2">
                 <button

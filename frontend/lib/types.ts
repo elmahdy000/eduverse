@@ -109,6 +109,8 @@ export interface Product {
   availability: boolean;
   active: boolean;
   costPrice?: string | number;
+  isFridge?: boolean;
+  isBakery?: boolean;
 }
 
 export interface Invoice {

@@ -18,9 +18,36 @@ export class ProductsService {
       throw new Error('Active product with this name already exists');
     }
 
+    // Auto-fill isFridge and isBakery if not explicitly provided
+    let isFridge = createProductDto.isFridge;
+    let isBakery = createProductDto.isBakery;
+
+    if (isFridge === undefined || isBakery === undefined) {
+      const nameLower = createProductDto.name.toLowerCase();
+      
+      const fridgeKeywords = [
+        'بيبسي', 'pepsi', 'كولا', 'cola', 'سفن', 'seven', 'سبرايت', 'sprite',
+        'ريد بول', 'red bull', 'redbull', 'بيريل', 'birell', 'فيروز', 'fayrouz',
+        'شويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
+      ];
+      const bakeryKeywords = [
+        'كرواسون', 'croissant', 'باتيه', 'pate', 'مخبوز', 'مخبوزات', 'كيك', 'cake',
+        'كوكيز', 'cookies', 'muffin', 'مافن', 'دونات', 'donut', 'بيكرى', 'bakery'
+      ];
+
+      if (isFridge === undefined) {
+        isFridge = fridgeKeywords.some(kw => nameLower.includes(kw));
+      }
+      if (isBakery === undefined) {
+        isBakery = bakeryKeywords.some(kw => nameLower.includes(kw));
+      }
+    }
+
     return this.prisma.product.create({
       data: {
         ...createProductDto,
+        isFridge: isFridge ?? false,
+        isBakery: isBakery ?? false,
         availability: createProductDto.availability ?? true,
         active: true,
       },

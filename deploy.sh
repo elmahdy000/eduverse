@@ -11,8 +11,8 @@ git pull origin master
 echo "⚙️  Updating Backend..."
 cd backend
 npm install
-npm run build
 npx prisma db push
+npm run build
 cd ..
 
 # 3. Frontend Deployment

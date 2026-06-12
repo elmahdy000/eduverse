@@ -13,9 +13,17 @@ import {
   Settings2,
   Trash2,
   X,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  FileText,
+  BarChart3,
+  Calendar,
+  Layers,
 } from "lucide-react";
 import clsx from "clsx";
 import { api } from "../../../lib/api";
+import { money, dateTime } from "../../../lib/format";
 
 type InventoryItem = {
   id: string;
@@ -26,6 +34,7 @@ type InventoryItem = {
   minStockLevel: number | string;
   isFridge?: boolean;
   isBakery?: boolean;
+  costPerUnit?: number | string | null;
   _count?: { recipes: number };
 };
 
@@ -77,7 +86,7 @@ export default function InventoryPage() {
   const [message, setMessage] = useState<FlashMessage>(null);
 
   // Tab and Custom Operations States
-  const [activeTab, setActiveTab] = useState<"items" | "stocktake" | "withdraw">("items");
+  const [activeTab, setActiveTab] = useState<"items" | "stocktake" | "withdraw" | "analytics">("items");
 
   // Physical Stocktake States
   const [stocktakeValues, setStocktakeValues] = useState<Record<string, string>>({});
@@ -88,9 +97,33 @@ export default function InventoryPage() {
   const [withdrawQty, setWithdrawQty] = useState("");
   const [withdrawReason, setWithdrawReason] = useState("");
 
+  // Analytics tab specific filter states
+  const [allTransactions, setAllTransactions] = useState<InventoryTransaction[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
+  const [withdrawalSearch, setWithdrawalSearch] = useState("");
+  const [withdrawalTypeFilter, setWithdrawalTypeFilter] = useState<"all" | "order" | "manual">("all");
+
   useEffect(() => {
     fetchInventory();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "analytics") {
+      fetchTransactions();
+    }
+  }, [activeTab]);
+
+  const fetchTransactions = async () => {
+    setLoadingTransactions(true);
+    try {
+      const res = await api.get("/inventory/transactions", { params: { limit: 250 } });
+      setAllTransactions(res.data);
+    } catch (err) {
+      console.error("Failed to fetch transactions", err);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
 
   useEffect(() => {
     if (items.length > 0) {
@@ -213,6 +246,59 @@ export default function InventoryPage() {
     const withRecipes = items.filter(i => (i._count?.recipes ?? 0) > 0).length;
     return Math.round((withRecipes / items.length) * 100);
   }, [items]);
+
+  // 1. Total stock value
+  const totalStockValue = useMemo(() => {
+    return items.reduce((acc, item) => {
+      const stock = Number(item.currentStock) || 0;
+      const cost = Number(item.costPerUnit) || 0;
+      return acc + (stock * cost);
+    }, 0);
+  }, [items]);
+
+  // 2. Withdrawal statistics from allTransactions
+  const withdrawalStats = useMemo(() => {
+    const outs = allTransactions.filter(tx => tx.type === "out");
+    const totalWithdrawnCount = outs.length;
+    
+    const byItem: Record<string, { name: string; quantity: number; unit: string; count: number }> = {};
+    outs.forEach(tx => {
+      const name = tx.inventoryItem.name;
+      const qty = Number(tx.quantity) || 0;
+      const unit = tx.inventoryItem.unit;
+      if (!byItem[name]) {
+        byItem[name] = { name, quantity: 0, unit, count: 0 };
+      }
+      byItem[name].quantity += qty;
+      byItem[name].count += 1;
+    });
+
+    const topWithdrawn = Object.values(byItem)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    return {
+      totalWithdrawnCount,
+      topWithdrawn,
+      outs
+    };
+  }, [allTransactions]);
+
+  // 3. Filtered withdrawals based on search & category
+  const filteredWithdrawals = useMemo(() => {
+    return withdrawalStats.outs.filter(tx => {
+      const matchesSearch = !withdrawalSearch || 
+        tx.inventoryItem.name.toLowerCase().includes(withdrawalSearch.toLowerCase()) || 
+        (tx.reason && tx.reason.toLowerCase().includes(withdrawalSearch.toLowerCase()));
+      
+      const isOrder = tx.reason && (tx.reason.startsWith("Order:") || tx.reason.toLowerCase().includes("order"));
+      const matchesType = withdrawalTypeFilter === "all" ||
+                          (withdrawalTypeFilter === "order" && isOrder) ||
+                          (withdrawalTypeFilter === "manual" && !isOrder);
+      
+      return matchesSearch && matchesType;
+    });
+  }, [withdrawalStats.outs, withdrawalSearch, withdrawalTypeFilter]);
 
   const lowStockItems = items.filter((item) => Number(item.currentStock) <= Number(item.minStockLevel));
   const totalItems = items.length;
@@ -442,6 +528,17 @@ export default function InventoryPage() {
           )}
         >
           سحب خامات (منصرف)
+        </button>
+        <button
+          onClick={() => setActiveTab("analytics")}
+          className={clsx(
+            "px-6 py-3 text-sm font-bold border-b-2 transition-all",
+            activeTab === "analytics"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          )}
+        >
+          تحليلات وإحصائيات السحب
         </button>
       </div>
 
@@ -747,6 +844,201 @@ export default function InventoryPage() {
             >
               {submitting ? "جاري تسجيل السحب..." : "تأكيد تسجيل السحب وخصم الرصيد"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "analytics" && (
+        <div className="space-y-6 animate-in fade-in duration-500" dir="rtl">
+          {/* Stat Cards Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="group relative overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-50/30 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-emerald-600">إجمالي قيمة المخزون الحالي</p>
+                  <p className="text-2xl font-black text-emerald-800 tabular-nums">{money(totalStockValue)}</p>
+                </div>
+                <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
+                  <TrendingUp size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] font-semibold text-slate-500">مجموع قيم كل الخامات الحالية بسعر التكلفة</p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-3xl border border-rose-100 bg-rose-50/20 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-rose-600">نواقص تحتاج توريد</p>
+                  <p className="text-2xl font-black text-rose-800 tabular-nums">{lowStockItems.length} صنف</p>
+                </div>
+                <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
+                  <AlertTriangle size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] font-semibold text-slate-500">عناصر رصيدها أقل من أو يساوي حد الأمان</p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-500">سحبيات POS والمنصرف</p>
+                  <p className="text-2xl font-black text-slate-900 tabular-nums">{withdrawalStats.totalWithdrawnCount} حركة</p>
+                </div>
+                <div className="rounded-2xl bg-slate-100 p-3 text-slate-600">
+                  <Activity size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] font-semibold text-slate-500">إجمالي عمليات الخصم في آخر 250 حركة</p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-3xl border border-blue-100 bg-blue-50/20 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-blue-600">تصنيف المنتجات الجاهزة</p>
+                  <p className="text-2xl font-black text-slate-800 tabular-nums">
+                    {items.filter(i => i.isFridge).length} ثلاجة / {items.filter(i => i.isBakery).length} مخبوزات
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-blue-100 p-3 text-blue-700">
+                  <Layers size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] font-semibold text-slate-500">الأصناف المصنفة للخصم التلقائي والخصومات</p>
+            </div>
+          </div>
+
+          {/* Main Grid: Top Consumed vs Log */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Top Consumed Card */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-amber-500" />
+                  الأصناف الأكثر سحباً واستهلاكاً
+                </h3>
+              </div>
+              {withdrawalStats.topWithdrawn.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs">
+                  <Activity size={32} className="text-slate-300 mb-2" />
+                  لا توجد حركات سحب كافية للاحتساب
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {withdrawalStats.topWithdrawn.map((item, idx) => {
+                    const maxQty = withdrawalStats.topWithdrawn[0].quantity || 1;
+                    const pct = Math.round((item.quantity / maxQty) * 100);
+                    return (
+                      <div key={item.name} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-500">
+                            {item.quantity} {item.unit} ({item.count} سحب)
+                          </span>
+                          <span className="font-bold text-slate-800">{item.name}</span>
+                        </div>
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className={clsx(
+                              "h-full rounded-full transition-all duration-500",
+                              idx === 0 ? "bg-rose-500" : idx === 1 ? "bg-orange-500" : "bg-amber-500"
+                            )}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Withdrawals Log Panel */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                  <FileText size={16} className="text-amber-500" />
+                  تفاصيل عمليات الصرف والسحب
+                </h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Search input */}
+                  <div className="relative">
+                    <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
+                    <input
+                      type="text"
+                      placeholder="ابحث بالصنف أو السبب..."
+                      value={withdrawalSearch}
+                      onChange={e => setWithdrawalSearch(e.target.value)}
+                      className="rounded-lg border border-slate-200 bg-slate-50 pl-2 pr-7 py-1 text-xs outline-none focus:border-slate-400 focus:bg-white"
+                    />
+                  </div>
+                  {/* Type Filter */}
+                  <select
+                    value={withdrawalTypeFilter}
+                    onChange={e => setWithdrawalTypeFilter(e.target.value as any)}
+                    className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs outline-none focus:border-slate-400"
+                  >
+                    <option value="all">كل السحبيات</option>
+                    <option value="order">مبيعات الـ POS (تلقائي)</option>
+                    <option value="manual">سحب يدوي (منصرف)</option>
+                  </select>
+                </div>
+              </div>
+
+              {loadingTransactions ? (
+                <div className="flex flex-col items-center justify-center py-20 text-slate-400 text-xs">
+                  <Clock size={24} className="animate-spin mb-2" />
+                  جاري تحميل سجل السحبيات...
+                </div>
+              ) : filteredWithdrawals.length === 0 ? (
+                <div className="py-20 text-center text-xs text-slate-400">
+                  لا توجد حركات سحب مطابقة للبحث
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                  <table className="w-full text-right text-xs">
+                    <thead className="bg-slate-50 border-b border-slate-100">
+                      <tr>
+                        <th className="p-3 font-bold text-slate-600">الصنف</th>
+                        <th className="p-3 font-bold text-slate-600">نوع السحب</th>
+                        <th className="p-3 font-bold text-slate-600">الكمية</th>
+                        <th className="p-3 font-bold text-slate-600">السبب</th>
+                        <th className="p-3 font-bold text-slate-600">التاريخ</th>
+                        <th className="p-3 font-bold text-slate-600">المستخدم</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredWithdrawals.map(tx => {
+                        const isOrder = tx.reason && (tx.reason.startsWith("Order:") || tx.reason.toLowerCase().includes("order"));
+                        return (
+                          <tr key={tx.id} className="hover:bg-slate-50/50 transition">
+                            <td className="p-3 font-bold text-slate-900">{tx.inventoryItem.name}</td>
+                            <td className="p-3">
+                              <span
+                                className={clsx(
+                                  "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                                  isOrder ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "bg-rose-50 text-rose-600 border border-rose-100"
+                                )}
+                              >
+                                {isOrder ? "مبيعات POS (تلقائي)" : "سحب يدوي (منصرف)"}
+                              </span>
+                            </td>
+                            <td className="p-3 font-bold text-rose-600 tabular-nums">
+                              -{tx.quantity} {tx.inventoryItem.unit}
+                            </td>
+                            <td className="p-3 text-slate-500 font-sans">{tx.reason ?? "—"}</td>
+                            <td className="p-3 text-slate-400 font-sans">{dateTime(tx.createdAt)}</td>
+                            <td className="p-3 text-slate-600">
+                              {tx.performedBy
+                                ? [tx.performedBy.firstName, tx.performedBy.lastName].filter(Boolean).join(" ") || tx.performedBy.email
+                                : "تلقائي (سيستم)"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

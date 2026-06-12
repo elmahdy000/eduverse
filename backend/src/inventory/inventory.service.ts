@@ -314,8 +314,8 @@ export class InventoryService {
       for (const orderItem of order.items) {
         let recipeItems: any[] = orderItem.product.recipeItems || [];
 
-        // If no recipe is defined but it is a fridge or bakery item, auto-deduct 1-to-1 if there's a matching InventoryItem by name
-        if (recipeItems.length === 0 && (orderItem.product.isFridge || orderItem.product.isBakery)) {
+        // If no recipe is defined, auto-deduct 1-to-1 if there's a matching InventoryItem by name
+        if (recipeItems.length === 0) {
           const matchItem = await tx.inventoryItem.findFirst({
             where: { name: { equals: orderItem.product.name, mode: 'insensitive' } },
           });

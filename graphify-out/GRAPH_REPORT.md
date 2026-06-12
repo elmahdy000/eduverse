@@ -1,11 +1,11 @@
 # Graph Report - D:\coders\eduvers  (2026-06-12)
 
 ## Corpus Check
-- 139 files · ~318,864 words
+- 139 files · ~319,873 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 672 nodes · 760 edges · 104 communities detected
+- 673 nodes · 761 edges · 104 communities detected
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -142,8 +142,8 @@
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (7): BarOrdersService, CustomersService, update(), ProductsService, RoomsService, main(), UsersService
+Cohesion: 0.06
+Nodes (6): CustomersService, update(), ProductsService, RoomsService, main(), UsersService
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
@@ -154,8 +154,8 @@ Cohesion: 0.05
 Nodes (13): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryMeta(), getProductImage(), handleGesture(), if() (+5 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.1
-Nodes (3): BarOrdersController, BarOrdersGateway, GuestOrdersController
+Cohesion: 0.08
+Nodes (4): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController
 
 ### Community 4 - "Community 4"
 Cohesion: 0.08
@@ -226,20 +226,20 @@ Cohesion: 0.22
 Nodes (1): ShiftsController
 
 ### Community 21 - "Community 21"
-Cohesion: 0.25
-Nodes (1): DashboardsController
+Cohesion: 0.36
+Nodes (6): fetchInventory(), handleAddStock(), handleCreateItem(), handleRecordWaste(), handleSaveStocktake(), handleSaveWithdraw()
 
 ### Community 22 - "Community 22"
 Cohesion: 0.25
-Nodes (1): PaymentsService
+Nodes (1): DashboardsController
 
 ### Community 23 - "Community 23"
 Cohesion: 0.25
-Nodes (1): SessionsController
+Nodes (1): PaymentsService
 
 ### Community 24 - "Community 24"
-Cohesion: 0.43
-Nodes (6): fetchInventory(), handleAddStock(), handleCreateItem(), handleRecordWaste(), handleSaveStocktake(), handleSaveWithdraw()
+Cohesion: 0.25
+Nodes (1): SessionsController
 
 ### Community 25 - "Community 25"
 Cohesion: 0.29
@@ -681,7 +681,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**

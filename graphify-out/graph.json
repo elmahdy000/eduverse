@@ -5803,7 +5803,7 @@
       "label": "handleScroll()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\landing\\Navbar.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "navbar_handlescroll",
       "community": 86,
       "norm_label": "handlescroll()"
@@ -14964,7 +14964,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\landing\\Navbar.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_components_landing_navbar_tsx",
       "_tgt": "navbar_handlescroll",

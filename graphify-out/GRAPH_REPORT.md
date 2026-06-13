@@ -1,11 +1,11 @@
-# Graph Report - D:\coders\eduvers  (2026-06-12)
+# Graph Report - D:\coders\eduvers  (2026-06-13)
 
 ## Corpus Check
-- 139 files · ~319,873 words
+- 139 files · ~320,025 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 673 nodes · 761 edges · 104 communities detected
+- 675 nodes · 764 edges · 104 communities detected
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -143,7 +143,7 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
-Nodes (6): CustomersService, update(), ProductsService, RoomsService, main(), UsersService
+Nodes (7): PasswordService, CustomersService, update(), ProductsService, RoomsService, main(), UsersService
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
@@ -151,7 +151,7 @@ Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), boots
 
 ### Community 2 - "Community 2"
 Cohesion: 0.05
-Nodes (13): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryMeta(), getProductImage(), handleGesture(), if() (+5 more)
+Nodes (15): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryMeta(), getEffectiveUnitPrice(), getProductImage(), handleGesture() (+7 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.08
@@ -186,20 +186,20 @@ Cohesion: 0.14
 Nodes (2): inferInventoryDefaults(), InventoryService
 
 ### Community 11 - "Community 11"
-Cohesion: 0.2
-Nodes (3): AuthService, JwtConfigService, PasswordService
-
-### Community 12 - "Community 12"
 Cohesion: 0.17
 Nodes (1): UsersController
 
-### Community 13 - "Community 13"
+### Community 12 - "Community 12"
 Cohesion: 0.17
 Nodes (1): CustomersController
 
-### Community 14 - "Community 14"
+### Community 13 - "Community 13"
 Cohesion: 0.23
 Nodes (1): ShiftsService
+
+### Community 14 - "Community 14"
+Cohesion: 0.25
+Nodes (2): AuthService, JwtConfigService
 
 ### Community 15 - "Community 15"
 Cohesion: 0.29
@@ -673,9 +673,9 @@ Nodes (0):
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `update()` connect `Community 0` to `Community 6`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Why does `RoomsService` connect `Community 0` to `Community 16`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `update()` (e.g. with `main()` and `.login()`) actually correct?**
   _`update()` has 25 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**

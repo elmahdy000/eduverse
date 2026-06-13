@@ -46,6 +46,74 @@ interface CartItem {
   costPrice: number;
   category: string;
   quantity: number;
+  isFridge?: boolean;
+  isBakery?: boolean;
+}
+
+function isNonDiscountedProduct(item: { productName: string; category: string; isFridge?: boolean; isBakery?: boolean }) {
+  if (item.isFridge || item.isBakery) {
+    return true;
+  }
+
+  const nameLower = item.productName?.toLowerCase() || '';
+  const categoryLower = item.category?.toLowerCase() || '';
+
+  // 1. Water
+  if (
+    categoryLower.includes('water') ||
+    nameLower.includes('مياه') ||
+    nameLower.includes('مياة') ||
+    nameLower.includes('ماء') ||
+    nameLower.includes('water')
+  ) {
+    return true;
+  }
+
+  // 2. Canned / Packed / Cold Cans
+  if (
+    categoryLower.includes('cans') ||
+    categoryLower.includes('can') ||
+    nameLower.includes('بيبسي') ||
+    nameLower.includes('pepsi') ||
+    nameLower.includes('كولا') ||
+    nameLower.includes('cola') ||
+    nameLower.includes('سفن') ||
+    nameLower.includes('seven') ||
+    nameLower.includes('سبرايت') ||
+    nameLower.includes('sprite') ||
+    nameLower.includes('ريد بول') ||
+    nameLower.includes('red bull') ||
+    nameLower.includes('redbull') ||
+    nameLower.includes('بيريل') ||
+    nameLower.includes('birell') ||
+    nameLower.includes('فيروز') ||
+    nameLower.includes('fayrouz') ||
+    nameLower.includes('شوويبس') ||
+    nameLower.includes('schweppes') ||
+    nameLower.includes('معلب') ||
+    nameLower.includes('ساقع')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function getEffectiveUnitPrice(
+  item: { productName: string; category: string; unitPrice: number; isFridge?: boolean; isBakery?: boolean },
+  customerType?: string | null
+): number {
+  if (!customerType) return item.unitPrice;
+  const isNonDiscounted = isNonDiscountedProduct(item);
+  if (isNonDiscounted) return item.unitPrice;
+
+  if (customerType === 'owner_discount') {
+    return item.unitPrice * 0.3; // 70% discount
+  }
+  if (customerType === 'staff') {
+    return item.unitPrice * 0.5; // 50% discount
+  }
+  return item.unitPrice;
 }
 
 const FAVORITES_KEY = "pos_favorites_v1";
@@ -378,19 +446,7 @@ export default function BaristaPOSPage() {
   const cartTotal = useMemo(() => {
     if (!discountInfo) return cartSubtotal;
     return cart.reduce((sum, item) => {
-      const isWater = 
-        item.category.toLowerCase().includes('water') || 
-        item.productName.toLowerCase().includes('مياه') || 
-        item.productName.toLowerCase().includes('مياة');
-
-      let effectiveUnitPrice = item.unitPrice;
-      
-      if (selectedCustomer?.customerType === 'owner_discount') {
-        effectiveUnitPrice = isWater ? item.costPrice : item.unitPrice * 0.3;
-      } else if (selectedCustomer?.customerType === 'staff') {
-        effectiveUnitPrice = isWater ? item.costPrice : item.unitPrice * 0.5;
-      }
-      
+      const effectiveUnitPrice = getEffectiveUnitPrice(item, selectedCustomer?.customerType);
       return sum + (effectiveUnitPrice * item.quantity);
     }, 0);
   }, [cart, selectedCustomer, discountInfo, cartSubtotal]);
@@ -435,7 +491,9 @@ export default function BaristaPOSPage() {
         unitPrice: Number(product.price), 
         costPrice: Number(product.costPrice || 0),
         category: product.category,
-        quantity: 1 
+        quantity: 1,
+        isFridge: product.isFridge,
+        isBakery: product.isBakery
       }];
     });
   }, []);
@@ -1122,22 +1180,7 @@ export default function BaristaPOSPage() {
                           </div>
                         )}
                         <span className="font-black text-slate-900">
-                          {money(
-                            (() => {
-                              const isWater = 
-                                item.category.toLowerCase().includes('water') || 
-                                item.productName.toLowerCase().includes('مياه') || 
-                                item.productName.toLowerCase().includes('مياة');
-                              
-                              if (selectedCustomer?.customerType === 'owner_discount') {
-                                return (isWater ? item.costPrice : item.unitPrice * 0.3) * item.quantity;
-                              }
-                              if (selectedCustomer?.customerType === 'staff') {
-                                return (isWater ? item.costPrice : item.unitPrice * 0.5) * item.quantity;
-                              }
-                              return item.unitPrice * item.quantity;
-                            })()
-                          )}
+                          {money(getEffectiveUnitPrice(item, selectedCustomer?.customerType) * item.quantity)}
                         </span>
                       </div>
                     </div>

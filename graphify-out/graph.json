@@ -792,7 +792,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_auth_service_ts",
-      "community": 11,
+      "community": 14,
       "norm_label": "auth.service.ts"
     },
     {
@@ -801,7 +801,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L7",
       "id": "auth_service_jwtconfigservice",
-      "community": 11,
+      "community": 14,
       "norm_label": "jwtconfigservice"
     },
     {
@@ -810,7 +810,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L8",
       "id": "auth_service_jwtconfigservice_constructor",
-      "community": 11,
+      "community": 14,
       "norm_label": ".constructor()"
     },
     {
@@ -819,7 +819,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L10",
       "id": "auth_service_jwtconfigservice_generateaccesstoken",
-      "community": 11,
+      "community": 14,
       "norm_label": ".generateaccesstoken()"
     },
     {
@@ -828,7 +828,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L17",
       "id": "auth_service_jwtconfigservice_generaterefreshtoken",
-      "community": 11,
+      "community": 14,
       "norm_label": ".generaterefreshtoken()"
     },
     {
@@ -837,7 +837,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L24",
       "id": "auth_service_jwtconfigservice_verifyaccesstoken",
-      "community": 11,
+      "community": 14,
       "norm_label": ".verifyaccesstoken()"
     },
     {
@@ -846,7 +846,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L28",
       "id": "auth_service_jwtconfigservice_verifyrefreshtoken",
-      "community": 11,
+      "community": 14,
       "norm_label": ".verifyrefreshtoken()"
     },
     {
@@ -855,7 +855,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L34",
       "id": "auth_service_passwordservice",
-      "community": 11,
+      "community": 0,
       "norm_label": "passwordservice"
     },
     {
@@ -864,7 +864,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L35",
       "id": "auth_service_passwordservice_hashpassword",
-      "community": 11,
+      "community": 0,
       "norm_label": ".hashpassword()"
     },
     {
@@ -882,7 +882,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L49",
       "id": "auth_service_authservice",
-      "community": 11,
+      "community": 14,
       "norm_label": "authservice"
     },
     {
@@ -891,7 +891,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L50",
       "id": "auth_service_authservice_constructor",
-      "community": 11,
+      "community": 14,
       "norm_label": ".constructor()"
     },
     {
@@ -909,7 +909,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L140",
       "id": "auth_service_authservice_register",
-      "community": 11,
+      "community": 14,
       "norm_label": ".register()"
     },
     {
@@ -918,7 +918,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L202",
       "id": "auth_service_authservice_refreshaccesstoken",
-      "community": 11,
+      "community": 14,
       "norm_label": ".refreshaccesstoken()"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_customers_customers_controller_ts",
-      "community": 13,
+      "community": 12,
       "norm_label": "customers.controller.ts"
     },
     {
@@ -1989,7 +1989,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L16",
       "id": "customers_controller_customerscontroller",
-      "community": 13,
+      "community": 12,
       "norm_label": "customerscontroller"
     },
     {
@@ -1998,7 +1998,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L17",
       "id": "customers_controller_customerscontroller_constructor",
-      "community": 13,
+      "community": 12,
       "norm_label": ".constructor()"
     },
     {
@@ -2007,7 +2007,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L21",
       "id": "customers_controller_customerscontroller_createcustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".createcustomer()"
     },
     {
@@ -2016,7 +2016,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L43",
       "id": "customers_controller_customerscontroller_getcustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".getcustomer()"
     },
     {
@@ -2025,7 +2025,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L59",
       "id": "customers_controller_customerscontroller_searchcustomers",
-      "community": 13,
+      "community": 12,
       "norm_label": ".searchcustomers()"
     },
     {
@@ -2034,7 +2034,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L96",
       "id": "customers_controller_customerscontroller_updatecustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".updatecustomer()"
     },
     {
@@ -2043,7 +2043,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L118",
       "id": "customers_controller_customerscontroller_getcustomerhistory",
-      "community": 13,
+      "community": 12,
       "norm_label": ".getcustomerhistory()"
     },
     {
@@ -2052,7 +2052,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L136",
       "id": "customers_controller_customerscontroller_getactivesession",
-      "community": 13,
+      "community": 12,
       "norm_label": ".getactivesession()"
     },
     {
@@ -2061,7 +2061,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L152",
       "id": "customers_controller_customerscontroller_deactivatecustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".deactivatecustomer()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L171",
       "id": "customers_controller_customerscontroller_blacklistcustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".blacklistcustomer()"
     },
     {
@@ -2079,7 +2079,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L194",
       "id": "customers_controller_customerscontroller_reactivatecustomer",
-      "community": 13,
+      "community": 12,
       "norm_label": ".reactivatecustomer()"
     },
     {
@@ -4194,7 +4194,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_shifts_shifts_service_ts",
-      "community": 14,
+      "community": 13,
       "norm_label": "shifts.service.ts"
     },
     {
@@ -4203,7 +4203,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L5",
       "id": "shifts_service_shiftsservice",
-      "community": 14,
+      "community": 13,
       "norm_label": "shiftsservice"
     },
     {
@@ -4212,7 +4212,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L6",
       "id": "shifts_service_shiftsservice_constructor",
-      "community": 14,
+      "community": 13,
       "norm_label": ".constructor()"
     },
     {
@@ -4221,7 +4221,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L8",
       "id": "shifts_service_shiftsservice_canaccessanyshift",
-      "community": 14,
+      "community": 13,
       "norm_label": ".canaccessanyshift()"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L12",
       "id": "shifts_service_shiftsservice_assertcanaccessshift",
-      "community": 14,
+      "community": 13,
       "norm_label": ".assertcanaccessshift()"
     },
     {
@@ -4239,7 +4239,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L22",
       "id": "shifts_service_shiftsservice_startshift",
-      "community": 14,
+      "community": 13,
       "norm_label": ".startshift()"
     },
     {
@@ -4248,7 +4248,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L42",
       "id": "shifts_service_shiftsservice_getcurrentshift",
-      "community": 14,
+      "community": 13,
       "norm_label": ".getcurrentshift()"
     },
     {
@@ -4266,7 +4266,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L118",
       "id": "shifts_service_shiftsservice_getshiftstats",
-      "community": 14,
+      "community": 13,
       "norm_label": ".getshiftstats()"
     },
     {
@@ -4275,7 +4275,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L162",
       "id": "shifts_service_shiftsservice_getshiftstatsdetailed",
-      "community": 14,
+      "community": 13,
       "norm_label": ".getshiftstatsdetailed()"
     },
     {
@@ -4284,7 +4284,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L283",
       "id": "shifts_service_shiftsservice_getshiftreport",
-      "community": 14,
+      "community": 13,
       "norm_label": ".getshiftreport()"
     },
     {
@@ -4293,7 +4293,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L348",
       "id": "shifts_service_shiftsservice_listshifts",
-      "community": 14,
+      "community": 13,
       "norm_label": ".listshifts()"
     },
     {
@@ -4302,7 +4302,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L365",
       "id": "shifts_service_shiftsservice_getshiftssummary",
-      "community": 14,
+      "community": 13,
       "norm_label": ".getshiftssummary()"
     },
     {
@@ -4338,7 +4338,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_users_users_controller_ts",
-      "community": 12,
+      "community": 11,
       "norm_label": "users.controller.ts"
     },
     {
@@ -4347,7 +4347,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L12",
       "id": "users_controller_userscontroller",
-      "community": 12,
+      "community": 11,
       "norm_label": "userscontroller"
     },
     {
@@ -4356,7 +4356,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L13",
       "id": "users_controller_userscontroller_constructor",
-      "community": 12,
+      "community": 11,
       "norm_label": ".constructor()"
     },
     {
@@ -4365,7 +4365,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L18",
       "id": "users_controller_userscontroller_createuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".createuser()"
     },
     {
@@ -4374,7 +4374,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L34",
       "id": "users_controller_userscontroller_listroles",
-      "community": 12,
+      "community": 11,
       "norm_label": ".listroles()"
     },
     {
@@ -4383,7 +4383,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L50",
       "id": "users_controller_userscontroller_getcurrentuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".getcurrentuser()"
     },
     {
@@ -4392,7 +4392,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L67",
       "id": "users_controller_userscontroller_getuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".getuser()"
     },
     {
@@ -4401,7 +4401,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L84",
       "id": "users_controller_userscontroller_listusers",
-      "community": 12,
+      "community": 11,
       "norm_label": ".listusers()"
     },
     {
@@ -4410,7 +4410,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L108",
       "id": "users_controller_userscontroller_updateuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".updateuser()"
     },
     {
@@ -4419,7 +4419,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L128",
       "id": "users_controller_userscontroller_changepassword",
-      "community": 12,
+      "community": 11,
       "norm_label": ".changepassword()"
     },
     {
@@ -4428,7 +4428,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L158",
       "id": "users_controller_userscontroller_deactivateuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".deactivateuser()"
     },
     {
@@ -4437,7 +4437,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L177",
       "id": "users_controller_userscontroller_deleteuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".deleteuser()"
     },
     {
@@ -4446,7 +4446,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L195",
       "id": "users_controller_userscontroller_reactivateuser",
-      "community": 12,
+      "community": 11,
       "norm_label": ".reactivateuser()"
     },
     {
@@ -4500,7 +4500,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
       "source_location": "L13",
       "id": "users_service_usersservice_createuser",
-      "community": 11,
+      "community": 0,
       "norm_label": ".createuser()"
     },
     {
@@ -5053,6 +5053,24 @@
       "norm_label": "page.tsx"
     },
     {
+      "label": "isNonDiscountedProduct()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L53",
+      "id": "page_isnondiscountedproduct",
+      "community": 2,
+      "norm_label": "isnondiscountedproduct()"
+    },
+    {
+      "label": "getEffectiveUnitPrice()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L102",
+      "id": "page_geteffectiveunitprice",
+      "community": 2,
+      "norm_label": "geteffectiveunitprice()"
+    },
+    {
       "label": "getCategoryMeta()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
@@ -5065,7 +5083,7 @@
       "label": "handleResize()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L153",
+      "source_location": "L221",
       "id": "page_handleresize",
       "community": 2,
       "norm_label": "handleresize()"
@@ -5074,7 +5092,7 @@
       "label": "selectCategoryAndFlip()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L172",
+      "source_location": "L240",
       "id": "page_selectcategoryandflip",
       "community": 2,
       "norm_label": "selectcategoryandflip()"
@@ -5083,7 +5101,7 @@
       "label": "extract()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L320",
+      "source_location": "L388",
       "id": "page_extract",
       "community": 2,
       "norm_label": "extract()"
@@ -5092,7 +5110,7 @@
       "label": "renderVintagePage()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L638",
+      "source_location": "L696",
       "id": "page_rendervintagepage",
       "community": 2,
       "norm_label": "rendervintagepage()"
@@ -13926,7 +13944,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L77",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "_tgt": "page_isnondiscountedproduct",
+      "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "target": "page_isnondiscountedproduct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L102",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "_tgt": "page_geteffectiveunitprice",
+      "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
+      "target": "page_geteffectiveunitprice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L145",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_getcategorymeta",
@@ -13938,7 +13980,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L153",
+      "source_location": "L221",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_handleresize",
@@ -13950,7 +13992,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L172",
+      "source_location": "L240",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_selectcategoryandflip",
@@ -13962,7 +14004,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L320",
+      "source_location": "L388",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_extract",
@@ -13974,12 +14016,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
-      "source_location": "L638",
+      "source_location": "L696",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "_tgt": "page_rendervintagepage",
       "source": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
       "target": "page_rendervintagepage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_src": "page_geteffectiveunitprice",
+      "_tgt": "page_isnondiscountedproduct",
+      "source": "page_isnondiscountedproduct",
+      "target": "page_geteffectiveunitprice",
       "confidence_score": 1.0
     },
     {

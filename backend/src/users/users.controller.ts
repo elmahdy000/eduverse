@@ -124,14 +124,16 @@ export class UsersController {
 
   @Post(':id/change-password')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Change own password' })
+  @ApiOperation({ summary: 'Change user password' })
   async changePassword(
     @Param('id') userId: string,
     @Body() changePasswordDto: ChangePasswordDto,
     @Request() req: any,
   ) {
-    // Users can only change their own password, except owner
-    if (req.user.userId !== userId && req.user.roleName !== 'Owner') {
+    const isOwner = req.user.roleName === 'Owner';
+    const isSelf = req.user.userId === userId;
+
+    if (!isSelf && !isOwner) {
       throw new BadRequestException('You can only change your own password');
     }
 
@@ -139,6 +141,7 @@ export class UsersController {
       const result = await this.usersService.changePassword(
         userId,
         changePasswordDto,
+        isOwner,
       );
       return {
         success: true,

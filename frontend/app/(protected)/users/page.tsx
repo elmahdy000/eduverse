@@ -61,6 +61,7 @@ export default function UsersPage() {
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [selectedUserNewPassword, setSelectedUserNewPassword] = useState("");
 
   const usersQuery = useQuery({
     queryKey: ["users", "owner-page"],
@@ -150,6 +151,21 @@ export default function UsersPage() {
     },
   });
 
+  const changeUserPasswordMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedUserId) return;
+      await api.post(`/users/${selectedUserId}/change-password`, { newPassword: selectedUserNewPassword });
+    },
+    onSuccess: () => {
+      setSelectedUserNewPassword("");
+      setMessage({ text: "تم تغيير باسورد المستخدم بنجاح.", ok: true });
+    },
+    onError: (error: unknown) => {
+      const apiMessage = (error as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+      setMessage({ text: translateApiError(apiMessage), ok: false });
+    },
+  });
+
   const users = usersQuery.data?.data ?? [];
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
@@ -180,6 +196,7 @@ export default function UsersPage() {
     setEditPhoneNumber(user.phoneNumber ?? "");
     setEditRoleId(rolesQuery.data?.find((role) => role.name === user.role?.name)?.id ?? "");
     setEditStatus(user.status);
+    setSelectedUserNewPassword("");
   }
 
   function onCreateSubmit(event: FormEvent<HTMLFormElement>) {
@@ -198,6 +215,16 @@ export default function UsersPage() {
     event.preventDefault();
     setMessage(null);
     changePasswordMutation.mutate();
+  }
+
+  function onChangeUserPasswordSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedUserNewPassword || selectedUserNewPassword.length < 8) {
+      setMessage({ text: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.", ok: false });
+      return;
+    }
+    setMessage(null);
+    changeUserPasswordMutation.mutate();
   }
 
   return (
@@ -329,6 +356,31 @@ export default function UsersPage() {
                     )}
                   </div>
                 </form>
+              )}
+
+              {isOwner && (
+                <div className="pt-4 border-t border-slate-200">
+                  <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <Lock size={16} />
+                    تغيير كلمة المرور للمستخدم
+                  </h4>
+                  <form className="flex gap-2 items-end" onSubmit={onChangeUserPasswordSubmit}>
+                    <div className="flex-1">
+                      <FormField label="كلمة المرور الجديدة">
+                        <Input
+                          type="password"
+                          value={selectedUserNewPassword}
+                          onChange={(event) => setSelectedUserNewPassword(event.target.value)}
+                          required
+                          placeholder="8 أحرف على الأقل"
+                        />
+                      </FormField>
+                    </div>
+                    <Btn type="submit" loading={changeUserPasswordMutation.isPending} loadingText="جارٍ الحفظ...">
+                      تغيير الباسورد
+                    </Btn>
+                  </form>
+                </div>
               )}
             </div>
           )}

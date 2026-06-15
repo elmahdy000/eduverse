@@ -150,6 +150,7 @@ export class UsersService {
   async changePassword(
     userId: string,
     changePasswordDto: ChangePasswordDto,
+    isOwnerBypass: boolean = false,
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -159,14 +160,20 @@ export class UsersService {
       throw new Error('User not found');
     }
 
-    // Verify current password
-    const passwordValid = await this.passwordService.validatePassword(
-      changePasswordDto.currentPassword,
-      user.passwordHash,
-    );
+    if (!isOwnerBypass) {
+      if (!changePasswordDto.currentPassword) {
+        throw new Error('Current password is required');
+      }
 
-    if (!passwordValid) {
-      throw new Error('Current password is incorrect');
+      // Verify current password
+      const passwordValid = await this.passwordService.validatePassword(
+        changePasswordDto.currentPassword,
+        user.passwordHash,
+      );
+
+      if (!passwordValid) {
+        throw new Error('Current password is incorrect');
+      }
     }
 
     // Hash new password

@@ -1,11 +1,11 @@
 # Graph Report - D:\coders\eduvers  (2026-06-15)
 
 ## Corpus Check
-- 139 files · ~321,630 words
+- 139 files · ~321,827 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 675 nodes · 764 edges · 104 communities detected
+- 676 nodes · 765 edges · 104 communities detected
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -163,7 +163,7 @@ Nodes (3): InvoicesController, InvoicesService, SessionsService
 
 ### Community 5 - "Community 5"
 Cohesion: 0.11
-Nodes (14): translateStatus(), actionLabel(), asObject(), entityLabel(), explainAction(), friendlyTopAction(), getNestedObject(), getSnapshotLines() (+6 more)
+Nodes (17): dateTime(), money(), translateStatus(), actionLabel(), ActiveSessionCard(), asObject(), downloadInvoiceSnapshot(), entityLabel() (+9 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.12
@@ -210,8 +210,8 @@ Cohesion: 0.18
 Nodes (1): RoomsController
 
 ### Community 17 - "Community 17"
-Cohesion: 0.24
-Nodes (6): dateTime(), money(), ActiveSessionCard(), downloadInvoiceSnapshot(), printInvoiceOnly(), useSessionTimer()
+Cohesion: 0.22
+Nodes (3): onCreateSubmit(), onUpdateSubmit(), resetCreateForm()
 
 ### Community 18 - "Community 18"
 Cohesion: 0.36

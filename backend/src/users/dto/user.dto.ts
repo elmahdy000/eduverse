@@ -42,9 +42,8 @@ export class UpdateUserDto {
 }
 
 export class ChangePasswordDto {
-  @IsNotEmpty()
-  @MinLength(6)
-  currentPassword: string;
+  @IsOptional()
+  currentPassword?: string;
 
   @IsNotEmpty()
   @MinLength(8)

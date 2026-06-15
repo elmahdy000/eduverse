@@ -4426,7 +4426,7 @@
       "label": ".deactivateUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L158",
+      "source_location": "L161",
       "id": "users_controller_userscontroller_deactivateuser",
       "community": 11,
       "norm_label": ".deactivateuser()"
@@ -4435,7 +4435,7 @@
       "label": ".deleteUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L177",
+      "source_location": "L180",
       "id": "users_controller_userscontroller_deleteuser",
       "community": 11,
       "norm_label": ".deleteuser()"
@@ -4444,7 +4444,7 @@
       "label": ".reactivateUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L195",
+      "source_location": "L198",
       "id": "users_controller_userscontroller_reactivateuser",
       "community": 11,
       "norm_label": ".reactivateuser()"
@@ -4543,7 +4543,7 @@
       "label": ".deactivateUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L186",
+      "source_location": "L193",
       "id": "users_service_usersservice_deactivateuser",
       "community": 0,
       "norm_label": ".deactivateuser()"
@@ -4552,7 +4552,7 @@
       "label": ".deleteUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L208",
+      "source_location": "L215",
       "id": "users_service_usersservice_deleteuser",
       "community": 0,
       "norm_label": ".deleteuser()"
@@ -4561,7 +4561,7 @@
       "label": ".reactivateUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L233",
+      "source_location": "L240",
       "id": "users_service_usersservice_reactivateuser",
       "community": 0,
       "norm_label": ".reactivateuser()"
@@ -4570,7 +4570,7 @@
       "label": ".listRoles()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L255",
+      "source_location": "L262",
       "id": "users_service_usersservice_listroles",
       "community": 0,
       "norm_label": ".listroles()"
@@ -4579,7 +4579,7 @@
       "label": ".formatUserResponse()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L262",
+      "source_location": "L269",
       "id": "users_service_usersservice_formatuserresponse",
       "community": 0,
       "norm_label": ".formatuserresponse()"
@@ -4624,7 +4624,7 @@
       "label": "UserResponseDto",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
-      "source_location": "L54",
+      "source_location": "L53",
       "id": "user_dto_userresponsedto",
       "community": 29,
       "norm_label": "userresponsedto"
@@ -4633,7 +4633,7 @@
       "label": "UsersListResponseDto",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
-      "source_location": "L68",
+      "source_location": "L67",
       "id": "user_dto_userslistresponsedto",
       "community": 29,
       "norm_label": "userslistresponsedto"
@@ -4887,7 +4887,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\billing\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_billing_page_tsx",
-      "community": 17,
+      "community": 5,
       "norm_label": "page.tsx"
     },
     {
@@ -4896,7 +4896,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L22",
       "id": "page_printinvoiceonly",
-      "community": 17,
+      "community": 5,
       "norm_label": "printinvoiceonly()"
     },
     {
@@ -4905,7 +4905,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L43",
       "id": "page_downloadinvoicesnapshot",
-      "community": 17,
+      "community": 5,
       "norm_label": "downloadinvoicesnapshot()"
     },
     {
@@ -4959,7 +4959,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\customers\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_customers_page_tsx",
-      "community": 5,
+      "community": 17,
       "norm_label": "page.tsx"
     },
     {
@@ -4968,16 +4968,16 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\customers\\page.tsx",
       "source_location": "L282",
       "id": "page_resetcreateform",
-      "community": 5,
+      "community": 17,
       "norm_label": "resetcreateform()"
     },
     {
       "label": "onCreateSubmit()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L185",
+      "source_location": "L202",
       "id": "page_oncreatesubmit",
-      "community": 5,
+      "community": 17,
       "norm_label": "oncreatesubmit()"
     },
     {
@@ -5382,16 +5382,16 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\rooms\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_rooms_page_tsx",
-      "community": 5,
+      "community": 17,
       "norm_label": "page.tsx"
     },
     {
       "label": "onUpdateSubmit()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L191",
+      "source_location": "L208",
       "id": "page_onupdatesubmit",
-      "community": 5,
+      "community": 17,
       "norm_label": "onupdatesubmit()"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\rooms\\page.tsx",
       "source_location": "L239",
       "id": "page_startedit",
-      "community": 5,
+      "community": 17,
       "norm_label": "startedit()"
     },
     {
@@ -5409,7 +5409,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_sessions_page_tsx",
-      "community": 17,
+      "community": 5,
       "norm_label": "page.tsx"
     },
     {
@@ -5418,7 +5418,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L55",
       "id": "page_usesessiontimer",
-      "community": 17,
+      "community": 5,
       "norm_label": "usesessiontimer()"
     },
     {
@@ -5427,7 +5427,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L76",
       "id": "page_activesessioncard",
-      "community": 17,
+      "community": 5,
       "norm_label": "activesessioncard()"
     },
     {
@@ -5436,7 +5436,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L587",
       "id": "page_datetime",
-      "community": 17,
+      "community": 5,
       "norm_label": "datetime()"
     },
     {
@@ -5535,7 +5535,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
-      "community": 5,
+      "community": 17,
       "norm_label": "page.tsx"
     },
     {
@@ -5544,26 +5544,35 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
       "source_location": "L31",
       "id": "page_rolelabel",
-      "community": 5,
+      "community": 17,
       "norm_label": "rolelabel()"
     },
     {
       "label": "selectUser()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L176",
+      "source_location": "L192",
       "id": "page_selectuser",
-      "community": 5,
+      "community": 17,
       "norm_label": "selectuser()"
     },
     {
       "label": "onChangePasswordSubmit()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L197",
+      "source_location": "L214",
       "id": "page_onchangepasswordsubmit",
-      "community": 5,
+      "community": 17,
       "norm_label": "onchangepasswordsubmit()"
+    },
+    {
+      "label": "onChangeUserPasswordSubmit()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
+      "source_location": "L220",
+      "id": "page_onchangeuserpasswordsubmit",
+      "community": 17,
+      "norm_label": "onchangeuserpasswordsubmit()"
     },
     {
       "label": "page.tsx",
@@ -5895,7 +5904,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_format_ts",
-      "community": 17,
+      "community": 5,
       "norm_label": "format.ts"
     },
     {
@@ -5904,7 +5913,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L1",
       "id": "format_money",
-      "community": 17,
+      "community": 5,
       "norm_label": "money()"
     },
     {
@@ -5913,7 +5922,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L12",
       "id": "format_datetime",
-      "community": 17,
+      "community": 5,
       "norm_label": "datetime()"
     },
     {
@@ -13044,7 +13053,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L158",
+      "source_location": "L161",
       "weight": 1.0,
       "_src": "users_controller_userscontroller",
       "_tgt": "users_controller_userscontroller_deactivateuser",
@@ -13056,7 +13065,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L177",
+      "source_location": "L180",
       "weight": 1.0,
       "_src": "users_controller_userscontroller",
       "_tgt": "users_controller_userscontroller_deleteuser",
@@ -13068,7 +13077,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
-      "source_location": "L195",
+      "source_location": "L198",
       "weight": 1.0,
       "_src": "users_controller_userscontroller",
       "_tgt": "users_controller_userscontroller_reactivateuser",
@@ -13188,7 +13197,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L186",
+      "source_location": "L193",
       "weight": 1.0,
       "_src": "users_service_usersservice",
       "_tgt": "users_service_usersservice_deactivateuser",
@@ -13200,7 +13209,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L208",
+      "source_location": "L215",
       "weight": 1.0,
       "_src": "users_service_usersservice",
       "_tgt": "users_service_usersservice_deleteuser",
@@ -13212,7 +13221,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L233",
+      "source_location": "L240",
       "weight": 1.0,
       "_src": "users_service_usersservice",
       "_tgt": "users_service_usersservice_reactivateuser",
@@ -13224,7 +13233,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L255",
+      "source_location": "L262",
       "weight": 1.0,
       "_src": "users_service_usersservice",
       "_tgt": "users_service_usersservice_listroles",
@@ -13236,7 +13245,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L262",
+      "source_location": "L269",
       "weight": 1.0,
       "_src": "users_service_usersservice",
       "_tgt": "users_service_usersservice_formatuserresponse",
@@ -13308,7 +13317,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L205",
+      "source_location": "L212",
       "weight": 1.0,
       "_src": "users_service_usersservice_deactivateuser",
       "_tgt": "users_service_usersservice_formatuserresponse",
@@ -13332,7 +13341,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
-      "source_location": "L252",
+      "source_location": "L259",
       "weight": 1.0,
       "_src": "users_service_usersservice_reactivateuser",
       "_tgt": "users_service_usersservice_formatuserresponse",
@@ -13392,7 +13401,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
-      "source_location": "L54",
+      "source_location": "L53",
       "weight": 1.0,
       "_src": "d_coders_eduvers_backend_src_users_dto_user_dto_ts",
       "_tgt": "user_dto_userresponsedto",
@@ -13404,7 +13413,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
-      "source_location": "L68",
+      "source_location": "L67",
       "weight": 1.0,
       "_src": "d_coders_eduvers_backend_src_users_dto_user_dto_ts",
       "_tgt": "user_dto_userslistresponsedto",
@@ -13860,7 +13869,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L185",
+      "source_location": "L202",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
       "_tgt": "page_oncreatesubmit",
@@ -14436,7 +14445,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L191",
+      "source_location": "L208",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
       "_tgt": "page_onupdatesubmit",
@@ -14712,7 +14721,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L176",
+      "source_location": "L192",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
       "_tgt": "page_selectuser",
@@ -14724,12 +14733,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
-      "source_location": "L197",
+      "source_location": "L214",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
       "_tgt": "page_onchangepasswordsubmit",
       "source": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
       "target": "page_onchangepasswordsubmit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\users\\page.tsx",
+      "source_location": "L220",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
+      "_tgt": "page_onchangeuserpasswordsubmit",
+      "source": "d_coders_eduvers_frontend_app_protected_users_page_tsx",
+      "target": "page_onchangeuserpasswordsubmit",
       "confidence_score": 1.0
     },
     {

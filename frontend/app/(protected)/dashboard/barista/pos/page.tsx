@@ -29,6 +29,7 @@ import {
   LayoutGrid,
   Sparkles,
   Trash2,
+  QrCode,
 } from "lucide-react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -208,6 +209,7 @@ export default function BaristaPOSPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
   const [customerTab, setCustomerTab] = useState<"active" | "search" | "staff">("active");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [isSelectingCustomer, setIsSelectingCustomer] = useState(false);
@@ -630,6 +632,14 @@ export default function BaristaPOSPage() {
               <span>كلاسيكي (Vintage)</span>
             </button>
           </div>
+
+          <button
+            onClick={() => setShowQRCode(true)}
+            className="h-10 px-3 lg:px-4 flex items-center gap-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50 transition-colors"
+          >
+            <QrCode size={14} />
+            <span className="hidden sm:inline text-[10px] font-black">كود الطلب</span>
+          </button>
 
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["products", "pos"] })}
@@ -1241,6 +1251,57 @@ export default function BaristaPOSPage() {
                     ? <RefreshCw className="animate-spin" size={18} />
                     : <><CheckCircle2 size={18} /> تأكيد وإرسال</>
                   }
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Modal */}
+      {showQRCode && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" dir="rtl">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-center border border-slate-100">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+              <h3 className="text-base font-black text-slate-900">كود طلب العميل</h3>
+              <button
+                onClick={() => setShowQRCode(false)}
+                className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-6 flex flex-col items-center">
+              <p className="text-xs font-bold text-slate-500 mb-6">
+                اجعل العميل يمسح الكود لفتح صفحة طلبات المشروبات والدراسة من تليفونه مباشرة.
+              </p>
+              
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 flex items-center justify-center">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/order' : '')}`}
+                  alt="Order Page QR Code"
+                  className="w-48 h-48"
+                />
+              </div>
+
+              <div className="w-full flex gap-3">
+                <button
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      navigator.clipboard.writeText(window.location.origin + '/order');
+                      alert("تم نسخ رابط الطلب بنجاح!");
+                    }
+                  }}
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all"
+                >
+                  نسخ الرابط
+                </button>
+                <button
+                  onClick={() => setShowQRCode(false)}
+                  className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all"
+                >
+                  إغلاق
                 </button>
               </div>
             </div>

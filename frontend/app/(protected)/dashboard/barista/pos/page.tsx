@@ -1279,7 +1279,7 @@ export default function BaristaPOSPage() {
               
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 flex items-center justify-center">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/order' : '')}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent("https://edu-vers.com/order")}`}
                   alt="Order Page QR Code"
                   className="w-48 h-48"
                 />
@@ -1289,7 +1289,7 @@ export default function BaristaPOSPage() {
                 <button
                   onClick={() => {
                     if (typeof window !== 'undefined') {
-                      navigator.clipboard.writeText(window.location.origin + '/order');
+                      navigator.clipboard.writeText("https://edu-vers.com/order");
                       alert("تم نسخ رابط الطلب بنجاح!");
                     }
                   }}

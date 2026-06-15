@@ -31,7 +31,7 @@ export class GuestOrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Place order using guest code' })
-  async placeOrder(@Body() body: { guestCode: string; items: any[] }) {
+  async placeOrder(@Body() body: { guestCode: string; items: any[]; notes?: string }) {
     try {
       if (!body.guestCode) throw new Error('Guest code is required');
       if (!body.items || body.items.length === 0) throw new Error('No items selected');
@@ -39,6 +39,7 @@ export class GuestOrdersController {
       const order = await this.barOrdersService.createOrderByGuestCode(
         body.guestCode,
         body.items,
+        body.notes,
       );
 
       // Emit real-time event — barista sees it instantly

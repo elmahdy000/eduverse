@@ -320,17 +320,29 @@ export class DashboardsService {
     const [newOrders, inPreparationOrders, readyOrders, deliveredToday] = await Promise.all([
       this.prisma.barOrder.findMany({
         where: { status: 'new' },
-        include: { customer: true, items: { include: { product: true } } },
+        include: {
+          customer: true,
+          session: { include: { room: true } },
+          items: { include: { product: true } },
+        },
         orderBy: { createdAt: 'asc' },
       }),
       this.prisma.barOrder.findMany({
         where: { status: 'in_preparation' },
-        include: { customer: true, items: { include: { product: true } } },
+        include: {
+          customer: true,
+          session: { include: { room: true } },
+          items: { include: { product: true } },
+        },
         orderBy: { createdAt: 'asc' },
       }),
       this.prisma.barOrder.findMany({
         where: { status: 'ready' },
-        include: { customer: true, items: { include: { product: true } } },
+        include: {
+          customer: true,
+          session: { include: { room: true } },
+          items: { include: { product: true } },
+        },
         orderBy: { updatedAt: 'desc' },
       }),
       this.prisma.barOrder.count({

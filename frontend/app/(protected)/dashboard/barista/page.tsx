@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X, Bell } from "lucide-react";
 
 import Link from "next/link";
@@ -23,6 +23,7 @@ interface BarOrder {
   waitMinutes?: number;
   guestCode?: string;
   customer?: { fullName: string };
+  session?: { room?: { name: string } };
   items: BarOrderItem[];
 }
 
@@ -64,9 +65,14 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
     <div className={`rounded-xl border p-4 shadow-sm transition ${urgent ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-white"}`}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 text-right">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-bold text-slate-900">{order.customer?.fullName ?? "بدون عميل"}</p>
             {order.guestCode && <Badge tone="info">كود: {order.guestCode}</Badge>}
+            {order.session?.room?.name && (
+              <span className="inline-flex items-center gap-1 rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-150">
+                {order.session.room.name}
+              </span>
+            )}
           </div>
           <p className="font-mono text-[10px] text-slate-400">#{order.id.slice(0, 8)}</p>
         </div>
@@ -113,6 +119,7 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
 }
 
 export default function BaristaDashboardPage() {
+  const queryClient = useQueryClient();
   const [isSocketLive, setIsSocketLive] = useState(false);
   const [newOrderFlash, setNewOrderFlash] = useState(false);
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unknown">("unknown");
@@ -225,7 +232,7 @@ export default function BaristaDashboardPage() {
   const [chatInput, setChatInput] = useState("");
   const [unreadsByCode, setUnreadsByCode] = useState<Record<string, number>>({});
 
-  // Real-time WebSocket connection — uses refetch() directly for instant update
+  // Real-time WebSocket connection — uses queryClient.invalidateQueries for instant, race-condition-free updates
   const { sendMessage } = useBarOrderSocket({
     onConnect: () => {
       setIsSocketLive(true);
@@ -234,16 +241,16 @@ export default function BaristaDashboardPage() {
       setIsSocketLive(false);
     },
     onNewOrder: () => {
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
       playNotificationSound();
       setIsSocketLive(true);
     },
     onStatusUpdate: () => {
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
       setIsSocketLive(true);
     },
     onDashboardRefresh: () => {
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
       setIsSocketLive(true);
     },
     onChatMessage: (msg) => {
@@ -290,7 +297,7 @@ export default function BaristaDashboardPage() {
   const advance = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       api.put(`/bar-orders/${id}/status`, { status }),
-    onSuccess: () => refetch(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] }),
   });
 
 

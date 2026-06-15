@@ -162,7 +162,7 @@ export class BarOrdersService {
     return !!session;
   }
 
-  async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[]) {
+  async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[], notes?: string) {
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },
     });
@@ -176,7 +176,7 @@ export class BarOrdersService {
       customerId: session.customerId,
       items,
       guestCode,
-      notes: `طلب عبر الجوال (Guest Code: ${guestCode})`,
+      notes: notes ? `${notes} (Guest Code: ${guestCode})` : `طلب عبر الجوال (Guest Code: ${guestCode})`,
     });
   }
 

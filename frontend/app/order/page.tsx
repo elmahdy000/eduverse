@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Coffee, ShoppingCart, CheckCircle2, 
+import {
+  Coffee, ShoppingCart, CheckCircle2,
   Search, Plus, Minus, Send, History,
   LogOut, MessageCircle, X, Info, Utensils,
   GlassWater, IceCream, Soup, Pizza, Sandwich, Bell,
@@ -80,7 +80,7 @@ const getProductImage = (product: Product) => {
   if (product.imageUrl && product.imageUrl.trim() !== "" && product.imageUrl !== "null") {
     return product.imageUrl;
   }
-  return ""; 
+  return "";
 };
 
 const money = (v: number) => new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(v);
@@ -101,11 +101,11 @@ const ProductImage = ({ product, className }: { product: Product, className?: st
   }
 
   return (
-    <img 
-      src={src} 
-      alt={product.name} 
-      className={cn("object-cover border border-slate-100", className)} 
-      onError={() => setError(true)} 
+    <img
+      src={src}
+      alt={product.name}
+      className={cn("object-cover border border-slate-100", className)}
+      onError={() => setError(true)}
     />
   );
 };
@@ -117,7 +117,7 @@ const CompactProgress = ({ status }: { status: string }) => {
     { id: "ready", label: "جاهز" },
     { id: "delivered", label: "مكتمل" },
   ];
-  
+
   const normalizedStatus = status === "completed" ? "delivered" : status;
   const currentIndex = steps.findIndex(s => s.id === normalizedStatus);
   const isCancelled = status === "cancelled";
@@ -135,27 +135,27 @@ const CompactProgress = ({ status }: { status: string }) => {
       <div className="relative">
         {/* Background Track */}
         <div className="absolute top-[6px] left-0 right-0 h-1 bg-slate-100 rounded-full" />
-        
+
         {/* Active Fill Track */}
-        <div 
+        <div
           className="absolute top-[6px] right-0 h-1 bg-amber-500 rounded-full transition-all duration-700 ease-out"
           style={{ width: currentIndex >= 0 ? `${(currentIndex / (steps.length - 1)) * 100}%` : '0%' }}
         />
-        
+
         {/* Step Indicators */}
         <div className="relative z-10 flex justify-between">
           {steps.map((step, i) => {
             const isActive = currentIndex >= i;
             const isCurrent = currentIndex === i;
-            
+
             return (
               <div key={step.id} className="flex flex-col items-center gap-2">
-                <div 
+                <div
                   className={cn(
                     "h-4 w-4 rounded-full border-[3px] transition-all duration-500 flex items-center justify-center bg-white",
                     isActive ? "border-amber-500" : "border-slate-200",
                     isCurrent ? "scale-125 shadow-sm" : "scale-100"
-                  )} 
+                  )}
                 >
                   {isActive && <div className={cn("rounded-full bg-amber-500 transition-all", isCurrent ? "h-1.5 w-1.5" : "h-0 w-0")} />}
                 </div>
@@ -176,7 +176,7 @@ const CompactProgress = ({ status }: { status: string }) => {
 
 const CancellationTimer = ({ orderId, createdAt, onCancel }: { orderId: string, createdAt: string, onCancel: (id: string) => void }) => {
   const [timeLeft, setTimeLeft] = useState(10);
-  
+
   useEffect(() => {
     const start = new Date(createdAt).getTime();
     const tick = () => {
@@ -184,7 +184,7 @@ const CancellationTimer = ({ orderId, createdAt, onCancel }: { orderId: string, 
       const diff = Math.max(0, 10 - Math.floor((now - start) / 1000));
       setTimeLeft(diff);
     };
-    
+
     tick();
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
@@ -193,7 +193,7 @@ const CancellationTimer = ({ orderId, createdAt, onCancel }: { orderId: string, 
   if (timeLeft <= 0) return null;
 
   return (
-    <button 
+    <button
       onClick={() => onCancel(orderId)}
       className="mt-2 text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors flex items-center justify-center gap-1.5 w-full"
     >
@@ -234,7 +234,7 @@ export default function GuestOrderPage() {
           }
         }
         if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-          audioCtxRef.current.resume().catch(() => {});
+          audioCtxRef.current.resume().catch(() => { });
         }
       }
     };
@@ -257,7 +257,7 @@ export default function GuestOrderPage() {
       const ctx = audioCtxRef.current;
       if (ctx) {
         if (ctx.state === "suspended") {
-          ctx.resume().catch(() => {});
+          ctx.resume().catch(() => { });
         }
         const playTone = (freq: number, start: number, duration: number) => {
           const osc = ctx.createOscillator();
@@ -455,7 +455,7 @@ export default function GuestOrderPage() {
     e?.stopPropagation();
     setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   };
-  
+
   const removeFromCart = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setCart(prev => {
@@ -480,9 +480,9 @@ export default function GuestOrderPage() {
   if (!isAuthorized) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 overflow-x-hidden" dir="rtl">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-sm bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 text-center"
         >
           <div className="h-16 w-16 bg-amber-500 text-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/20">
@@ -490,20 +490,20 @@ export default function GuestOrderPage() {
           </div>
           <h1 className="text-2xl font-black text-slate-900 mb-2">إديوفيرس كافيه ☕</h1>
           <p className="text-xs font-bold text-slate-400 mb-8">أدخل الكود لتصفح القائمة والطلب مباشرة</p>
-          
+
           <div className="space-y-5 text-right">
             <div className="space-y-2">
               <label className="block text-xs font-black text-slate-500 pr-1">كود الطاولة</label>
-              <Input 
-                value={guestCode} 
-                onChange={(e: any) => setGuestCode(e.target.value)} 
-                placeholder="مثال: T3" 
+              <Input
+                value={guestCode}
+                onChange={(e: any) => setGuestCode(e.target.value)}
+                placeholder="مثال: T3"
                 className="h-12 text-center font-black text-lg rounded-2xl bg-slate-50 border-slate-200 focus:border-amber-500 focus:ring-amber-500/15"
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
-            <Btn 
-              onClick={handleLogin} 
+            <Btn
+              onClick={handleLogin}
               variant="primary"
               loading={validateCodeMutation.isPending}
               className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm shadow-md shadow-amber-500/10"
@@ -534,17 +534,17 @@ export default function GuestOrderPage() {
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => queryClient.invalidateQueries({ queryKey: ["public-products"] })}
               className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-colors shrink-0"
               title="تحديث القائمة"
             >
               <RefreshCw size={16} className={productsQuery.isFetching ? "animate-spin text-amber-500" : ""} />
             </button>
-            <button 
-              onClick={handleLogout} 
+            <button
+              onClick={handleLogout}
               className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors shrink-0"
               title="تسجيل الخروج"
             >
@@ -557,19 +557,19 @@ export default function GuestOrderPage() {
       <main className="max-w-[1400px] mx-auto px-4 lg:px-6 py-6">
         {/* POS 3-Column Layout: categories, products grid, cart summary */}
         <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[190px_1fr_360px] xl:grid-cols-[210px_1fr_400px]">
-          
+
           {/* Column 1: Category Sidebar (Desktop Only) */}
           <aside className="hidden lg:flex flex-col gap-1.5 shrink-0 select-none">
             <div className="text-right px-2 mb-2">
               <p className="text-[10px] font-black tracking-widest uppercase text-slate-400">تصنيفات المنيو</p>
             </div>
-            
-            <button 
-              onClick={() => setSelectedCategory("all")} 
+
+            <button
+              onClick={() => setSelectedCategory("all")}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-right font-bold text-xs border border-transparent",
-                selectedCategory === "all" 
-                  ? "bg-slate-900 text-white shadow-md" 
+                selectedCategory === "all"
+                  ? "bg-slate-900 text-white shadow-md"
                   : "bg-white text-slate-600 border-slate-200/50 hover:bg-slate-50"
               )}
             >
@@ -583,15 +583,15 @@ export default function GuestOrderPage() {
               const meta = getCategoryMeta(cat);
               const IconComp = meta.icon;
               const isActive = selectedCategory === cat;
-              
+
               return (
-                <button 
-                  key={cat} 
-                  onClick={() => setSelectedCategory(cat)} 
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-right font-bold text-xs border border-transparent",
-                    isActive 
-                      ? "bg-slate-900 text-white shadow-md" 
+                    isActive
+                      ? "bg-slate-900 text-white shadow-md"
                       : "bg-white text-slate-600 border-slate-200/50 hover:bg-slate-50"
                   )}
                 >
@@ -606,7 +606,7 @@ export default function GuestOrderPage() {
 
           {/* Column 2: Products Grid & Search */}
           <section className="min-w-0 space-y-6">
-            
+
             {/* Active Orders Tracker */}
             {activeOrders.length > 0 && (
               <div className="space-y-3">
@@ -624,10 +624,10 @@ export default function GuestOrderPage() {
                       </div>
                       <CompactProgress status={order.status} />
                       {order.status === "new" && (
-                        <CancellationTimer 
-                          orderId={order.id} 
-                          createdAt={order.createdAt} 
-                          onCancel={(id) => cancelOrderMutation.mutate(id)} 
+                        <CancellationTimer
+                          orderId={order.id}
+                          createdAt={order.createdAt}
+                          onCancel={(id) => cancelOrderMutation.mutate(id)}
                         />
                       )}
                     </div>
@@ -640,23 +640,23 @@ export default function GuestOrderPage() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3 min-w-0">
                 <div className="flex bg-slate-200/50 p-1 rounded-xl shrink-0">
-                  <button 
-                    onClick={() => setActiveTab("menu")} 
+                  <button
+                    onClick={() => setActiveTab("menu")}
                     className={cn("px-5 py-2 text-xs font-black rounded-lg transition-all", activeTab === "menu" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
                   >
                     منيو البار ☕
                   </button>
-                  <button 
-                    onClick={() => setActiveTab("history")} 
+                  <button
+                    onClick={() => setActiveTab("history")}
                     className={cn("px-5 py-2 text-xs font-black rounded-lg transition-all", activeTab === "history" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
                   >
                     سجل طلباتك 📜
                   </button>
                 </div>
-                
+
                 <div className="relative flex-1 min-w-0">
                   <Search size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input 
+                  <input
                     type="text"
                     placeholder="ابحث عن مشروب أو حلوى..."
                     value={searchTerm}
@@ -668,12 +668,12 @@ export default function GuestOrderPage() {
 
               {/* Mobile Category Horizontal Scroll (Shown only on mobile) */}
               <div className="lg:hidden flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 pt-1 shrink-0">
-                <button 
-                  onClick={() => setSelectedCategory("all")} 
+                <button
+                  onClick={() => setSelectedCategory("all")}
                   className={cn(
-                    "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black transition-all border", 
-                    selectedCategory === "all" 
-                      ? "bg-slate-900 border-slate-900 text-white shadow-sm" 
+                    "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black transition-all border",
+                    selectedCategory === "all"
+                      ? "bg-slate-900 border-slate-900 text-white shadow-sm"
                       : "bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50"
                   )}
                 >
@@ -685,13 +685,13 @@ export default function GuestOrderPage() {
                   const isActive = selectedCategory === cat;
 
                   return (
-                    <button 
-                      key={cat} 
-                      onClick={() => setSelectedCategory(cat)} 
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
                       className={cn(
-                        "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-1.5", 
-                        isActive 
-                          ? "bg-slate-900 border-slate-900 text-white shadow-sm" 
+                        "whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-1.5",
+                        isActive
+                          ? "bg-slate-900 border-slate-900 text-white shadow-sm"
                           : "bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50"
                       )}
                     >
@@ -715,11 +715,11 @@ export default function GuestOrderPage() {
                     {Array.from(new Set(productsQuery.data?.map(p => p.category) || []))
                       .filter(cat => selectedCategory === "all" || selectedCategory === cat)
                       .map(category => {
-                        const prods = productsQuery.data?.filter(p => 
+                        const prods = productsQuery.data?.filter(p =>
                           p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase())
                         );
                         if (!prods?.length) return null;
-                        
+
                         const catMeta = getCategoryMeta(category);
                         const CatIcon = catMeta.icon;
 
@@ -733,18 +733,18 @@ export default function GuestOrderPage() {
                               <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{prods.length}</span>
                               <div className="flex-grow h-px bg-slate-100 mr-2" />
                             </div>
-                            
+
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                               {prods.map(product => {
                                 const qty = cart[product.id] || 0;
                                 return (
-                                  <div 
-                                    key={product.id} 
+                                  <div
+                                    key={product.id}
                                     onClick={() => addToCart(product.id)}
                                     className={cn(
                                       "relative flex flex-col p-3 bg-white rounded-2xl border transition-all cursor-pointer select-none active:scale-95 text-right",
-                                      qty > 0 
-                                        ? "border-amber-500 bg-white shadow-md ring-1 ring-amber-500/20" 
+                                      qty > 0
+                                        ? "border-amber-500 bg-white shadow-md ring-1 ring-amber-500/20"
                                         : "border-slate-100 hover:border-slate-300 hover:shadow-md"
                                     )}
                                   >
@@ -755,16 +755,16 @@ export default function GuestOrderPage() {
                                     )}
 
                                     <ProductImage product={product} className="h-24 w-full rounded-xl shrink-0 object-cover mb-3" />
-                                    
+
                                     <div className="flex-1 flex flex-col justify-between">
                                       <div>
                                         <h4 className="text-xs font-black text-slate-950 truncate leading-snug">{translateProductName(product.name)}</h4>
                                         <p className="text-[10px] text-slate-400 font-bold line-clamp-1 mt-0.5">{product.description || translateProductCategory(product.category)}</p>
                                       </div>
-                                      
+
                                       <div className="flex items-center justify-between mt-3 gap-1.5">
                                         <span className="text-xs font-black text-slate-900">{money(product.price)}</span>
-                                        
+
                                         {qty > 0 ? (
                                           <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200/60 p-0.5 shrink-0" onClick={e => e.stopPropagation()}>
                                             <button onClick={(e) => removeFromCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-1 rounded transition-colors"><Minus size={10} /></button>
@@ -801,7 +801,7 @@ export default function GuestOrderPage() {
                 ) : (
                   ordersQuery.data?.slice().reverse().map(order => (
                     <div key={order.id} className="bg-white rounded-2xl p-0 border border-slate-200/60 shadow-sm min-w-0 overflow-hidden">
-                      <button 
+                      <button
                         onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
                         className="w-full flex justify-between items-center p-4 text-right transition-colors hover:bg-slate-50 focus:outline-none"
                       >
@@ -814,11 +814,11 @@ export default function GuestOrderPage() {
                             <p className="text-sm font-black text-slate-900">{money(order.totalAmount)}</p>
                             <span className={cn(
                               "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-black mt-1",
-                              order.status === "completed" || order.status === "delivered" 
-                                ? "bg-emerald-50 text-emerald-700" 
-                                : order.status === "cancelled" 
-                                ? "bg-rose-50 text-rose-700" 
-                                : "bg-blue-50 text-blue-700"
+                              order.status === "completed" || order.status === "delivered"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : order.status === "cancelled"
+                                  ? "bg-rose-50 text-rose-700"
+                                  : "bg-blue-50 text-blue-700"
                             )}>
                               {order.status === "completed" || order.status === "delivered" ? "مكتمل ✓" : order.status === "cancelled" ? "ملغي" : "جاري التحضير..."}
                             </span>
@@ -859,7 +859,7 @@ export default function GuestOrderPage() {
               <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
                 <ShoppingCart size={18} className="text-amber-500" /> سلة الطلبات ({cartItems.length})
               </h3>
-              
+
               {cartItems.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-300 py-16 text-center">
                   <ShoppingCart size={44} strokeWidth={1.5} className="mb-3 text-slate-200" />
@@ -888,14 +888,14 @@ export default function GuestOrderPage() {
                       ))}
                     </div>
                   </ScrollArea>
-                  
+
                   <div className="pt-4 border-t border-slate-100 mt-4 shrink-0 bg-white">
                     <div className="flex justify-between items-end mb-4">
                       <span className="text-xs font-black text-slate-400">الإجمالي النهائي</span>
                       <span className="text-xl font-black text-slate-950">{money(grandTotal)}</span>
                     </div>
-                    <Btn 
-                      onClick={() => setIsReviewOpen(true)} 
+                    <Btn
+                      onClick={() => setIsReviewOpen(true)}
                       variant="primary"
                       className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-11 text-xs font-black border-none shadow-md shadow-amber-500/10"
                     >
@@ -913,8 +913,8 @@ export default function GuestOrderPage() {
       {/* Floating Bottom Cart Bar for Mobile Viewports */}
       <AnimatePresence>
         {cartItems.length > 0 && (
-          <motion.div 
-            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} 
+          <motion.div
+            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
             className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-white border-t border-slate-200/60 shadow-xl overflow-x-hidden"
           >
             <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 min-w-0">
@@ -932,8 +932,8 @@ export default function GuestOrderPage() {
                   <p className="text-base font-black text-slate-900 mt-0.5 leading-none">{money(grandTotal)}</p>
                 </div>
               </div>
-              <Btn 
-                onClick={() => setIsCartOpen(true)} 
+              <Btn
+                onClick={() => setIsCartOpen(true)}
                 variant="primary"
                 className="bg-amber-500 hover:bg-amber-600 text-white px-5 h-11 rounded-xl font-black border-none text-xs shrink-0 shadow-md shadow-amber-500/10"
               >
@@ -948,12 +948,12 @@ export default function GuestOrderPage() {
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
         <div className="flex flex-col h-[75vh] bg-white overflow-x-hidden text-right">
           <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto my-3 shrink-0" />
-          
+
           <div className="px-5 pb-3 border-b border-slate-100 flex justify-between items-center shrink-0">
             <h2 className="text-base font-black text-slate-900">سلة الطلبات ({cartItems.length})</h2>
             <button onClick={() => setIsCartOpen(false)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-xl"><X size={18} /></button>
           </div>
-          
+
           <ScrollArea className="flex-1 p-5">
             <div className="space-y-4">
               {cartItems.map(item => (
@@ -965,7 +965,7 @@ export default function GuestOrderPage() {
                       <p className="text-[10px] text-slate-400 font-bold mt-0.5">{money(item.product.price)} للقطعة</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3 shrink-0 ml-2">
                     <span className="text-xs font-black text-slate-900">{money(item.product.price * item.qty)}</span>
                     <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-200/60">
@@ -978,14 +978,14 @@ export default function GuestOrderPage() {
               ))}
             </div>
           </ScrollArea>
-          
+
           <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
             <div className="flex justify-between items-end mb-4">
               <span className="text-xs font-black text-slate-500">الإجمالي النهائي</span>
               <span className="text-xl font-black text-slate-950">{money(grandTotal)}</span>
             </div>
-            <Btn 
-              onClick={() => { setIsCartOpen(false); setIsReviewOpen(true); }} 
+            <Btn
+              onClick={() => { setIsCartOpen(false); setIsReviewOpen(true); }}
               variant="primary"
               className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black border-none text-sm shadow-md shadow-amber-500/10"
             >
@@ -1015,10 +1015,10 @@ export default function GuestOrderPage() {
               <span className="text-base font-black text-amber-600">{money(grandTotal)}</span>
             </div>
           </div>
-          
+
           <div className="mb-5 min-w-0">
             <label className="block text-[11px] font-black text-slate-500 mb-1.5">ملاحظات التحضير للباريستا (اختياري)</label>
-            <textarea 
+            <textarea
               value={orderNotes}
               onChange={e => setOrderNotes(e.target.value)}
               placeholder="مثال: بدون سكر، حليب خالي الدسم، ثلج إضافي..."
@@ -1027,15 +1027,15 @@ export default function GuestOrderPage() {
           </div>
 
           <div className="flex gap-3 min-w-0">
-            <Btn 
-              onClick={() => setIsReviewOpen(false)} 
+            <Btn
+              onClick={() => setIsReviewOpen(false)}
               variant="secondary"
               className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border-none rounded-2xl h-12 text-xs font-black"
             >
               تعديل السلة
             </Btn>
-            <Btn 
-              onClick={() => createOrderMutation.mutate(cartItems.map(i => ({ productId: i.id, quantity: i.qty })))} 
+            <Btn
+              onClick={() => createOrderMutation.mutate(cartItems.map(i => ({ productId: i.id, quantity: i.qty })))}
               variant="primary"
               loading={createOrderMutation.isPending}
               disabled={cartItems.length === 0}
@@ -1048,8 +1048,8 @@ export default function GuestOrderPage() {
       </Modal>
 
       {/* Floating Chat Button */}
-      <button 
-        onClick={() => setIsChatOpen(!isChatOpen)} 
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
         className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-30 h-11 w-11 bg-slate-950 shadow-lg shadow-slate-955/20 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform"
         title="تواصل مع الكافيه"
       >
@@ -1059,10 +1059,10 @@ export default function GuestOrderPage() {
       {/* Real-time Chat Box */}
       <AnimatePresence>
         {isChatOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20, scale: 0.95 }} 
-            animate={{ opacity: 1, y: 0, scale: 1 }} 
-            exit={{ opacity: 0, y: 20, scale: 0.95 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="fixed bottom-32 lg:bottom-20 right-4 lg:right-6 z-50 w-80 bg-white rounded-2xl shadow-[0_12px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-200/80 overflow-hidden text-right"
           >
             <div className="bg-slate-900 p-4 text-white flex justify-between items-center shrink-0">
@@ -1074,14 +1074,14 @@ export default function GuestOrderPage() {
                 <X size={16} />
               </button>
             </div>
-            
+
             <ScrollArea className="h-60 p-4 bg-slate-50/50 space-y-3">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={cn("flex", msg.sender === "GUEST" ? "justify-end" : "justify-start")}>
                   <div className={cn(
-                    "max-w-[85%] px-3 py-2 rounded-2xl text-[11px] font-bold shadow-sm leading-relaxed", 
-                    msg.sender === "GUEST" 
-                      ? "bg-amber-500 text-white rounded-tl-none" 
+                    "max-w-[85%] px-3 py-2 rounded-2xl text-[11px] font-bold shadow-sm leading-relaxed",
+                    msg.sender === "GUEST"
+                      ? "bg-amber-500 text-white rounded-tl-none"
                       : "bg-white border border-slate-200/60 text-slate-800 rounded-tr-none"
                   )}>
                     {msg.text}
@@ -1090,17 +1090,17 @@ export default function GuestOrderPage() {
               ))}
               {chatMessages.length === 0 && <p className="text-center text-[10px] text-slate-400 py-12 font-bold">اكتب استفسارك هنا وسيجيبك الباريستا فوراً!</p>}
             </ScrollArea>
-            
+
             <div className="p-3 bg-white border-t border-slate-100 flex gap-2 shrink-0">
-              <input 
-                value={chatInput} 
-                onChange={(e: any) => setChatInput(e.target.value)} 
-                placeholder="اكتب رسالتك..." 
-                className="h-9 text-[11px] rounded-xl border border-slate-200 px-3 flex-1 bg-slate-50 focus:bg-white focus:outline-none focus:border-amber-500 transition-all font-bold" 
+              <input
+                value={chatInput}
+                onChange={(e: any) => setChatInput(e.target.value)}
+                placeholder="اكتب رسالتك..."
+                className="h-9 text-[11px] rounded-xl border border-slate-200 px-3 flex-1 bg-slate-50 focus:bg-white focus:outline-none focus:border-amber-500 transition-all font-bold"
                 onKeyDown={e => e.key === 'Enter' && chatInput.trim() && socket && (() => { socket.emit("chat:send", { orderId: guestCode, sender: "GUEST", text: chatInput.trim() }); setChatInput(""); })()}
               />
-              <button 
-                onClick={() => { if (chatInput.trim() && socket) { socket.emit("chat:send", { orderId: guestCode, sender: "GUEST", text: chatInput.trim() }); setChatInput(""); } }} 
+              <button
+                onClick={() => { if (chatInput.trim() && socket) { socket.emit("chat:send", { orderId: guestCode, sender: "GUEST", text: chatInput.trim() }); setChatInput(""); } }}
                 className="h-9 w-9 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors shrink-0"
               >
                 <Send size={14} className="rotate-180" />
@@ -1115,7 +1115,7 @@ export default function GuestOrderPage() {
         {message && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="fixed top-20 left-0 right-0 z-[100] flex justify-center pointer-events-none px-4">
             <div className={cn(
-              "px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 border text-xs font-black", 
+              "px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 border text-xs font-black",
               message.ok ? "bg-emerald-50 border-emerald-250 text-emerald-800" : "bg-rose-50 border-rose-250 text-rose-800"
             )}>
               {message.ok ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Info size={16} className="text-rose-500" />}

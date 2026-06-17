@@ -141,6 +141,7 @@ const categoryConfig: Record<string, CategoryMeta> = {
   indomy: { icon: Utensils, iconColor: "text-red-600", bgColor: "bg-red-50" },
   "boba-drinks": { icon: Sparkles, iconColor: "text-purple-600", bgColor: "bg-purple-50" },
   additions: { icon: Plus, iconColor: "text-slate-500", bgColor: "bg-slate-100" },
+  juice: { icon: GlassWater, iconColor: "text-orange-600", bgColor: "bg-orange-50" },
 };
 
 function getCategoryMeta(cat: string): CategoryMeta {
@@ -181,7 +182,7 @@ const vintagePages = [
     image: "/images/vintage_milkshake.png",
     sections: [
       { title: "MILK SHAKE", categories: ["milk-shake"] },
-      { title: "SMOOTHIE", categories: ["smoothies"] }
+      { title: "SMOOTHIE & JUICE", categories: ["smoothies", "juice"] }
     ]
   },
   {

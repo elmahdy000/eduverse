@@ -116,13 +116,13 @@ export function translatePaymentMethod(method?: string | null) {
 export function normalizeCategoryKey(category?: string | null): string {
   if (!category) return "";
   const key = category.toLowerCase().trim().replace(/[\s\-_']+/g, "-");
-  
+
   if (key === "yogurt") return "yougert";
   if (key === "boba-additions") return "boba-drinks";
   if (key === "fresh-juice") return "juice";
   if (key === "indomy-add-ons") return "additions";
   if (key === "extras") return "additions";
-  
+
   return key;
 }
 

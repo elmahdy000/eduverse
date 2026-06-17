@@ -442,7 +442,7 @@ export class BarOrdersService {
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const [newOrders, inPreparationOrders, readyOrders, deliveredToday] = await Promise.all([
+    const [newOrders, inPreparationOrders, readyOrders, deliveredToday, deliveredOrders] = await Promise.all([
       this.prisma.barOrder.findMany({
         where: { status: 'new' },
         include: { customer: true, items: { include: { product: true } } },
@@ -461,6 +461,11 @@ export class BarOrdersService {
       this.prisma.barOrder.count({
         where: { status: 'delivered', updatedAt: { gte: startOfDay } },
       }),
+      this.prisma.barOrder.findMany({
+        where: { status: 'delivered', updatedAt: { gte: startOfDay } },
+        include: { customer: true, items: { include: { product: true } } },
+        orderBy: { updatedAt: 'desc' },
+      }),
     ]);
 
     const nowMs = Date.now();
@@ -475,6 +480,7 @@ export class BarOrdersService {
       inPreparationOrders: addWait(inPreparationOrders),
       readyOrders: addWait(readyOrders),
       deliveredTodayCount: deliveredToday,
+      deliveredTodayOrders: deliveredOrders,
       counts: {
         new: newOrders.length,
         inPreparation: inPreparationOrders.length,

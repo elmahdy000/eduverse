@@ -1,11 +1,11 @@
 # Graph Report - D:\coders\eduvers  (2026-06-17)
 
 ## Corpus Check
-- 140 files · ~322,039 words
+- 139 files · ~322,414 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 678 nodes · 766 edges · 104 communities detected
+- 677 nodes · 766 edges · 104 communities detected
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -130,23 +130,23 @@
 ## Surprising Connections (you probably didn't know these)
 - `getSnapshotLines()` --calls--> `dateTime()`  [INFERRED]
   D:\coders\eduvers\frontend\app\(protected)\system-operations\page.tsx → D:\coders\eduvers\frontend\lib\format.ts
-- `getCategoryMeta()` --calls--> `normalizeCategoryKey()`  [INFERRED]
-  D:\coders\eduvers\frontend\app\order\page.tsx → D:\coders\eduvers\frontend\lib\labels.ts
 - `main()` --calls--> `update()`  [INFERRED]
   D:\coders\eduvers\backend\scratch\update-images.ts → D:\coders\eduvers\frontend\app\(protected)\dashboard\reception\page.tsx
 - `money()` --calls--> `translatePaymentMethod()`  [INFERRED]
   D:\coders\eduvers\frontend\app\order\page.tsx → D:\coders\eduvers\frontend\lib\labels.ts
 - `onSubmit()` --calls--> `roleHomePath()`  [INFERRED]
   D:\coders\eduvers\frontend\app\login\page.tsx → D:\coders\eduvers\frontend\lib\api.ts
+- `onSubmit()` --calls--> `translateApiError()`  [INFERRED]
+  D:\coders\eduvers\frontend\app\login\page.tsx → D:\coders\eduvers\frontend\lib\errors.ts
 
 ## Communities
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (9): AuthService, JwtConfigService, PasswordService, CustomersService, update(), ProductsService, RoomsService, main() (+1 more)
+Cohesion: 0.08
+Nodes (6): BookingsService, CustomersService, update(), ProductsService, RoomsService, main()
 
 ### Community 1 - "Community 1"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (10): AuditLogsService, ExpensesController, ExpensesService, main(), bootstrap(), readAllowedOrigins(), validateEnvironment(), main() (+2 more)
 
 ### Community 2 - "Community 2"
@@ -154,40 +154,40 @@ Cohesion: 0.07
 Nodes (4): BarOrdersController, BarOrdersGateway, BarOrdersService, GuestOrdersController
 
 ### Community 3 - "Community 3"
-Cohesion: 0.07
-Nodes (11): cn(), getCategoryMeta(), getEffectiveUnitPrice(), getProductImage(), handleGesture(), if(), isNonDiscountedProduct(), ProductImage() (+3 more)
+Cohesion: 0.05
+Nodes (15): normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), cn(), getCategoryMeta(), getEffectiveUnitPrice(), getProductImage(), handleGesture() (+7 more)
 
 ### Community 4 - "Community 4"
+Cohesion: 0.11
+Nodes (4): AuthService, JwtConfigService, PasswordService, UsersService
+
+### Community 5 - "Community 5"
 Cohesion: 0.08
 Nodes (3): InvoicesController, InvoicesService, SessionsService
 
-### Community 5 - "Community 5"
-Cohesion: 0.11
-Nodes (14): translateStatus(), actionLabel(), asObject(), entityLabel(), explainAction(), friendlyTopAction(), getNestedObject(), getSnapshotLines() (+6 more)
-
 ### Community 6 - "Community 6"
-Cohesion: 0.1
-Nodes (10): dateTime(), money(), normalizeCategoryKey(), translatePaymentMethod(), translateProductCategory(), ActiveSessionCard(), downloadInvoiceSnapshot(), money() (+2 more)
+Cohesion: 0.11
+Nodes (17): dateTime(), money(), translateStatus(), actionLabel(), ActiveSessionCard(), asObject(), downloadInvoiceSnapshot(), entityLabel() (+9 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.12
-Nodes (2): BookingsController, BookingsService
-
-### Community 8 - "Community 8"
-Cohesion: 0.12
 Nodes (5): BaristaGuard, OpsManagerGuard, OwnerGuard, ReceptionistGuard, RoleGuard
 
-### Community 9 - "Community 9"
+### Community 8 - "Community 8"
 Cohesion: 0.11
 Nodes (5): refreshAccessToken(), roleHomePath(), AuthController, translateApiError(), onSubmit()
 
-### Community 10 - "Community 10"
+### Community 9 - "Community 9"
 Cohesion: 0.15
 Nodes (1): InventoryController
 
-### Community 11 - "Community 11"
-Cohesion: 0.14
+### Community 10 - "Community 10"
+Cohesion: 0.15
 Nodes (2): inferInventoryDefaults(), InventoryService
+
+### Community 11 - "Community 11"
+Cohesion: 0.15
+Nodes (1): BookingsController
 
 ### Community 12 - "Community 12"
 Cohesion: 0.23
@@ -210,136 +210,136 @@ Cohesion: 0.18
 Nodes (1): RoomsController
 
 ### Community 17 - "Community 17"
+Cohesion: 0.22
+Nodes (3): onCreateSubmit(), onUpdateSubmit(), resetCreateForm()
+
+### Community 18 - "Community 18"
 Cohesion: 0.36
 Nodes (1): AuditLogsInterceptor
 
-### Community 18 - "Community 18"
+### Community 19 - "Community 19"
 Cohesion: 0.22
 Nodes (1): ProductsController
 
-### Community 19 - "Community 19"
+### Community 20 - "Community 20"
 Cohesion: 0.22
 Nodes (1): ShiftsController
 
-### Community 20 - "Community 20"
+### Community 21 - "Community 21"
 Cohesion: 0.36
 Nodes (6): fetchInventory(), handleAddStock(), handleCreateItem(), handleRecordWaste(), handleSaveStocktake(), handleSaveWithdraw()
 
-### Community 21 - "Community 21"
+### Community 22 - "Community 22"
 Cohesion: 0.25
 Nodes (1): DashboardsController
 
-### Community 22 - "Community 22"
+### Community 23 - "Community 23"
 Cohesion: 0.25
 Nodes (1): PaymentsService
 
-### Community 23 - "Community 23"
+### Community 24 - "Community 24"
 Cohesion: 0.25
 Nodes (1): SessionsController
 
-### Community 24 - "Community 24"
+### Community 25 - "Community 25"
 Cohesion: 0.29
 Nodes (1): PaymentsController
 
-### Community 25 - "Community 25"
+### Community 26 - "Community 26"
 Cohesion: 0.73
 Nodes (5): apiRequest(), assertSuccess(), firstListItem(), login(), main()
 
-### Community 26 - "Community 26"
+### Community 27 - "Community 27"
 Cohesion: 0.73
 Nodes (5): apiRequest(), isAllowedStatus(), login(), main(), runRoleSimulation()
 
-### Community 27 - "Community 27"
+### Community 28 - "Community 28"
 Cohesion: 0.33
 Nodes (5): CreateCustomerDto, CustomerResponseDto, CustomersListResponseDto, SearchCustomerDto, UpdateCustomerDto
 
-### Community 28 - "Community 28"
+### Community 29 - "Community 29"
 Cohesion: 0.33
 Nodes (5): ChangePasswordDto, CreateUserDto, UpdateUserDto, UserResponseDto, UsersListResponseDto
 
-### Community 29 - "Community 29"
+### Community 30 - "Community 30"
 Cohesion: 0.33
 Nodes (0): 
 
-### Community 30 - "Community 30"
+### Community 31 - "Community 31"
 Cohesion: 0.4
 Nodes (1): AppController
 
-### Community 31 - "Community 31"
+### Community 32 - "Community 32"
 Cohesion: 0.4
 Nodes (1): AuditLogsController
 
-### Community 32 - "Community 32"
+### Community 33 - "Community 33"
 Cohesion: 0.4
 Nodes (4): AuthResponseDto, LoginDto, LoginResponseDto, RegisterDto
 
-### Community 33 - "Community 33"
+### Community 34 - "Community 34"
 Cohesion: 0.4
 Nodes (1): PrismaService
 
-### Community 34 - "Community 34"
+### Community 35 - "Community 35"
 Cohesion: 0.4
 Nodes (4): CreateCategoryDto, CreateExpenseDto, CreateVendorDto, UpdateExpenseDto
 
-### Community 35 - "Community 35"
+### Community 36 - "Community 36"
 Cohesion: 0.4
 Nodes (4): CreateRoomDto, RoomAvailabilityDto, RoomResponseDto, UpdateRoomDto
 
-### Community 36 - "Community 36"
+### Community 37 - "Community 37"
 Cohesion: 0.4
 Nodes (2): loadMenu(), readBarMenuFromExcel()
 
-### Community 37 - "Community 37"
+### Community 38 - "Community 38"
 Cohesion: 0.5
 Nodes (1): AppService
 
-### Community 38 - "Community 38"
+### Community 39 - "Community 39"
 Cohesion: 0.5
 Nodes (1): JwtAuthGuard
 
-### Community 39 - "Community 39"
+### Community 40 - "Community 40"
 Cohesion: 0.5
 Nodes (1): JwtStrategy
 
-### Community 40 - "Community 40"
+### Community 41 - "Community 41"
 Cohesion: 0.5
 Nodes (3): CreateBarOrderDto, CreateBarOrderItemDto, UpdateBarOrderStatusDto
 
-### Community 41 - "Community 41"
+### Community 42 - "Community 42"
 Cohesion: 0.5
 Nodes (3): BookingConflictQueryDto, CreateBookingDto, UpdateBookingDto
 
-### Community 42 - "Community 42"
-Cohesion: 0.5
-Nodes (3): CloseSessionDto, CreateSessionDto, SessionResponseDto
-
 ### Community 43 - "Community 43"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (3): CloseSessionDto, CreateSessionDto, SessionResponseDto
 
 ### Community 44 - "Community 44"
 Cohesion: 0.5
 Nodes (0): 
 
 ### Community 45 - "Community 45"
-Cohesion: 0.67
-Nodes (2): RecordPaymentDto, RefundPaymentDto
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 46 - "Community 46"
 Cohesion: 0.67
-Nodes (2): CreateProductDto, UpdateProductDto
+Nodes (2): RecordPaymentDto, RefundPaymentDto
 
 ### Community 47 - "Community 47"
 Cohesion: 0.67
-Nodes (2): CloseShiftDto, StartShiftDto
+Nodes (2): CreateProductDto, UpdateProductDto
 
 ### Community 48 - "Community 48"
-Cohesion: 1.0
-Nodes (2): handleExport(), toCsv()
+Cohesion: 0.67
+Nodes (2): CloseShiftDto, StartShiftDto
 
 ### Community 49 - "Community 49"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (2): handleExport(), toCsv()
 
 ### Community 50 - "Community 50"
 Cohesion: 1.0
@@ -560,15 +560,13 @@ Nodes (0):
 ## Knowledge Gaps
 - **55 isolated node(s):** `AppModule`, `AuditLogsModule`, `AuthModule`, `LoginDto`, `RegisterDto` (+50 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 49`** (2 nodes): `main()`, `check-guest.ts`
+- **Thin community `Community 50`** (2 nodes): `main()`, `check-guest.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 50`** (2 nodes): `ensure-guest.ts`, `main()`
+- **Thin community `Community 51`** (2 nodes): `ensure-guest.ts`, `main()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 51`** (2 nodes): `main()`, `clear_inventory.ts`
+- **Thin community `Community 52`** (2 nodes): `main()`, `clear_inventory.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 52`** (2 nodes): `main()`, `check-products.ts`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 53`** (2 nodes): `main()`, `check_prices.ts`
+- **Thin community `Community 53`** (2 nodes): `main()`, `check-products.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 54`** (2 nodes): `main()`, `cleanup.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -674,8 +672,8 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `update()` connect `Community 0` to `Community 2`, `Community 12`, `Community 7`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `update()` connect `Community 0` to `Community 1`, `Community 2`, `Community 4`, `Community 12`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Why does `RoomsService` connect `Community 0` to `Community 16`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `update()` (e.g. with `main()` and `.login()`) actually correct?**
@@ -683,8 +681,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `AppModule`, `AuditLogsModule`, `AuthModule` to the rest of the system?**
   _55 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.07 - nodes in this community are weakly interconnected._

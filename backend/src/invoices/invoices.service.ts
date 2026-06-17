@@ -134,11 +134,16 @@ export class InvoicesService {
         continue;
       }
 
+      const itemsDesc = order.items
+        .map((item: any) => `${item.quantity}x ${item.product?.name ?? 'منتج'}`)
+        .join('، ');
+      const description = itemsDesc ? `طلب بار: ${itemsDesc}` : `طلب بار #${order.id.slice(0, 8)}`;
+
       itemsData.push({
         invoiceId: createdInvoice.id,
         itemType: 'bar_order',
         itemId: order.id,
-        description: `Bar order #${order.id.slice(0, 8)}`,
+        description,
         quantity: 1,
         unitPrice: orderTotal,
         total: orderTotal,

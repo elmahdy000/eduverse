@@ -317,7 +317,7 @@ export class DashboardsService {
   async getBaristaDashboard() {
     const now = new Date();
 
-    const [newOrders, inPreparationOrders, readyOrders, deliveredToday] = await Promise.all([
+    const [newOrders, inPreparationOrders, readyOrders, deliveredToday, deliveredOrders] = await Promise.all([
       this.prisma.barOrder.findMany({
         where: { status: 'new' },
         include: {
@@ -353,6 +353,20 @@ export class DashboardsService {
           },
         },
       }),
+      this.prisma.barOrder.findMany({
+        where: {
+          status: 'delivered',
+          updatedAt: {
+            gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+          },
+        },
+        include: {
+          customer: true,
+          session: { include: { room: true } },
+          items: { include: { product: true } },
+        },
+        orderBy: { updatedAt: 'desc' },
+      }),
     ]);
 
     // Add waiting time (minutes) to each order
@@ -367,6 +381,7 @@ export class DashboardsService {
       inPreparationOrders: addWaitTime(inPreparationOrders as any[]),
       readyOrders: readyOrders,
       deliveredTodayCount: deliveredToday,
+      deliveredTodayOrders: deliveredOrders,
       counts: {
         new: newOrders.length,
         inPreparation: inPreparationOrders.length,

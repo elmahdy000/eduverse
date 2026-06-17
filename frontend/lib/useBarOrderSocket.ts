@@ -51,7 +51,8 @@ export function useBarOrderSocket(handlers: {
   onNewOrder?: (order: any) => void;
   onStatusUpdate?: (order: any) => void;
   onDashboardRefresh?: () => void;
-  onChatMessage?: (message: { orderId: string; sender: string; text: string; timestamp: string }) => void;
+  onChatMessage?: (message: { id: string; orderId: string; sender: string; text: string; timestamp: string }) => void;
+  onChatHistory?: (history: any[]) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
 }) {
@@ -79,6 +80,9 @@ export function useBarOrderSocket(handlers: {
     const onChat = (msg: any) => {
       handlersRef.current.onChatMessage?.(msg);
     };
+    const onHistory = (history: any) => {
+      handlersRef.current.onChatHistory?.(history);
+    };
 
     socket.on("connect", onConn);
     socket.on("disconnect", onDisconn);
@@ -86,6 +90,7 @@ export function useBarOrderSocket(handlers: {
     socket.on("order:status-updated", onUpdate);
     socket.on("dashboard:refresh", onRefresh);
     socket.on("chat:message", onChat);
+    socket.on("chat:history", onHistory);
 
     if (socket.connected) onConn();
 
@@ -96,6 +101,7 @@ export function useBarOrderSocket(handlers: {
       socket.off("order:status-updated", onUpdate);
       socket.off("dashboard:refresh", onRefresh);
       socket.off("chat:message", onChat);
+      socket.off("chat:history", onHistory);
     };
   }, []);
 
@@ -103,6 +109,10 @@ export function useBarOrderSocket(handlers: {
     sendMessage: (orderId: string, sender: string, text: string) => {
       const socket = getOrCreateSocket();
       socket.emit("chat:send", { orderId, sender, text });
+    },
+    getChatHistory: (orderId: string) => {
+      const socket = getOrCreateSocket();
+      socket.emit("chat:history", { orderId });
     },
   };
 }

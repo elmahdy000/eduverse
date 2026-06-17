@@ -59,6 +59,8 @@ export class BarOrdersGateway
     this.logger.log('Emitted dashboard:refresh');
   }
 
+  private messages: { id: string; orderId: string; sender: string; text: string; timestamp: string }[] = [];
+
   /**
    * Real-time Chat: Handle incoming messages and broadcast them
    */
@@ -66,6 +68,13 @@ export class BarOrdersGateway
   handlePing(client: Socket) {
     this.logger.log(`Ping from ${client.id}`);
     client.emit('chat:pong', { time: new Date().toISOString() });
+  }
+
+  @SubscribeMessage('chat:history')
+  handleChatHistory(client: Socket, payload: { orderId: string }) {
+    const history = this.messages.filter(m => m.orderId === payload.orderId);
+    client.emit('chat:history', history);
+    return history;
   }
 
   @SubscribeMessage('chat:send')
@@ -77,6 +86,11 @@ export class BarOrdersGateway
       id: Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
     };
+    
+    this.messages.push(message);
+    if (this.messages.length > 2000) {
+      this.messages.shift();
+    }
     
     // In namespaced gateway, this.server is the namespace-specific server.
     // .emit() sends to everyone in this namespace.

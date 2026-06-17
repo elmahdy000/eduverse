@@ -372,6 +372,7 @@ export default function GuestOrderPage() {
       s.on("connect", () => {
         console.log("[Socket.IO] Connected to bar-orders as guest:", guestCode);
         s.emit("chat:ping");
+        s.emit("chat:history", { orderId: guestCode });
       });
 
       s.on("order:status-updated", (order) => {
@@ -390,6 +391,11 @@ export default function GuestOrderPage() {
             return [...prev, msg];
           });
         }
+      });
+
+      s.on("chat:history", (history) => {
+        console.log("[Socket.IO] chat:history received by guest:", history);
+        setChatMessages(history);
       });
 
       return () => {

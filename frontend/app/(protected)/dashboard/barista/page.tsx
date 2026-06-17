@@ -32,6 +32,7 @@ interface BaristaData {
   inPreparationOrders: BarOrder[];
   readyOrders: BarOrder[];
   deliveredTodayCount: number;
+  deliveredTodayOrders?: BarOrder[];
   counts: { new: number; inPreparation: number; ready: number };
 }
 
@@ -233,7 +234,7 @@ export default function BaristaDashboardPage() {
   const [unreadsByCode, setUnreadsByCode] = useState<Record<string, number>>({});
 
   // Real-time WebSocket connection — uses queryClient.invalidateQueries for instant, race-condition-free updates
-  const { sendMessage } = useBarOrderSocket({
+  const { sendMessage, getChatHistory } = useBarOrderSocket({
     onConnect: () => {
       setIsSocketLive(true);
     },
@@ -255,7 +256,10 @@ export default function BaristaDashboardPage() {
     },
     onChatMessage: (msg) => {
       console.log("[Socket.IO] 💬 Barista received chat:", msg);
-      setChatMessages(prev => [...prev, msg]);
+      setChatMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
       
       // Update unreads if chat window is not open for this guest
       if (selectedGuestCode !== msg.orderId) {
@@ -267,6 +271,13 @@ export default function BaristaDashboardPage() {
       }
       // Play chat sound
       try { new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3').play().catch(() => {}) } catch {}
+    },
+    onChatHistory: (history) => {
+      console.log("[Socket.IO] 💬 Barista received history:", history);
+      setChatMessages(prev => {
+        const filtered = prev.filter(m => !history.some(h => h.id === m.id));
+        return [...filtered, ...history].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      });
     }
   });
 
@@ -274,6 +285,7 @@ export default function BaristaDashboardPage() {
     console.log("[Chat] Selected guest changed to:", selectedGuestCode);
     if (selectedGuestCode) {
       setUnreadsByCode(prev => ({ ...prev, [selectedGuestCode]: 0 }));
+      getChatHistory(selectedGuestCode);
     }
   }, [selectedGuestCode]);
 
@@ -444,6 +456,24 @@ export default function BaristaDashboardPage() {
               <OrderCard key={order.id} order={order}
                 onAdvance={() => advance.mutate({ id: order.id, status: "delivered" })}
                 advanceLabel="📦 تم التسليم للعميل" advanceTone="blue" 
+                onChat={() => setSelectedGuestCode(order.guestCode || null)}
+                unreadCount={unreadsByCode[order.guestCode || '']}
+              />
+            ))}
+          </div>
+        )}
+      </Panel>
+
+      {/* Delivered Today / Completed */}
+      <Panel title="طلبات تم تسليمها اليوم (منتهية)" icon={<CheckCircle2 size={15} />} action={
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">{data.deliveredTodayCount}</span>
+      }>
+        {(!data.deliveredTodayOrders || data.deliveredTodayOrders.length === 0) ? (
+          <EmptyState icon={<CheckCircle2 size={32} />} title="لا توجد طلبات مسلّمة اليوم" />
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 opacity-80">
+            {data.deliveredTodayOrders.map((order) => (
+              <OrderCard key={order.id} order={order}
                 onChat={() => setSelectedGuestCode(order.guestCode || null)}
                 unreadCount={unreadsByCode[order.guestCode || '']}
               />

@@ -156,6 +156,68 @@ export class BarOrdersService {
   }
 
   async validateGuestCode(guestCode: string) {
+    const OWNER_CODES: Record<string, { name: string; phone: string }> = {
+      '1': { name: 'Mahmoud Elmahdy', phone: '01000000001' },
+      '2': { name: 'Khaled Salah', phone: '01000000002' },
+      '3': { name: 'Mahmoud Ezz', phone: '01000000003' },
+      '4': { name: 'Mahmoud Abd-elrabo', phone: '01000000004' },
+      '5': { name: 'Mohamed Abdelazim', phone: '01000000005' },
+      '6': { name: 'Nada Elbaz', phone: '01000000006' },
+    };
+
+    if (OWNER_CODES[guestCode]) {
+      const ownerInfo = OWNER_CODES[guestCode];
+      // Find or create customer
+      let customer = await this.prisma.customer.findFirst({
+        where: {
+          fullName: { equals: ownerInfo.name, mode: 'insensitive' },
+        },
+      });
+
+      if (!customer) {
+        // Find first active user to be creator
+        const firstUser = await this.prisma.user.findFirst({
+          where: { status: 'active' },
+        });
+        if (!firstUser) throw new Error('No active user found to create customer');
+
+        customer = await this.prisma.customer.create({
+          data: {
+            fullName: ownerInfo.name,
+            phoneNumber: ownerInfo.phone,
+            customerType: 'owner_discount',
+            createdByUserId: firstUser.id,
+            status: 'active',
+          },
+        });
+      }
+
+      // Check if session is already active
+      let session = await this.prisma.session.findFirst({
+        where: { guestCode, status: 'active' },
+      });
+
+      if (!session) {
+        // Create an active session for the owner
+        const creatorUser = await this.prisma.user.findFirst({
+          where: { status: 'active' },
+        });
+        if (!creatorUser) throw new Error('No active user found to open session');
+
+        await this.prisma.session.create({
+          data: {
+            customerId: customer.id,
+            sessionType: 'daily',
+            startTime: new Date(),
+            status: 'active',
+            guestCode,
+            openedByUserId: creatorUser.id,
+          },
+        });
+      }
+      return true;
+    }
+
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },
     });
@@ -163,6 +225,9 @@ export class BarOrdersService {
   }
 
   async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[], notes?: string) {
+    // Initialize session if it is a special owner code
+    await this.validateGuestCode(guestCode);
+
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },
     });

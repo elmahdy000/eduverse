@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>اختبار طباعة الفاتورة الحرارية — Eduverse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== ستايل الشاشة (المعاينة) ===== */
+    body {
+      margin: 0;
+      background: #eef2f6;
+      font-family: 'Cairo', 'Tahoma', sans-serif;
+      direction: rtl;
+      color: #0f172a;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .toolbar h1 { font-size: 15px; margin: 0; font-weight: 800; }
+    .toolbar p { margin: 2px 0 0; font-size: 11px; opacity: .7; }
+    .toolbar button {
+      background: #f59e0b;
+      color: #0f172a;
+      border: 0;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .toolbar button:hover { background: #d97706; color: #fff; }
+    .stage {
+      display: flex;
+      justify-content: center;
+      padding: 30px 16px 60px;
+    }
+    .paper {
+      background: #fff;
+      width: 80mm;
+      box-shadow: 0 20px 50px rgba(0,0,0,.15);
+      border-radius: 4px;
+    }
+    .hint {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+      font-size: 13px;
+      line-height: 1.9;
+      color: #475569;
+    }
+    .hint b { color: #0f172a; }
+
+    /* ===== ستايل الفاتورة (نفس RECEIPT_PRINT_CSS من الكومبوننت) ===== */
+    #printable-invoice {
+      width: 72mm;
+      margin: 0 auto;
+      padding: 3mm 2mm;
+      font-family: 'Cairo', 'Tahoma', sans-serif;
+      color: #000;
+      background: #fff;
+      direction: rtl;
+      text-align: right;
+      line-height: 1.5;
+    }
+    #printable-invoice .rc-center { text-align: center; }
+    #printable-invoice .rc-venue { font-size: 20px; font-weight: 800; letter-spacing: 1px; margin: 0; }
+    #printable-invoice .rc-venue-ar { font-size: 13px; font-weight: 700; margin: 1px 0; }
+    #printable-invoice .rc-muted { font-size: 10px; color: #000; }
+    #printable-invoice .rc-divider { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
+    #printable-invoice .rc-meta { display: flex; justify-content: space-between; font-size: 11px; margin: 2px 0; }
+    #printable-invoice .rc-meta .lbl { font-weight: 400; }
+    #printable-invoice .rc-meta .val { font-weight: 700; }
+    #printable-invoice table.rc-items { width: 100%; border-collapse: collapse; font-size: 12px; margin: 2px 0; }
+    #printable-invoice table.rc-items th { border-bottom: 1px solid #000; padding: 3px 0; font-weight: 800; font-size: 11px; }
+    #printable-invoice table.rc-items th.amt,
+    #printable-invoice table.rc-items td.amt { text-align: left; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #printable-invoice table.rc-items td { padding: 3px 0; vertical-align: top; border-bottom: 1px dotted #999; }
+    #printable-invoice .rc-item-name { font-weight: 700; }
+    #printable-invoice .rc-item-sub { font-size: 9px; }
+    #printable-invoice .rc-line { display: flex; justify-content: space-between; font-size: 11px; margin: 2px 0; }
+    #printable-invoice .rc-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 800; border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 5px 0; margin: 5px 0; }
+    #printable-invoice .rc-total .amt { font-variant-numeric: tabular-nums; }
+    #printable-invoice .rc-status { text-align: center; font-size: 12px; font-weight: 800; border: 1.5px solid #000; border-radius: 4px; padding: 3px 0; margin: 4px 0; }
+    #printable-invoice .rc-foot { text-align: center; font-size: 11px; font-weight: 700; margin-top: 6px; }
+    #printable-invoice .rc-foot-sm { text-align: center; font-size: 9px; margin-top: 2px; }
+
+    /* ===== ستايل الطباعة الحرارية 80mm ===== */
+    @media print {
+      @page { size: 80mm auto; margin: 0; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      /* أخفي كل الصفحة، وبعدين أظهر الفاتورة بس — أضمن طريقة تمنع المعاينة الفاضية */
+      body * { visibility: hidden !important; }
+      #printable-invoice, #printable-invoice * { visibility: visible !important; }
+
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+        font-family: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif !important;
+      }
+
+      /* أثبّت الفاتورة في أول الصفحة وأعرضها بعرض الرول */
+      #printable-invoice {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        width: 76mm !important;
+        margin: 0 auto !important;
+        padding: 2mm !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div>
+      <h1>اختبار طباعة الفاتورة الحرارية — Eduverse</h1>
+      <p>اضغط زر الطباعة واختر البرينتر الحراري بتاعك • مقاس الورق 80mm</p>
+    </div>
+    <button onclick="window.print()">🖨️ طباعة الفاتورة</button>
+  </div>
+
+  <div class="stage">
+    <div class="paper">
+      <!-- نفس محتوى الكومبوننت InvoiceReceipt بالظبط، ببيانات تجريبية -->
+      <div id="printable-invoice">
+        <div class="rc-center" style="margin-bottom:16px;">
+          <h1 class="rc-venue">EDUVERSE</h1>
+          <p class="rc-venue-ar">إديوفيرس</p>
+          <div class="rc-muted">مساحة عمل وتعليم • Workspace &amp; Education Hub</div>
+          <div class="rc-muted" dir="ltr">☎ +20 123 456 7890</div>
+        </div>
+
+        <hr class="rc-divider" />
+
+        <div class="rc-meta"><span class="lbl">التاريخ:</span><span class="val">١١‏/٧‏/٢٠٢٦ ٤:٣٠ م</span></div>
+        <div class="rc-meta"><span class="lbl">العميل:</span><span class="val">أحمد محمد علي</span></div>
+        <div class="rc-meta"><span class="lbl">رقم الفاتورة:</span><span class="val">INV-20260711163000-4821</span></div>
+
+        <hr class="rc-divider" />
+
+        <table class="rc-items">
+          <thead>
+            <tr><th>الصنف</th><th class="amt">المبلغ</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="rc-item-name">جلسة عمل (بالساعة)</div><div class="rc-item-sub">جلسة</div></td>
+              <td class="amt">‏50 ج.م.‏</td>
+            </tr>
+            <tr>
+              <td><div class="rc-item-name">طلب بار: 2x لاتيه، 1x كرواسون</div><div class="rc-item-sub">بار</div></td>
+              <td class="amt">‏135 ج.م.‏</td>
+            </tr>
+            <tr>
+              <td><div class="rc-item-name">آيس أمريكانو</div><div class="rc-item-sub">بار</div></td>
+              <td class="amt">‏45 ج.م.‏</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr class="rc-divider" />
+
+        <div class="rc-line"><span>المجموع الفرعي</span><span class="amt">‏230 ج.م.‏</span></div>
+        <div class="rc-line" style="color:#000;"><span>خصم العميل</span><span class="amt">-‏20 ج.م.‏</span></div>
+
+        <div class="rc-total">
+          <span style="font-size:11px;">الإجمالي</span>
+          <span class="amt" style="font-size:22px;">‏210 ج.م.‏</span>
+        </div>
+
+        <div class="rc-line"><span>المدفوع (كاش)</span><span class="amt">‏210 ج.م.‏</span></div>
+
+        <div class="rc-status">مدفوع بالكامل</div>
+
+        <div style="margin-top:14px; border-top:1px dashed #000; padding-top:10px;">
+          <p class="rc-foot">شكراً لزيارتكم — نتمنى لكم يوماً سعيداً!</p>
+          <p class="rc-foot-sm">INV-20260711163000-4821</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">
+    <p><b>ده اختبار للشكل النهائي للطباعة الحرارية.</b> افتح الملف ده في المتصفح على كمبيوترك، اضغط <b>طباعة</b>، واختار البرينتر الحراري.</p>
+    <p>لو المقاس مش مظبوط: افتح إعدادات البرينتر في Windows وتأكد إن حجم الورق متحدّد <b>80mm</b> (أو Roll Paper 80 x 297mm). ولو برينترك <b>58mm</b> قولّي أظبطهولك.</p>
+    <p>البيانات هنا تجريبية بس — في السيستم الحقيقي بتيجي من الفاتورة الفعلية.</p>
+  </div>
+</body>
+</html>

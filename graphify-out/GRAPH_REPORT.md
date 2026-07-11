@@ -1,12 +1,12 @@
-# Graph Report - D:\coders\eduvers  (2026-06-17)
+# Graph Report - D:\coders\eduvers  (2026-07-11)
 
 ## Corpus Check
-- 139 files · ~322,414 words
+- 139 files · ~323,897 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 677 nodes · 766 edges · 104 communities detected
-- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
+- 677 nodes · 768 edges · 104 communities detected
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 120 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -673,7 +673,7 @@ Nodes (0):
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `update()` connect `Community 0` to `Community 1`, `Community 2`, `Community 4`, `Community 12`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Why does `RoomsService` connect `Community 0` to `Community 16`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Are the 25 inferred relationships involving `update()` (e.g. with `main()` and `.login()`) actually correct?**

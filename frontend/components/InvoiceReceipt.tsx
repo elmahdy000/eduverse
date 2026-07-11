@@ -15,8 +15,8 @@ interface InvoiceReceiptProps {
 // معلومات المكان — عدّلها من مكان واحد هنا
 const VENUE = {
   name: "EDUVERSE",
-  nameAr: "إديوفيرس",
-  tagline: "مساحة عمل وتعليم • Workspace & Education Hub",
+  nameAr: "إيدوفيرس",
+  tagline: "Workspace & Education Hub • مساحة عمل وتعليم",
   phone: "+20 123 456 7890",
 };
 
@@ -44,14 +44,25 @@ export const RECEIPT_PRINT_CSS = `
   @page { size: 80mm auto; margin: 0; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print { display: none !important; }
+
+  /* أخفي كل الصفحة وأظهر الفاتورة بس — أضمن طريقة تمنع المعاينة الفاضية
+     لما نطبع من داخل صفحة فيها عناصر تانية (قوائم/أزرار/فورمات) */
+  body * { visibility: hidden !important; }
+  #printable-invoice, #printable-invoice * { visibility: visible !important; }
+
   html, body {
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
     color: #000 !important;
+    font-family: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif !important;
   }
   #printable-invoice {
-    width: 72mm;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 76mm;
     margin: 0 auto;
     padding: 3mm 2mm;
     font-family: 'Cairo', 'Tahoma', sans-serif;
@@ -118,22 +129,21 @@ export const RECEIPT_PRINT_CSS = `
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 15px;
-    font-weight: 800;
     border-top: 2px solid #000;
     border-bottom: 2px solid #000;
-    padding: 5px 0;
+    padding: 6px 0;
     margin: 5px 0;
   }
-  #printable-invoice .rc-total .amt { font-variant-numeric: tabular-nums; }
+  #printable-invoice .rc-total span:first-child { font-size: 11px; font-weight: 800; }
+  #printable-invoice .rc-total .amt { font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
   #printable-invoice .rc-status {
     text-align: center;
     font-size: 12px;
     font-weight: 800;
-    border: 1.5px solid #000;
+    border: 2px solid #000;
     border-radius: 4px;
-    padding: 3px 0;
-    margin: 4px 0;
+    padding: 5px 0;
+    margin: 5px 0;
   }
   #printable-invoice .rc-foot {
     text-align: center;
@@ -197,12 +207,8 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
           <h1 className="rc-venue text-2xl font-black tracking-tighter text-slate-900">{VENUE.name}</h1>
           <p className="rc-venue-ar text-sm font-bold text-slate-700">{VENUE.nameAr}</p>
           <div className="flex flex-col items-center gap-0.5 text-[10px] font-bold text-slate-400">
-            <span className="rc-muted flex items-center gap-1">
-              <MapPin size={10} /> {VENUE.tagline}
-            </span>
-            <span className="rc-muted flex items-center gap-1" dir="ltr">
-              <Phone size={10} /> {VENUE.phone}
-            </span>
+            <span className="rc-muted">{VENUE.tagline}</span>
+            <span className="rc-muted" dir="ltr">☎ {VENUE.phone}</span>
           </div>
         </div>
 
@@ -258,14 +264,14 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
         <hr className="rc-divider border-t-2 border-dashed border-slate-100" />
 
         {/* الإجماليات */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-1.5">
           <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
             <span>المجموع الفرعي</span>
             <span className="amt font-mono">{money(subtotal)}</span>
           </div>
 
           {discountAmount > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-rose-500">
+            <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
               <span>خصم العميل</span>
               <span className="amt font-mono">-{money(discountAmount)}</span>
             </div>
@@ -278,15 +284,15 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
             </div>
           )}
 
-          {/* الإجمالي — بوكس محدّد بإطار بدل خلفية سودا (أنسب للطباعة الحرارية) */}
-          <div className="rc-total flex items-center justify-between rounded-xl border-2 border-slate-900 p-4 text-slate-900">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-70">الإجمالي</span>
-            <span className="amt text-3xl font-black tracking-tighter font-mono">{money(totalAmount)}</span>
+          {/* الإجمالي — خطين فوق وتحت زي الصورة */}
+          <div className="rc-total flex items-baseline justify-between border-t-2 border-b-2 border-slate-900 py-3 mt-3">
+            <span className="text-xs font-black text-slate-900">الإجمالي</span>
+            <span className="amt text-4xl font-black tracking-tighter font-mono text-slate-900">{money(totalAmount)}</span>
           </div>
 
-          {/* تفاصيل الدفع */}
+          {/* المدفوع */}
           {amountPaid > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-emerald-600">
+            <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
               <span>المدفوع{lastMethod ? ` (${translatePaymentMethod(lastMethod)})` : ""}</span>
               <span className="amt font-mono">{money(amountPaid)}</span>
             </div>
@@ -298,8 +304,8 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
             </div>
           )}
 
-          {/* حالة الدفع */}
-          <div className="rc-status text-center text-xs font-black text-slate-900">
+          {/* حالة الدفع — badge بإطار كامل */}
+          <div className="rc-status mt-2 rounded-lg border-2 border-slate-900 py-2 text-center text-sm font-black text-slate-900">
             {translateStatus(invoice.paymentStatus)}
           </div>
         </div>

@@ -15,25 +15,43 @@ import {
   Alert, Badge, Btn, EmptyState, FormField, Input, Modal, Panel,
   SectionTitle, Select, StatCard, statusBadgeTone
 } from "../../../components/ui";
-import { InvoiceReceipt } from "../../../components/InvoiceReceipt";
+import { InvoiceReceipt, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
 import clsx from "clsx";
 
 /* ─── helpers ─────────────────────────────────────────────── */
 function printInvoiceOnly() {
   const node = document.getElementById("printable-invoice");
   if (!node) return window.print();
-  const w = window.open("", "_blank", "width=400,height=600");
+  const w = window.open("", "_blank", "width=380,height=700");
   if (!w) return window.print();
-  w.document.write(`
-    <html dir="rtl">
+
+  // نحقن الفونت وأنماط الطباعة الحرارية (80mm) في النافذة الجديدة —
+  // من غير كده الأنماط بتضيع والفاتورة بتطبع بمقاس A4 غلط.
+  w.document.write(`<!DOCTYPE html>
+    <html dir="rtl" lang="ar">
       <head>
         <meta charset="utf-8" />
         <title>طباعة فاتورة</title>
-        <style>body { margin: 0; padding: 0; background: white; } * { box-sizing: border-box; }</style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
+        <style>
+          html, body { margin: 0; padding: 0; background: #fff; font-family: 'Cairo', 'Tahoma', sans-serif; }
+          * { box-sizing: border-box; }
+          ${RECEIPT_PRINT_CSS}
+        </style>
       </head>
       <body>
         ${node.outerHTML}
-        <script>setTimeout(() => { window.print(); window.close(); }, 250);</script>
+        <script>
+          (function () {
+            var go = function () { window.print(); window.close(); };
+            if (document.fonts && document.fonts.ready) {
+              document.fonts.ready.then(function () { setTimeout(go, 150); }).catch(function () { setTimeout(go, 400); });
+            } else {
+              setTimeout(go, 400);
+            }
+          })();
+        </script>
       </body>
     </html>
   `);
@@ -621,13 +639,11 @@ export default function SessionsPage() {
       >
         {selectedInvoice && (
           <div className="space-y-6">
-            <div id="printable-invoice">
-              <InvoiceReceipt
-                invoice={selectedInvoice}
-                onPrint={printInvoiceOnly}
-                onDownload={() => downloadInvoiceSnapshot(selectedInvoice)}
-              />
-            </div>
+            <InvoiceReceipt
+              invoice={selectedInvoice}
+              onPrint={printInvoiceOnly}
+              onDownload={() => downloadInvoiceSnapshot(selectedInvoice)}
+            />
 
             {Number(selectedInvoice.remainingAmount) > 0 && (
               <div className="rounded-3xl border border-amber-100 bg-amber-50/50 p-6">

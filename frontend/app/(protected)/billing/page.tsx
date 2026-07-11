@@ -18,7 +18,7 @@ import {
   Input, Panel, SectionTitle, Select, 
   StatCard, statusBadgeTone 
 } from "../../../components/ui";
-import { InvoiceReceipt } from "../../../components/InvoiceReceipt";
+import { InvoiceReceipt, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
 import clsx from "clsx";
 
 interface InvoicePaymentsSummary {
@@ -34,16 +34,42 @@ function printInvoiceOnly() {
     window.print();
     return;
   }
-  const w = window.open("", "_blank", "width=900,height=700");
+  const w = window.open("", "_blank", "width=380,height=700");
   if (!w) {
     window.print();
     return;
   }
-  w.document.write(`<html dir="rtl"><head><meta charset="utf-8" /><title>فاتورة</title></head><body>${node.outerHTML}</body></html>`);
+
+  // نحقن الفونت وأنماط الطباعة الحرارية في النافذة الجديدة —
+  // من غير كده الأنماط بتضيع والفاتورة بتطبع بمقاس A4 غلط.
+  w.document.write(`<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <title>فاتورة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; font-family: 'Cairo', 'Tahoma', sans-serif; }
+    ${RECEIPT_PRINT_CSS}
+  </style>
+</head>
+<body>${node.outerHTML}</body>
+</html>`);
   w.document.close();
   w.focus();
-  w.print();
-  w.close();
+
+  // ننتظر تحميل الفونت (لو مدعوم) قبل الطباعة عشان النص العربي يطلع مظبوط
+  const doPrint = () => {
+    w.print();
+    w.close();
+  };
+  const fontReady = (w.document as any).fonts?.ready;
+  if (fontReady && typeof fontReady.then === "function") {
+    fontReady.then(() => setTimeout(doPrint, 150)).catch(() => setTimeout(doPrint, 400));
+  } else {
+    setTimeout(doPrint, 400);
+  }
 }
 
 function downloadInvoiceSnapshot(invoice: Invoice) {

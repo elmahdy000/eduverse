@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>معاينة وضع المنيو المميز — Eduverse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --purple: #5a3e85;
+    --purple-deep: #47316b;
+    --purple-soft: #efe9f5;
+    --cream: #f6f1ea;
+    --ink: #3d2f57;
+    --line: #d9cbe8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #e9e2f0;
+    color: var(--ink);
+    direction: rtl;
+    padding: 20px;
+  }
+
+  .stage {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+  }
+  @media (max-width: 860px) { .stage { grid-template-columns: 1fr; } }
+
+  /* ── لوحة المنيو المقوّسة ── */
+  .menu-card {
+    position: relative;
+    background: var(--cream);
+    border-radius: 28px;
+    padding: 34px 30px 26px;
+    box-shadow: 0 20px 50px rgba(74,49,107,.15);
+    overflow: hidden;
+  }
+  /* إطار مقوّس داخلي */
+  .menu-card::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 1.5px solid var(--line);
+    border-top-left-radius: 120px;
+    border-top-right-radius: 120px;
+    border-radius: 110px 110px 20px 20px;
+    pointer-events: none;
+  }
+  /* أوراق شفافة زخرفية */
+  .leaf { position: absolute; font-size: 90px; opacity: .05; color: var(--purple); pointer-events: none; }
+  .leaf.tl { top: -10px; right: -10px; transform: rotate(20deg); }
+  .leaf.bl { bottom: -20px; left: -10px; transform: rotate(-150deg); }
+
+  .menu-head { text-align: center; position: relative; z-index: 2; padding-top: 6px; }
+  .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--purple); font-weight: 800; letter-spacing: 1px; }
+  .brand .logo { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--purple); display: inline-flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 14px; }
+  .brand small { display: block; font-size: 7px; letter-spacing: 3px; color: #9b86bb; margin-top: 1px; }
+  .menu-title { font-family: 'Playfair Display', serif; font-size: 62px; font-weight: 900; color: var(--purple); line-height: .9; margin: 2px 0 4px; }
+  .menu-sub { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--purple-deep); }
+  .menu-sub .dot { color: #b7a3d4; margin: 0 6px; }
+  .divider-dot { color: #b7a3d4; margin: 6px 0; font-size: 12px; }
+
+  /* ── شريط القسم (Signature) ── */
+  .section { position: relative; z-index: 2; margin-top: 22px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .chip {
+    background: var(--purple);
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 1px;
+    padding: 7px 22px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .sprig { color: var(--purple); opacity: .5; font-size: 16px; }
+  .section-line { flex: 1; height: 1px; background: var(--line); }
+
+  /* ── صف المنتج مع leader dots ── */
+  .item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .item:hover { background: var(--purple-soft); }
+  .item.in-cart { background: var(--purple); }
+  .item.in-cart .name, .item.in-cart .price { color: #fff; }
+  .item.in-cart .leader { border-color: rgba(255,255,255,.35); }
+  .qbadge { background: #fff; color: var(--purple); font-size: 10px; font-weight: 800; border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
+  .name { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .leader { flex: 1; border-bottom: 1.5px dotted var(--line); transform: translateY(-4px); }
+  .price { font-size: 15px; font-weight: 800; color: var(--purple); white-space: nowrap; font-family: 'Cairo'; }
+
+  .page-num {
+    position: relative; z-index: 2;
+    margin: 22px auto 0;
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple); font-weight: 800; font-size: 13px;
+  }
+
+  /* ── السلة ── */
+  .cart {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(74,49,107,.1);
+    padding: 20px;
+    align-self: start;
+    position: sticky;
+    top: 20px;
+  }
+  .cart h3 { font-family: 'Playfair Display', serif; color: var(--purple); font-size: 20px; margin-bottom: 4px; }
+  .cart .muted { font-size: 11px; color: #9b86bb; margin-bottom: 14px; }
+  .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+  .cart-item .n { font-weight: 700; }
+  .cart-item .p { font-weight: 800; color: var(--purple); }
+  .cart-total { margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; }
+  .cart-total .lbl { font-weight: 700; }
+  .cart-total .amt { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--purple); }
+  .discount { display: flex; justify-content: space-between; background: #edf7f0; color: #2f7d52; border: 1px solid #cfe9d9; border-radius: 12px; padding: 8px 12px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .btn { width: 100%; margin-top: 16px; background: var(--purple); color: #fff; border: 0; border-radius: 16px; padding: 14px; font-family: 'Cairo'; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .btn:hover { background: var(--purple-deep); }
+  .note { max-width: 1200px; margin: 18px auto 0; font-size: 12px; color: #6b5b86; line-height: 1.9; background: #fff; border-radius: 16px; padding: 14px 18px; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <!-- لوحة المنيو -->
+    <div class="menu-card">
+      <span class="leaf tl">❧</span>
+      <span class="leaf bl">❧</span>
+
+      <div class="menu-head">
+        <div class="brand"><span class="logo">e</span> eduverse <small>LEARN • EVOLVE • EXCEL</small></div>
+        <h1 class="menu-title">Menu</h1>
+        <div class="divider-dot">✦</div>
+        <div class="menu-sub">القهوة <span class="dot">•</span> Coffee &amp; Tea</div>
+      </div>
+
+      <!-- قسم القهوة -->
+      <div class="section">
+        <div class="section-head">
+          <span class="chip">COFFEE — قهوة</span>
+          <span class="sprig">🌿</span>
+          <span class="section-line"></span>
+        </div>
+        <div class="item in-cart"><span class="qbadge">2</span><span class="name">لاتيه</span><span class="leader"></span><span class="price">٥٥ ج.م</span></div>
+        <div class="item"><span class="name">كابتشينو</span><span class="leader"></span><span class="price">٧٠ ج.م</span></div>
+        <div class="item"><span class="name">إسبريسو</span><span class="leader"></span><span class="price">٥٠ ج.م</span></div>
+        <div class="item"><span class="name">قهوة تركي</span><span class="leader"></span><span class="price">٣٥ ج.م</span></div>
+        <div class="item"><span class="name">سبانش لاتيه</span><span class="leader"></span><span class="price">٧٠ ج.م</span></div>
+      </div>
+
+      <!-- قسم الشاي -->
+      <div class="section">
+        <div class="section-head">
+          <span class="chip">TEA — شاي</span>
+          <span class="sprig">🌿</span>
+          <span class="section-line"></span>
+        </div>
+        <div class="item"><span class="name">شاي</span><span class="leader"></span><span class="price">٢٥ ج.م</span></div>
+        <div class="item"><span class="name">شاي بنكهة</span><span class="leader"></span><span class="price">٣٠ ج.م</span></div>
+        <div class="item"><span class="name">شاي كرك</span><span class="leader"></span><span class="price">٤٥ ج.م</span></div>
+      </div>
+
+      <div class="page-num">01</div>
+    </div>
+
+    <!-- السلة -->
+    <div class="cart">
+      <h3>سلة الطلب</h3>
+      <p class="muted">العميل: أحمد محمد • خصم مالك</p>
+      <div class="cart-item"><span class="n">لاتيه × 2</span><span class="p">١١٠</span></div>
+      <div class="cart-item"><span class="n">كابتشينو × 1</span><span class="p">٧٠</span></div>
+      <div class="discount"><span>خصم مالك (70%)</span><span>-١٢٦ ج.م</span></div>
+      <div class="cart-total"><span class="lbl">المطلوب</span><span class="amt">٥٤ ج.م</span></div>
+      <button class="btn">تأكيد الطلب</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>دي معاينة لشكل شاشة الطلب الجديد</b> — مستوحى من منيو Eduverse (بنفسجي، أقواس، أقسام بشرائط، خطوط منقّطة).
+    الأصناف تفاعلية: اللي في السلة بيتلوّن بنفسجي وعليه رقم الكمية. الخصم بيظهر أوتوماتيك. الشكل ده هيتطبّق على POS الباريستا وصفحة العميل.
+    <br>افتح الملف في المتصفح عشان تشوف الشكل — قولّي رأيك قبل ما أطبّقه على السيستم الفعلي.
+  </div>
+</body>
+</html>

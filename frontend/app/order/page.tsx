@@ -709,88 +709,68 @@ export default function GuestOrderPage() {
               </div>
             </div>
 
-            {/* Menu View */}
+            {/* Menu View — بستايل منيو Eduverse المميز */}
             {activeTab === "menu" && (
-              <div className="space-y-6 min-w-0">
+              <div className="min-w-0">
                 {productsQuery.isLoading ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 animate-pulse" />)}
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-10 rounded-xl bg-white border border-slate-100 animate-pulse" />)}
                   </div>
                 ) : (
-                  <div className="space-y-8 min-w-0">
-                    {Array.from(new Set(productsQuery.data?.map(p => p.category) || []))
-                      .filter(cat => selectedCategory === "all" || selectedCategory === cat)
-                      .map(category => {
-                        const prods = productsQuery.data?.filter(p =>
-                          p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                        );
-                        if (!prods?.length) return null;
+                  <div className="menu-card shadow-sm">
+                    <span className="menu-leaf tl">❧</span>
+                    <span className="menu-leaf bl">❧</span>
 
-                        const catMeta = getCategoryMeta(category);
-                        const CatIcon = catMeta.icon;
+                    {/* رأس المنيو */}
+                    <div className="menu-head border-b border-[color:var(--menu-line)] pb-3">
+                      <p className="menu-title">Menu</p>
+                      <p className="menu-subtitle">Eduverse • قائمة المشروبات</p>
+                    </div>
 
-                        return (
-                          <div key={category} className="space-y-4 min-w-0">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center shrink-0", catMeta.bgColor, catMeta.iconColor)}>
-                                <CatIcon size={14} />
+                    <div className="relative z-[2] mt-1">
+                      {Array.from(new Set(productsQuery.data?.map(p => p.category) || []))
+                        .filter(cat => selectedCategory === "all" || selectedCategory === cat)
+                        .map(category => {
+                          const prods = productsQuery.data?.filter(p =>
+                            p.category === category && p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                          );
+                          if (!prods?.length) return null;
+
+                          return (
+                            <div key={category}>
+                              <div className="menu-section-head">
+                                <span className="menu-chip">{translateProductCategory(category)}</span>
+                                <span className="menu-sprig">🌿</span>
+                                <span className="menu-section-line" />
                               </div>
-                              <h3 className="text-base font-black text-slate-800">{translateProductCategory(category)}</h3>
-                              <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{prods.length}</span>
-                              <div className="flex-grow h-px bg-slate-100 mr-2" />
-                            </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                              {prods.map(product => {
-                                const qty = cart[product.id] || 0;
-                                return (
-                                  <div
-                                    key={product.id}
-                                    onClick={() => addToCart(product.id)}
-                                    className={cn(
-                                      "relative flex flex-col p-3 bg-white rounded-2xl border transition-all cursor-pointer select-none active:scale-95 text-right",
-                                      qty > 0
-                                        ? "border-amber-500 bg-white shadow-md ring-1 ring-amber-500/20"
-                                        : "border-slate-100 hover:border-slate-300 hover:shadow-md"
-                                    )}
-                                  >
-                                    {qty > 0 && (
-                                      <div className="absolute -top-1.5 -right-1.5 h-6 w-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-md border-2 border-white">
-                                        {qty}
-                                      </div>
-                                    )}
-
-                                    <ProductImage product={product} className="h-24 w-full rounded-xl shrink-0 object-cover mb-3" />
-
-                                    <div className="flex-1 flex flex-col justify-between">
-                                      <div>
-                                        <h4 className="text-xs font-black text-slate-950 truncate leading-snug">{translateProductName(product.name)}</h4>
-                                        <p className="text-[10px] text-slate-400 font-bold line-clamp-1 mt-0.5">{product.description || translateProductCategory(product.category)}</p>
-                                      </div>
-
-                                      <div className="flex items-center justify-between mt-3 gap-1.5">
-                                        <span className="text-xs font-black text-slate-900">{money(product.price)}</span>
-
-                                        {qty > 0 ? (
-                                          <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200/60 p-0.5 shrink-0" onClick={e => e.stopPropagation()}>
-                                            <button onClick={(e) => removeFromCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-1 rounded transition-colors"><Minus size={10} /></button>
-                                            <span className="text-[10px] font-black w-3 text-center">{qty}</span>
-                                            <button onClick={(e) => addToCart(product.id, e)} className="text-slate-500 hover:text-slate-800 p-1 rounded transition-colors"><Plus size={10} /></button>
-                                          </div>
-                                        ) : (
-                                          <div className="h-6 w-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center transition-colors hover:bg-amber-100 shrink-0">
-                                            <Plus size={12} />
-                                          </div>
-                                        )}
-                                      </div>
+                              <div>
+                                {prods.map(product => {
+                                  const qty = cart[product.id] || 0;
+                                  return (
+                                    <div
+                                      key={product.id}
+                                      onClick={() => addToCart(product.id)}
+                                      className={cn("menu-item", qty > 0 && "is-selected")}
+                                    >
+                                      {qty > 0 && <span className="menu-qbadge">{qty}</span>}
+                                      <span className="menu-item-name">{translateProductName(product.name)}</span>
+                                      <span className="menu-leader" />
+                                      <span className="menu-item-price">{money(product.price)}</span>
+                                      {qty > 0 && (
+                                        <div className="flex items-center gap-0.5 pr-1 shrink-0" onClick={e => e.stopPropagation()}>
+                                          <button onClick={(e) => removeFromCart(product.id, e)} className="h-6 w-6 rounded-lg bg-white/20 text-white flex items-center justify-center hover:bg-white/30 transition"><Minus size={11} /></button>
+                                          <button onClick={(e) => addToCart(product.id, e)} className="h-6 w-6 rounded-lg bg-white/20 text-white flex items-center justify-center hover:bg-white/30 transition"><Plus size={11} /></button>
+                                        </div>
+                                      )}
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                    </div>
                   </div>
                 )}
               </div>

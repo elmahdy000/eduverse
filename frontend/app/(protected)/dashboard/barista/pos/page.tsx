@@ -274,99 +274,65 @@ export default function BaristaPOSPage() {
     const products = productsQuery.data?.data ?? [];
 
     return (
-      <div className="flex-1 flex flex-col p-5 min-h-[500px] bg-white border border-slate-200 rounded-2xl shadow-sm relative text-slate-900 select-none">
-        {/* Page Header */}
-        <div className="text-center space-y-1 mb-4 border-b border-slate-100 pb-3">
-          <div className="flex items-center justify-center gap-2">
-            <div className="h-px flex-1 bg-slate-100" />
-            <span className="text-xs font-black tracking-widest uppercase text-slate-400">Menu</span>
-            <div className="h-px flex-1 bg-slate-100" />
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">
-            {page.title}
-          </p>
+      <div className="menu-card flex-1 min-h-[500px] shadow-sm">
+        <span className="menu-leaf tl">❧</span>
+        <span className="menu-leaf bl">❧</span>
+
+        {/* رأس المنيو */}
+        <div className="menu-head border-b border-[color:var(--menu-line)] pb-3">
+          <p className="menu-title">Menu</p>
+          <p className="menu-subtitle">{page.title}</p>
         </div>
 
-        {/* Page Sections */}
-        <div className="flex-1 flex flex-col gap-5 relative justify-between">
-          <div className="space-y-5">
-            {page.sections.map((sect) => {
-              const sectionProducts = products.filter(p => sect.categories.map(c => normalizeCategoryKey(c)).includes(normalizeCategoryKey(p.category)));
-              const filteredSectProducts = sectionProducts.filter(p => {
-                if (!searchQuery.trim()) return true;
-                return p.name.toLowerCase().includes(searchQuery.toLowerCase());
-              });
+        {/* أقسام الصفحة */}
+        <div className="relative z-[2] mt-1">
+          {page.sections.map((sect) => {
+            const sectionProducts = products.filter((p) =>
+              sect.categories.map((c) => normalizeCategoryKey(c)).includes(normalizeCategoryKey(p.category)),
+            );
+            const filteredSectProducts = sectionProducts.filter((p) => {
+              if (!searchQuery.trim()) return true;
+              return p.name.toLowerCase().includes(searchQuery.toLowerCase());
+            });
 
-              if (filteredSectProducts.length === 0) return null;
+            if (filteredSectProducts.length === 0) return null;
 
-              return (
-                <div key={sect.title} className="space-y-1.5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-500">
-                      {sect.title}
-                    </h3>
-                    <div className="flex-1 h-px bg-slate-100" />
-                  </div>
-                  <div className="space-y-0.5">
-                    {filteredSectProducts.map((prod) => {
-                      const inCart = cart.find(i => i.productId === prod.id);
-                      const outOfStock = prod.availability === false;
-                      return (
-                        <div
-                          key={prod.id}
-                          onClick={() => addToCart(prod)}
-                          className={clsx(
-                            "flex items-center justify-between py-1.5 px-2 rounded-xl transition-all group",
-                            outOfStock
-                              ? "opacity-50 cursor-not-allowed text-slate-400"
-                              : "cursor-pointer " + (inCart ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-700")
-                          )}
-                        >
-                          <div className="flex items-center min-w-0 gap-2">
-                            {inCart && !outOfStock && (
-                              <span className="bg-white text-slate-900 text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0">
-                                {inCart.quantity}
-                              </span>
-                            )}
-                            <span className={clsx(
-                              "text-[11px] font-semibold truncate leading-tight",
-                              inCart && !outOfStock ? "text-white" : "text-slate-700"
-                            )}>
-                              {translateProductName(prod.name)}
-                            </span>
-                            {outOfStock && (
-                              <span className="shrink-0 rounded-full bg-rose-100 text-rose-600 px-1.5 py-0.5 text-[8px] font-black">نفد</span>
-                            )}
-                          </div>
-                          <div className={clsx("flex-1 border-b border-dashed mx-2 h-3", inCart && !outOfStock ? "border-white/30" : "border-slate-200")} />
-                          <span className={clsx("text-xs font-black shrink-0", inCart && !outOfStock ? "text-emerald-300" : "text-slate-900")}>
-                            {money(Number(prod.price))}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+            return (
+              <div key={sect.title}>
+                <div className="menu-section-head">
+                  <span className="menu-chip">{sect.title}</span>
+                  <span className="menu-sprig">🌿</span>
+                  <span className="menu-section-line" />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Illustration */}
-          {page.image && (
-            <div className="w-full flex items-center justify-end shrink-0 pt-2 opacity-10">
-              <img
-                src={page.image}
-                alt={page.title}
-                className="h-16 w-16 object-contain"
-              />
-            </div>
-          )}
+                <div>
+                  {filteredSectProducts.map((prod) => {
+                    const inCart = cart.find((i) => i.productId === prod.id);
+                    const outOfStock = prod.availability === false;
+                    return (
+                      <div
+                        key={prod.id}
+                        onClick={() => addToCart(prod)}
+                        className={clsx(
+                          "menu-item",
+                          inCart && !outOfStock && "is-selected",
+                          outOfStock && "is-out",
+                        )}
+                      >
+                        {inCart && !outOfStock && <span className="menu-qbadge">{inCart.quantity}</span>}
+                        <span className="menu-item-name">{translateProductName(prod.name)}</span>
+                        {outOfStock && <span className="menu-out-tag">نفد</span>}
+                        <span className="menu-leader" />
+                        <span className="menu-item-price">{money(Number(prod.price))}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Footer */}
-        <div className="mt-3 pt-2 border-t border-slate-100 flex justify-center text-[9px] text-slate-300 font-black tracking-widest uppercase">
-          <span>eduverse cafe</span>
-        </div>
+        <div className="menu-pagenum">{String(pageIndex + 1).padStart(2, "0")}</div>
       </div>
     );
   };
@@ -653,7 +619,7 @@ export default function BaristaPOSPage() {
               )}
             >
               <Sparkles size={12} />
-              <span>كلاسيكي (Vintage)</span>
+              <span>منيو مميز</span>
             </button>
           </div>
 

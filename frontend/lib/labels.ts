@@ -149,10 +149,12 @@ export function translateProductCategory(category?: string | null) {
       return "زبادي";
     case "cans":
       return "كانز";
+    case "water":
+      return "مياه";
     case "mocktails":
       return "موكتيل";
     case "indomy":
-      return "اندومي";
+      return "إندومي";
     case "boba-drinks":
       return "بوبا";
     case "additions":

@@ -197,7 +197,10 @@ export class RoleGuard implements CanActivate {
 
     if (!moduleName) {
 
-      return true;
+      // رفض افتراضي: لو مقدرناش نحدد الموديول، مانسمحش (deny by default)
+      // بدل ما نفتح الباب لأي راوت غير متوقع.
+
+      throw new ForbiddenException('Unable to resolve permission scope for this route');
 
     }
 
@@ -210,14 +213,15 @@ export class RoleGuard implements CanActivate {
     // Receptionist: precise action-level bypass (matches roles_permissions.md)
     if (role.name === 'Receptionist') {
       const receptionist: Record<string, string[]> = {
-        sessions:   ['read', 'create', 'update', 'close', 'cancel', 'delete'],
-        bookings:   ['read', 'create', 'update', 'cancel', 'delete', 'complete', 'no_show'],
-        customers:  ['read', 'create', 'update', 'delete', 'deactivate', 'blacklist', 'reactivate'],
+        sessions:   ['read', 'create', 'update', 'close', 'cancel'],
+        bookings:   ['read', 'create', 'update', 'cancel', 'complete', 'no_show'],
+        customers:  ['read', 'create', 'update', 'deactivate', 'blacklist', 'reactivate'],
         rooms:      ['read'],
         products:   ['read'],
-        bar_orders: ['read', 'create', 'update', 'cancel', 'delete', 'items'],
-        invoices:   ['read', 'generate', 'refund', 'delete'],
-        payments:   ['read', 'record', 'refund', 'delete'],
+        bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
+        // الريسبشن يصدر فواتير ويسجّل مدفوعات فقط — الـ refund والحذف للمالك (طبقاً للتصميم)
+        invoices:   ['read', 'generate'],
+        payments:   ['read', 'record'],
         dashboards: ['view_reception'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';

@@ -6,7 +6,7 @@ import {
   Receipt, CreditCard, RotateCcw, RefreshCw, 
   Banknote, FileText, CheckCircle2, AlertCircle, 
   Wallet, Search, User, ArrowLeft, History,
-  Filter, PlusCircle
+  Filter
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
@@ -19,6 +19,7 @@ import {
   StatCard, statusBadgeTone 
 } from "../../../components/ui";
 import { InvoiceReceipt, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
+import { useAuthStore } from "../../../store/auth-store";
 import clsx from "clsx";
 
 interface InvoicePaymentsSummary {
@@ -144,6 +145,9 @@ function InvoiceListItem({ invoice, onSelect, selected }: {
 
 export default function BillingPage() {
   const qc = useQueryClient();
+  const roleName = useAuthStore((s) => s.user?.role?.name);
+  // المرتجع (refund) للمالك ومدير العمليات فقط — الريسبشن يحصّل ويصدر فواتير فقط
+  const canRefund = roleName === "Owner" || roleName === "Operations Manager";
 
   const [invoiceId, setInvoiceId] = useState("");
   const [amount, setAmount] = useState("");
@@ -450,7 +454,11 @@ export default function BillingPage() {
                 <Receipt size={32} />
               </div>
               <h3 className="text-lg font-bold text-slate-900">لم يتم اختيار فاتورة</h3>
-              <p className="mx-auto max-w-[240px] text-sm text-slate-500">اختر فاتورة من القائمة اليمنى لعرض التفاصيل وتسجيل المدفوعات.</p>
+              <p className="mx-auto max-w-[260px] text-sm text-slate-500">اختر فاتورة من القائمة لعرض التفاصيل وتحصيل المدفوعات وطباعة الإيصال.</p>
+              <p className="mx-auto mt-3 max-w-[280px] text-xs text-slate-400">
+                الفاتورة بتتولّد تلقائياً عند إنهاء الجلسة من صفحة{" "}
+                <a href="/sessions" className="font-bold text-slate-700 underline hover:text-slate-900">الجلسات</a>.
+              </p>
             </div>
           ) : selectedInvoiceQuery.isLoading ? (
             <div className="flex justify-center py-32"><RefreshCw size={32} className="animate-spin text-slate-200" /></div>
@@ -500,7 +508,8 @@ export default function BillingPage() {
                   </Panel>
                 )}
 
-                {/* Refund Panel */}
+                {/* Refund Panel — للمالك ومدير العمليات فقط */}
+                {canRefund && (
                 <Panel title="طلب مرتجع" icon={<RotateCcw size={16} />} className="shadow-lg">
                   <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setMessage(null); refundMutation.mutate(); }}>
                     <FormField label="اختر عملية الدفع">
@@ -530,6 +539,7 @@ export default function BillingPage() {
                     </Btn>
                   </form>
                 </Panel>
+                )}
               </div>
 
               {/* Transactions History Table */}

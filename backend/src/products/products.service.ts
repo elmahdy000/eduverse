@@ -28,7 +28,7 @@ export class ProductsService {
       const fridgeKeywords = [
         'بيبسي', 'pepsi', 'كولا', 'cola', 'سفن', 'seven', 'سبرايت', 'sprite',
         'ريد بول', 'red bull', 'redbull', 'بيريل', 'birell', 'فيروز', 'fayrouz',
-        'شويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
+        'شويبس', 'شوويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
       ];
       const bakeryKeywords = [
         'كرواسون', 'croissant', 'باتيه', 'pate', 'مخبوز', 'مخبوزات', 'كيك', 'cake',

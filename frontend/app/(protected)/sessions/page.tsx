@@ -195,13 +195,10 @@ export default function SessionsPage() {
     refetchInterval: 15_000,
   });
   const customersQuery = useQuery({
-    queryKey: ["customers", "for-sessions", customerSearchQuery],
+    // نجيب قائمة واحدة ونفلتر محلياً (بالاسم أو التليفون) — عشان البحث بالتليفون يشتغل
+    queryKey: ["customers", "for-sessions"],
     queryFn: async () => {
-      const params: Record<string, any> = { page: 1, limit: 100 };
-      if (customerSearchQuery.trim()) {
-        params.name = customerSearchQuery.trim();
-      }
-      const response = await api.get("/customers", { params });
+      const response = await api.get("/customers", { params: { page: 1, limit: 100 } });
       return response.data.data as Paginated<Customer>;
     },
   });
@@ -225,8 +222,18 @@ export default function SessionsPage() {
   }, [customerId, selectedCustomerObj, customersQuery.data]);
 
   const filteredCustomers = useMemo(() => {
-    return customersQuery.data?.data ?? [];
-  }, [customersQuery.data]);
+    const list = customersQuery.data?.data ?? [];
+    const q = customerSearchQuery.trim();
+    if (!q) return list;
+    // فلترة محلية بالاسم أو رقم الهاتف (الـ API بيفلتر بالاسم بس، فالتليفون بيتفلتر هنا)
+    const lower = q.toLowerCase();
+    return list.filter(
+      (c) =>
+        c.fullName?.toLowerCase().includes(lower) ||
+        c.phoneNumber?.includes(q) ||
+        c.phoneNumberSecondary?.includes(q),
+    );
+  }, [customersQuery.data, customerSearchQuery]);
 
   /* mutations */
   const openMutation = useMutation({
@@ -290,6 +297,16 @@ export default function SessionsPage() {
   const active = sessions.filter((s) => s.status === "active");
   const closed = sessions.filter((s) => s.status === "closed");
 
+  // النهاردة بالتاريخ المحلي (مش UTC) — للإحصائيات
+  const isToday = (value?: string | null) => {
+    if (!value) return false;
+    const d = new Date(value);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  };
+  const closedToday = closed.filter((s) => isToday(s.endTime) || isToday(s.startTime));
+  const startedToday = sessions.filter((s) => isToday(s.startTime));
+
   const filteredHistory = useMemo(() => {
     let result = sessions;
     if (tableStatusFilter !== "all") result = result.filter((s) => s.status === tableStatusFilter);
@@ -326,8 +343,8 @@ export default function SessionsPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="نشطة الآن"    value={active.length}         tone="success" icon={<PlayCircle size={16} />} />
-        <StatCard label="مغلقة اليوم"  value={closed.length}         icon={<StopCircle size={16} />} />
-        <StatCard label="إجمالي اليوم" value={sessions.length}       icon={<Users size={16} />} />
+        <StatCard label="مغلقة اليوم"  value={closedToday.length}    icon={<StopCircle size={16} />} />
+        <StatCard label="إجمالي اليوم" value={startedToday.length}   icon={<Users size={16} />} />
         <StatCard label="الغرف"        value={roomsQuery.data?.data?.length ?? 0} icon={<DoorOpen size={16} />} />
       </div>
 

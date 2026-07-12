@@ -9,6 +9,7 @@ import { money } from "../../../lib/format";
 import { translateRoomType, translateStatus } from "../../../lib/labels";
 import type { Paginated, Room } from "../../../lib/types";
 import { Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, FormField, Input, Panel, SectionTitle, Select, StatCard, statusBadgeTone } from "../../../components/ui";
+import { useAuthStore } from "../../../store/auth-store";
 import clsx from "clsx";
 
 type RoomWithRates = Room & {
@@ -20,10 +21,11 @@ type RoomWithRates = Room & {
   isOccupied?: boolean;
 };
 
-function RoomCard({ room, onEdit, onStatusChange }: {
+function RoomCard({ room, onEdit, onStatusChange, canManage }: {
   room: RoomWithRates;
   onEdit: (room: RoomWithRates) => void;
   onStatusChange: (roomId: string, action: "deactivate" | "reactivate") => void;
+  canManage: boolean;
 }) {
   const borderColors: Record<string, string> = {
     available: "border-emerald-200 bg-emerald-50/50",
@@ -82,35 +84,40 @@ function RoomCard({ room, onEdit, onStatusChange }: {
         </div>
       )}
 
-      <div className="flex gap-2">
-        <button
-          onClick={() => onEdit(room)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
-        >
-          <Edit size={14} /> تعديل
-        </button>
-        {room.status === "out_of_service" ? (
+      {canManage && (
+        <div className="flex gap-2">
           <button
-            onClick={() => onStatusChange(room.id, "reactivate")}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700"
+            onClick={() => onEdit(room)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            <Power size={14} /> تفعيل
+            <Edit size={14} /> تعديل
           </button>
-        ) : (
-          <button
-            onClick={() => onStatusChange(room.id, "deactivate")}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-rose-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-rose-600"
-          >
-            <PowerOff size={14} /> إيقاف
-          </button>
-        )}
-      </div>
+          {room.status === "out_of_service" ? (
+            <button
+              onClick={() => onStatusChange(room.id, "reactivate")}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700"
+            >
+              <Power size={14} /> تفعيل
+            </button>
+          ) : (
+            <button
+              onClick={() => onStatusChange(room.id, "deactivate")}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-rose-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-rose-600"
+            >
+              <PowerOff size={14} /> إيقاف
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 export default function RoomsPage() {
   const queryClient = useQueryClient();
+  const roleName = useAuthStore((s) => s.user?.role?.name);
+  // إدارة الغرف (إضافة/تعديل/تفعيل) للمالك ومدير العمليات فقط — الريسبشن قراءة فقط
+  const canManage = roleName === "Owner" || roleName === "Operations Manager";
 
   const [name, setName] = useState("");
   const [roomType, setRoomType] = useState("meeting");
@@ -252,7 +259,7 @@ export default function RoomsPage() {
     <div className="space-y-6" dir="rtl">
       <SectionTitle
         title="الغرف"
-        subtitle="إدارة كاملة للغرف: إضافة، تعديل، تشغيل/إيقاف، وفحص الإتاحة."
+        subtitle={canManage ? "إدارة كاملة للغرف: إضافة، تعديل، تشغيل/إيقاف، وفحص الإتاحة." : "عرض الغرف وحالتها وفحص الإتاحة."}
         icon={<DoorOpen size={20} />}
         action={
           <div className="flex gap-2">
@@ -262,12 +269,14 @@ export default function RoomsPage() {
             >
               <RefreshCw size={12} /> تحديث
             </button>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
-            >
-              <Plus size={12} /> إضافة غرفة
-            </button>
+            {canManage && (
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
+              >
+                <Plus size={12} /> إضافة غرفة
+              </button>
+            )}
           </div>
         }
       />
@@ -283,7 +292,7 @@ export default function RoomsPage() {
       </div>
 
       {/* Add Room Form */}
-      {showAddForm && (
+      {showAddForm && canManage && (
         <Panel
           title="إضافة غرفة جديدة"
           icon={<Plus size={15} />}
@@ -385,14 +394,17 @@ export default function RoomsPage() {
 
       {roomsQuery.isLoading ? (
         <div className="flex justify-center py-16"><RefreshCw size={22} className="animate-spin text-slate-400" /></div>
+      ) : roomsQuery.isError ? (
+        <Alert tone="danger">حصل خطأ في تحميل الغرف. جرّب تحديث الصفحة.</Alert>
       ) : rooms.length === 0 ? (
-        <EmptyState icon={<DoorOpen size={40} />} title="لا توجد غرف" sub="أضف أول غرفة من الأعلى." />
+        <EmptyState icon={<DoorOpen size={40} />} title="لا توجد غرف" sub={canManage ? "أضف أول غرفة من الأعلى." : "لا توجد غرف مسجّلة بعد."} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {rooms.map((room) => (
             <RoomCard
               key={room.id}
               room={room}
+              canManage={canManage}
               onEdit={startEdit}
               onStatusChange={(roomId, action) => {
                 const room = rooms.find(r => r.id === roomId);

@@ -449,11 +449,20 @@ export default function CustomersPage() {
                       setEditCustomerType(selectedCustomer.customerType);
                       setShowEditModal(true);
                     }}>تعديل البيانات</Btn>
-                    <Btn size="sm" variant="danger" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
-                      if (confirm("هل أنت متأكد من حظر هذا العميل؟")) {
-                        statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" });
-                      }
-                    }}>حظر العميل</Btn>
+                    {/* أزرار الحالة حسب وضع العميل */}
+                    {selectedCustomer.status === "active" ? (
+                      <Btn size="sm" variant="danger" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
+                        if (confirm("هل أنت متأكد من حظر هذا العميل؟")) {
+                          statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" });
+                        }
+                      }}>حظر العميل</Btn>
+                    ) : (
+                      <Btn size="sm" variant="success" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
+                        if (confirm("هل تريد إعادة تفعيل هذا العميل؟")) {
+                          statusMutation.mutate({ customerId: selectedCustomer.id, action: "reactivate" });
+                        }
+                      }}>إعادة تفعيل العميل</Btn>
+                    )}
                   </div>
                 </div>
 
@@ -609,7 +618,7 @@ export default function CustomersPage() {
                                                order.items?.map((item: any) => (
                                                  <div key={item.id} className="flex items-center justify-between rounded-lg bg-white p-2 text-[11px] border border-slate-100">
                                                     <span className="font-medium text-slate-700">{item.quantity} × {item.product?.name}</span>
-                                                    <span className="font-mono font-bold text-[9px] text-slate-400">{money(item.subtotal)}</span>
+                                                    <span className="font-mono font-bold text-[9px] text-slate-400">{money(item.total ?? item.subtotal)}</span>
                                                  </div>
                                                ))
                                              ))}

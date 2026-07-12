@@ -535,3 +535,19 @@ model Shift {
   @@index([status])
   @@map("shifts")
 }
+
+// ============================================================================
+// CHAT MESSAGES (رسائل الشات بين العميل والباريستا)
+// ============================================================================
+
+model ChatMessage {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationKey String   // مفتاح المحادثة = كود العميل (guestCode) — كل طاولة محادثة منفصلة
+  sender          String   // GUEST | الباريستا
+  text            String
+  createdAt       DateTime @default(now())
+
+  @@index([conversationKey])
+  @@index([createdAt])
+  @@map("chat_messages")
+}

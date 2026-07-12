@@ -24,6 +24,14 @@ function toIso(datetimeLocal: string) {
   return new Date(datetimeLocal).toISOString();
 }
 
+// مفتاح تاريخ باليوم المحلي (مش UTC) — عشان الحجوزات المسائية ماتتنقلش لليوم الغلط
+function localDateKey(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export default function BookingsPage() {
   const queryClient = useQueryClient();
 
@@ -220,9 +228,9 @@ export default function BookingsPage() {
 
   const bookingsByDay = useMemo(() => {
     const map: Record<string, Booking[]> = {};
-    weekDates.forEach((date: Date) => map[date.toISOString().split('T')[0]] = []);
+    weekDates.forEach((date: Date) => map[localDateKey(date)] = []);
     bookings.forEach((b: Booking) => {
-      const dateStr = new Date(b.startTime).toISOString().split('T')[0];
+      const dateStr = localDateKey(new Date(b.startTime));
       if (map[dateStr]) map[dateStr].push(b);
     });
     return map;
@@ -279,7 +287,7 @@ export default function BookingsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           label="حجوزات اليوم" 
-          value={bookingsByDay[new Date().toISOString().split('T')[0]]?.length || 0} 
+          value={bookingsByDay[localDateKey(new Date())]?.length || 0}
           icon={<Calendar size={20} />} 
           sub="نشط"
         />
@@ -441,9 +449,9 @@ export default function BookingsPage() {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
                 {weekDates.map(day => {
-                  const dateStr = day.toISOString().split('T')[0];
+                  const dateStr = localDateKey(day);
                   const dayBookings = bookingsByDay[dateStr] || [];
-                  const isToday = dateStr === new Date().toISOString().split('T')[0];
+                  const isToday = dateStr === localDateKey(new Date());
                   
                   return (
                     <div 

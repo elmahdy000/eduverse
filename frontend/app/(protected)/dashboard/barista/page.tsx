@@ -2,17 +2,19 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X, Bell } from "lucide-react";
+import { Coffee, ChefHat, CheckCircle2, RefreshCw, PackageCheck, Timer, Flame, ArrowLeft, Wifi, WifiOff, MessageCircle, Send, X, Bell, Undo2, Ban, Pencil, Plus, Minus, Trash2 } from "lucide-react";
 
 import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useBarOrderSocket } from "../../../../lib/useBarOrderSocket";
+import { translateProductName } from "../../../../lib/labels";
 import { Alert, Badge, EmptyState, Panel, SectionTitle, StatCard, CardSkeleton } from "../../../../components/ui";
 
 interface BarOrderItem {
   id: string;
   quantity: number;
-  product: { name: string };
+  productId?: string;
+  product: { id?: string; name: string };
 }
 
 interface BarOrder {
@@ -48,19 +50,28 @@ function WaitBadge({ minutes }: { minutes?: number }) {
   );
 }
 
-function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unreadCount }: {
+function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unreadCount, onMoveBack, moveBackLabel, onCancel, onEditItems }: {
   order: BarOrder;
   onAdvance?: () => void;
   advanceLabel?: string;
   advanceTone?: "amber" | "success" | "blue";
   onChat?: () => void;
   unreadCount?: number;
+  onMoveBack?: () => void;
+  moveBackLabel?: string;
+  onCancel?: () => void;
+  onEditItems?: () => void;
 }) {
   const btnCls = advanceTone === "success" ? "bg-emerald-600 hover:bg-emerald-700 text-white"
     : advanceTone === "amber" ? "bg-amber-500 hover:bg-amber-600 text-white"
     : "bg-blue-600 hover:bg-blue-700 text-white";
 
   const urgent = (order.waitMinutes ?? 0) > 15;
+
+  const handleCancel = () => {
+    if (!onCancel) return;
+    if (window.confirm("متأكد إنك عايز تلغي الطلب ده؟")) onCancel();
+  };
 
   return (
     <div className={`rounded-xl border p-4 shadow-sm transition ${urgent ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-white"}`}>
@@ -87,7 +98,7 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
         {order.items.map((item) => (
           <li key={item.id} className="flex items-center justify-between text-xs">
             <span className="font-bold text-slate-700">×{item.quantity}</span>
-            <span className="text-slate-600">{item.product.name}</span>
+            <span className="text-slate-600">{translateProductName(item.product.name)}</span>
           </li>
         ))}
       </ul>
@@ -115,6 +126,39 @@ function OrderCard({ order, onAdvance, advanceLabel, advanceTone, onChat, unread
           </button>
         )}
       </div>
+
+      {/* صف الإجراءات الثانوية: تعديل + رجوع خطوة + إلغاء */}
+      {(onMoveBack || onCancel || onEditItems) && (
+        <div className="mt-2 flex gap-2 border-t border-slate-100 pt-2">
+          {onEditItems && (
+            <button
+              onClick={onEditItems}
+              className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-bold text-blue-600 transition hover:bg-blue-50"
+              title="تعديل الأصناف"
+            >
+              <Pencil size={12} /> تعديل
+            </button>
+          )}
+          {onMoveBack && (
+            <button
+              onClick={onMoveBack}
+              className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-bold text-slate-500 transition hover:bg-slate-100"
+              title={moveBackLabel || "رجوع خطوة"}
+            >
+              <Undo2 size={12} /> {moveBackLabel || "رجوع خطوة"}
+            </button>
+          )}
+          {onCancel && (
+            <button
+              onClick={handleCancel}
+              className="flex flex-1 items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-bold text-rose-500 transition hover:bg-rose-50"
+              title="إلغاء الطلب"
+            >
+              <Ban size={12} /> إلغاء
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -148,6 +192,69 @@ export default function BaristaDashboardPage() {
   });
 
   const [prevNewCount, setPrevNewCount] = useState<number | null>(null);
+
+  // ── تعديل بنود الطلب ──
+  const [editingOrder, setEditingOrder] = useState<BarOrder | null>(null);
+  const [editItems, setEditItems] = useState<{ productId: string; name: string; quantity: number }[]>([]);
+  const [addProductId, setAddProductId] = useState("");
+
+  // قائمة المنتجات المتاحة (لإضافة صنف جديد أثناء التعديل)
+  const productsListQuery = useQuery({
+    queryKey: ["products", "barista-edit"],
+    enabled: !!editingOrder,
+    queryFn: async () => {
+      const r = await api.get("/products", { params: { page: 1, limit: 200, active: true } });
+      return r.data.data.data as { id: string; name: string; availability?: boolean }[];
+    },
+  });
+
+  const openEditItems = (order: BarOrder) => {
+    setEditingOrder(order);
+    setEditItems(
+      order.items.map((it) => ({
+        productId: it.product?.id || it.productId || "",
+        name: it.product?.name || "",
+        quantity: it.quantity,
+      })),
+    );
+    setAddProductId("");
+  };
+
+  const editItemsMutation = useMutation({
+    mutationFn: () => {
+      if (!editingOrder) throw new Error("no order");
+      const items = editItems
+        .filter((i) => i.productId && i.quantity > 0)
+        .map((i) => ({ productId: i.productId, quantity: i.quantity }));
+      return api.put(`/bar-orders/${editingOrder.id}/items`, { items });
+    },
+    onSuccess: () => {
+      setEditingOrder(null);
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] });
+    },
+  });
+
+  const changeEditQty = (productId: string, delta: number) => {
+    setEditItems((prev) =>
+      prev
+        .map((i) => (i.productId === productId ? { ...i, quantity: Math.max(0, i.quantity + delta) } : i))
+        .filter((i) => i.quantity > 0),
+    );
+  };
+
+  const addEditItem = () => {
+    if (!addProductId) return;
+    const prod = productsListQuery.data?.find((p) => p.id === addProductId);
+    if (!prod) return;
+    setEditItems((prev) => {
+      const existing = prev.find((i) => i.productId === addProductId);
+      if (existing) {
+        return prev.map((i) => (i.productId === addProductId ? { ...i, quantity: i.quantity + 1 } : i));
+      }
+      return [...prev, { productId: prod.id, name: prod.name, quantity: 1 }];
+    });
+    setAddProductId("");
+  };
 
   // Auto-resume AudioContext on first user interaction to satisfy browser autoplay policies
   useEffect(() => {
@@ -234,7 +341,7 @@ export default function BaristaDashboardPage() {
   const [unreadsByCode, setUnreadsByCode] = useState<Record<string, number>>({});
 
   // Real-time WebSocket connection — uses queryClient.invalidateQueries for instant, race-condition-free updates
-  const { sendMessage, getChatHistory } = useBarOrderSocket({
+  const { sendMessage, getChatHistory, joinChat } = useBarOrderSocket({
     onConnect: () => {
       setIsSocketLive(true);
     },
@@ -289,6 +396,17 @@ export default function BaristaDashboardPage() {
     }
   }, [selectedGuestCode]);
 
+  // الانضمام لغرف كل الطلبات النشطة اللي ليها كود عميل — عشان نستقبل رسايلها
+  // لحظياً وعدّاد غير المقروء يشتغل حتى لو الشات مقفول.
+  useEffect(() => {
+    if (!data) return;
+    const codes = new Set<string>();
+    [...data.newOrders, ...data.inPreparationOrders, ...data.readyOrders].forEach((o) => {
+      if (o.guestCode) codes.add(o.guestCode);
+    });
+    codes.forEach((code) => joinChat(code));
+  }, [data]);
+
   const handleSendChat = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!chatInput.trim() || !selectedGuestCode) return;
@@ -309,6 +427,19 @@ export default function BaristaDashboardPage() {
   const advance = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       api.put(`/bar-orders/${id}/status`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] }),
+  });
+
+  // رجوع حالة الطلب خطوة للخلف (لو الباريستا دوس بالغلط)
+  const moveBack = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      api.put(`/bar-orders/${id}/status`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] }),
+  });
+
+  // إلغاء الطلب من اللوحة مباشرة
+  const cancelOrder = useMutation({
+    mutationFn: ({ id }: { id: string }) => api.put(`/bar-orders/${id}/cancel`, {}),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard", "barista"] }),
   });
 
@@ -409,15 +540,17 @@ export default function BaristaDashboardPage() {
         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">{data.counts.new}</span>
       }>
         {data.newOrders.length === 0 ? (
-          <EmptyState icon={<Coffee size={32} />} title="ميش طلبات جديدة" sub="الطلبات الجديدة هتظهر هنا." />
+          <EmptyState icon={<Coffee size={32} />} title="مفيش طلبات جديدة" sub="الطلبات الجديدة هتظهر هنا." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.newOrders.map((order) => (
               <OrderCard key={order.id} order={order}
                 onAdvance={() => advance.mutate({ id: order.id, status: "in_preparation" })}
-                advanceLabel="▶ ابدأ التحضير" advanceTone="amber" 
+                advanceLabel="▶ ابدأ التحضير" advanceTone="amber"
                 onChat={() => setSelectedGuestCode(order.guestCode || null)}
                 unreadCount={unreadsByCode[order.guestCode || '']}
+                onEditItems={() => openEditItems(order)}
+                onCancel={() => cancelOrder.mutate({ id: order.id })}
               />
             ))}
           </div>
@@ -429,15 +562,19 @@ export default function BaristaDashboardPage() {
         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700">{data.counts.inPreparation}</span>
       }>
         {data.inPreparationOrders.length === 0 ? (
-          <EmptyState icon={<ChefHat size={32} />} title="ميش حاجة بتتجهز" />
+          <EmptyState icon={<ChefHat size={32} />} title="مفيش حاجة بتتجهز" />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.inPreparationOrders.map((order) => (
               <OrderCard key={order.id} order={order}
                 onAdvance={() => advance.mutate({ id: order.id, status: "ready" })}
-                advanceLabel="✓ جاهز للتسليم" advanceTone="success" 
+                advanceLabel="✓ جاهز للتسليم" advanceTone="success"
                 onChat={() => setSelectedGuestCode(order.guestCode || null)}
                 unreadCount={unreadsByCode[order.guestCode || '']}
+                onMoveBack={() => moveBack.mutate({ id: order.id, status: "new" })}
+                moveBackLabel="رجوع لجديد"
+                onEditItems={() => openEditItems(order)}
+                onCancel={() => cancelOrder.mutate({ id: order.id })}
               />
             ))}
           </div>
@@ -449,15 +586,17 @@ export default function BaristaDashboardPage() {
         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">{data.counts.ready}</span>
       }>
         {data.readyOrders.length === 0 ? (
-          <EmptyState icon={<CheckCircle2 size={32} />} title="ميش طلبات جاهزة" />
+          <EmptyState icon={<CheckCircle2 size={32} />} title="مفيش طلبات جاهزة" />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.readyOrders.map((order) => (
               <OrderCard key={order.id} order={order}
                 onAdvance={() => advance.mutate({ id: order.id, status: "delivered" })}
-                advanceLabel="📦 تم التسليم للعميل" advanceTone="blue" 
+                advanceLabel="📦 تم التسليم للعميل" advanceTone="blue"
                 onChat={() => setSelectedGuestCode(order.guestCode || null)}
                 unreadCount={unreadsByCode[order.guestCode || '']}
+                onMoveBack={() => moveBack.mutate({ id: order.id, status: "in_preparation" })}
+                moveBackLabel="رجوع للتحضير"
               />
             ))}
           </div>
@@ -534,6 +673,91 @@ export default function BaristaDashboardPage() {
             </div>
           </div>
         )}
+
+      {/* ══ Modal تعديل بنود الطلب ══ */}
+      {editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm" dir="rtl">
+          <div className="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <Pencil size={16} className="text-blue-600" />
+                <h3 className="text-sm font-black text-slate-900">تعديل أصناف الطلب</h3>
+              </div>
+              <button onClick={() => setEditingOrder(null)} className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:bg-white hover:text-slate-600 transition">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* الأصناف الحالية */}
+              <div className="space-y-2">
+                {editItems.length === 0 ? (
+                  <p className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-center text-xs font-bold text-amber-700">
+                    مفيش أصناف — ضيف صنف واحد على الأقل أو الغِ الطلب.
+                  </p>
+                ) : (
+                  editItems.map((it) => (
+                    <div key={it.productId} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
+                      <span className="flex-1 truncate text-xs font-bold text-slate-800">{translateProductName(it.name)}</span>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => changeEditQty(it.productId, -1)} className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition">
+                          <Minus size={12} className="text-slate-500" />
+                        </button>
+                        <span className="w-6 text-center text-xs font-black text-slate-900">{it.quantity}</span>
+                        <button onClick={() => changeEditQty(it.productId, 1)} className="h-7 w-7 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition">
+                          <Plus size={12} />
+                        </button>
+                        <button onClick={() => changeEditQty(it.productId, -it.quantity)} className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 flex items-center justify-center transition" title="حذف الصنف">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* إضافة صنف جديد */}
+              <div className="flex items-end gap-2 border-t border-slate-100 pt-4">
+                <div className="flex-1">
+                  <label className="mb-1 block text-[10px] font-black text-slate-400">إضافة صنف</label>
+                  <select
+                    value={addProductId}
+                    onChange={(e) => setAddProductId(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-xs outline-none focus:border-slate-900"
+                  >
+                    <option value="">اختر منتج...</option>
+                    {(productsListQuery.data ?? [])
+                      .filter((p) => p.availability !== false)
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>{translateProductName(p.name)}</option>
+                      ))}
+                  </select>
+                </div>
+                <button onClick={addEditItem} disabled={!addProductId} className="flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-40 transition">
+                  <Plus size={14} /> ضيف
+                </button>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-2 border-t border-slate-100 p-4">
+              <button
+                onClick={() => editItemsMutation.mutate()}
+                disabled={editItemsMutation.isPending || editItems.length === 0}
+                className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:opacity-40 transition"
+              >
+                {editItemsMutation.isPending ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                حفظ التعديلات
+              </button>
+              <button onClick={() => setEditingOrder(null)} className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     );
 }

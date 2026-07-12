@@ -6,13 +6,22 @@ import {
 } from './dto/bar-order.dto';
 import { InventoryService } from '../inventory/inventory.service';
 
+// التصنيفات المستثناة من الخصم (ساقعة/تلاجة/معلبات) — بتتباع بسعرها الكامل
+const NON_DISCOUNTED_CATEGORIES = ['cans', 'can', 'water', 'juice'];
+
 function isNonDiscountedProduct(product: any): boolean {
+  // 1) المصدر الأساسي المضمون: العلامة الصريحة على المنتج
   if (product.isFridge || product.isBakery) {
     return true;
   }
 
   const nameLower = product.name?.toLowerCase() || '';
   const categoryLower = product.category?.toLowerCase() || '';
+
+  // 2) التصنيف الصريح (أدق من تخمين الاسم)
+  if (NON_DISCOUNTED_CATEGORIES.some((c) => categoryLower === c)) {
+    return true;
+  }
 
   // 1. Water
   if (

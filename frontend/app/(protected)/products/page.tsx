@@ -21,12 +21,20 @@ const CATEGORIES = [
   { value: "milk-shake", label: "ميلك شيك" },
   { value: "smoothies", label: "سموذي" },
   { value: "yougert", label: "زبادي" },
-  { value: "cans", label: "كانز" },
+  { value: "cans", label: "كانز (معلبات)" },
+  { value: "water", label: "مياه" },
+  { value: "juice", label: "عصير" },
   { value: "mocktails", label: "موكتيل" },
-  { value: "indomy", label: "اندومي" },
+  { value: "indomy", label: "إندومي" },
   { value: "boba-drinks", label: "بوبا" },
+  { value: "snack", label: "سناكس" },
+  { value: "dessert", label: "حلويات" },
+  { value: "sandwich", label: "ساندويتش" },
   { value: "additions", label: "إضافات" },
 ];
+
+// تصنيفات التلاجة/الساقعة/المعلبات — بتتباع بسعرها الكامل (مستثناة من خصم owner/staff)
+const FRIDGE_CATEGORIES = ["cans", "water", "juice"];
 
 const categoryIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   coffee: Coffee,
@@ -39,9 +47,14 @@ const categoryIcons: Record<string, React.ComponentType<{ size?: number; classNa
   smoothies: Cherry,
   yougert: CupSoda,
   cans: CupSoda,
+  water: GlassWater,
+  juice: Cherry,
   mocktails: GlassWater,
   indomy: Soup,
   "boba-drinks": CupSoda,
+  snack: ShoppingBag,
+  dessert: IceCream,
+  sandwich: Soup,
   additions: PlusCircle,
 };
 
@@ -125,7 +138,7 @@ export default function ProductsPage() {
 
   // New product form
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("other");
+  const [category, setCategory] = useState("coffee");
   const [price, setPrice] = useState("0");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -136,7 +149,7 @@ export default function ProductsPage() {
   // Edit form
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editName, setEditName] = useState("");
-  const [editCategory, setEditCategory] = useState("other");
+  const [editCategory, setEditCategory] = useState("coffee");
   const [editPrice, setEditPrice] = useState("0");
   const [editDescription, setEditDescription] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
@@ -252,7 +265,7 @@ export default function ProductsPage() {
       isBakery,
     }),
     onSuccess: () => {
-      setName(""); setCategory("other"); setPrice("0"); setDescription(""); setImageUrl(""); setIsFridge(false); setIsBakery(false); setShowForm(false);
+      setName(""); setCategory("coffee"); setPrice("0"); setDescription(""); setImageUrl(""); setIsFridge(false); setIsBakery(false); setShowForm(false);
       setMessage({ text: "تم إضافة المنتج بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -351,8 +364,13 @@ export default function ProductsPage() {
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كابوتشينو" required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="التصني">
-                <select value={category} onChange={e => setCategory(e.target.value)}
+              <FormField label="التصنيف">
+                <select value={category} onChange={e => {
+                  const val = e.target.value;
+                  setCategory(val);
+                  // لو التصنيف تلاجة/معلبات، أشّر "منتج تلاجة" تلقائياً (يقدر يلغيه يدوي)
+                  if (FRIDGE_CATEGORIES.includes(val)) setIsFridge(true);
+                }}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900">
                   {CATEGORIES.filter(c => c.value).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
@@ -361,7 +379,7 @@ export default function ProductsPage() {
                 <input type="number" min={0} step={0.5} value={price} onChange={e => setPrice(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="وص مختصر">
+              <FormField label="وصف مختصر">
                 <input value={description} onChange={e => setDescription(e.target.value)} placeholder="اختياري"
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
@@ -392,8 +410,8 @@ export default function ProductsPage() {
               </label>
             </div>
 
-            <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضاة..." icon={<Plus size={14} />}>
-              ضي المنتج
+            <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الإضافة..." icon={<Plus size={14} />}>
+              ضيف المنتج
             </Btn>
           </form>
         </Panel>
@@ -410,7 +428,7 @@ export default function ProductsPage() {
                 <input value={editName} onChange={e => setEditName(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
-              <FormField label="التصني">
+              <FormField label="التصنيف">
                 <select value={editCategory} onChange={e => setEditCategory(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900">
                   {CATEGORIES.filter(c => c.value).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -429,7 +447,7 @@ export default function ProductsPage() {
               </FormField>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="الوص">
+              <FormField label="الوصف">
                 <input value={editDescription} onChange={e => setEditDescription(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
@@ -461,7 +479,7 @@ export default function ProductsPage() {
             </div>
 
             <div className="flex gap-2">
-              <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحظ..." icon={<Pencil size={14} />}>احظ التعديل</Btn>
+              <Btn type="submit" loading={updateMutation.isPending} loadingText="جاري الحفظ..." icon={<Pencil size={14} />}>احفظ التعديل</Btn>
               <Btn type="button" variant="ghost" onClick={() => setEditingProduct(null)}>إلغاء</Btn>
             </div>
           </form>
@@ -562,8 +580,8 @@ export default function ProductsPage() {
         <div className="flex gap-2">
           <select value={activeFilter} onChange={e => setActiveFilter(e.target.value)}
             className="rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 outline-none">
-            <option value="true">شغالة قط</option>
-            <option value="false">موقوة قط</option>
+            <option value="true">شغالة فقط</option>
+            <option value="false">موقوفة فقط</option>
             <option value="all">الكل</option>
           </select>
         </div>
@@ -597,7 +615,7 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <EmptyState icon={<Package size={36} />} title="ميش منتجات" sub="ضي أول منتج من الأعلى." />
+          <EmptyState icon={<Package size={36} />} title="مفيش منتجات" sub="ضيف أول منتج من الأعلى." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map(product => (

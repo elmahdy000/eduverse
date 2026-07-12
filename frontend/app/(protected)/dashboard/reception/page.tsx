@@ -172,7 +172,11 @@ export default function ReceptionDashboardPage() {
 
       {/* Bar orders */}
       <Panel title="طلبات البار المنتهية" icon={<Coffee size={15} />}>
-        {barOrdersQuery.data?.data?.length === 0 ? (
+        {barOrdersQuery.isLoading ? (
+          <div className="flex justify-center py-10"><Coffee size={28} className="animate-pulse text-slate-300" /></div>
+        ) : barOrdersQuery.isError ? (
+          <Alert tone="danger">حصل خطأ في تحميل طلبات البار.</Alert>
+        ) : (barOrdersQuery.data?.data?.length ?? 0) === 0 ? (
           <EmptyState icon={<Coffee size={36} />} title="مفيش طلبات بار منتهية" sub="الطلبات المنتهية هتظهر هنا." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

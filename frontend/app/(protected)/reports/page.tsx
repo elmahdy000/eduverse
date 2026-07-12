@@ -1,429 +1,400 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   TrendingUp,
   TrendingDown,
-  DollarSign,
+  Wallet,
   Download,
-  PieChart as PieChartIcon,
-  Timer,
-  AlertTriangle,
+  Printer,
   RefreshCw,
-  Trash2,
   Package,
   ArrowUpRight,
   ArrowDownRight,
   Minus,
+  Coffee,
+  Receipt,
+  Banknote,
+  ChevronRight,
+  ChevronLeft,
   CalendarDays,
-  CheckCircle2,
-  XCircle,
-  UserX,
-  Activity,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { api } from "../../../lib/api";
 import { money } from "../../../lib/format";
-import { SectionTitle, CardSkeleton } from "../../../components/ui";
+import { translateProductCategory, translateProductName } from "../../../lib/labels";
+import { SectionTitle, CardSkeleton, Panel, Btn, Alert, EmptyState } from "../../../components/ui";
 import clsx from "clsx";
 
-interface FinancialSummary {
-  revenueTotal: number;
-  expensesTotal: number;
-  netProfit: number;
-  breakdown?: { categoryId: string; categoryName: string; total: number }[];
+type Period = "daily" | "weekly" | "monthly";
+
+interface Analytics {
+  period: Period;
+  label: string;
+  range: { start: string; end: string };
+  current: { revenue: number; expenses: number; net: number; paymentsCount: number };
+  previous: { revenue: number; expenses: number; net: number; paymentsCount: number };
+  changes: { revenue: number | null; expenses: number | null; net: number | null };
+  dailyTrend: { day: string; revenue: number; expenses: number; net: number }[];
+  topProducts: { productName: string; quantity: number; revenue: number }[];
+  topCategories: { category: string; quantity: number; revenue: number }[];
+  expenseBreakdown: { categoryName: string; total: number }[];
 }
 
-interface ShiftsSummary {
-  closedCount: number;
-  openCount: number;
-  totalSales: number;
-  totalExpenses: number;
-  netSales: number;
-  avgSalesPerShift: number;
-  totalVariance: number;
-  recentShifts: {
-    id: string;
-    startTime: string;
-    endTime: string | null;
-    cashier: string;
-    totalSales: number;
-    totalExpenses: number;
-    netSales: number;
-    variance: number | null;
-  }[];
+const PERIOD_LABELS: Record<Period, string> = {
+  daily: "يومي",
+  weekly: "أسبوعي",
+  monthly: "شهري",
+};
+
+// سهم التغيّر مقابل الفترة السابقة
+function ChangeChip({ change, invert = false }: { change: number | null; invert?: boolean }) {
+  if (change === null) {
+    return <span className="text-[10px] font-bold text-slate-400">—</span>;
+  }
+  // للإيراد: الزيادة كويسة. للمصروف: الزيادة وحشة (invert=true)
+  const good = invert ? change < 0 : change > 0;
+  const flat = change === 0;
+  const Icon = flat ? Minus : change > 0 ? ArrowUpRight : ArrowDownRight;
+  return (
+    <span
+      className={clsx(
+        "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black",
+        flat ? "bg-slate-100 text-slate-500" : good ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700",
+      )}
+    >
+      <Icon size={10} />
+      {Math.abs(change)}%
+    </span>
+  );
 }
 
-interface WasteSummary {
-  totalEntries: number;
-  totalQuantity: number;
-  totalEstimatedCost: number;
-  topWastedItems: {
-    itemId: string;
-    name: string;
-    unit: string;
-    totalQuantity: number;
-    estimatedCost: number | null;
-    entryCount: number;
-  }[];
+function shortDay(dayKey: string) {
+  // dayKey = YYYY-MM-DD → نعرض اليوم/الشهر
+  const parts = dayKey.split("-");
+  return `${parts[2]}/${parts[1]}`;
 }
 
-interface BookingSummary {
-  totalCount: number;
-  confirmedCount: number;
-  completedCount: number;
-  cancelledCount: number;
-  noShowCount: number;
-  totalRevenue: number;
-  potentialLoss: number;
-}
-
-function VarianceIndicator({ value }: { value: number | null }) {
-  if (value === null) return <span className="text-slate-300">—</span>;
-  const abs = Math.round(Math.abs(value)).toLocaleString("ar-EG");
-  if (value === 0) return <span className="text-slate-400 font-medium">0</span>;
-  if (value > 0) return <span className="text-emerald-500 font-bold">+{abs}</span>;
-  return <span className="text-rose-500 font-bold">-{abs}</span>;
+function toDateInput(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export default function ReportsPage() {
-  const today = new Date().toISOString().split("T")[0];
-  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+  const [period, setPeriod] = useState<Period>("monthly");
+  // التاريخ المرجعي للفترة. فاضي = النهاردة
+  const [refDate, setRefDate] = useState<string>("");
 
-  const [dateRange, setDateRange] = useState({ from: weekAgo, to: today });
-
-  const financialQuery = useQuery({
-    queryKey: ["reports", "financial", dateRange.from, dateRange.to],
+  const analyticsQuery = useQuery({
+    queryKey: ["reports", "analytics", period, refDate],
+    placeholderData: (prev) => prev, // مايومضش عند التنقّل بين الفترات
     queryFn: async () => {
-      const r = await api.get("/expenses/financial-summary", {
-        params: { fromDate: dateRange.from, toDate: dateRange.to },
+      const r = await api.get("/dashboards/analytics", {
+        params: { period, date: refDate || undefined },
       });
-      return r.data as FinancialSummary;
+      return r.data.data as Analytics;
     },
   });
 
-  const shiftsQuery = useQuery({
-    queryKey: ["reports", "shifts", dateRange.from, dateRange.to],
-    queryFn: async () => {
-      const r = await api.get("/shifts/summary", {
-        params: { fromDate: dateRange.from, toDate: dateRange.to },
-      });
-      return r.data as ShiftsSummary;
-    },
-  });
+  // التنقّل السريع للخلف/الأمام حسب الفترة المختارة
+  function shiftPeriod(direction: -1 | 1) {
+    const base = refDate ? new Date(refDate) : new Date();
+    if (period === "monthly") base.setMonth(base.getMonth() + direction);
+    else if (period === "weekly") base.setDate(base.getDate() + direction * 7);
+    else base.setDate(base.getDate() + direction);
+    setRefDate(toDateInput(base));
+  }
 
-  const wasteQuery = useQuery({
-    queryKey: ["reports", "waste", dateRange.from, dateRange.to],
-    queryFn: async () => {
-      const r = await api.get("/inventory/waste-summary", {
-        params: { fromDate: dateRange.from, toDate: dateRange.to },
-      });
-      return r.data as WasteSummary;
-    },
-  });
+  const isToday = !refDate;
+  // نمنع التنقّل للمستقبل
+  const canGoNext = !isToday;
 
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const data = analyticsQuery.data;
 
-  const bookingsSummaryQuery = useQuery({
-    queryKey: ["reports", "bookings", dateRange.from, dateRange.to],
-    queryFn: async () => {
-      const r = await api.get("/bookings/summary", {
-        params: { fromDate: dateRange.from, toDate: dateRange.to },
-      });
-      return r.data.data as BookingSummary;
-    },
-  });
+  const maxTrend = useMemo(() => {
+    if (!data) return 1;
+    return Math.max(
+      1,
+      ...data.dailyTrend.map((d) => Math.max(d.revenue, d.expenses)),
+    );
+  }, [data]);
 
-  const detailedBookingsQuery = useQuery({
-    queryKey: ["reports", "bookings-detail", dateRange.from, dateRange.to, selectedStatus],
-    queryFn: async () => {
-      if (!selectedStatus) return null;
-      const r = await api.get("/bookings", {
-        params: { 
-          fromDate: dateRange.from, 
-          toDate: dateRange.to, 
-          status: selectedStatus,
-          limit: 100 
-        },
-      });
-      return r.data.data.data; // Paginated data
-    },
-    enabled: !!selectedStatus,
-  });
+  function exportExcel() {
+    if (!data) return;
+    const wb = XLSX.utils.book_new();
 
-  const summary = financialQuery.data;
-  const shifts = shiftsQuery.data;
-  const waste = wasteQuery.data;
-  const bookings = bookingsSummaryQuery.data;
-  const details = detailedBookingsQuery.data;
-  const isLoading = financialQuery.isLoading || shiftsQuery.isLoading || wasteQuery.isLoading || bookingsSummaryQuery.isLoading;
+    // ورقة الملخص
+    const summary = [
+      ["تقرير", PERIOD_LABELS[period], data.label],
+      [],
+      ["البند", "الفترة الحالية", "الفترة السابقة", "التغيّر %"],
+      ["الإيرادات", data.current.revenue, data.previous.revenue, data.changes.revenue ?? "—"],
+      ["المصروفات", data.current.expenses, data.previous.expenses, data.changes.expenses ?? "—"],
+      ["الصافي", data.current.net, data.previous.net, data.changes.net ?? "—"],
+      ["عدد المدفوعات", data.current.paymentsCount, data.previous.paymentsCount, ""],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "الملخص");
+
+    // ورقة الاتجاه اليومي
+    const trend = [["اليوم", "الإيرادات", "المصروفات", "الصافي"],
+      ...data.dailyTrend.map((d) => [d.day, d.revenue, d.expenses, d.net])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(trend), "الاتجاه اليومي");
+
+    // ورقة المنتجات
+    const products = [["المنتج", "الكمية", "الإيراد"],
+      ...data.topProducts.map((p) => [translateProductName(p.productName), p.quantity, p.revenue])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(products), "أكثر المنتجات");
+
+    // ورقة التصنيفات
+    const cats = [["التصنيف", "الكمية", "الإيراد"],
+      ...data.topCategories.map((c) => [translateProductCategory(c.category), c.quantity, c.revenue])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cats), "التصنيفات");
+
+    XLSX.writeFile(wb, `تقرير-${PERIOD_LABELS[period]}-${data.label}.xlsx`);
+  }
+
+  const revenueMax = data ? Math.max(...data.topProducts.map((p) => p.revenue), 1) : 1;
+  const catMax = data ? Math.max(...data.topCategories.map((c) => c.revenue), 1) : 1;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 py-4 animate-in fade-in duration-500" dir="rtl">
-      {/* Precision Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">التحليل المالي</h1>
-          <p className="text-slate-500 text-sm">مراجعة أداء المنشأة التشغيلي والمالي بدقة.</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 shadow-sm">
-            <CalendarDays size={14} className="text-slate-400" />
-            <input
-              type="date"
-              className="bg-transparent border-none p-0 focus:ring-0 w-28 cursor-pointer"
-              value={dateRange.from}
-              onChange={(e) => setDateRange((p) => ({ ...p, from: e.target.value }))}
-            />
-            <span className="text-slate-300">|</span>
-            <input
-              type="date"
-              className="bg-transparent border-none p-0 focus:ring-0 w-28 cursor-pointer"
-              value={dateRange.to}
-              onChange={(e) => setDateRange((p) => ({ ...p, to: e.target.value }))}
-            />
+    <div className="space-y-6" dir="rtl">
+      <SectionTitle
+        title="التقارير المالية"
+        subtitle="نظرة شاملة على الإيرادات والمصروفات والأرباح — يومي وأسبوعي وشهري مع المقارنة."
+        icon={<BarChart3 size={20} />}
+        action={
+          <div className="flex flex-wrap items-center gap-2 no-print">
+            <Btn size="sm" variant="secondary" icon={<RefreshCw size={12} />} onClick={() => analyticsQuery.refetch()}>
+              تحديث
+            </Btn>
+            <Btn size="sm" variant="secondary" icon={<Download size={12} />} onClick={exportExcel} disabled={!data}>
+              تصدير Excel
+            </Btn>
+            <Btn size="sm" icon={<Printer size={12} />} onClick={() => window.print()} disabled={!data}>
+              طباعة
+            </Btn>
           </div>
-          
+        }
+      />
+
+      {/* منتقي الفترة — أزرار النوع + تنقّل سريع */}
+      <div className="flex flex-wrap items-center justify-between gap-3 no-print">
+        <div className="flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+          {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={clsx(
+                "rounded-xl px-4 py-2 text-xs font-black transition-all",
+                period === p ? "bg-slate-900 text-white shadow" : "text-slate-500 hover:bg-slate-50",
+              )}
+            >
+              {PERIOD_LABELS[p]}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {/* السابق */}
           <button
-            onClick={() => {
-              financialQuery.refetch();
-              shiftsQuery.refetch();
-              wasteQuery.refetch();
-              bookingsSummaryQuery.refetch();
-            }}
-            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-colors shadow-sm"
+            onClick={() => shiftPeriod(-1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 transition"
+            title="الفترة السابقة"
           >
-            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+            <ChevronRight size={16} />
           </button>
-          
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm print:hidden"
+          {/* زر النهاردة */}
+          <button
+            onClick={() => setRefDate("")}
+            disabled={isToday}
+            className={clsx(
+              "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-black shadow-sm transition",
+              isToday
+                ? "border-slate-900 bg-slate-900 text-white cursor-default"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+            )}
+            title="ارجع للفترة الحالية"
           >
-            <Download size={14} />
-            تصدير PDF
+            <CalendarDays size={13} />
+            {period === "monthly" ? "الشهر الحالي" : period === "weekly" ? "الأسبوع الحالي" : "النهاردة"}
+          </button>
+          {/* التالي */}
+          <button
+            onClick={() => canGoNext && shiftPeriod(1)}
+            disabled={!canGoNext}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            title="الفترة التالية"
+          >
+            <ChevronLeft size={16} />
           </button>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="grid gap-8 sm:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <CardSkeleton key={i} />
-          ))}
+      {/* عنوان الفترة */}
+      {data && (
+        <div className="flex items-center justify-between rounded-2xl bg-slate-900 px-5 py-3 text-white">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">فترة التقرير</p>
+            <p className="text-lg font-black">{data.label}</p>
+          </div>
+          {analyticsQuery.isFetching && (
+            <RefreshCw size={16} className="animate-spin text-slate-400" />
+          )}
         </div>
-      ) : (
+      )}
+
+      {analyticsQuery.isLoading ? (
+        <div className="grid gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
+        </div>
+      ) : analyticsQuery.isError ? (
+        <Alert tone="danger">تعذّر تحميل التقرير. حاول تحديث الصفحة.</Alert>
+      ) : !data ? null : (
         <>
-          {/* High-Impact Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
-            <div className="p-8 border-l border-slate-100 last:border-l-0">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">إجمالي الإيرادات</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-slate-900">{money(summary?.revenueTotal ?? 0)}</span>
-                <TrendingUp size={16} className="text-emerald-500" />
+          {/* الكروت الرئيسية */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><Banknote size={18} /></span>
+                <ChangeChip change={data.changes.revenue} />
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 font-medium">صافي المحصل من المبيعات</p>
+              <p className="mt-3 text-[11px] font-black uppercase tracking-widest text-slate-400">الإيرادات</p>
+              <p className="text-2xl font-black text-slate-900 tabular-nums">{money(data.current.revenue)}</p>
+              <p className="mt-1 text-[10px] font-bold text-slate-400">السابق: {money(data.previous.revenue)}</p>
             </div>
-            <div className="p-8 border-l border-slate-100 last:border-l-0">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">إجمالي المصروفات</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-slate-900">{money(summary?.expensesTotal ?? 0)}</span>
-                <TrendingDown size={16} className="text-rose-400" />
+
+            <div className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600"><Wallet size={18} /></span>
+                <ChangeChip change={data.changes.expenses} invert />
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 font-medium">مصروفات التشغيل والمشتريات</p>
+              <p className="mt-3 text-[11px] font-black uppercase tracking-widest text-slate-400">المصروفات</p>
+              <p className="text-2xl font-black text-slate-900 tabular-nums">{money(data.current.expenses)}</p>
+              <p className="mt-1 text-[10px] font-bold text-slate-400">السابق: {money(data.previous.expenses)}</p>
             </div>
-            <div className="p-8">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">صافي الربح</p>
-              <div className="flex items-baseline gap-2">
-                <span className={clsx("text-3xl font-black", (summary?.netProfit ?? 0) >= 0 ? "text-emerald-700" : "text-rose-700")}>
-                  {money(summary?.netProfit ?? 0)}
+
+            <div className={clsx("rounded-2xl border p-5 shadow-sm", data.current.net >= 0 ? "border-slate-900 bg-slate-900 text-white" : "border-rose-300 bg-rose-50")}>
+              <div className="flex items-center justify-between">
+                <span className={clsx("flex h-9 w-9 items-center justify-center rounded-xl", data.current.net >= 0 ? "bg-white/10 text-white" : "bg-rose-100 text-rose-600")}>
+                  {data.current.net >= 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
                 </span>
-                {(summary?.netProfit ?? 0) >= 0
-                  ? <ArrowUpRight size={16} className="text-emerald-500" />
-                  : <ArrowDownRight size={16} className="text-rose-500" />}
+                <ChangeChip change={data.changes.net} />
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 font-medium">الإيرادات ناقص المصروفات</p>
+              <p className={clsx("mt-3 text-[11px] font-black uppercase tracking-widest", data.current.net >= 0 ? "text-slate-400" : "text-rose-400")}>صافي الربح</p>
+              <p className="text-2xl font-black tabular-nums">{money(data.current.net)}</p>
+              <p className={clsx("mt-1 text-[10px] font-bold", data.current.net >= 0 ? "text-slate-400" : "text-rose-400")}>السابق: {money(data.previous.net)}</p>
             </div>
           </div>
 
-          {/* Expense Breakdown */}
-          {summary?.breakdown && summary.breakdown.length > 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
-                  <PieChartIcon size={14} />
-                </span>
-                <h3 className="text-sm font-bold text-slate-800">تفصيل المصروفات بالفئة</h3>
-              </div>
-              <div className="p-5 space-y-3">
-                {summary.breakdown.map((cat) => {
-                  const pct = summary.expensesTotal > 0 ? Math.round((cat.total / summary.expensesTotal) * 100) : 0;
-                  return (
-                    <div key={cat.categoryId}>
-                      <div className="flex items-center justify-between mb-1 text-sm">
-                        <span className="font-bold text-emerald-700">{money(cat.total)}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-400">{pct}%</span>
-                          <span className="font-semibold text-slate-800">{cat.categoryName}</span>
-                        </div>
+          {/* الاتجاه اليومي — أعمدة */}
+          <Panel title="الاتجاه اليومي" icon={<BarChart3 size={15} />}>
+            {data.dailyTrend.length === 0 ? (
+              <EmptyState title="لا توجد بيانات" sub="لا توجد حركة مالية في هذه الفترة." />
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-end gap-1 overflow-x-auto pb-2" style={{ minHeight: 160 }}>
+                  {data.dailyTrend.map((d) => (
+                    <div key={d.day} className="flex min-w-[26px] flex-1 flex-col items-center gap-1">
+                      <div className="flex h-32 w-full items-end justify-center gap-0.5">
+                        <div
+                          className="w-1/2 rounded-t bg-emerald-500"
+                          style={{ height: `${(d.revenue / maxTrend) * 100}%` }}
+                          title={`إيراد: ${money(d.revenue)}`}
+                        />
+                        <div
+                          className="w-1/2 rounded-t bg-rose-400"
+                          style={{ height: `${(d.expenses / maxTrend) * 100}%` }}
+                          title={`مصروف: ${money(d.expenses)}`}
+                        />
                       </div>
-                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div className="h-full rounded-full bg-amber-400 transition-all duration-700" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Shifts Summary */}
-          {shifts && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
-                  <Timer size={14} />
-                </span>
-                <h3 className="text-sm font-bold text-slate-800">ملخص الورديات</h3>
-              </div>
-              <div className="p-5 space-y-5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: "ورديات مغلقة", value: shifts.closedCount, color: "border-l-slate-400" },
-                    { label: "ورديات مفتوحة", value: shifts.openCount, color: "border-l-amber-500" },
-                    { label: "إجمالي المبيعات", value: money(shifts.totalSales), color: "border-l-emerald-500" },
-                    { label: "متوسط وردية", value: money(shifts.avgSalesPerShift), color: "border-l-blue-500" },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className={clsx("rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm", color)}>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">{label}</p>
-                      <p className="text-2xl font-black text-slate-900">{value}</p>
+                      <span className="text-[8px] font-bold text-slate-400 whitespace-nowrap">{shortDay(d.day)}</span>
                     </div>
                   ))}
                 </div>
-
-                {shifts.recentShifts.length > 0 && (
-                  <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="w-full text-right text-xs">
-                      <thead className="border-b border-slate-100 bg-slate-50">
-                        <tr>
-                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الكاشير</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">المبيعات</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">المصروفات</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الصافي</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-wider text-slate-500">الفارق</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {shifts.recentShifts.map((shift) => (
-                          <tr key={shift.id} className="hover:bg-amber-50/40 transition-colors">
-                            <td className="px-4 py-3 font-semibold text-slate-800">{shift.cashier}</td>
-                            <td className="px-4 py-3 text-emerald-700 font-bold">{money(shift.totalSales)}</td>
-                            <td className="px-4 py-3 text-rose-600">{money(shift.totalExpenses)}</td>
-                            <td className="px-4 py-3 font-bold text-slate-900">{money(shift.netSales)}</td>
-                            <td className="px-4 py-3">
-                              <VarianceIndicator value={shift.variance} />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Waste Summary */}
-          {waste && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
-                  <Trash2 size={14} />
-                </span>
-                <h3 className="text-sm font-bold text-slate-800">ملخص الهالك</h3>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-rose-400 bg-white p-4 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">عدد الإدخالات</p>
-                    <p className="text-2xl font-black text-slate-900">{waste.totalEntries}</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-amber-400 bg-white p-4 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">إجمالي الكميات</p>
-                    <p className="text-2xl font-black text-slate-900">{waste.totalQuantity}</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 border-l-4 border-l-slate-400 bg-white p-4 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">التكلفة التقديرية</p>
-                    <p className="text-2xl font-black text-rose-700">{money(waste.totalEstimatedCost)}</p>
-                  </div>
+                <div className="flex items-center gap-4 text-[10px] font-bold">
+                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" /> إيرادات</span>
+                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-rose-400" /> مصروفات</span>
                 </div>
-
-                {waste.topWastedItems.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-black uppercase tracking-wider text-slate-500">أكثر المواد هالكاً</p>
-                    <div className="space-y-2">
-                      {waste.topWastedItems.map((item) => (
-                        <div key={item.itemId} className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-4 py-2.5">
-                          <div className="flex items-center gap-2">
-                            {item.estimatedCost != null && (
-                              <span className="text-xs font-bold text-rose-600">{money(item.estimatedCost)}</span>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <span className="text-sm font-bold text-slate-800">{item.name}</span>
-                            <span className="mr-2 text-xs text-slate-400">
-                              {item.totalQuantity} {item.unit}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          )}
+            )}
+          </Panel>
 
-          {/* Bookings Summary */}
-          {bookings && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-slate-50 px-5 py-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                  <Activity size={14} />
-                </span>
-                <h3 className="text-sm font-bold text-slate-800">ملخص الحجوزات</h3>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {[
-                    { label: "إجمالي الحجوزات", value: bookings.totalCount, icon: <Activity size={14} />, color: "border-l-blue-500" },
-                    { label: "مؤكدة", value: bookings.confirmedCount, icon: <CheckCircle2 size={14} />, color: "border-l-emerald-500" },
-                    { label: "مكتملة", value: bookings.completedCount, icon: <CheckCircle2 size={14} />, color: "border-l-green-500" },
-                    { label: "ملغاة", value: bookings.cancelledCount, icon: <XCircle size={14} />, color: "border-l-rose-500" },
-                    { label: "لم يحضر", value: bookings.noShowCount, icon: <UserX size={14} />, color: "border-l-amber-500" },
-                    { label: "إيراد الحجوزات", value: money(bookings.totalRevenue), icon: <DollarSign size={14} />, color: "border-l-emerald-600" },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className={clsx("rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm", color)}>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">{label}</p>
-                      <p className="text-xl font-black text-slate-900">{value}</p>
+          {/* المنتجات والتصنيفات */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Panel title="أكثر المنتجات مبيعاً" icon={<Coffee size={15} />}>
+              {data.topProducts.length === 0 ? (
+                <EmptyState title="لا توجد مبيعات" sub="لم تُسلَّم طلبات في هذه الفترة." />
+              ) : (
+                <div className="space-y-2.5">
+                  {data.topProducts.map((p, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-700">{i + 1}. {translateProductName(p.productName)}</span>
+                        <span className="font-black text-slate-900 tabular-nums">{money(p.revenue)} <span className="text-[10px] font-bold text-slate-400">({p.quantity})</span></span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full bg-amber-500" style={{ width: `${(p.revenue / revenueMax) * 100}%` }} />
+                      </div>
                     </div>
                   ))}
                 </div>
+              )}
+            </Panel>
 
-                {bookings.potentialLoss > 0 && (
-                  <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-                    <AlertTriangle size={16} className="shrink-0 text-amber-600" />
-                    <p className="text-sm text-amber-800">
-                      خسارة محتملة من الحجوزات الملغاة والغياب:{" "}
-                      <span className="font-black">{money(bookings.potentialLoss)}</span>
-                    </p>
-                  </div>
-                )}
+            <Panel title="المبيعات حسب التصنيف" icon={<Package size={15} />}>
+              {data.topCategories.length === 0 ? (
+                <EmptyState title="لا توجد مبيعات" sub="لم تُسلَّم طلبات في هذه الفترة." />
+              ) : (
+                <div className="space-y-2.5">
+                  {data.topCategories.map((c, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-700">{translateProductCategory(c.category)}</span>
+                        <span className="font-black text-slate-900 tabular-nums">{money(c.revenue)} <span className="text-[10px] font-bold text-slate-400">({c.quantity})</span></span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full bg-blue-500" style={{ width: `${(c.revenue / catMax) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Panel>
+          </div>
+
+          {/* تفصيل المصروفات */}
+          <Panel title="تفصيل المصروفات حسب التصنيف" icon={<Receipt size={15} />}>
+            {data.expenseBreakdown.length === 0 ? (
+              <EmptyState title="لا توجد مصروفات" sub="لم تُسجَّل مصروفات في هذه الفترة." />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-400">
+                      <th className="pb-2">التصنيف</th>
+                      <th className="pb-2 text-left">المبلغ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {data.expenseBreakdown.map((e, i) => (
+                      <tr key={i}>
+                        <td className="py-2 font-bold text-slate-700">{e.categoryName}</td>
+                        <td className="py-2 text-left font-black text-rose-600 tabular-nums">{money(e.total)}</td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-slate-200">
+                      <td className="py-2 font-black text-slate-900">الإجمالي</td>
+                      <td className="py-2 text-left font-black text-slate-900 tabular-nums">{money(data.current.expenses)}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
+            )}
+          </Panel>
         </>
       )}
     </div>

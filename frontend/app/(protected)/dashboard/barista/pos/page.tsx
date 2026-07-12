@@ -51,6 +51,9 @@ interface CartItem {
   isBakery?: boolean;
 }
 
+// التصنيفات المستثناة من الخصم — لازم تطابق الباك اند (bar-orders.service.ts NON_DISCOUNTED_CATEGORIES)
+const NON_DISCOUNTED_CATEGORIES = ['cans', 'can', 'water', 'juice'];
+
 function isNonDiscountedProduct(item: { productName: string; category: string; isFridge?: boolean; isBakery?: boolean }) {
   if (item.isFridge || item.isBakery) {
     return true;
@@ -58,6 +61,11 @@ function isNonDiscountedProduct(item: { productName: string; category: string; i
 
   const nameLower = item.productName?.toLowerCase() || '';
   const categoryLower = item.category?.toLowerCase() || '';
+
+  // التصنيف الصريح (يطابق الباك اند) — يشمل juice
+  if (NON_DISCOUNTED_CATEGORIES.includes(categoryLower)) {
+    return true;
+  }
 
   // 1. Water
   if (
@@ -142,6 +150,10 @@ const categoryConfig: Record<string, CategoryMeta> = {
   "boba-drinks": { icon: Sparkles, iconColor: "text-purple-600", bgColor: "bg-purple-50" },
   additions: { icon: Plus, iconColor: "text-slate-500", bgColor: "bg-slate-100" },
   juice: { icon: GlassWater, iconColor: "text-orange-600", bgColor: "bg-orange-50" },
+  water: { icon: Droplets, iconColor: "text-sky-600", bgColor: "bg-sky-50" },
+  snack: { icon: Package, iconColor: "text-yellow-600", bgColor: "bg-yellow-50" },
+  dessert: { icon: Apple, iconColor: "text-pink-600", bgColor: "bg-pink-50" },
+  sandwich: { icon: Utensils, iconColor: "text-orange-700", bgColor: "bg-orange-50" },
 };
 
 function getCategoryMeta(cat: string): CategoryMeta {
@@ -298,32 +310,36 @@ export default function BaristaPOSPage() {
                   <div className="space-y-0.5">
                     {filteredSectProducts.map((prod) => {
                       const inCart = cart.find(i => i.productId === prod.id);
+                      const outOfStock = prod.availability === false;
                       return (
                         <div
                           key={prod.id}
                           onClick={() => addToCart(prod)}
                           className={clsx(
-                            "flex items-center justify-between py-1.5 px-2 rounded-xl cursor-pointer transition-all group",
-                            inCart
-                              ? "bg-slate-900 text-white"
-                              : "hover:bg-slate-50 text-slate-700"
+                            "flex items-center justify-between py-1.5 px-2 rounded-xl transition-all group",
+                            outOfStock
+                              ? "opacity-50 cursor-not-allowed text-slate-400"
+                              : "cursor-pointer " + (inCart ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-700")
                           )}
                         >
                           <div className="flex items-center min-w-0 gap-2">
-                            {inCart && (
+                            {inCart && !outOfStock && (
                               <span className="bg-white text-slate-900 text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0">
                                 {inCart.quantity}
                               </span>
                             )}
                             <span className={clsx(
                               "text-[11px] font-semibold truncate leading-tight",
-                              inCart ? "text-white" : "text-slate-700"
+                              inCart && !outOfStock ? "text-white" : "text-slate-700"
                             )}>
                               {translateProductName(prod.name)}
                             </span>
+                            {outOfStock && (
+                              <span className="shrink-0 rounded-full bg-rose-100 text-rose-600 px-1.5 py-0.5 text-[8px] font-black">نفد</span>
+                            )}
                           </div>
-                          <div className={clsx("flex-1 border-b border-dashed mx-2 h-3", inCart ? "border-white/30" : "border-slate-200")} />
-                          <span className={clsx("text-xs font-black shrink-0", inCart ? "text-emerald-300" : "text-slate-900")}>
+                          <div className={clsx("flex-1 border-b border-dashed mx-2 h-3", inCart && !outOfStock ? "border-white/30" : "border-slate-200")} />
+                          <span className={clsx("text-xs font-black shrink-0", inCart && !outOfStock ? "text-emerald-300" : "text-slate-900")}>
                             {money(Number(prod.price))}
                           </span>
                         </div>
@@ -358,7 +374,8 @@ export default function BaristaPOSPage() {
   const productsQuery = useQuery({
     queryKey: ["products", "pos"],
     queryFn: async () => {
-      const response = await api.get("/products", { params: { page: 1, limit: 200, active: true, availability: true } });
+      // نجيب كل المنتجات النشطة (حتى غير المتاحة) عشان نعرض علامة "نفد" بدل ما تختفي
+      const response = await api.get("/products", { params: { page: 1, limit: 200, active: true } });
       return response.data.data as Paginated<Product>;
     },
   });
@@ -481,6 +498,12 @@ export default function BaristaPOSPage() {
   }, [filteredProducts]);
 
   const addToCart = useCallback((product: Product) => {
+    // منع إضافة منتج نفد أو غير متاح
+    if (product.availability === false) {
+      setMessage({ type: "error", text: `"${translateProductName(product.name)}" غير متاح حالياً (نفد المخزون)` });
+      setTimeout(() => setMessage(null), 2500);
+      return;
+    }
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
       if (existing) {
@@ -778,15 +801,25 @@ export default function BaristaPOSPage() {
                       {items.map((product) => {
                         const inCart = cart.find((i) => i.productId === product.id);
                         const isFav = favorites.has(product.id);
+                        const outOfStock = product.availability === false;
                         return (
                           <div
                             key={product.id}
                             onClick={() => addToCart(product)}
                             className={clsx(
-                              "relative flex flex-col p-3 rounded-2xl border transition-all cursor-pointer select-none active:scale-95",
-                              inCart ? "border-slate-900 bg-white shadow-xl ring-1 ring-slate-900" : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-lg"
+                              "relative flex flex-col p-3 rounded-2xl border transition-all select-none",
+                              outOfStock
+                                ? "border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed"
+                                : "cursor-pointer active:scale-95 " + (inCart ? "border-slate-900 bg-white shadow-xl ring-1 ring-slate-900" : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-lg")
                             )}
                           >
+                            {outOfStock && (
+                              <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/40">
+                                <span className="rounded-full bg-rose-600 px-2.5 py-1 text-[10px] font-black text-white shadow-md">
+                                  نفد المخزون
+                                </span>
+                              </div>
+                            )}
                             <button
                               onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
                               className={clsx(

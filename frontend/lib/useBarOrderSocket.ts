@@ -114,5 +114,10 @@ export function useBarOrderSocket(handlers: {
       const socket = getOrCreateSocket();
       socket.emit("chat:history", { orderId });
     },
+    // الانضمام لغرفة محادثة لاستقبال رسائلها لحظياً (بدون جلب التاريخ)
+    joinChat: (orderId: string) => {
+      const socket = getOrCreateSocket();
+      socket.emit("chat:join", { orderId });
+    },
   };
 }

@@ -169,6 +169,214 @@ export class DashboardsService {
     };
   }
 
+  // ============================================================================
+  // تقرير التحليلات: يومي / أسبوعي / شهري + مقارنة بالفترة السابقة
+  // ============================================================================
+
+  private localDayKey(d: Date) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  /**
+   * يحسب نطاق الفترة الحالية والفترة السابقة المقابلة.
+   * period: daily | weekly | monthly ؛ dateStr: أي تاريخ داخل الفترة (اختياري)
+   */
+  private resolvePeriod(period: string, dateStr?: string) {
+    const base = dateStr ? new Date(dateStr) : new Date();
+    if (isNaN(base.getTime())) {
+      throw new Error('Invalid date');
+    }
+
+    let start: Date;
+    let end: Date;
+    let prevStart: Date;
+    let prevEnd: Date;
+    let label: string;
+
+    if (period === 'monthly') {
+      start = new Date(base.getFullYear(), base.getMonth(), 1, 0, 0, 0, 0);
+      end = new Date(base.getFullYear(), base.getMonth() + 1, 0, 23, 59, 59, 999);
+      prevStart = new Date(base.getFullYear(), base.getMonth() - 1, 1, 0, 0, 0, 0);
+      prevEnd = new Date(base.getFullYear(), base.getMonth(), 0, 23, 59, 59, 999);
+      label = start.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+    } else if (period === 'weekly') {
+      // الأسبوع = 7 أيام منتهية باليوم المختار
+      end = new Date(base);
+      end.setHours(23, 59, 59, 999);
+      start = new Date(end);
+      start.setDate(end.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      prevEnd = new Date(start);
+      prevEnd.setDate(start.getDate() - 1);
+      prevEnd.setHours(23, 59, 59, 999);
+      prevStart = new Date(prevEnd);
+      prevStart.setDate(prevEnd.getDate() - 6);
+      prevStart.setHours(0, 0, 0, 0);
+      label = `${this.localDayKey(start)} → ${this.localDayKey(end)}`;
+    } else {
+      // daily
+      start = new Date(base);
+      start.setHours(0, 0, 0, 0);
+      end = new Date(base);
+      end.setHours(23, 59, 59, 999);
+      prevStart = new Date(start);
+      prevStart.setDate(start.getDate() - 1);
+      prevEnd = new Date(prevStart);
+      prevEnd.setHours(23, 59, 59, 999);
+      label = start.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    return { start, end, prevStart, prevEnd, label };
+  }
+
+  private async sumWindow(start: Date, end: Date) {
+    const [payAgg, expAgg] = await Promise.all([
+      this.prisma.payment.aggregate({
+        where: { paidAt: { gte: start, lte: end } },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      this.prisma.expense.aggregate({
+        where: { date: { gte: start, lte: end } },
+        _sum: { amount: true },
+      }),
+    ]);
+    const revenue = Number(payAgg._sum.amount || 0);
+    const expenses = Number(expAgg._sum.amount || 0);
+    return {
+      revenue: Number(revenue.toFixed(2)),
+      expenses: Number(expenses.toFixed(2)),
+      net: Number((revenue - expenses).toFixed(2)),
+      paymentsCount: payAgg._count,
+    };
+  }
+
+  private pctChange(current: number, previous: number): number | null {
+    if (previous === 0) return current > 0 ? 100 : null;
+    return Number((((current - previous) / previous) * 100).toFixed(1));
+  }
+
+  async getAnalytics(period: string = 'monthly', dateStr?: string) {
+    const p = ['daily', 'weekly', 'monthly'].includes(period) ? period : 'monthly';
+    const { start, end, prevStart, prevEnd, label } = this.resolvePeriod(p, dateStr);
+
+    // 1) إجماليات الفترة الحالية والسابقة
+    const [current, previous] = await Promise.all([
+      this.sumWindow(start, end),
+      this.sumWindow(prevStart, prevEnd),
+    ]);
+
+    // 2) الاتجاه اليومي (كل يوم داخل الفترة) — من المدفوعات والمصروفات
+    const [payments, expenses] = await Promise.all([
+      this.prisma.payment.findMany({
+        where: { paidAt: { gte: start, lte: end } },
+        select: { amount: true, paidAt: true },
+      }),
+      this.prisma.expense.findMany({
+        where: { date: { gte: start, lte: end } },
+        select: { amount: true, date: true },
+      }),
+    ]);
+
+    // نجهّز كل الأيام في المدى (حتى الفاضية) عشان الرسم يبقى متصل
+    const trendMap: Record<string, { day: string; revenue: number; expenses: number }> = {};
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      const key = this.localDayKey(cursor);
+      trendMap[key] = { day: key, revenue: 0, expenses: 0 };
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    for (const pay of payments) {
+      const key = this.localDayKey(new Date(pay.paidAt));
+      if (trendMap[key]) trendMap[key].revenue += Number(pay.amount);
+    }
+    for (const ex of expenses) {
+      const key = this.localDayKey(new Date(ex.date));
+      if (trendMap[key]) trendMap[key].expenses += Number(ex.amount);
+    }
+    const dailyTrend = Object.values(trendMap).map((d) => ({
+      day: d.day,
+      revenue: Number(d.revenue.toFixed(2)),
+      expenses: Number(d.expenses.toFixed(2)),
+      net: Number((d.revenue - d.expenses).toFixed(2)),
+    }));
+
+    // 3) أكتر المنتجات والتصنيفات مبيعاً (طلبات مُسلّمة داخل الفترة)
+    const orderItems = await this.prisma.barOrderItem.findMany({
+      where: {
+        order: {
+          status: 'delivered',
+          updatedAt: { gte: start, lte: end },
+        },
+      },
+      include: { product: true },
+    });
+
+    const productMap = new Map<string, { productName: string; quantity: number; revenue: number }>();
+    const categoryMap = new Map<string, { category: string; quantity: number; revenue: number }>();
+    for (const item of orderItems as any[]) {
+      const qty = Number(item.quantity);
+      const rev = Number(item.subtotal ?? 0);
+      const pKey = item.productId;
+      const pExisting = productMap.get(pKey) ?? {
+        productName: item.product?.name ?? 'غير معروف',
+        quantity: 0,
+        revenue: 0,
+      };
+      pExisting.quantity += qty;
+      pExisting.revenue += rev;
+      productMap.set(pKey, pExisting);
+
+      const cKey = item.product?.category ?? 'other';
+      const cExisting = categoryMap.get(cKey) ?? { category: cKey, quantity: 0, revenue: 0 };
+      cExisting.quantity += qty;
+      cExisting.revenue += rev;
+      categoryMap.set(cKey, cExisting);
+    }
+
+    const topProducts = Array.from(productMap.values())
+      .map((x) => ({ ...x, revenue: Number(x.revenue.toFixed(2)) }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+    const topCategories = Array.from(categoryMap.values())
+      .map((x) => ({ ...x, revenue: Number(x.revenue.toFixed(2)) }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    // 4) تفصيل المصروفات بالتصنيف
+    const expensesByCategory = await this.prisma.expense.groupBy({
+      by: ['categoryId'],
+      where: { date: { gte: start, lte: end } },
+      _sum: { amount: true },
+    });
+    const categories = await this.prisma.expenseCategory.findMany();
+    const expenseBreakdown = expensesByCategory
+      .map((e) => ({
+        categoryName: categories.find((c) => c.id === e.categoryId)?.name ?? 'غير مصنف',
+        total: Number(e._sum.amount || 0),
+      }))
+      .sort((a, b) => b.total - a.total);
+
+    return {
+      period: p,
+      label,
+      range: { start: start.toISOString(), end: end.toISOString() },
+      current,
+      previous,
+      changes: {
+        revenue: this.pctChange(current.revenue, previous.revenue),
+        expenses: this.pctChange(current.expenses, previous.expenses),
+        net: this.pctChange(current.net, previous.net),
+      },
+      dailyTrend,
+      topProducts,
+      topCategories,
+      expenseBreakdown,
+    };
+  }
+
   async getOperationsDashboard() {
     const now = new Date();
     const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);

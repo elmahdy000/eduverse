@@ -9,7 +9,7 @@ import { api } from "../../../lib/api";
 import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import type { BarOrder, Paginated } from "../../../lib/types";
-import { Panel, SectionTitle, Badge } from "../../../components/ui";
+import { Panel, SectionTitle, Badge, Alert } from "../../../components/ui";
 import { useAuthStore } from "../../../store/auth-store";
 import clsx from "clsx";
 
@@ -47,7 +47,10 @@ export default function BarOrdersPage() {
 
   // Real-time updates via Socket.IO
   useEffect(() => {
-    const socket: Socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/bar-orders`);
+    // نفس منطق lib/api.ts: الباك اند على 3001، ونشيل /api لو موجود
+    const rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const socketBase = rawBase.replace(/\/api\/?$/, '');
+    const socket: Socket = io(`${socketBase}/bar-orders`);
 
     const handleOrderUpdate = () => {
       queryClient.invalidateQueries({ queryKey: ["bar-orders"] });
@@ -162,6 +165,10 @@ export default function BarOrdersPage() {
           </div>
         }
       />
+
+      {ordersQuery.isError && (
+        <Alert tone="danger">حصل خطأ في تحميل طلبات البار. جرّب زر التحديث.</Alert>
+      )}
 
       {message && (
         <div className={clsx(

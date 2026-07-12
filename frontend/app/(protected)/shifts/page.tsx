@@ -15,9 +15,13 @@ import {
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
 import { Alert, SectionTitle } from "../../../components/ui";
+import { useAuthStore } from "../../../store/auth-store";
 
 export default function ShiftsPage() {
   const qc = useQueryClient();
+  const roleName = useAuthStore((s) => s.user?.role?.name);
+  // قائمة كل الورديات (GET /shifts) للمالك ومدير العمليات فقط — الريسبشن/الباريستا يشوفوا ورديتهم الحالية بس
+  const canViewAllShifts = roleName === "Owner" || roleName === "Operations Manager";
 
   const [startCash, setStartCash] = useState("");
   const [actualCash, setActualCash] = useState("");
@@ -41,6 +45,7 @@ export default function ShiftsPage() {
 
   const pastShiftsQuery = useQuery({
     queryKey: ["shifts", "list"],
+    enabled: canViewAllShifts, // مانناديش /shifts للريسبشن (هيرجّع 403)
     queryFn: async () => {
       const r = await api.get("/shifts");
       return (r.data.data ?? []) as Record<string, unknown>[];
@@ -81,7 +86,7 @@ export default function ShiftsPage() {
 
   const currentShift = currentShiftQuery.data;
   const pastShifts = pastShiftsQuery.data ?? [];
-  const isLoading = currentShiftQuery.isLoading && pastShiftsQuery.isLoading;
+  const isLoading = currentShiftQuery.isLoading || (canViewAllShifts && pastShiftsQuery.isLoading);
 
   const expectedCash = useMemo(() => {
     if (!currentShift) return 0;
@@ -193,6 +198,7 @@ export default function ShiftsPage() {
             </div>
           </div>
 
+          {canViewAllShifts && (
           <div className="space-y-6">
             <div className="h-full rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
               <h3 className="flex items-center gap-2 font-bold text-slate-900">
@@ -216,6 +222,7 @@ export default function ShiftsPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-slate-200 bg-slate-50/50 p-20 text-center">

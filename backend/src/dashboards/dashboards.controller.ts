@@ -1,7 +1,7 @@
-import { BadRequestException, Controller, Get, UseGuards, HttpException } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, UseGuards, HttpException } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { OwnerGuard, RoleGuard } from '../auth/role.guard';
+import { OwnerGuard, OpsManagerGuard, RoleGuard } from '../auth/role.guard';
 import { DashboardsService } from './dashboards.service';
 
 @ApiTags('dashboards')
@@ -81,6 +81,26 @@ export class DashboardsController {
   async getOperationsByRole() {
     try {
       const data = await this.dashboardsService.getOperationsByRole();
+      return {
+        success: true,
+        data,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('analytics')
+  @ApiOperation({ summary: 'Financial analytics report (daily/weekly/monthly) for Owner & Ops' })
+  @UseGuards(JwtAuthGuard, OpsManagerGuard)
+  async getAnalytics(
+    @Query('period') period?: string,
+    @Query('date') date?: string,
+  ) {
+    try {
+      const data = await this.dashboardsService.getAnalytics(period, date);
       return {
         success: true,
         data,

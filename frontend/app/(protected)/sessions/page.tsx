@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import {
   Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen,
   Timer, RefreshCw, Zap, History, Search, ChevronRight
@@ -170,14 +171,16 @@ function ActiveSessionCard({
 /* ─── page ─────────────────────────────────────────────────── */
 export default function SessionsPage() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
 
-  const [customerId, setCustomerId] = useState("");
+  const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");
   const [sessionType, setSessionType] = useState("hourly");
   const [roomId, setRoomId] = useState("");
   const [bookingId, setBookingId] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string } | null>(null);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
   const [payNotes, setPayNotes] = useState("");
@@ -371,8 +374,8 @@ export default function SessionsPage() {
                   <ActiveSessionCard
                     key={s.id}
                     session={s}
-                    onClose={closeMutation.mutate}
-                    onCancel={cancelMutation.mutate}
+                    onClose={(id) => setPendingSessionAction({ id, action: "close", customerName: s.customer?.fullName })}
+                    onCancel={(id) => setPendingSessionAction({ id, action: "cancel", customerName: s.customer?.fullName })}
                     isClosing={closeMutation.isPending}
                     isCancelling={cancelMutation.isPending}
                   />
@@ -458,7 +461,7 @@ export default function SessionsPage() {
                         <td className="py-3">
                           {session.status === "active" && (
                             <button
-                              onClick={() => closeMutation.mutate(session.id)}
+                              onClick={() => setPendingSessionAction({ id: session.id, action: "close", customerName: session.customer?.fullName })}
                               disabled={closeMutation.isPending}
                               className="rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 opacity-0 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 disabled:opacity-50"
                             >
@@ -654,7 +657,7 @@ export default function SessionsPage() {
         size="lg"
         title="فاتورة العميل"
       >
-        {selectedInvoice && (
+      {selectedInvoice && (
           <div className="space-y-6">
             <InvoiceReceipt
               invoice={selectedInvoice}
@@ -710,7 +713,25 @@ export default function SessionsPage() {
                   </Btn>
                 </form>
               </div>
-            )}
+      )}
+
+      <Modal isOpen={Boolean(pendingSessionAction)} onClose={() => setPendingSessionAction(null)} title={pendingSessionAction?.action === "close" ? "إنهاء الجلسة وإصدار الفاتورة" : "إلغاء الجلسة"} size="sm">
+        <div className="space-y-4">
+          <Alert tone={pendingSessionAction?.action === "close" ? "warn" : "danger"}>
+            {pendingSessionAction?.action === "close"
+              ? `سيتم إنهاء جلسة ${pendingSessionAction.customerName ?? "العميل"} وحساب المدة وإصدار الفاتورة. هل تريد المتابعة؟`
+              : `سيتم إلغاء جلسة ${pendingSessionAction?.customerName ?? "العميل"} بدون إصدار فاتورة. هل أنت متأكد؟`}
+          </Alert>
+          <div className="flex gap-2">
+            <Btn variant={pendingSessionAction?.action === "close" ? "warn" : "danger"} loading={closeMutation.isPending || cancelMutation.isPending} onClick={() => {
+              if (!pendingSessionAction) return;
+              const mutation = pendingSessionAction.action === "close" ? closeMutation : cancelMutation;
+              mutation.mutate(pendingSessionAction.id, { onSuccess: () => setPendingSessionAction(null) });
+            }}>{pendingSessionAction?.action === "close" ? "إنهاء وإصدار الفاتورة" : "تأكيد الإلغاء"}</Btn>
+            <Btn variant="ghost" onClick={() => setPendingSessionAction(null)}>رجوع</Btn>
+          </div>
+        </div>
+      </Modal>
 
             <div className="flex justify-center pt-2">
               <button

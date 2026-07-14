@@ -62,6 +62,9 @@ export class BookingsService {
     const startTime = new Date(createBookingDto.startTime);
     const endTime = new Date(createBookingDto.endTime);
     await this.validateBookingTimeRange(startTime, endTime);
+    if ((createBookingDto.depositAmount ?? 0) > createBookingDto.totalAmount) {
+      throw new Error('Deposit amount cannot exceed total amount');
+    }
 
     const [customer, room] = await Promise.all([
       this.prisma.customer.findUnique({ where: { id: createBookingDto.customerId } }),
@@ -84,17 +87,15 @@ export class BookingsService {
       throw new Error('Participant count exceeds room capacity');
     }
 
-    const conflicts = await this.checkRoomConflicts(
-      createBookingDto.roomId,
-      startTime,
-      endTime,
-    );
-    if (conflicts.hasConflict) {
-      throw new Error('Room is not available for the selected time range');
-    }
-
-    return this.prisma.booking.create({
-      data: {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM rooms WHERE id = ${createBookingDto.roomId}::uuid FOR UPDATE`;
+      const bookingConflict = await tx.booking.findFirst({ where: {
+        roomId: createBookingDto.roomId,
+        status: { in: ['draft', 'confirmed', 'in_progress'] },
+        startTime: { lt: endTime }, endTime: { gt: startTime },
+      }});
+      if (bookingConflict) throw new Error('Room is not available for the selected time range');
+      return tx.booking.create({ data: {
         customerId: createBookingDto.customerId,
         roomId: createBookingDto.roomId,
         bookingType: createBookingDto.bookingType,
@@ -106,12 +107,11 @@ export class BookingsService {
         notes: createBookingDto.notes,
         createdByUserId: userId,
         status: 'confirmed',
-      },
-      include: {
+      }, include: {
         customer: true,
         room: true,
-      },
-    });
+      }});
+    }, { isolationLevel: 'Serializable' });
   }
 
   async getBooking(bookingId: string) {
@@ -231,6 +231,9 @@ export class BookingsService {
     if (!room) {
       throw new Error('Room not found');
     }
+    const nextTotalAmount = updateBookingDto.totalAmount ?? Number(booking.totalAmount);
+    const nextDepositAmount = updateBookingDto.depositAmount ?? Number(booking.depositAmount ?? 0);
+    if (nextDepositAmount > nextTotalAmount) throw new Error('Deposit amount cannot exceed total amount');
     if (
       updateBookingDto.participantCount &&
       updateBookingDto.participantCount > room.capacity
@@ -264,7 +267,8 @@ export class BookingsService {
   }
 
   async cancelBooking(bookingId: string, reason?: string) {
-    await this.getBooking(bookingId);
+    const booking = await this.getBooking(bookingId);
+    if (!['draft', 'confirmed'].includes(booking.status)) throw new Error('Only draft or confirmed bookings can be cancelled');
 
     return this.prisma.booking.update({
       where: { id: bookingId },
@@ -280,7 +284,8 @@ export class BookingsService {
   }
 
   async completeBooking(bookingId: string) {
-    await this.getBooking(bookingId);
+    const booking = await this.getBooking(bookingId);
+    if (!['confirmed', 'in_progress'].includes(booking.status)) throw new Error('Only confirmed or in-progress bookings can be completed');
 
     return this.prisma.booking.update({
       where: { id: bookingId },
@@ -295,7 +300,8 @@ export class BookingsService {
   }
 
   async markAsNoShow(bookingId: string) {
-    await this.getBooking(bookingId);
+    const booking = await this.getBooking(bookingId);
+    if (booking.status !== 'confirmed') throw new Error('Only confirmed bookings can be marked as no-show');
 
     return this.prisma.booking.update({
       where: { id: bookingId },

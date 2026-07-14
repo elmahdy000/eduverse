@@ -21,6 +21,7 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ShiftsModule } from './shifts/shifts.module';
+import { OwnerReportsModule } from './owner-reports/owner-reports.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { ShiftsModule } from './shifts/shifts.module';
     ExpensesModule,
     InventoryModule,
     ShiftsModule,
+    OwnerReportsModule,
   ],
   controllers: [AppController],
   providers: [

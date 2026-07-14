@@ -358,6 +358,7 @@ export default function GuestOrderPage() {
       const SOCKET_URL = SOCKET_BASE + "/bar-orders";
 
       const s = io(SOCKET_URL, {
+        auth: { guestCode },
         transports: ["websocket", "polling"],
         autoConnect: true,
         reconnection: true,

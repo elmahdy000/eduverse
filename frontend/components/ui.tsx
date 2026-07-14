@@ -56,19 +56,19 @@ export function SectionTitle({
   title: string; subtitle?: string; icon?: ReactNode; action?: ReactNode;
 }) {
   return (
-    <header className="mb-6 flex items-start justify-between gap-4">
-      <div className="flex items-center gap-3">
+    <header className="mb-6 flex min-w-0 flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start">
+      <div className="flex min-w-0 items-center gap-3">
         {icon && (
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/25">
             {icon}
           </div>
         )}
-        <div className="text-right">
+        <div className="min-w-0 text-right">
           <h2 className="text-xl font-black text-slate-900 md:text-2xl tracking-tight">{title}</h2>
           {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
         </div>
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="min-w-0 sm:shrink-0">{action}</div>}
     </header>
   );
 }

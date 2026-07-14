@@ -50,7 +50,7 @@ export default function BarOrdersPage() {
     // نفس منطق lib/api.ts: الباك اند على 3001، ونشيل /api لو موجود
     const rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     const socketBase = rawBase.replace(/\/api\/?$/, '');
-    const socket: Socket = io(`${socketBase}/bar-orders`);
+    const socket: Socket = io(`${socketBase}/bar-orders`, { auth: { token: useAuthStore.getState().accessToken } });
 
     const handleOrderUpdate = () => {
       queryClient.invalidateQueries({ queryKey: ["bar-orders"] });

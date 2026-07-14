@@ -198,7 +198,13 @@ export class PaymentsService {
       }
 
       const refundAmount = refundDto.amount ?? originalAmount;
-      if (refundAmount > originalAmount) {
+      const previousRefunds = await tx.payment.aggregate({
+        where: { refundedPaymentId: paymentId, amount: { lt: 0 } },
+        _sum: { amount: true },
+      });
+      const alreadyRefunded = Math.abs(Number(previousRefunds._sum.amount ?? 0));
+      const refundableAmount = Number((originalAmount - alreadyRefunded).toFixed(2));
+      if (refundAmount > refundableAmount) {
         throw new Error('Refund amount cannot exceed original payment amount');
       }
 
@@ -211,6 +217,7 @@ export class PaymentsService {
             ? `Refund for payment ${paymentId}: ${refundDto.reason}`
             : `Refund for payment ${paymentId}`,
           recordedByUserId: userId,
+          refundedPaymentId: paymentId,
         },
       });
 

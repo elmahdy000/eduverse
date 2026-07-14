@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import {
   CreateBarOrderDto,
@@ -64,6 +69,22 @@ function isNonDiscountedProduct(product: any): boolean {
   return false;
 }
 
+// حساب سعر الوحدة بعد تطبيق خصم نوع العميل (owner_discount 70% / staff 50%)
+// مع استثناء منتجات التلاجة/المعلبات/المياه (تتباع بسعرها الكامل).
+function computeUnitPrice(product: any, customerType?: string): number {
+  const basePrice = Number(product.price);
+  if (isNonDiscountedProduct(product)) {
+    return basePrice;
+  }
+  if (customerType === 'owner_discount') {
+    return basePrice * 0.3; // خصم 70%
+  }
+  if (customerType === 'staff') {
+    return basePrice * 0.5; // خصم 50%
+  }
+  return basePrice;
+}
+
 @Injectable()
 export class BarOrdersService {
   constructor(
@@ -73,10 +94,10 @@ export class BarOrdersService {
 
   async createOrder(createBarOrderDto: CreateBarOrderDto, userId?: string) {
     if (!createBarOrderDto.customerId && !createBarOrderDto.sessionId) {
-      throw new Error('Either customerId or sessionId is required');
+      throw new BadRequestException('Either customerId or sessionId is required');
     }
     if (!createBarOrderDto.items || createBarOrderDto.items.length === 0) {
-      throw new Error('Order must contain at least one item');
+      throw new BadRequestException('Order must contain at least one item');
     }
 
     let customerId = createBarOrderDto.customerId;
@@ -85,21 +106,28 @@ export class BarOrdersService {
       const session = await this.prisma.session.findUnique({
         where: { id: createBarOrderDto.sessionId },
       });
-      if (!session) throw new Error('Session not found');
+      if (!session) throw new NotFoundException('Session not found');
+      // لا يُسمح بإضافة طلبات لجلسة غير نشطة (مقفولة/ملغاة)
+      if (session.status !== 'active') {
+        throw new BadRequestException('لا يمكن إضافة طلب على جلسة غير نشطة');
+      }
       if (customerId && customerId !== session.customerId) {
-        throw new Error('Selected customer does not match the selected session');
+        throw new BadRequestException('Selected customer does not match the selected session');
       }
       if (!customerId) customerId = session.customerId;
     }
 
     if (!customerId) {
-      throw new Error('Unable to resolve customer for this order');
+      throw new BadRequestException('Unable to resolve customer for this order');
     }
 
     const customer = await this.prisma.customer.findUnique({
       where: { id: customerId },
     });
-    if (!customer) throw new Error('Customer not found');
+    if (!customer) throw new NotFoundException('Customer not found');
+    if (customer.status === 'blacklisted') {
+      throw new BadRequestException('هذا العميل في القائمة السوداء، لا يمكن استلام طلبات منه');
+    }
 
     const productIds = createBarOrderDto.items.map((item) => item.productId);
     const products = await this.prisma.product.findMany({
@@ -107,31 +135,21 @@ export class BarOrdersService {
     });
 
     if (products.length !== productIds.length) {
-      throw new Error('One or more products were not found');
+      throw new NotFoundException('One or more products were not found');
     }
 
     const productsMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
     const itemsToCreate = createBarOrderDto.items.map((item) => {
       const product = productsMap.get(item.productId);
-      if (!product) throw new Error('Product not found');
+      if (!product) throw new NotFoundException('Product not found');
       if (!product.active || !product.availability) {
-        throw new Error(`Product "${product.name}" is not available`);
+        throw new BadRequestException(`Product "${product.name}" is not available`);
+      }
+      if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
+        throw new BadRequestException(`Invalid quantity for product "${product.name}"`);
       }
 
-      let unitPrice = Number(product.price);
-
-      const isNonDiscounted = isNonDiscountedProduct(product);
-
-      if (customer.customerType === 'owner_discount') {
-        if (!isNonDiscounted) {
-          unitPrice = Number(product.price) * 0.3; // 70% discount
-        }
-      } else if (customer.customerType === 'staff') {
-        if (!isNonDiscounted) {
-          unitPrice = Number(product.price) * 0.5; // 50% discount
-        }
-      }
-
+      const unitPrice = computeUnitPrice(product, customer.customerType);
       const subtotal = unitPrice * item.quantity;
       return {
         productId: item.productId,
@@ -242,7 +260,7 @@ export class BarOrdersService {
     });
 
     if (!session) {
-      throw new Error('Guest code is invalid or session has ended');
+      throw new BadRequestException('Guest code is invalid or session has ended');
     }
 
     return this.createOrder({
@@ -267,7 +285,7 @@ export class BarOrdersService {
         items: { include: { product: true } },
       },
     });
-    if (!order) throw new Error('Order not found');
+    if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
@@ -327,36 +345,64 @@ export class BarOrdersService {
   async updateOrderStatus(orderId: string, updateStatusDto: UpdateBarOrderStatusDto, userId: string) {
     const order = await this.getOrder(orderId);
 
+    const allowedTransitions: Record<string, string[]> = {
+      new: ['in_preparation', 'cancelled'],
+      in_preparation: ['ready', 'cancelled'],
+      ready: ['delivered', 'cancelled'],
+      delivered: [],
+      cancelled: [],
+    };
+    if (updateStatusDto.status !== order.status && !allowedTransitions[order.status]?.includes(updateStatusDto.status)) {
+      throw new BadRequestException(`Invalid order transition from ${order.status} to ${updateStatusDto.status}`);
+    }
+
     // Prevent changing the status of an already delivered order to avoid stock and invoice conflicts
     if (order.status === 'delivered' && updateStatusDto.status !== 'delivered') {
-      throw new Error('Cannot change the status of an already delivered order');
+      throw new BadRequestException('Cannot change the status of an already delivered order');
     }
 
     if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
-      if (!order.customerId) throw new Error('Cannot deliver order without customer');
+      if (!order.customerId) throw new BadRequestException('Cannot deliver order without customer');
 
+      // لو الأوردر متحاسب بالفعل ضمن جلسة نشطة، الفاتورة هتتولّد عند إغلاق الجلسة
       const activeSession = order.sessionId
         ? await this.prisma.session.findFirst({
             where: { id: order.sessionId, status: 'active' },
           })
         : null;
 
-      if (!activeSession) {
-        // Create a standalone invoice for the bar order if there is no active session
-        await this.prisma.$transaction(async (tx) => {
+      // نعمل فاتورة standalone فقط لو:
+      // (أ) مفيش جلسة نشطة مرتبطة، و
+      // (ب) الأوردر لسه مش مربوط بأي فاتورة (منع الاحتساب المزدوج).
+      // خصم المخزون داخل نفس الـ transaction لضمان اتساق البيانات
+      // (deductStockForOrder له حماية داخلية ضد التكرار عبر referenceId)
+      await this.prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${orderId}))`;
+        const lockedOrder = await tx.barOrder.findUnique({
+          where: { id: orderId },
+          include: { customer: true, items: { include: { product: true } } },
+        });
+        if (!lockedOrder) throw new NotFoundException('Order not found');
+        if (lockedOrder.status === 'delivered') return;
+        if (lockedOrder.status !== 'ready') throw new BadRequestException('Only ready orders can be delivered');
+        const lockedActiveSession = lockedOrder.sessionId
+          ? await tx.session.findFirst({ where: { id: lockedOrder.sessionId, status: 'active' } })
+          : null;
+        const needsStandaloneInvoice = !lockedActiveSession && !lockedOrder.invoiceId;
+        if (needsStandaloneInvoice) {
           const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
           const invoice = await tx.invoice.create({
             data: {
-              customerId: order.customerId,
+              customerId: lockedOrder.customerId,
               invoiceNumber,
-              createdByUserId: order.createdByUserId || order.customer.createdByUserId,
-              totalAmount: Number(order.totalAmount),
+              createdByUserId: lockedOrder.createdByUserId || lockedOrder.customer.createdByUserId,
+              totalAmount: Number(lockedOrder.totalAmount),
               amountPaid: 0,
-              remainingAmount: Number(order.totalAmount),
-              paymentStatus: 'unpaid',
+              remainingAmount: Number(lockedOrder.totalAmount),
+              paymentStatus: Number(lockedOrder.totalAmount) === 0 ? 'paid' : 'unpaid',
               notes: `طلب بار #${orderId.slice(0, 8)}`,
               items: {
-                create: order.items.map((item: any) => ({
+                create: lockedOrder.items.map((item: any) => ({
                   itemType: 'bar_order',
                   itemId: orderId,
                   description: item.product?.name ?? 'منتج بار',
@@ -370,23 +416,23 @@ export class BarOrdersService {
 
           await tx.barOrder.update({
             where: { id: orderId },
-            data: { 
+            data: {
               invoiceId: invoice.id,
               status: updateStatusDto.status,
             },
           });
-        });
-
-        // Deduct inventory when delivered for standalone orders
-        try {
-          await this.inventoryService.deductStockForOrder(orderId, userId);
-        } catch (err) {
-          console.error('Failed to deduct inventory for standalone order:', err.message);
+        } else {
+          await tx.barOrder.update({
+            where: { id: orderId },
+            data: { status: updateStatusDto.status },
+          });
         }
-        
-        // Return updated order
-        return this.getOrder(orderId);
-      }
+
+        // خصم المخزون ضمن نفس المعاملة — لو فشل، ترجع المعاملة بالكامل
+        await this.inventoryService.deductStockForOrderTx(tx, orderId, userId);
+      });
+
+      return this.getOrder(orderId);
     }
 
     const updated = await this.prisma.barOrder.update({
@@ -400,22 +446,13 @@ export class BarOrdersService {
       },
     });
 
-    // Deduct inventory when delivered (if not already deducted)
-    if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
-      try {
-        await this.inventoryService.deductStockForOrder(orderId, userId);
-      } catch (err) {
-        console.error('Failed to deduct inventory:', err.message);
-      }
-    }
-
     return updated;
   }
 
   async cancelOrder(orderId: string, userId: string, _reason?: string) {
     const order = await this.getOrder(orderId);
     if (order.status === 'delivered') {
-      throw new Error('Cannot cancel a delivered order');
+      throw new BadRequestException('Cannot cancel a delivered order');
     }
     return this.prisma.barOrder.update({
       where: { id: orderId },
@@ -430,7 +467,7 @@ export class BarOrdersService {
   async cancelGuestOrder(orderId: string, guestCode: string) {
     const order = await this.getOrder(orderId);
     if (order.guestCode !== guestCode) {
-      throw new Error('Unauthorized access to this order');
+      throw new ForbiddenException('Unauthorized access to this order');
     }
 
     const now = Date.now();
@@ -438,11 +475,11 @@ export class BarOrdersService {
     const diffSeconds = (now - createdAt) / 1000;
 
     if (diffSeconds > 10) {
-      throw new Error('Cancellation window (10s) has expired');
+      throw new BadRequestException('Cancellation window (10s) has expired');
     }
 
     if (order.status !== 'new') {
-      throw new Error('Order is already being prepared and cannot be cancelled');
+      throw new BadRequestException('Order is already being prepared and cannot be cancelled');
     }
 
     return this.prisma.barOrder.update({
@@ -458,7 +495,18 @@ export class BarOrdersService {
   async updateOrderItems(orderId: string, items: { productId: string; quantity: number }[]) {
     const order = await this.getOrder(orderId);
     if (order.status === 'delivered') {
-      throw new Error('Cannot edit a delivered order');
+      throw new BadRequestException('Cannot edit a delivered order');
+    }
+    // لو الأوردر اتحاسب بالفعل (متربط بفاتورة) مش مسموح بتعديله لتفادي اختلاف الفاتورة عن الطلب
+    if (order.invoiceId) {
+      throw new BadRequestException('لا يمكن تعديل طلب تم إصدار فاتورة له بالفعل');
+    }
+    // لو الأوردر مربوط بجلسة، لازم تكون الجلسة لسه نشطة (مش مقفولة/ملغاة)
+    if (order.sessionId && order.session && order.session.status !== 'active') {
+      throw new BadRequestException('لا يمكن تعديل طلب على جلسة غير نشطة');
+    }
+    if (!items || items.length === 0) {
+      throw new BadRequestException('Order must contain at least one item');
     }
 
     const customer = order.customer;
@@ -470,20 +518,12 @@ export class BarOrdersService {
     const productsMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
     const itemsToCreate = items.map((item) => {
       const product = productsMap.get(item.productId);
-      if (!product) throw new Error('Product not found');
-
-      let unitPrice = Number(product.price);
-      const isNonDiscounted = isNonDiscountedProduct(product);
-
-      if (customer.customerType === 'owner_discount') {
-        if (!isNonDiscounted) {
-          unitPrice = Number(product.price) * 0.3; // 70% discount
-        }
-      } else if (customer.customerType === 'staff') {
-        if (!isNonDiscounted) {
-          unitPrice = Number(product.price) * 0.5; // 50% discount
-        }
+      if (!product) throw new NotFoundException('Product not found');
+      if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
+        throw new BadRequestException(`Invalid quantity for product "${product.name}"`);
       }
+
+      const unitPrice = computeUnitPrice(product, customer.customerType);
 
       return {
         productId: item.productId,

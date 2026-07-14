@@ -80,6 +80,7 @@ export class DashboardsService {
         select: { amount: true, paidAt: true },
       }),
       this.prisma.barOrderItem.findMany({
+        where: { order: { status: 'delivered' } },
         take: 500,
         orderBy: { order: { createdAt: 'desc' } },
         include: { product: true },
@@ -388,6 +389,7 @@ export class DashboardsService {
           where: { status: 'active' },
           select: {
             id: true,
+            roomId: true,
             startTime: true,
             guestCode: true,
             status: true,
@@ -499,7 +501,7 @@ export class DashboardsService {
         }),
         this.prisma.session.findMany({
           where: { status: 'active' },
-          include: { customer: { select: { fullName: true, customerType: true } }, room: { select: { name: true } } },
+          include: { customer: { select: { id: true, fullName: true, customerType: true } }, room: { select: { name: true } } },
           orderBy: { startTime: 'asc' },
           take: 20,
         }),

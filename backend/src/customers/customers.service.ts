@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import {
   CreateCustomerDto,
@@ -32,7 +32,7 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
 
     return customer;
@@ -188,7 +188,7 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
 
     const updatedCustomer = await this.prisma.customer.update({
@@ -229,7 +229,7 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
 
     return {
@@ -268,7 +268,7 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
 
     return await this.prisma.customer.update({
@@ -283,12 +283,17 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
+
+    const blacklistNote = `[${new Date().toISOString().slice(0, 10)}] القائمة السوداء: ${reason}`;
+    const updatedNotes = customer.notes
+      ? `${customer.notes}\n${blacklistNote}`
+      : blacklistNote;
 
     return await this.prisma.customer.update({
       where: { id: customerId },
-      data: { status: 'blacklisted', notes: `Blacklisted: ${reason}` },
+      data: { status: 'blacklisted', notes: updatedNotes },
     });
   }
 
@@ -298,7 +303,7 @@ export class CustomersService {
     });
 
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new NotFoundException('Customer not found');
     }
 
     return await this.prisma.customer.update({

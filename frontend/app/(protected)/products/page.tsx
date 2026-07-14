@@ -9,6 +9,7 @@ import { money } from "../../../lib/format";
 import { translateProductCategory } from "../../../lib/labels";
 import type { Paginated, Product } from "../../../lib/types";
 import { Alert, Btn, EmptyState, FormField, Panel, SectionTitle, StatCard, CardSkeleton } from "../../../components/ui";
+import { useAuthStore } from "../../../store/auth-store";
 
 const CATEGORIES = [
   { value: "", label: "الكل" },
@@ -59,14 +60,16 @@ const categoryIcons: Record<string, React.ComponentType<{ size?: number; classNa
 };
 
 
-function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail, busy }: {
+function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail, busy, canManage }: {
   product: Product;
   onEdit: () => void;
   onRecipe: () => void;
   onToggleActive: () => void;
   onToggleAvail: () => void;
   busy: boolean;
+  canManage: boolean;
 }) {
+  const CategoryIcon = categoryIcons[product.category] ?? Package;
   return (
     <div className={`flex flex-col rounded-2xl border bg-white shadow-sm transition ${!product.active ? "opacity-60" : ""} ${!product.availability ? "border-amber-200" : "border-slate-200"}`}>
       <div className="p-2">
@@ -74,8 +77,8 @@ function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail,
           {product.imageUrl ? (
             <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-slate-300">
-              <Package size={24} />
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-slate-300">
+              <CategoryIcon size={32} />
             </div>
           )}
         </div>
@@ -109,28 +112,34 @@ function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail,
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-1 border-t border-slate-100 p-2">
-        <button onClick={onEdit} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
-          <Pencil size={11} /> تعديل
-        </button>
-        <button onClick={onRecipe} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-violet-600 transition hover:bg-violet-50">
-          <Settings2 size={11} /> الوصفة
-        </button>
-        <button onClick={onToggleAvail} disabled={busy} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
-          {product.availability ? <EyeOff size={11} /> : <Eye size={11} />}
-          {product.availability ? "إيقاف الإتاحة" : "إتاحة"}
-        </button>
-        <button onClick={onToggleActive} disabled={busy} className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
-          {product.active ? <PowerOff size={11} /> : <Power size={11} />}
-          {product.active ? "إيقاف" : "تفعيل"}
-        </button>
-      </div>
+      {canManage && (
+        <div className="grid grid-cols-2 gap-1 border-t border-slate-100 p-2">
+          <button onClick={onEdit} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">
+            <Pencil size={11} /> تعديل
+          </button>
+          <button onClick={onRecipe} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-violet-600 transition hover:bg-violet-50">
+            <Settings2 size={11} /> الوصفة
+          </button>
+          <button onClick={onToggleAvail} disabled={busy} className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-amber-600 transition hover:bg-amber-50">
+            {product.availability ? <EyeOff size={11} /> : <Eye size={11} />}
+            {product.availability ? "إيقاف الإتاحة" : "إتاحة"}
+          </button>
+          <button onClick={onToggleActive} disabled={busy} className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold transition ${product.active ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"}`}>
+            {product.active ? <PowerOff size={11} /> : <Power size={11} />}
+            {product.active ? "إيقاف" : "تفعيل"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function ProductsPage() {
   const qc = useQueryClient();
+  const { user } = useAuthStore();
+  // الإدارة (إضافة/تعديل/حالة/وصفة) للمالك ومدير العمليات فقط.
+  // الباريستا يشوف المنيو والأسعار للعرض فقط (صلاحيته read).
+  const canManage = user?.role?.name === "Owner" || user?.role?.name === "Operations Manager";
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [activeFilter, setActiveFilter] = useState("true");
@@ -245,13 +254,14 @@ export default function ProductsPage() {
       const r = await api.get("/products", {
         params: {
           page: 1, limit: 100,
-          q: search || undefined,
-          category: catFilter || undefined,
+          q: search.trim() || undefined,
+          category: catFilter !== "" ? catFilter : undefined,
           active: activeFilter === "all" ? undefined : activeFilter === "true",
         },
       });
       return r.data.data as Paginated<Product>;
     },
+    staleTime: 0,
   });
 
   const createMutation = useMutation({
@@ -278,7 +288,7 @@ export default function ProductsPage() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!editingProduct) return;
-      await api.put(`/products/${editingProduct.id}`, {
+      return await api.put(`/products/${editingProduct.id}`, {
         name: editName,
         category: editCategory,
         price: Number(editPrice),
@@ -293,10 +303,14 @@ export default function ProductsPage() {
       setEditingProduct(null);
       setMessage({ text: "تم حفظ التعديلات بنجاح. ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
+      qc.refetchQueries({ queryKey: ["products"] });
     },
     onError: (err: unknown) => {
       const m = (err as any)?.response?.data?.message;
       setMessage({ text: translateApiError(m), ok: false });
+    },
+    onSettled: () => {
+      // Always reset loading state
     },
   });
 
@@ -320,13 +334,16 @@ export default function ProductsPage() {
   const available = products.filter(p => p.availability && p.active).length;
 
   function openEdit(product: Product) {
+    // Reset mutation state before opening (prevents stuck loading button)
+    updateMutation.reset();
     setEditingProduct(product);
     setEditName(product.name);
-    setEditCategory(product.category);
+    // Ensure category is always set from the actual product data
+    setEditCategory(product.category ?? "coffee");
     setEditPrice(String(product.price));
     setEditDescription(product.description ?? "");
     setEditImageUrl(product.imageUrl ?? "");
-    setEditAvailability(product.availability);
+    setEditAvailability(product.availability ?? true);
     setEditIsFridge(product.isFridge ?? false);
     setEditIsBakery(product.isBakery ?? false);
   }
@@ -624,7 +641,8 @@ export default function ProductsPage() {
                 onRecipe={() => openRecipeModal(product)}
                 onToggleActive={() => statusMutation.mutate({ id: product.id, action: product.active ? "deactivate" : "reactivate" })}
                 onToggleAvail={() => availMutation.mutate({ product })}
-                busy={statusMutation.isPending || availMutation.isPending} />
+                busy={statusMutation.isPending || availMutation.isPending}
+                canManage={canManage} />
             ))}
           </div>
         )}

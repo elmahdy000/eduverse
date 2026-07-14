@@ -293,7 +293,15 @@ export class InventoryService {
   }
 
   async deductStockForOrder(orderId: string, userId: string) {
-    const order = await this.prisma.barOrder.findUnique({
+    return this.prisma.$transaction((tx) =>
+      this.deductStockForOrderTx(tx, orderId, userId),
+    );
+  }
+
+  // نسخة تعمل داخل transaction موجود (تُستدعى من عملية تسليم الأوردر)
+  // لضمان أن خصم المخزون والفاتورة يحدثان معاً أو يفشلان معاً.
+  async deductStockForOrderTx(tx: any, orderId: string, userId: string) {
+    const order = await tx.barOrder.findUnique({
       where: { id: orderId },
       include: {
         items: {
@@ -304,13 +312,14 @@ export class InventoryService {
 
     if (!order) return;
 
-    return this.prisma.$transaction(async (tx) => {
+    {
       // Check if stock has already been deducted for this order to prevent duplicate deductions
       const existingTx = await tx.inventoryTransaction.findFirst({
         where: { referenceId: orderId, type: 'out' },
       });
       if (existingTx) return;
 
+      const deductions = new Map<string, number>();
       for (const orderItem of order.items) {
         let recipeItems: any[] = orderItem.product.recipeItems || [];
 
@@ -333,10 +342,21 @@ export class InventoryService {
 
         for (const recipe of recipeItems) {
           const totalDeduction = Number(recipe.quantity) * orderItem.quantity;
+          deductions.set(recipe.inventoryItemId, (deductions.get(recipe.inventoryItemId) ?? 0) + totalDeduction);
+        }
+      }
 
+      for (const [inventoryItemId, totalDeduction] of deductions) {
+          const updatedCount = await tx.inventoryItem.updateMany({
+            where: { id: inventoryItemId, currentStock: { gte: totalDeduction } },
+            data: { currentStock: { decrement: totalDeduction } },
+          });
+          if (updatedCount.count !== 1) throw new BadRequestException('Insufficient inventory stock to deliver this order');
+
+          const updated = await tx.inventoryItem.findUnique({ where: { id: inventoryItemId } });
           await tx.inventoryTransaction.create({
             data: {
-              inventoryItemId: recipe.inventoryItemId,
+              inventoryItemId,
               type: 'out',
               quantity: totalDeduction,
               reason: `Order: ${order.id.slice(0, 8)}`,
@@ -345,26 +365,22 @@ export class InventoryService {
             },
           });
 
-          const updated = await tx.inventoryItem.update({
-            where: { id: recipe.inventoryItemId },
-            data: { currentStock: { decrement: totalDeduction } },
-          });
-
-          await this.auditLogsService.createAuditLog({
-            userId,
-            action: 'AUTO_DEDUCT_STOCK',
-            entityType: 'inventory_item',
-            entityId: recipe.inventoryItemId,
-            newValue: {
-              orderId,
-              quantity: totalDeduction,
-              currentStock: updated.currentStock,
-              isNegative: Number(updated.currentStock) < 0,
+          await tx.auditLog.create({
+            data: {
+              userId,
+              action: 'AUTO_DEDUCT_STOCK',
+              entityType: 'inventory_item',
+              entityId: inventoryItemId,
+              newValue: {
+                orderId,
+                quantity: totalDeduction,
+                currentStock: updated.currentStock,
+                isNegative: false,
+              },
             },
           });
-        }
       }
-    });
+    }
   }
 
   async getTransactions(itemId?: string, limit = 100) {
@@ -386,6 +402,7 @@ export class InventoryService {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.inventoryItem.findUnique({ where: { id: data.inventoryItemId } });
       if (!item) throw new NotFoundException('Inventory item not found');
+      if (Number(item.currentStock) < data.quantity) throw new BadRequestException('Waste quantity exceeds available stock');
 
       const waste = await tx.wasteEntry.create({
         data: {

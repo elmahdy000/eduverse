@@ -5,7 +5,10 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 function readAllowedOrigins() {
-  const raw = process.env.FRONTEND_ORIGINS || 'http://localhost:3000,http://localhost:3002';
+  // ملاحظة: owner-portal بيشتغل على 3010 افتراضياً — مضاف هنا عشان يعمل بدون تعديل env
+  const raw =
+    process.env.FRONTEND_ORIGINS ||
+    'http://localhost:3000,http://localhost:3002,http://localhost:3010';
   return raw
     .split(',')
     .map((origin) => origin.trim())

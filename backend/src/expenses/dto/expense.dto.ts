@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsNumber, IsString, IsOptional, IsUUID, IsDateString, IsEnum, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsOptional, IsUUID, IsDateString, IsEnum, IsBoolean, Min } from 'class-validator';
 
 export class CreateExpenseDto {
   @IsNumber()
+  @Min(0.01)
   @IsNotEmpty()
   amount: number;
 
@@ -21,7 +22,7 @@ export class CreateExpenseDto {
   @IsOptional()
   vendorId?: string;
 
-  @IsString()
+  @IsEnum(['cash', 'bank_transfer', 'card', 'wallet'])
   @IsNotEmpty()
   paymentMethod: string; // cash, bank_transfer, card, wallet
 
@@ -37,17 +38,18 @@ export class CreateExpenseDto {
   @IsOptional()
   isRecurring?: boolean;
 
-  @IsString()
+  @IsEnum(['weekly', 'monthly', 'yearly'])
   @IsOptional()
   frequency?: string; // monthly, weekly, yearly
 
-  @IsString()
+  @IsEnum(['paid', 'pending', 'cancelled'])
   @IsOptional()
   status?: string; // paid, pending
 }
 
 export class UpdateExpenseDto {
   @IsNumber()
+  @Min(0.01)
   @IsOptional()
   amount?: number;
 
@@ -67,7 +69,7 @@ export class UpdateExpenseDto {
   @IsOptional()
   vendorId?: string;
 
-  @IsString()
+  @IsEnum(['cash', 'bank_transfer', 'card', 'wallet'])
   @IsOptional()
   paymentMethod?: string;
 
@@ -83,11 +85,11 @@ export class UpdateExpenseDto {
   @IsOptional()
   isRecurring?: boolean;
 
-  @IsString()
+  @IsEnum(['weekly', 'monthly', 'yearly'])
   @IsOptional()
   frequency?: string;
 
-  @IsString()
+  @IsEnum(['paid', 'pending', 'cancelled'])
   @IsOptional()
   status?: string;
 }

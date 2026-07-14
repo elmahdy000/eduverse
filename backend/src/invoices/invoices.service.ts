@@ -49,6 +49,8 @@ export class InvoicesService {
         barOrders: {
           where: {
             status: { not: 'cancelled' },
+            // منع الاحتساب المزدوج: نستبعد الطلبات اللي اتعملها فاتورة standalone بالفعل
+            invoiceId: null,
           },
           include: {
             items: {
@@ -165,6 +167,15 @@ export class InvoicesService {
     if (itemsData.length > 0) {
       await tx.invoiceItem.createMany({
         data: itemsData,
+      });
+    }
+
+    // ربط طلبات البار المضمومة بهذه الفاتورة لضمان الاتساق ومنع أي احتساب مزدوج لاحق
+    const includedOrderIds = session.barOrders.map((order: any) => order.id);
+    if (includedOrderIds.length > 0) {
+      await tx.barOrder.updateMany({
+        where: { id: { in: includedOrderIds } },
+        data: { invoiceId: createdInvoice.id },
       });
     }
 

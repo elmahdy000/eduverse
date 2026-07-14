@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 
@@ -39,7 +44,7 @@ export class SessionsService {
       });
 
       if (existingSession) {
-        throw new Error('Customer already has an active session');
+        throw new ConflictException('Customer already has an active session');
       }
 
       // Check customer exists and status
@@ -48,11 +53,11 @@ export class SessionsService {
       });
 
       if (!customer) {
-        throw new Error('العميل غير موجود');
+        throw new NotFoundException('العميل غير موجود');
       }
 
       if (customer.status === 'blacklisted') {
-        throw new Error('هذا العميل في القائمة السوداء، لا يمكن فتح جلسة له');
+        throw new BadRequestException('هذا العميل في القائمة السوداء، لا يمكن فتح جلسة له');
       }
 
       // Validate booking if bookingId is provided
@@ -63,13 +68,13 @@ export class SessionsService {
         });
 
         if (!linkedBooking) {
-          throw new Error('الحجز المحدد غير موجود');
+          throw new NotFoundException('الحجز المحدد غير موجود');
         }
         if (linkedBooking.status !== 'confirmed') {
-          throw new Error('لا يمكن ربط جلسة بحجز غير مؤكد');
+          throw new BadRequestException('لا يمكن ربط جلسة بحجز غير مؤكد');
         }
         if (linkedBooking.customerId !== createSessionDto.customerId) {
-          throw new Error('العميل لا يتطابق مع الحجز المحدد');
+          throw new BadRequestException('العميل لا يتطابق مع الحجز المحدد');
         }
 
         // Use booking's room if session doesn't specify one
@@ -85,11 +90,11 @@ export class SessionsService {
         });
 
         if (!room) {
-          throw new Error('الغرفة غير موجودة');
+          throw new NotFoundException('الغرفة غير موجودة');
         }
 
         if (room.status === 'out_of_service') {
-          throw new Error('هذه الغرفة خارج الخدمة حالياً');
+          throw new BadRequestException('هذه الغرفة خارج الخدمة حالياً');
         }
 
         // Get all active sessions in this room
@@ -103,11 +108,11 @@ export class SessionsService {
         );
 
         if (hasTrainerActive) {
-          throw new Error('الغرفة محجوزة بالكامل لمحاضر حالياً بجلسة أخرى ولا يمكن تسجيل عملاء آخرين فيها');
+          throw new ConflictException('الغرفة محجوزة بالكامل لمحاضر حالياً بجلسة أخرى ولا يمكن تسجيل عملاء آخرين فيها');
         }
 
         if (customer.customerType === 'trainer' && activeRoomSessions.length > 0) {
-          throw new Error('لا يمكن حجز الغرفة للمحاضر لوجود جلسات نشطة أخرى بها حالياً');
+          throw new ConflictException('لا يمكن حجز الغرفة للمحاضر لوجود جلسات نشطة أخرى بها حالياً');
         }
 
         // تحذير: لو فيه حجز مؤكد على الغرفة خلال الساعتين الجايين
@@ -126,7 +131,7 @@ export class SessionsService {
 
           if (upcomingBooking) {
             const bookingTime = new Date(upcomingBooking.startTime).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-            throw new Error(
+            throw new ConflictException(
               `تنبيه: الغرفة عليها حجز مؤكد الساعة ${bookingTime} باسم ${upcomingBooking.customer?.fullName || 'عميل'}. لو عاوز تكمل، اختار غرفة تانية أو اربط بالحجز.`
             );
           }
@@ -191,11 +196,11 @@ export class SessionsService {
     });
 
     if (!session) {
-      throw new Error('Session not found');
+      throw new NotFoundException('Session not found');
     }
 
     if (session.status !== 'active') {
-      throw new Error('Only active sessions can be closed');
+      throw new BadRequestException('Only active sessions can be closed');
     }
 
     // Ensure user has an open shift to close session (financial event)
@@ -203,7 +208,7 @@ export class SessionsService {
       where: { userId, status: 'open' },
     });
     if (!openShift) {
-      throw new Error('يجب فتح شفت أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب');
+      throw new BadRequestException('يجب فتح شفت أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب');
     }
 
     const endTime = new Date();
@@ -211,17 +216,33 @@ export class SessionsService {
       (endTime.getTime() - session.startTime.getTime()) / 60000,
     );
 
-    // Calculate charge if not already set manually
-    let chargeAmount = Number(session.chargeAmount || 0);
+    // نفرّق بين حالتين:
+    // - chargeAmount = null  => لم يُحدَّد يدوياً، نحسبه تلقائياً من نوع الجلسة والغرفة
+    // - chargeAmount = 0     => جلسة مجانية عمداً (owner/ضيف)، نحترمها ولا نعيد الحساب
+    let chargeAmount: number;
 
-    if (chargeAmount === 0) {
-      if (session.sessionType === 'hourly') {
-        const rate = Number(session.room?.hourlyRate || 10); // Default to 10 EGP/hour
-        const hours = Math.ceil(durationMinutes / 60);
-        chargeAmount = hours * rate;
-      } else if (session.sessionType === 'daily' && session.room?.dailyRate) {
-        chargeAmount = Number(session.room.dailyRate);
+    if (session.chargeAmount !== null && session.chargeAmount !== undefined) {
+      // قيمة محدَّدة يدوياً (بما فيها الصفر المقصود) — نستخدمها كما هي
+      chargeAmount = Number(session.chargeAmount);
+    } else if (session.sessionType === 'hourly') {
+      if (!session.room?.hourlyRate) {
+        throw new BadRequestException(
+          'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر بالساعة. يرجى تحديد قيمة الجلسة يدوياً.',
+        );
       }
+      const rate = Number(session.room.hourlyRate);
+      const hours = Math.ceil(durationMinutes / 60);
+      chargeAmount = hours * rate;
+    } else if (session.sessionType === 'daily') {
+      if (!session.room?.dailyRate) {
+        throw new BadRequestException(
+          'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر يومي. يرجى تحديد قيمة الجلسة يدوياً.',
+        );
+      }
+      chargeAmount = Number(session.room.dailyRate);
+    } else {
+      // أنواع أخرى (package/booking_linked) بدون قيمة محددة => صفر (تُحصَّل بطريقة أخرى)
+      chargeAmount = 0;
     }
 
 
@@ -317,7 +338,7 @@ export class SessionsService {
     });
 
     if (!session) {
-      throw new Error('Session not found');
+      throw new NotFoundException('Session not found');
     }
 
     return session;
@@ -363,7 +384,11 @@ export class SessionsService {
     });
 
     if (!session) {
-      throw new Error('Session not found');
+      throw new NotFoundException('Session not found');
+    }
+
+    if (session.status !== 'active') {
+      throw new BadRequestException('لا يمكن إلغاء جلسة غير نشطة');
     }
 
     const deliveredOrders = await this.prisma.barOrder.count({
@@ -371,7 +396,7 @@ export class SessionsService {
     });
 
     if (deliveredOrders > 0) {
-      throw new Error('لا يمكن إلغاء الجلسة لأن هناك طلبات بار تم تسليمها بالفعل. يرجى إغلاق الجلسة وتحصيل الحساب بدلاً من الإلغاء.');
+      throw new BadRequestException('لا يمكن إلغاء الجلسة لأن هناك طلبات بار تم تسليمها بالفعل. يرجى إغلاق الجلسة وتحصيل الحساب بدلاً من الإلغاء.');
     }
 
     return await this.prisma.$transaction(async (tx) => {

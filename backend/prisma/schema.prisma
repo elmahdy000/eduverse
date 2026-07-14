@@ -348,12 +348,16 @@ model Payment {
   recordedByUserId String  @db.Uuid
   paidAt          DateTime @default(now())
   createdAt       DateTime @default(now())
+  refundedPaymentId String? @db.Uuid
 
   invoice       Invoice @relation(fields: [invoiceId], references: [id])
   recordedByUser User    @relation(fields: [recordedByUserId], references: [id])
+  refundedPayment Payment? @relation("PaymentRefunds", fields: [refundedPaymentId], references: [id])
+  refunds         Payment[] @relation("PaymentRefunds")
 
   @@index([invoiceId])
   @@index([paidAt])
+  @@index([refundedPaymentId])
   @@map("payments")
 }
 
@@ -490,6 +494,7 @@ model InventoryTransaction {
 
   @@index([inventoryItemId])
   @@index([type])
+  @@index([referenceId])
   @@map("inventory_transactions")
 }
 

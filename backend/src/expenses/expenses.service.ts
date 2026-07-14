@@ -103,14 +103,17 @@ export class ExpensesService {
   }
 
   async updateExpense(id: string, dto: UpdateExpenseDto) {
+    const existing = await this.findOneExpense(id);
+    if (existing.status === 'cancelled') throw new Error('Cancelled expenses cannot be edited');
     return this.prisma.expense.update({
       where: { id },
-      data: dto,
+      data: { ...dto, date: dto.date ? new Date(dto.date) : undefined },
     });
   }
 
   async removeExpense(id: string) {
-    return this.prisma.expense.delete({ where: { id } });
+    await this.findOneExpense(id);
+    return this.prisma.expense.update({ where: { id }, data: { status: 'cancelled' } });
   }
 
   // Categories
@@ -190,11 +193,11 @@ export class ExpensesService {
     const [expensesByCategory, totalExpenses, totalRevenue] = await Promise.all([
       this.prisma.expense.groupBy({
         by: ['categoryId'],
-        where: Object.keys(dateRange).length > 0 ? { date: dateRange } : {},
+        where: { status: 'paid', ...(Object.keys(dateRange).length > 0 ? { date: dateRange } : {}) },
         _sum: { amount: true },
       }),
       this.prisma.expense.aggregate({
-        where: Object.keys(dateRange).length > 0 ? { date: dateRange } : {},
+        where: { status: 'paid', ...(Object.keys(dateRange).length > 0 ? { date: dateRange } : {}) },
         _sum: { amount: true },
       }),
       this.prisma.payment.aggregate({

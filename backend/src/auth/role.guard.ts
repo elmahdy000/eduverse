@@ -480,3 +480,32 @@ export class BaristaGuard implements CanActivate {
     return true;
   }
 }
+
+// بوابة خاصة لبوابة أصحاب المشروع (Owner Portal)
+// - منفصلة تماماً عن Owner العادي
+// - تسمح فقط لمستخدمين role.name === 'OwnerPortal'
+@Injectable()
+export class OwnerPortalGuard implements CanActivate {
+  constructor(private prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user || !user.roleId) {
+      throw new ForbiddenException('User not authenticated');
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: user.roleId },
+    });
+
+    if (!role || role.name !== 'OwnerPortal') {
+      throw new ForbiddenException(
+        'Only Owner Portal accounts can access this resource',
+      );
+    }
+
+    return true;
+  }
+}

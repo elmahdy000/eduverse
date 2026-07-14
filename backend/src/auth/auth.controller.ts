@@ -1,7 +1,9 @@
-import { Controller, Post, Body, HttpCode, BadRequestException, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, BadRequestException, HttpException, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto, LoginResponseDto } from './dto/auth.dto';
+import { JwtAuthGuard } from './jwt.guard';
+import { OwnerGuard } from './role.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -35,6 +37,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @UseGuards(JwtAuthGuard, OwnerGuard)
   @HttpCode(201)
   @ApiOperation({ summary: 'Register new user (admin only)' })
   @ApiResponse({

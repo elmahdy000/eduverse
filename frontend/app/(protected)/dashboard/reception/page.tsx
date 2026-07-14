@@ -21,7 +21,7 @@ interface ReceptionDashboard {
   todayInvoicesCount: number;
   todayRevenuePartial: number;
   todayBarOrders: number;
-  activeSessions: Array<{ id: string; startTime: string; customer?: { fullName: string; customerType: string }; room?: { name: string } }>;
+  activeSessions: Array<{ id: string; startTime: string; customer?: { id: string; fullName: string; customerType: string }; room?: { name: string } }>;
 }
 
 const ctypeColors: Record<string, string> = {
@@ -131,7 +131,7 @@ export default function ReceptionDashboardPage() {
         }>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {data.activeSessions.map((s) => (
-              <div key={s.id} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <Link key={s.id} href={`/sessions?customerId=${s.customer?.id ?? ""}`} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition hover:border-amber-300 hover:bg-amber-50/40">
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${ctypeColors[s.customer?.customerType ?? "visitor"] ?? ctypeColors.visitor}`}>
                   {ctypeIcons[s.customer?.customerType ?? "visitor"] ?? <UserCircle size={16} />}
                 </div>
@@ -140,7 +140,7 @@ export default function ReceptionDashboardPage() {
                   <p className="text-[10px] text-slate-500">{s.room?.name ?? "بدون غرفة"}</p>
                   <p className="text-[10px] font-medium text-blue-600">جوا من <LiveDuration startTime={s.startTime} /></p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </Panel>
@@ -153,7 +153,7 @@ export default function ReceptionDashboardPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.recentCustomers.map((c) => (
-              <div key={c.id} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              <Link key={c.id} href={`/customers?customerId=${c.id}`} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-amber-300 hover:shadow-md">
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${ctypeColors[c.customerType] ?? ctypeColors.visitor}`}>
                   {c.fullName[0]?.toUpperCase() ?? "?"}
                 </div>
@@ -164,7 +164,7 @@ export default function ReceptionDashboardPage() {
                     {ctypeIcons[c.customerType]} {translateCustomerType(c.customerType)}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -217,10 +217,10 @@ export default function ReceptionDashboardPage() {
       <Panel title="اختصارات سريعة" icon={<ConciergeBell size={15} />}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "سجّل عميل جديد",  href: "/customers",  desc: "أضف عميل للنظام",          color: "border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700",         icon: <UserPlus size={20} /> },
+            { label: "سجّل عميل جديد",  href: "/customers?new=1",  desc: "أضف عميل للنظام",          color: "border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700",         icon: <UserPlus size={20} /> },
             { label: "افتح جلسة",        href: "/sessions",   desc: "ابدأ جلسة لعميل موجود",    color: "border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700", icon: <PlayCircle size={20} /> },
             { label: "حجز جديد",          href: "/bookings",   desc: "سجّل حجز غرفة",            color: "border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700",   icon: <CalendarPlus size={20} /> },
-            { label: "إصدار فاتورة",      href: "/billing",    desc: "اعمل فاتورة أو سجّل دفع",  color: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700",        icon: <FileText size={20} /> },
+            { label: "الفواتير والتحصيل", href: "/billing", desc: "راجع فاتورة أو سجّل دفعة", color: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700", icon: <FileText size={20} /> },
           ].map((item) => (
             <Link key={item.href} href={item.href} className={`block rounded-xl border p-4 text-right transition ${item.color}`}>
               <div className="mb-2">{item.icon}</div>

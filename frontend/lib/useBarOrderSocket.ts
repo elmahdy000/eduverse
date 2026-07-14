@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import { useAuthStore } from "../store/auth-store";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
@@ -26,6 +27,7 @@ let globalSocket: Socket | null = null;
 function getOrCreateSocket(): Socket {
   if (!globalSocket || globalSocket.disconnected) {
     globalSocket = io(SOCKET_URL, {
+      auth: { token: useAuthStore.getState().accessToken },
       transports: ["websocket", "polling"],
       autoConnect: true,
       reconnection: true,

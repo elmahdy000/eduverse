@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   Calendar,
@@ -41,6 +43,7 @@ import {
   statusBadgeTone,
   TableSkeleton,
   CardSkeleton,
+  Modal,
 } from "../../../components/ui";
 
 interface CustomerHistory {
@@ -71,6 +74,7 @@ const ctypeColors: Record<string, string> = {
 
 export default function CustomersPage() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
 
   // Create form state
   const [fullName, setFullName] = useState("");
@@ -90,8 +94,10 @@ export default function CustomersPage() {
   const [searchName, setSearchName] = useState("");
   const [searchPhone, setSearchPhone] = useState("");
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(() => searchParams.get("customerId"));
+  const [showCreateForm, setShowCreateForm] = useState(() => searchParams.get("new") === "1");
+  const [statusDialog, setStatusDialog] = useState<{ action: "blacklist" | "reactivate"; customerId: string } | null>(null);
+  const [statusReason, setStatusReason] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -185,7 +191,7 @@ export default function CustomersPage() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      await api.post("/customers", {
+      const response = await api.post("/customers", {
         fullName,
         phoneNumber,
         phoneNumberSecondary: phoneNumberSecondary || undefined,
@@ -199,12 +205,14 @@ export default function CustomersPage() {
         employerName: customerType === "employee" ? employerName : undefined,
         jobTitle: customerType === "employee" ? jobTitle : undefined,
       });
+      return response.data.data as Customer;
     },
-    onSuccess: () => {
+    onSuccess: (customer) => {
       resetCreateForm();
       setShowCreateForm(false);
       setMessage({ text: "تم تسجيل العميل بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
+      if (customer?.id) setSelectedCustomerId(customer.id);
     },
     onError: (err: unknown) => {
       const m = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
@@ -245,7 +253,7 @@ export default function CustomersPage() {
   const statusMutation = useMutation({
     mutationFn: async ({ customerId, action }: { customerId: string; action: "deactivate" | "reactivate" | "blacklist" }) => {
       if (action === "blacklist") {
-        await api.post(`/customers/${customerId}/blacklist`, { reason: "مخالفة قواعد المكان" });
+        await api.post(`/customers/${customerId}/blacklist`, { reason: statusReason.trim() });
         return;
       }
       await api.post(`/customers/${customerId}/${action}`);
@@ -433,7 +441,13 @@ export default function CustomersPage() {
                         </div>
                      </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCustomer.status === "active" && (
+                      <>
+                        <Link href={`/sessions?customerId=${selectedCustomer.id}`} className="inline-flex h-8 items-center justify-center rounded-lg bg-emerald-500 px-3 text-xs font-semibold text-white hover:bg-emerald-600">فتح جلسة</Link>
+                        <Link href={`/bookings?customerId=${selectedCustomer.id}`} className="inline-flex h-8 items-center justify-center rounded-lg bg-violet-500 px-3 text-xs font-semibold text-white hover:bg-violet-600">حجز جديد</Link>
+                      </>
+                    )}
                     <Btn size="sm" variant="secondary" className="text-xs h-8" icon={<Edit2 size={12} />} onClick={() => {
                       setEditFullName(selectedCustomer.fullName);
                       setEditPhoneNumber(selectedCustomer.phoneNumber);
@@ -452,15 +466,12 @@ export default function CustomersPage() {
                     {/* أزرار الحالة حسب وضع العميل */}
                     {selectedCustomer.status === "active" ? (
                       <Btn size="sm" variant="danger" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
-                        if (confirm("هل أنت متأكد من حظر هذا العميل؟")) {
-                          statusMutation.mutate({ customerId: selectedCustomer.id, action: "blacklist" });
-                        }
+                        setStatusReason("");
+                        setStatusDialog({ customerId: selectedCustomer.id, action: "blacklist" });
                       }}>حظر العميل</Btn>
                     ) : (
                       <Btn size="sm" variant="success" className="text-xs h-8" icon={<ShieldBan size={12} />} onClick={() => {
-                        if (confirm("هل تريد إعادة تفعيل هذا العميل؟")) {
-                          statusMutation.mutate({ customerId: selectedCustomer.id, action: "reactivate" });
-                        }
+                        setStatusDialog({ customerId: selectedCustomer.id, action: "reactivate" });
                       }}>إعادة تفعيل العميل</Btn>
                     )}
                   </div>
@@ -711,6 +722,24 @@ export default function CustomersPage() {
           </div>
         </div>
       )}
+
+      <Modal isOpen={Boolean(statusDialog)} onClose={() => setStatusDialog(null)} title={statusDialog?.action === "blacklist" ? "حظر العميل" : "إعادة تفعيل العميل"} size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            {statusDialog?.action === "blacklist" ? "اكتب سبب الحظر ليظهر كسجل واضح بدل استخدام سبب افتراضي." : "هل تريد إعادة تفعيل هذا العميل؟"}
+          </p>
+          {statusDialog?.action === "blacklist" && (
+            <FormField label="سبب الحظر"><Input value={statusReason} onChange={(e) => setStatusReason(e.target.value)} placeholder="سبب واضح ومختصر" /></FormField>
+          )}
+          <div className="flex gap-2">
+            <Btn variant={statusDialog?.action === "blacklist" ? "danger" : "success"} loading={statusMutation.isPending} disabled={statusDialog?.action === "blacklist" && !statusReason.trim()} onClick={() => {
+              if (!statusDialog) return;
+              statusMutation.mutate({ customerId: statusDialog.customerId, action: statusDialog.action }, { onSuccess: () => setStatusDialog(null) });
+            }}>تأكيد</Btn>
+            <Btn variant="ghost" onClick={() => setStatusDialog(null)}>رجوع</Btn>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

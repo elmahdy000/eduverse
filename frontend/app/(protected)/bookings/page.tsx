@@ -15,7 +15,7 @@ import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import type { Booking, Customer, Paginated, Room } from "../../../lib/types";
 import { 
-  Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Panel, SectionTitle, StatCard, 
+  Alert, Badge, Btn, DataTable, DateTimeInput, EmptyState, Modal, Panel, SectionTitle, StatCard, 
   statusBadgeTone, FormField, Input, Select, TableSkeleton, CardSkeleton 
 } from "../../../components/ui";
 import clsx from "clsx";
@@ -35,7 +35,8 @@ function localDateKey(date: Date) {
 export default function BookingsPage() {
   const queryClient = useQueryClient();
 
-  const [customerId, setCustomerId] = useState("");
+  const searchParams = useSearchParams();
+  const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");
   const [roomId, setRoomId] = useState("");
   const [bookingType, setBookingType] = useState("meeting");
   const [startTime, setStartTime] = useState("");
@@ -46,15 +47,9 @@ export default function BookingsPage() {
   const [notes, setNotes] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const id = searchParams.get("id");
-    if (id) {
-      setSelectedBookingId(id);
-    }
-  }, [searchParams]);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(() => searchParams.get("id"));
+  const [bookingAction, setBookingAction] = useState<{ bookingId: string; action: "complete" | "cancel" | "no-show" } | null>(null);
+  const [bookingActionReason, setBookingActionReason] = useState("");
 
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -125,7 +120,7 @@ export default function BookingsPage() {
         return response.data.data;
       } catch (err) {
         console.error("Conflict check failed:", err);
-        return null;
+        throw err;
       }
     },
     enabled: Boolean(roomId && startTime && endTime),
@@ -211,6 +206,14 @@ export default function BookingsPage() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (conflictsQuery.isPending || conflictsQuery.isError) {
+      setMessage({ text: "تعذر التأكد من إتاحة الغرفة. راجع الاتصال ثم حاول مرة أخرى.", ok: false });
+      return;
+    }
+    if (conflictsQuery.data?.hasConflict) {
+      setMessage({ text: "لا يمكن تأكيد الحجز بسبب تعارض الموعد.", ok: false });
+      return;
+    }
     createMutation.mutate();
   };
 
@@ -245,13 +248,13 @@ export default function BookingsPage() {
   const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700" dir="rtl">
+    <div className="min-w-0 space-y-8 overflow-x-hidden animate-in fade-in duration-700" dir="rtl">
       <SectionTitle 
         title="إدارة الحجوزات" 
         subtitle="تنظيم حجوزات القاعات والفعاليات القادمة."
         icon={<Calendar size={20} />}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button 
               onClick={() => { queryClient.invalidateQueries({ queryKey: ["bookings"] }); }}
               className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition"
@@ -311,7 +314,7 @@ export default function BookingsPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-12">
         {/* ── Left Column: Views & Details ───────────────── */}
         <div className="lg:col-span-8 space-y-6">
           
@@ -381,24 +384,21 @@ export default function BookingsPage() {
                       {b.status === 'confirmed' && (
                         <>
                           <button 
-                            onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "complete" })}
+                            onClick={() => setBookingAction({ bookingId: b.id, action: "complete" })}
                             disabled={bookingStatusMutation.isPending}
                             className="rounded-lg bg-slate-900 px-4 py-2 text-[10px] font-black uppercase text-white hover:bg-slate-800 transition"
                           >
                             إنهاء الحجز
                           </button>
                           <button 
-                            onClick={() => bookingStatusMutation.mutate({ bookingId: b.id, action: "no-show" })}
+                            onClick={() => setBookingAction({ bookingId: b.id, action: "no-show" })}
                             disabled={bookingStatusMutation.isPending}
                             className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-[10px] font-black uppercase text-amber-700 hover:bg-amber-100"
                           >
                             No-Show
                           </button>
                           <button 
-                            onClick={() => {
-                              const reason = prompt("برجاء إدخال سبب الإلغاء:");
-                              if (reason !== null) bookingStatusMutation.mutate({ bookingId: b.id, action: "cancel", reason });
-                            }}
+                            onClick={() => { setBookingActionReason(""); setBookingAction({ bookingId: b.id, action: "cancel" }); }}
                             disabled={bookingStatusMutation.isPending}
                             className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-[10px] font-black uppercase text-rose-700 hover:bg-rose-100"
                           >
@@ -756,7 +756,15 @@ export default function BookingsPage() {
                 />
               </FormField>
 
-              <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الحجز..." className="w-full" icon={<Zap size={14} />}>
+              {(conflictsQuery.isPending || conflictsQuery.isError) && roomId && startTime && endTime && (
+                <Alert tone={conflictsQuery.isError ? "danger" : "info"}>{conflictsQuery.isError ? "تعذر فحص إتاحة الغرفة؛ لن يتم الحجز حتى ينجح الفحص." : "جاري فحص إتاحة الغرفة..."}</Alert>
+              )}
+
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">
+                <strong>تنبيه مالي:</strong> قيمة العربون هنا للتوثيق داخل الحجز فقط، ولا تعني أنه تم تحصيله بالخزنة. سجّل التحصيل من الفاتورة عند إصدارها.
+              </div>
+
+              <Btn type="submit" loading={createMutation.isPending} loadingText="جاري الحجز..." disabled={!customerId || !roomId || conflictsQuery.isPending || conflictsQuery.isError || Boolean(conflictsQuery.data?.hasConflict)} className="w-full" icon={<Zap size={14} />}>
                 تأكيد الحجز الآن
               </Btn>
             </form>
@@ -782,6 +790,20 @@ export default function BookingsPage() {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={Boolean(bookingAction)} onClose={() => setBookingAction(null)} title={bookingAction?.action === "cancel" ? "إلغاء الحجز" : bookingAction?.action === "no-show" ? "تسجيل عدم حضور" : "إنهاء الحجز"} size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">هذا الإجراء يغيّر حالة الحجز فورًا. راجع الاختيار قبل التأكيد.</p>
+          {bookingAction?.action === "cancel" && <FormField label="سبب الإلغاء"><Input value={bookingActionReason} onChange={(e) => setBookingActionReason(e.target.value)} placeholder="اكتب سبب الإلغاء" /></FormField>}
+          <div className="flex gap-2">
+            <Btn variant={bookingAction?.action === "cancel" ? "danger" : "warn"} loading={bookingStatusMutation.isPending} disabled={bookingAction?.action === "cancel" && !bookingActionReason.trim()} onClick={() => {
+              if (!bookingAction) return;
+              bookingStatusMutation.mutate({ ...bookingAction, reason: bookingActionReason.trim() || undefined }, { onSuccess: () => setBookingAction(null) });
+            }}>تأكيد الإجراء</Btn>
+            <Btn variant="ghost" onClick={() => setBookingAction(null)}>رجوع</Btn>
+          </div>
+        </div>
+      </Modal>
 
       {/* Day Details Modal */}
       {selectedDate && (

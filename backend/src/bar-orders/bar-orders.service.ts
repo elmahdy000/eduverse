@@ -377,7 +377,7 @@ export class BarOrdersService {
       // خصم المخزون داخل نفس الـ transaction لضمان اتساق البيانات
       // (deductStockForOrder له حماية داخلية ضد التكرار عبر referenceId)
       await this.prisma.$transaction(async (tx) => {
-        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${orderId}))`;
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${orderId}))`;
         const lockedOrder = await tx.barOrder.findUnique({
           where: { id: orderId },
           include: { customer: true, items: { include: { product: true } } },

@@ -22,6 +22,7 @@ import { ExpensesModule } from './expenses/expenses.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ShiftsModule } from './shifts/shifts.module';
 import { OwnerReportsModule } from './owner-reports/owner-reports.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { OwnerReportsModule } from './owner-reports/owner-reports.module';
     InventoryModule,
     ShiftsModule,
     OwnerReportsModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [

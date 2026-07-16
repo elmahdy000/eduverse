@@ -1,6 +1,7 @@
 "use client";
 
-import { Printer, Download, Receipt, MapPin, Phone } from "lucide-react";
+import type { ReactNode } from "react";
+import { Printer, Download, Receipt, MapPin, Phone, Clock, Coffee, Tag, Wallet, CheckCircle2, AlertCircle } from "lucide-react";
 import { money, dateTime } from "../lib/format";
 import { translateStatus, translatePaymentMethod } from "../lib/labels";
 import type { Invoice, Payment } from "../lib/types";
@@ -316,6 +317,154 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
           <p className="rc-foot-sm font-mono text-[9px] font-bold text-slate-400">
             {invoice.invoiceNumber}
           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * SessionCloseSummary
+ * -----------------------------------------------------------------------------
+ * ملخص شامل بيظهر على الشاشة (مش للطباعة) بعد إغلاق الجلسة أو تحصيل طلب.
+ * بيجمّع بنود الفاتورة حسب النوع (جلسة / بار / خصم) ويعرض صورة كاملة:
+ * تكلفة الجلسة، إجمالي البار، الخصم، الإجمالي، المدفوع، المتبقي، والحالة.
+ */
+export function SessionCloseSummary({
+  invoice,
+  durationMinutes,
+  barOrdersCount,
+}: {
+  invoice: Invoice;
+  durationMinutes?: number | null;
+  barOrdersCount?: number | null;
+}) {
+  const items = invoice.items ?? [];
+  const sum = (type: string) =>
+    items
+      .filter((i) => i.itemType === type)
+      .reduce((s, i) => s + Number(i.total || 0), 0);
+
+  const sessionTotal = sum("session");
+  const barTotal = sum("bar_order");
+  const barItemsCount =
+    barOrdersCount ??
+    items.filter((i) => i.itemType === "bar_order").reduce((s, i) => s + Number(i.quantity || 0), 0);
+
+  const discount = Math.abs(
+    Number(invoice.discountAmount ?? 0) || sum("discount"),
+  );
+  const total = Math.round(Number(invoice.totalAmount || 0));
+  const paid = Math.round(Number(invoice.amountPaid || 0));
+  const remaining = Math.round(Number(invoice.remainingAmount || 0));
+  const isPaid = remaining <= 0;
+
+  const durationLabel = (() => {
+    if (!durationMinutes || durationMinutes <= 0) return null;
+    const h = Math.floor(durationMinutes / 60);
+    const m = durationMinutes % 60;
+    if (h > 0 && m > 0) return `${h} ساعة و ${m} دقيقة`;
+    if (h > 0) return `${h} ساعة`;
+    return `${m} دقيقة`;
+  })();
+
+  const Row = ({
+    icon,
+    label,
+    value,
+    tone = "slate",
+    sub,
+  }: {
+    icon: ReactNode;
+    label: string;
+    value: string;
+    tone?: "slate" | "amber" | "rose" | "emerald";
+    sub?: string;
+  }) => {
+    const toneMap: Record<string, string> = {
+      slate: "text-slate-500 bg-slate-100",
+      amber: "text-amber-600 bg-amber-100",
+      rose: "text-rose-600 bg-rose-100",
+      emerald: "text-emerald-600 bg-emerald-100",
+    };
+    return (
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2.5">
+          <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneMap[tone]}`}>
+            {icon}
+          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-slate-700">{label}</span>
+            {sub && <span className="text-[10px] font-semibold text-slate-400">{sub}</span>}
+          </div>
+        </div>
+        <span className="font-mono text-sm font-black text-slate-900">{value}</span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mx-auto max-w-sm overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
+      {/* الرأس */}
+      <div className={`flex items-center gap-3 px-6 py-4 ${isPaid ? "bg-emerald-50" : "bg-amber-50"}`}>
+        <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${isPaid ? "bg-emerald-500" : "bg-amber-500"} text-white`}>
+          {isPaid ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+        </span>
+        <div>
+          <p className="text-sm font-black text-slate-900">ملخص الحساب</p>
+          <p className="text-[11px] font-bold text-slate-500">
+            {invoice.customer?.fullName ?? "عميل عام"} • {dateTime(invoice.issuedAt)}
+          </p>
+        </div>
+      </div>
+
+      <div className="divide-y divide-slate-100 px-6 py-2">
+        {sessionTotal > 0 && (
+          <Row
+            icon={<Clock size={15} />}
+            label="تكلفة الجلسة"
+            sub={durationLabel ?? undefined}
+            value={money(sessionTotal)}
+          />
+        )}
+        {barTotal > 0 && (
+          <Row
+            icon={<Coffee size={15} />}
+            label="طلبات البار"
+            tone="amber"
+            sub={barItemsCount > 0 ? `${barItemsCount} صنف` : undefined}
+            value={money(barTotal)}
+          />
+        )}
+        {discount > 0 && (
+          <Row
+            icon={<Tag size={15} />}
+            label="الخصم"
+            tone="rose"
+            value={`- ${money(discount)}`}
+          />
+        )}
+      </div>
+
+      {/* الإجمالي */}
+      <div className="mx-6 my-2 flex items-baseline justify-between border-y-2 border-slate-900 py-3">
+        <span className="text-xs font-black text-slate-900">الإجمالي</span>
+        <span className="font-mono text-3xl font-black tracking-tight text-slate-900">{money(total)}</span>
+      </div>
+
+      <div className="px-6 pb-2">
+        {paid > 0 && (
+          <Row icon={<Wallet size={15} />} label="المدفوع" tone="emerald" value={money(paid)} />
+        )}
+        {remaining > 0 && (
+          <Row icon={<AlertCircle size={15} />} label="المتبقي" tone="rose" value={money(remaining)} />
+        )}
+      </div>
+
+      {/* الحالة */}
+      <div className={`px-6 pb-5 pt-1`}>
+        <div className={`rounded-xl py-2.5 text-center text-sm font-black ${isPaid ? "bg-emerald-500 text-white" : "bg-amber-100 text-amber-800"}`}>
+          {translateStatus(invoice.paymentStatus)}
         </div>
       </div>
     </div>

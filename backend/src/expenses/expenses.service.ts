@@ -180,14 +180,20 @@ export class ExpensesService {
   async getFinancialSummary(query: { fromDate?: string; toDate?: string }) {
     const { fromDate, toDate } = query;
     const dateRange: any = {};
-    
+
     if (fromDate) {
       const d = new Date(fromDate);
-      if (!isNaN(d.getTime())) dateRange.gte = d;
+      if (!isNaN(d.getTime())) {
+        d.setHours(0, 0, 0, 0);
+        dateRange.gte = d;
+      }
     }
     if (toDate) {
       const d = new Date(toDate);
-      if (!isNaN(d.getTime())) dateRange.lte = d;
+      if (!isNaN(d.getTime())) {
+        d.setHours(23, 59, 59, 999);
+        dateRange.lte = d;
+      }
     }
 
     const [expensesByCategory, totalExpenses, totalRevenue] = await Promise.all([

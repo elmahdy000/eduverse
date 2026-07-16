@@ -8,13 +8,17 @@ import {
   BookingConflictQueryDto,
 } from './dto/booking.dto';
 import { BookingsService } from './bookings.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @ApiTags('bookings')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('bookings')
 export class BookingsController {
-  constructor(private bookingsService: BookingsService) {}
+  constructor(
+    private bookingsService: BookingsService,
+    private realtime: RealtimeGateway,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create booking with conflict detection' })
@@ -27,6 +31,11 @@ export class BookingsController {
         createBookingDto,
         req.user.userId,
       );
+      this.realtime.emitBookingChanged({
+        action: 'created',
+        bookingId: (booking as any)?.id,
+        roomId: (booking as any)?.roomId,
+      });
       return {
         success: true,
         data: booking,
@@ -138,6 +147,11 @@ export class BookingsController {
         bookingId,
         updateBookingDto,
       );
+      this.realtime.emitBookingChanged({
+        action: 'updated',
+        bookingId,
+        roomId: (booking as any)?.roomId,
+      });
       return {
         success: true,
         data: booking,
@@ -157,6 +171,11 @@ export class BookingsController {
   ) {
     try {
       const booking = await this.bookingsService.cancelBooking(bookingId, reason);
+      this.realtime.emitBookingChanged({
+        action: 'cancelled',
+        bookingId,
+        roomId: (booking as any)?.roomId,
+      });
       return {
         success: true,
         data: booking,
@@ -174,6 +193,11 @@ export class BookingsController {
   async completeBooking(@Param('id') bookingId: string) {
     try {
       const booking = await this.bookingsService.completeBooking(bookingId);
+      this.realtime.emitBookingChanged({
+        action: 'updated',
+        bookingId,
+        roomId: (booking as any)?.roomId,
+      });
       return {
         success: true,
         data: booking,
@@ -191,6 +215,11 @@ export class BookingsController {
   async markAsNoShow(@Param('id') bookingId: string) {
     try {
       const booking = await this.bookingsService.markAsNoShow(bookingId);
+      this.realtime.emitBookingChanged({
+        action: 'updated',
+        bookingId,
+        roomId: (booking as any)?.roomId,
+      });
       return {
         success: true,
         data: booking,

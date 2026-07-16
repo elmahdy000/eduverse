@@ -37,6 +37,7 @@ import { money } from "@/lib/format";
 import { translateApiError } from "@/lib/errors";
 import { translateProductCategory, translateProductName, normalizeCategoryKey } from "@/lib/labels";
 import type { Customer, Paginated, Product, Session } from "@/lib/types";
+import { useBarOrderSocket } from "@/lib/useBarOrderSocket";
 import { CardSkeleton } from "@/components/ui";
 import clsx from "clsx";
 
@@ -211,10 +212,18 @@ const vintagePages = [
 export default function BaristaPOSPage() {
   const queryClient = useQueryClient();
 
+  // realtime — الباريستا يشوف الطلبات الجديدة/المحدّثة لحظياً
+  useBarOrderSocket({
+    onNewOrder: () => queryClient.invalidateQueries({ queryKey: ["bar-orders"] }),
+    onStatusUpdate: () => queryClient.invalidateQueries({ queryKey: ["bar-orders"] }),
+    onDashboardRefresh: () => queryClient.invalidateQueries({ queryKey: ["bar-orders"] }),
+  });
+
   const [sessionId, setSessionId] = useState("");
   const [notes, setNotes] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [lastOrder, setLastOrder] = useState<any | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
@@ -392,14 +401,16 @@ export default function BaristaPOSPage() {
         productId: item.productId,
         quantity: item.quantity,
       }));
-      await api.post("/bar-orders", {
+      const res = await api.post("/bar-orders", {
         sessionId: sessionId || undefined,
         customerId: effectiveCustomerId,
         items,
         notes: notes || undefined,
       });
+      return res.data?.data;
     },
-    onSuccess: () => {
+    onSuccess: (order: any) => {
+      setLastOrder(order ?? null);
       setCart([]);
       setSessionId("");
       setNotes("");
@@ -1253,6 +1264,66 @@ export default function BaristaPOSPage() {
                   }
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Summary Modal — ملخص الطلب بعد إتمامه */}
+      {lastOrder && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" dir="rtl">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-5 bg-emerald-50 border-b border-emerald-100">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white">
+                <CheckCircle2 size={20} />
+              </span>
+              <div className="flex-1">
+                <h3 className="text-base font-black text-slate-900">تم تسجيل الطلب</h3>
+                <p className="text-[11px] font-bold text-slate-500">
+                  {lastOrder.customer?.fullName ?? "عميل"}
+                  {lastOrder.session ? " • جلسة نشطة" : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => setLastOrder(null)}
+                className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-white/60 text-slate-400 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <div className="max-h-56 overflow-y-auto space-y-2 rounded-xl bg-slate-50 p-3">
+                {(lastOrder.items ?? []).map((it: any) => (
+                  <div key={it.id} className="flex items-center justify-between text-sm">
+                    <span className="text-slate-700">
+                      {translateProductName(it.product?.name ?? "صنف")}
+                      <span className="text-slate-400 mx-1">×</span>
+                      <span className="font-black text-slate-900">{it.quantity}</span>
+                    </span>
+                    <span className="font-black text-slate-900 font-mono">{money(it.subtotal)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {lastOrder.notes && (
+                <div className="flex justify-between text-sm gap-4">
+                  <span className="text-slate-500 shrink-0">ملاحظات</span>
+                  <span className="font-bold text-slate-900 text-left">{lastOrder.notes}</span>
+                </div>
+              )}
+
+              <div className="flex items-baseline justify-between border-y-2 border-slate-900 py-3">
+                <span className="text-sm font-black text-slate-900">الإجمالي</span>
+                <span className="font-mono text-3xl font-black text-slate-900">{money(lastOrder.totalAmount)}</span>
+              </div>
+
+              <button
+                onClick={() => setLastOrder(null)}
+                className="w-full h-12 rounded-2xl bg-slate-900 text-white text-sm font-black hover:bg-slate-800 active:scale-[0.98] transition-all"
+              >
+                تمام
+              </button>
             </div>
           </div>
         </div>

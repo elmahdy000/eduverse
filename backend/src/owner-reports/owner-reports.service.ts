@@ -104,12 +104,12 @@ export class OwnerReportsService {
         _sum: { amount: true },
       }),
       this.prisma.expense.aggregate({
-        where: { date: { gte: start, lte: end } },
+        where: { status: 'paid', date: { gte: start, lte: end } },
         _sum: { amount: true },
         _count: true,
       }),
       this.prisma.expense.aggregate({
-        where: { date: { gte: prevStart, lte: prevEnd } },
+        where: { status: 'paid', date: { gte: prevStart, lte: prevEnd } },
         _sum: { amount: true },
       }),
       this.prisma.invoice.count({
@@ -249,7 +249,10 @@ export class OwnerReportsService {
     }));
 
     // إجماليات
-    const totalCollected = this.round2(payments.reduce((s, p) => s + Number(p.amount), 0));
+    // التحصيل = المدفوعات الموجبة فقط؛ المرتجعات (سالبة) تُطرح مرة واحدة عبر refunded
+    const totalCollected = this.round2(
+      payments.reduce((s, p) => (Number(p.amount) > 0 ? s + Number(p.amount) : s), 0),
+    );
     const totalRefunded = this.round2(Math.abs(Number(refunds._sum.amount || 0)));
 
     // فواتير غير مدفوعة داخل الفترة
@@ -307,7 +310,7 @@ export class OwnerReportsService {
 
     const [expenses, categories, vendors] = await Promise.all([
       this.prisma.expense.findMany({
-        where: { date: { gte: start, lte: end } },
+        where: { status: 'paid', date: { gte: start, lte: end } },
         include: {
           category: { select: { id: true, name: true } },
           vendor: { select: { id: true, name: true } },
@@ -439,7 +442,7 @@ export class OwnerReportsService {
         select: { amount: true, paidAt: true },
       }),
       this.prisma.expense.findMany({
-        where: { date: { gte: start, lte: end } },
+        where: { status: 'paid', date: { gte: start, lte: end } },
         select: { amount: true, date: true },
       }),
       this.prisma.payment.aggregate({
@@ -447,7 +450,7 @@ export class OwnerReportsService {
         _sum: { amount: true },
       }),
       this.prisma.expense.aggregate({
-        where: { date: { gte: prevStart, lte: prevEnd } },
+        where: { status: 'paid', date: { gte: prevStart, lte: prevEnd } },
         _sum: { amount: true },
       }),
     ]);

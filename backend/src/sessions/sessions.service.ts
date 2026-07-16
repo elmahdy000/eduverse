@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
@@ -12,6 +13,7 @@ import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 @Injectable()
 export class SessionsService {
+  private readonly logger = new Logger(SessionsService.name);
   // Trigger TS Re-validation
   constructor(
     private prisma: PrismaService,
@@ -190,16 +192,20 @@ export class SessionsService {
   }
 
   async closeSession(sessionId: string, closeSessionDto: CloseSessionDto, userId: string) {
+    this.logger.log(`Attempting to close session ${sessionId} by user ${userId}`);
+
     const session = await this.prisma.session.findUnique({
       where: { id: sessionId },
       include: { room: true, booking: true },
     });
 
     if (!session) {
+      this.logger.warn(`Failed to close session ${sessionId}: session not found`);
       throw new NotFoundException('Session not found');
     }
 
     if (session.status !== 'active') {
+      this.logger.warn(`Failed to close session ${sessionId}: session status is not active (status is ${session.status})`);
       throw new BadRequestException('Only active sessions can be closed');
     }
 
@@ -208,6 +214,7 @@ export class SessionsService {
       where: { userId, status: 'open' },
     });
     if (!openShift) {
+      this.logger.warn(`Failed to close session ${sessionId}: user ${userId} does not have an active open shift`);
       throw new BadRequestException('يجب فتح شفت أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب');
     }
 
@@ -226,6 +233,7 @@ export class SessionsService {
       chargeAmount = Number(session.chargeAmount);
     } else if (session.sessionType === 'hourly') {
       if (!session.room?.hourlyRate) {
+        this.logger.warn(`Failed to close session ${sessionId}: Room has no hourly rate`);
         throw new BadRequestException(
           'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر بالساعة. يرجى تحديد قيمة الجلسة يدوياً.',
         );
@@ -235,6 +243,7 @@ export class SessionsService {
       chargeAmount = hours * rate;
     } else if (session.sessionType === 'daily') {
       if (!session.room?.dailyRate) {
+        this.logger.warn(`Failed to close session ${sessionId}: Room has no daily rate`);
         throw new BadRequestException(
           'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر يومي. يرجى تحديد قيمة الجلسة يدوياً.',
         );
@@ -245,84 +254,91 @@ export class SessionsService {
       chargeAmount = 0;
     }
 
+    try {
+      const closedSession = await this.prisma.$transaction(async (tx) => {
+        this.logger.log(`Starting transaction to close session ${sessionId}`);
 
-    const closedSession = await this.prisma.$transaction(async (tx) => {
-      const updatedSession = await tx.session.update({
-        where: { id: sessionId },
-        data: {
-          endTime,
-          durationMinutes,
-          status: 'closed',
-          closedByUserId: userId,
-          chargeAmount,
-          notes: closeSessionDto.notes,
-          guestCode: null,
-        },
-        include: {
-          customer: true,
-          barOrders: {
-            where: { status: { not: 'cancelled' } }
+        const updatedSession = await tx.session.update({
+          where: { id: sessionId },
+          data: {
+            endTime,
+            durationMinutes,
+            status: 'closed',
+            closedByUserId: userId,
+            chargeAmount,
+            notes: closeSessionDto.notes,
+            guestCode: null,
           },
-          room: true,
-        },
-      });
-
-      // Update room status to available if no other active sessions remain
-      if (updatedSession.roomId) {
-        const otherActiveSessionsCount = await tx.session.count({
-          where: {
-            roomId: updatedSession.roomId,
-            status: 'active',
-            id: { not: updatedSession.id }
-          }
+          include: {
+            customer: true,
+            barOrders: {
+              where: { status: { not: 'cancelled' } }
+            },
+            room: true,
+          },
         });
-        if (otherActiveSessionsCount === 0) {
-          await tx.room.update({
-            where: { id: updatedSession.roomId },
-            data: { status: 'available' },
+
+        // Update room status to available if no other active sessions remain
+        if (updatedSession.roomId) {
+          const otherActiveSessionsCount = await tx.session.count({
+            where: {
+              roomId: updatedSession.roomId,
+              status: 'active',
+              id: { not: updatedSession.id }
+            }
+          });
+          if (otherActiveSessionsCount === 0) {
+            await tx.room.update({
+              where: { id: updatedSession.roomId },
+              data: { status: 'available' },
+            });
+          }
+        }
+
+        // Generate invoice within the same transaction
+        const invoice = await this.invoicesService.generateInvoiceWithTx(
+          {
+            sessionId: updatedSession.id,
+            notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
+          },
+          userId,
+          tx,
+        );
+
+        // Record audit log manually for detail
+        await this.auditLogsService.createAuditLog({
+          userId,
+          action: 'CLOSE_SESSION',
+          entityType: 'session',
+          entityId: updatedSession.id,
+          newValue: {
+            chargeAmount,
+            durationMinutes,
+            invoiceId: invoice.id,
+            totalBarOrders: updatedSession.barOrders.length,
+          },
+        });
+
+        // Auto-complete linked booking (Type-safe after prisma generate)
+        if ((session as any).bookingId) {
+          await tx.booking.update({
+            where: { id: (session as any).bookingId },
+            data: { status: 'completed' },
           });
         }
-      }
 
-      // Generate invoice within the same transaction
-      const invoice = await this.invoicesService.generateInvoiceWithTx(
-        {
-          sessionId: updatedSession.id,
-          notes: `نُشئت تلقائياً عند إغلاق الجلسة`,
-        },
-        userId,
-        tx,
-      );
-
-      // Record audit log manually for detail
-      await this.auditLogsService.createAuditLog({
-        userId,
-        action: 'CLOSE_SESSION',
-        entityType: 'session',
-        entityId: updatedSession.id,
-        newValue: {
-          chargeAmount,
-          durationMinutes,
-          invoiceId: invoice.id,
-          totalBarOrders: updatedSession.barOrders.length,
-        },
+        this.logger.log(`Transaction successful: Session ${sessionId} closed and invoice ${invoice.id} created`);
+        return {
+          ...updatedSession,
+          invoice,
+        };
       });
 
-      // Auto-complete linked booking (Type-safe after prisma generate)
-      if ((session as any).bookingId) {
-        await tx.booking.update({
-          where: { id: (session as any).bookingId },
-          data: { status: 'completed' },
-        });
-      }
-
-      return {
-        ...updatedSession,
-        invoice,
-      };
-    });
-
-    return closedSession;
+      return closedSession;
+    } catch (error) {
+      this.logger.error(`Failed to close session ${sessionId} in database transaction: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async getSession(sessionId: string) {

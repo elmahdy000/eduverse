@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../store/auth-store";
 import { roleLabel, api } from "../lib/api";
+import { useRealtime } from "../lib/useRealtime";
 
 type NavItem = { label: string; href: string; roles: string[]; icon: React.ReactNode };
 type NavGroup = {
@@ -102,6 +103,9 @@ export function AppShell({ children }: PropsWithChildren) {
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "مستخدم";
   const initials = fullName.slice(0, 2).toUpperCase();
   const rs = roleStyle(roleName);
+
+  // اتصال realtime عام — بيحدّث الجلسات/الفواتير/الحجوزات لحظياً في كل الصفحات
+  useRealtime();
 
   const allowedGroups = navGroups.filter((g) => roleName ? g.roles.includes(roleName) : false);
   const toggleGroup = (label: string) =>

@@ -172,10 +172,14 @@ export class BookingsService {
     if (filters?.fromDate || filters?.toDate) {
       where.startTime = {};
       if (filters.fromDate) {
-        where.startTime.gte = new Date(filters.fromDate);
+        const from = new Date(filters.fromDate);
+        from.setHours(0, 0, 0, 0);
+        where.startTime.gte = from;
       }
       if (filters.toDate) {
-        where.startTime.lte = new Date(filters.toDate);
+        const to = new Date(filters.toDate);
+        to.setHours(23, 59, 59, 999);
+        where.startTime.lte = to;
       }
     }
 
@@ -319,8 +323,16 @@ export class BookingsService {
     const where: any = {};
     if (fromDate || toDate) {
       where.startTime = {};
-      if (fromDate) where.startTime.gte = new Date(fromDate);
-      if (toDate) where.startTime.lte = new Date(toDate);
+      if (fromDate) {
+        const from = new Date(fromDate);
+        from.setHours(0, 0, 0, 0);
+        where.startTime.gte = from;
+      }
+      if (toDate) {
+        const to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        where.startTime.lte = to;
+      }
     }
 
     const bookings = await this.prisma.booking.findMany({ where });

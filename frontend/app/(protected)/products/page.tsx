@@ -149,6 +149,7 @@ export default function ProductsPage() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("coffee");
   const [price, setPrice] = useState("0");
+  const [costPrice, setCostPrice] = useState("0");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [isFridge, setIsFridge] = useState(false);
@@ -160,6 +161,7 @@ export default function ProductsPage() {
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("coffee");
   const [editPrice, setEditPrice] = useState("0");
+  const [editCostPrice, setEditCostPrice] = useState("0");
   const [editDescription, setEditDescription] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editAvailability, setEditAvailability] = useState(true);
@@ -265,17 +267,18 @@ export default function ProductsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => api.post("/products", { 
-      name, 
-      category, 
-      price: Number(price), 
+    mutationFn: () => api.post("/products", {
+      name,
+      category,
+      price: Number(price),
+      costPrice: Number(costPrice) || 0,
       description: description || undefined,
       imageUrl: imageUrl || undefined,
       isFridge,
       isBakery,
     }),
     onSuccess: () => {
-      setName(""); setCategory("coffee"); setPrice("0"); setDescription(""); setImageUrl(""); setIsFridge(false); setIsBakery(false); setShowForm(false);
+      setName(""); setCategory("coffee"); setPrice("0"); setCostPrice("0"); setDescription(""); setImageUrl(""); setIsFridge(false); setIsBakery(false); setShowForm(false);
       setMessage({ text: "تم إضافة المنتج بنجاح! ✓", ok: true });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -292,6 +295,7 @@ export default function ProductsPage() {
         name: editName,
         category: editCategory,
         price: Number(editPrice),
+        costPrice: Number(editCostPrice) || 0,
         description: editDescription || undefined,
         imageUrl: editImageUrl || undefined,
         availability: editAvailability,
@@ -341,6 +345,7 @@ export default function ProductsPage() {
     // Ensure category is always set from the actual product data
     setEditCategory(product.category ?? "coffee");
     setEditPrice(String(product.price));
+    setEditCostPrice(String(product.costPrice ?? 0));
     setEditDescription(product.description ?? "");
     setEditImageUrl(product.imageUrl ?? "");
     setEditAvailability(product.availability ?? true);
@@ -394,6 +399,11 @@ export default function ProductsPage() {
               </FormField>
               <FormField label="السعر (جنيه)">
                 <input type="number" min={0} step={0.5} value={price} onChange={e => setPrice(e.target.value)} required
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
+              </FormField>
+              <FormField label="سعر التكلفة (الوارد)">
+                <input type="number" min={0} step={0.5} value={costPrice} onChange={e => setCostPrice(e.target.value)}
+                  placeholder="لحساب الربحية"
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
               <FormField label="وصف مختصر">
@@ -453,6 +463,10 @@ export default function ProductsPage() {
               </FormField>
               <FormField label="السعر">
                 <input type="number" min={0} step={0.5} value={editPrice} onChange={e => setEditPrice(e.target.value)} required
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
+              </FormField>
+              <FormField label="سعر التكلفة (الوارد)">
+                <input type="number" min={0} step={0.5} value={editCostPrice} onChange={e => setEditCostPrice(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
               <FormField label="الإتاحة">

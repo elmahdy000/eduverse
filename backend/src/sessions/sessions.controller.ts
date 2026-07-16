@@ -4,13 +4,17 @@ import { SessionsService } from './sessions.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @ApiTags('sessions')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('sessions')
 export class SessionsController {
-  constructor(private sessionsService: SessionsService) {}
+  constructor(
+    private sessionsService: SessionsService,
+    private realtime: RealtimeGateway,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Open new session for customer' })
@@ -23,6 +27,11 @@ export class SessionsController {
         createSessionDto,
         req.user.userId,
       );
+      this.realtime.emitSessionChanged({
+        action: 'opened',
+        sessionId: session.id,
+        customerId: session.customerId,
+      });
       return {
         success: true,
         data: session,
@@ -83,6 +92,12 @@ export class SessionsController {
         closeSessionDto,
         req.user.userId,
       );
+      this.realtime.emitSessionChanged({
+        action: 'closed',
+        sessionId,
+        customerId: (session as any)?.customerId,
+      });
+      this.realtime.emitInvoiceChanged({ action: 'created', sessionId });
       return {
         success: true,
         data: session,
@@ -103,6 +118,7 @@ export class SessionsController {
         sessionId,
         req.user.userId,
       );
+      this.realtime.emitSessionChanged({ action: 'cancelled', sessionId });
       return {
         success: true,
         data: session,

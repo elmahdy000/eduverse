@@ -241,7 +241,7 @@ export class DashboardsService {
         _count: true,
       }),
       this.prisma.expense.aggregate({
-        where: { date: { gte: start, lte: end } },
+        where: { status: 'paid', date: { gte: start, lte: end } },
         _sum: { amount: true },
       }),
     ]);
@@ -277,7 +277,7 @@ export class DashboardsService {
         select: { amount: true, paidAt: true },
       }),
       this.prisma.expense.findMany({
-        where: { date: { gte: start, lte: end } },
+        where: { status: 'paid', date: { gte: start, lte: end } },
         select: { amount: true, date: true },
       }),
     ]);
@@ -349,7 +349,7 @@ export class DashboardsService {
     // 4) تفصيل المصروفات بالتصنيف
     const expensesByCategory = await this.prisma.expense.groupBy({
       by: ['categoryId'],
-      where: { date: { gte: start, lte: end } },
+      where: { status: 'paid', date: { gte: start, lte: end } },
       _sum: { amount: true },
     });
     const categories = await this.prisma.expenseCategory.findMany();

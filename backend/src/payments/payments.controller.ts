@@ -4,13 +4,17 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
 import { RecordPaymentDto, RefundPaymentDto } from './dto/payment.dto';
 import { PaymentsService } from './payments.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @ApiTags('payments')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('payments')
 export class PaymentsController {
-  constructor(private paymentsService: PaymentsService) {}
+  constructor(
+    private paymentsService: PaymentsService,
+    private realtime: RealtimeGateway,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Record payment for invoice' })
@@ -20,6 +24,10 @@ export class PaymentsController {
         recordPaymentDto,
         req.user.userId,
       );
+      this.realtime.emitInvoiceChanged({
+        action: 'paid',
+        invoiceId: (payment as any)?.invoiceId ?? recordPaymentDto.invoiceId,
+      });
       return {
         success: true,
         data: payment,
@@ -87,6 +95,10 @@ export class PaymentsController {
         refundDto,
         req.user.userId,
       );
+      this.realtime.emitInvoiceChanged({
+        action: 'refunded',
+        invoiceId: (refundPayment as any)?.invoiceId,
+      });
       return {
         success: true,
         data: refundPayment,

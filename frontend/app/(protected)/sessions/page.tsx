@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen,
   Timer, RefreshCw, Zap, History, Search, ChevronRight
@@ -16,7 +17,7 @@ import {
   Alert, Badge, Btn, EmptyState, FormField, Input, Modal, Panel,
   SectionTitle, Select, StatCard, statusBadgeTone
 } from "../../../components/ui";
-import { InvoiceReceipt, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
+import { InvoiceReceipt, SessionCloseSummary, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
 import clsx from "clsx";
 
 /* ─── helpers ─────────────────────────────────────────────── */
@@ -180,6 +181,8 @@ export default function SessionsPage() {
   const [chargeAmount, setChargeAmount] = useState("");
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  // معلومات الجلسة المقفولة للملخص (المدة + عدد أصناف البار)
+  const [closedInfo, setClosedInfo] = useState<{ durationMinutes?: number | null } | null>(null);
   const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string } | null>(null);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
@@ -198,10 +201,13 @@ export default function SessionsPage() {
     refetchInterval: 15_000,
   });
   const customersQuery = useQuery({
-    // نجيب قائمة واحدة ونفلتر محلياً (بالاسم أو التليفون) — عشان البحث بالتليفون يشتغل
-    queryKey: ["customers", "for-sessions"],
+    queryKey: ["customers", "for-sessions", customerSearchQuery],
     queryFn: async () => {
-      const response = await api.get("/customers", { params: { page: 1, limit: 100 } });
+      const params: Record<string, any> = { page: 1, limit: 100 };
+      if (customerSearchQuery.trim()) {
+        params.name = customerSearchQuery.trim();
+      }
+      const response = await api.get("/customers", { params });
       return response.data.data as Paginated<Customer>;
     },
   });
@@ -212,6 +218,17 @@ export default function SessionsPage() {
   const bookingsQuery = useQuery({
     queryKey: ["bookings", "active"],
     queryFn: async () => (await api.get("/bookings", { params: { status: "confirmed", page: 1, limit: 50 } })).data.data as Paginated<any>,
+  });
+  const currentShiftQuery = useQuery({
+    queryKey: ["shifts", "current"],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/shifts/current");
+        return response.data || null;
+      } catch {
+        return null;
+      }
+    },
   });
 
   const availableBookings = useMemo(
@@ -225,18 +242,8 @@ export default function SessionsPage() {
   }, [customerId, selectedCustomerObj, customersQuery.data]);
 
   const filteredCustomers = useMemo(() => {
-    const list = customersQuery.data?.data ?? [];
-    const q = customerSearchQuery.trim();
-    if (!q) return list;
-    // فلترة محلية بالاسم أو رقم الهاتف (الـ API بيفلتر بالاسم بس، فالتليفون بيتفلتر هنا)
-    const lower = q.toLowerCase();
-    return list.filter(
-      (c) =>
-        c.fullName?.toLowerCase().includes(lower) ||
-        c.phoneNumber?.includes(q) ||
-        c.phoneNumberSecondary?.includes(q),
-    );
-  }, [customersQuery.data, customerSearchQuery]);
+    return customersQuery.data?.data ?? [];
+  }, [customersQuery.data]);
 
   /* mutations */
   const openMutation = useMutation({
@@ -262,7 +269,9 @@ export default function SessionsPage() {
       setMessage({ text: "تم إنهاء الجلسة بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       if (data?.data?.invoice) setSelectedInvoice(data.data.invoice);
+      setClosedInfo({ durationMinutes: data?.data?.durationMinutes ?? null });
       setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
@@ -273,6 +282,7 @@ export default function SessionsPage() {
     onSuccess: () => {
       setMessage({ text: "تم إلغاء الجلسة.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
@@ -602,9 +612,8 @@ export default function SessionsPage() {
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 <FormField label="نوع الجلسة">
                   <Select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
-                    <option value="hourly">ساعة (أو جزء)</option>
-                    <option value="room">غرفة (حجز)</option>
-                    <option value="day_pass">يومي (Day Pass)</option>
+                    <option value="hourly">بالساعة (أو جزء)</option>
+                    <option value="daily">يومي (Day Pass)</option>
                   </Select>
                 </FormField>
                 <FormField label="الغرفة (اختياري)">
@@ -659,6 +668,10 @@ export default function SessionsPage() {
       >
       {selectedInvoice && (
           <div className="space-y-6">
+            <SessionCloseSummary
+              invoice={selectedInvoice}
+              durationMinutes={closedInfo?.durationMinutes}
+            />
             <InvoiceReceipt
               invoice={selectedInvoice}
               onPrint={printInvoiceOnly}
@@ -713,25 +726,7 @@ export default function SessionsPage() {
                   </Btn>
                 </form>
               </div>
-      )}
-
-      <Modal isOpen={Boolean(pendingSessionAction)} onClose={() => setPendingSessionAction(null)} title={pendingSessionAction?.action === "close" ? "إنهاء الجلسة وإصدار الفاتورة" : "إلغاء الجلسة"} size="sm">
-        <div className="space-y-4">
-          <Alert tone={pendingSessionAction?.action === "close" ? "warn" : "danger"}>
-            {pendingSessionAction?.action === "close"
-              ? `سيتم إنهاء جلسة ${pendingSessionAction.customerName ?? "العميل"} وحساب المدة وإصدار الفاتورة. هل تريد المتابعة؟`
-              : `سيتم إلغاء جلسة ${pendingSessionAction?.customerName ?? "العميل"} بدون إصدار فاتورة. هل أنت متأكد؟`}
-          </Alert>
-          <div className="flex gap-2">
-            <Btn variant={pendingSessionAction?.action === "close" ? "warn" : "danger"} loading={closeMutation.isPending || cancelMutation.isPending} onClick={() => {
-              if (!pendingSessionAction) return;
-              const mutation = pendingSessionAction.action === "close" ? closeMutation : cancelMutation;
-              mutation.mutate(pendingSessionAction.id, { onSuccess: () => setPendingSessionAction(null) });
-            }}>{pendingSessionAction?.action === "close" ? "إنهاء وإصدار الفاتورة" : "تأكيد الإلغاء"}</Btn>
-            <Btn variant="ghost" onClick={() => setPendingSessionAction(null)}>رجوع</Btn>
-          </div>
-        </div>
-      </Modal>
+            )}
 
             <div className="flex justify-center pt-2">
               <button
@@ -743,6 +738,39 @@ export default function SessionsPage() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* ── مودال تأكيد إنهاء/إلغاء الجلسة ── */}
+      <Modal isOpen={Boolean(pendingSessionAction)} onClose={() => setPendingSessionAction(null)} title={pendingSessionAction?.action === "close" ? "إنهاء الجلسة وإصدار الفاتورة" : "إلغاء الجلسة"} size="sm">
+        <div className="space-y-4">
+          {pendingSessionAction?.action === "close" && !currentShiftQuery.data && (
+            <Alert tone="danger">
+              تنبيه: لا يوجد وردية (Shift) مفتوحة حالياً. يجب فتح وردية أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب.
+              <br />
+              يمكنك فتح وردية جديدة من صفحة <Link href="/shifts" className="underline font-bold hover:text-red-800 transition-colors">الورديات</Link>.
+            </Alert>
+          )}
+          <Alert tone={pendingSessionAction?.action === "close" ? "warn" : "danger"}>
+            {pendingSessionAction?.action === "close"
+              ? `سيتم إنهاء جلسة ${pendingSessionAction.customerName ?? "العميل"} وحساب المدة وإصدار الفاتورة. هل تريد المتابعة؟`
+              : `سيتم إلغاء جلسة ${pendingSessionAction?.customerName ?? "العميل"} بدون إصدار فاتورة. هل أنت متأكد؟`}
+          </Alert>
+          <div className="flex gap-2">
+            <Btn 
+              variant={pendingSessionAction?.action === "close" ? "warn" : "danger"} 
+              loading={closeMutation.isPending || cancelMutation.isPending} 
+              disabled={pendingSessionAction?.action === "close" && !currentShiftQuery.data}
+              onClick={() => {
+                if (!pendingSessionAction) return;
+                const mutation = pendingSessionAction.action === "close" ? closeMutation : cancelMutation;
+                mutation.mutate(pendingSessionAction.id, { onSuccess: () => setPendingSessionAction(null) });
+              }}
+            >
+              {pendingSessionAction?.action === "close" ? "إنهاء وإصدار الفاتورة" : "تأكيد الإلغاء"}
+            </Btn>
+            <Btn variant="ghost" onClick={() => setPendingSessionAction(null)}>رجوع</Btn>
+          </div>
+        </div>
       </Modal>
         </div>
       </div>

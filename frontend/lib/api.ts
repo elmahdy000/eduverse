@@ -1,4 +1,4 @@
-﻿import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import type { ApiSuccess, AuthPayload } from "./types";
 import { useAuthStore } from "../store/auth-store";
 
@@ -75,6 +75,9 @@ api.interceptors.response.use(
     const newToken = await refreshingPromise;
 
     if (!newToken) {
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
       return Promise.reject(error);
     }
 

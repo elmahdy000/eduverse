@@ -347,8 +347,8 @@ export class BarOrdersService {
 
     const allowedTransitions: Record<string, string[]> = {
       new: ['in_preparation', 'cancelled'],
-      in_preparation: ['ready', 'cancelled'],
-      ready: ['delivered', 'cancelled'],
+      in_preparation: ['new', 'ready', 'cancelled'],
+      ready: ['in_preparation', 'delivered', 'cancelled'],
       delivered: [],
       cancelled: [],
     };

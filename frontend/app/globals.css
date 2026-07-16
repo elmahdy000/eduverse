@@ -90,7 +90,7 @@ button {
 .menu-subtitle { font-family: 'Playfair Display', serif; color: var(--menu-purple-deep); font-size: clamp(13px, 3vw, 17px); }
 
 /* شريط القسم — Signature */
-.menu-section-head { display: flex; align-items: center; gap: 10px; margin: clamp(16px,3vw,24px) 0 12px; position: relative; z-index: 2; }
+.menu-section-head { display: flex; align-items: center; gap: 12px; margin: clamp(24px, 4.5vw, 36px) 0 16px; position: relative; z-index: 2; }
 .menu-chip {
   background: var(--menu-purple);
   color: #fff;
@@ -98,7 +98,7 @@ button {
   font-weight: 800;
   letter-spacing: .5px;
   font-size: clamp(13px, 3vw, 15px);
-  padding: 6px clamp(14px, 4vw, 22px);
+  padding: 6px clamp(16px, 4.5vw, 24px);
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -109,9 +109,9 @@ button {
 .menu-item {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  padding: clamp(7px, 1.6vw, 9px) 8px;
-  margin-bottom: 6px;
+  gap: 8px;
+  padding: clamp(9px, 1.8vw, 12px) 12px;
+  margin-bottom: 8px;
   border-radius: 12px;
   cursor: pointer;
   transition: background .15s, transform .1s;

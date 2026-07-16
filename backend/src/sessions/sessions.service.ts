@@ -232,23 +232,50 @@ export class SessionsService {
       // قيمة محدَّدة يدوياً (بما فيها الصفر المقصود) — نستخدمها كما هي
       chargeAmount = Number(session.chargeAmount);
     } else if (session.sessionType === 'hourly') {
-      if (!session.room?.hourlyRate) {
-        this.logger.warn(`Failed to close session ${sessionId}: Room has no hourly rate`);
-        throw new BadRequestException(
-          'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر بالساعة. يرجى تحديد قيمة الجلسة يدوياً.',
-        );
+      let rate: number;
+      if (session.room) {
+        if (!session.room.hourlyRate) {
+          this.logger.warn(`Failed to close session ${sessionId}: Room has no hourly rate`);
+          throw new BadRequestException(
+            'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر بالساعة. يرجى تحديد قيمة الجلسة يدوياً.',
+          );
+        }
+        rate = Number(session.room.hourlyRate);
+      } else {
+        // لو بدون غرفة (منطقة العمل المشترك العامة)
+        // نبحث عن أول غرفة من نوع 'coworking' ونأخذ سعرها، وإذا لم توجد نستخدم 40 كقيمة افتراضية
+        const coworkingRoom = await this.prisma.room.findFirst({
+          where: { roomType: 'coworking', hourlyRate: { not: null } },
+        });
+        if (coworkingRoom && coworkingRoom.hourlyRate) {
+          rate = Number(coworkingRoom.hourlyRate);
+        } else {
+          rate = 40; // القيمة الافتراضية لمنطقة العمل المشترك
+        }
       }
-      const rate = Number(session.room.hourlyRate);
       const hours = Math.ceil(durationMinutes / 60);
       chargeAmount = hours * rate;
     } else if (session.sessionType === 'daily') {
-      if (!session.room?.dailyRate) {
-        this.logger.warn(`Failed to close session ${sessionId}: Room has no daily rate`);
-        throw new BadRequestException(
-          'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر يومي. يرجى تحديد قيمة الجلسة يدوياً.',
-        );
+      if (session.room) {
+        if (!session.room.dailyRate) {
+          this.logger.warn(`Failed to close session ${sessionId}: Room has no daily rate`);
+          throw new BadRequestException(
+            'لا يمكن حساب قيمة الجلسة تلقائياً: الغرفة ليس لها سعر يومي. يرجى تحديد قيمة الجلسة يدوياً.',
+          );
+        }
+        chargeAmount = Number(session.room.dailyRate);
+      } else {
+        // لو بدون غرفة (منطقة العمل المشترك العامة)
+        // نبحث عن أول غرفة من نوع 'coworking' ونأخذ سعرها اليومي، وإذا لم توجد نستخدم 150 كقيمة افتراضية للـ Day Pass
+        const coworkingRoom = await this.prisma.room.findFirst({
+          where: { roomType: 'coworking', dailyRate: { not: null } },
+        });
+        if (coworkingRoom && coworkingRoom.dailyRate) {
+          chargeAmount = Number(coworkingRoom.dailyRate);
+        } else {
+          chargeAmount = 150; // القيمة الافتراضية لليوم الكامل (Day Pass)
+        }
       }
-      chargeAmount = Number(session.room.dailyRate);
     } else {
       // أنواع أخرى (package/booking_linked) بدون قيمة محددة => صفر (تُحصَّل بطريقة أخرى)
       chargeAmount = 0;

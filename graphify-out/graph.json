@@ -9,7 +9,7 @@
       "source_file": "D:\\coders\\eduvers\\ecosystem.config.js",
       "source_location": "L1",
       "id": "d_coders_eduvers_ecosystem_config_js",
-      "community": 98,
+      "community": 97,
       "norm_label": "ecosystem.config.js"
     },
     {
@@ -18,7 +18,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\check-guest.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_check_guest_ts",
-      "community": 55,
+      "community": 53,
       "norm_label": "check-guest.ts"
     },
     {
@@ -27,7 +27,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\check-guest.ts",
       "source_location": "L5",
       "id": "check_guest_main",
-      "community": 55,
+      "community": 53,
       "norm_label": "main()"
     },
     {
@@ -36,7 +36,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\ensure-guest.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_ensure_guest_ts",
-      "community": 56,
+      "community": 54,
       "norm_label": "ensure-guest.ts"
     },
     {
@@ -45,7 +45,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\ensure-guest.ts",
       "source_location": "L5",
       "id": "ensure_guest_main",
-      "community": 56,
+      "community": 54,
       "norm_label": "main()"
     },
     {
@@ -54,7 +54,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\eslint.config.mjs",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_eslint_config_mjs",
-      "community": 99,
+      "community": 98,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -63,7 +63,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\clear_inventory.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_prisma_clear_inventory_ts",
-      "community": 57,
+      "community": 55,
       "norm_label": "clear_inventory.ts"
     },
     {
@@ -72,7 +72,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\clear_inventory.ts",
       "source_location": "L5",
       "id": "clear_inventory_main",
-      "community": 57,
+      "community": 55,
       "norm_label": "main()"
     },
     {
@@ -81,7 +81,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_prisma_seed_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "seed.ts"
     },
     {
@@ -90,7 +90,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed.ts",
       "source_location": "L6",
       "id": "seed_main",
-      "community": 1,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -99,7 +99,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed_menu.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_prisma_seed_menu_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "seed_menu.ts"
     },
     {
@@ -108,7 +108,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed_menu.ts",
       "source_location": "L27",
       "id": "seed_menu_main",
-      "community": 1,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -117,7 +117,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed_owner_portal.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_prisma_seed_owner_portal_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "seed_owner_portal.ts"
     },
     {
@@ -126,7 +126,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\seed_owner_portal.ts",
       "source_location": "L39",
       "id": "seed_owner_portal_main",
-      "community": 1,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -135,7 +135,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\simulation.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_prisma_simulation_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "simulation.ts"
     },
     {
@@ -144,7 +144,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\prisma\\simulation.ts",
       "source_location": "L6",
       "id": "simulation_main",
-      "community": 1,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -153,7 +153,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\check-products.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scratch_check_products_ts",
-      "community": 58,
+      "community": 56,
       "norm_label": "check-products.ts"
     },
     {
@@ -162,7 +162,25 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\check-products.ts",
       "source_location": "L4",
       "id": "check_products_main",
-      "community": 58,
+      "community": 56,
+      "norm_label": "main()"
+    },
+    {
+      "label": "check_session_room.js",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\backend\\scratch\\check_session_room.js",
+      "source_location": "L1",
+      "id": "d_coders_eduvers_backend_scratch_check_session_room_js",
+      "community": 57,
+      "norm_label": "check_session_room.js"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "D:\\coders\\eduvers\\backend\\scratch\\check_session_room.js",
+      "source_location": "L4",
+      "id": "check_session_room_main",
+      "community": 57,
       "norm_label": "main()"
     },
     {
@@ -171,7 +189,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\cleanup.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scratch_cleanup_ts",
-      "community": 59,
+      "community": 58,
       "norm_label": "cleanup.ts"
     },
     {
@@ -180,7 +198,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\cleanup.ts",
       "source_location": "L4",
       "id": "cleanup_main",
-      "community": 59,
+      "community": 58,
       "norm_label": "main()"
     },
     {
@@ -189,7 +207,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\find_session.js",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scratch_find_session_js",
-      "community": 60,
+      "community": 59,
       "norm_label": "find_session.js"
     },
     {
@@ -198,7 +216,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\find_session.js",
       "source_location": "L5",
       "id": "find_session_main",
-      "community": 60,
+      "community": 59,
       "norm_label": "main()"
     },
     {
@@ -207,7 +225,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\import-menu.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scratch_import_menu_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "import-menu.ts"
     },
     {
@@ -216,7 +234,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\import-menu.ts",
       "source_location": "L7",
       "id": "import_menu_main",
-      "community": 1,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -225,7 +243,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\stats.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scratch_stats_ts",
-      "community": 61,
+      "community": 60,
       "norm_label": "stats.ts"
     },
     {
@@ -234,7 +252,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scratch\\stats.ts",
       "source_location": "L4",
       "id": "stats_main",
-      "community": 61,
+      "community": 60,
       "norm_label": "main()"
     },
     {
@@ -261,7 +279,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scripts_customer_journey_simulation_ts",
-      "community": 28,
+      "community": 26,
       "norm_label": "customer-journey-simulation.ts"
     },
     {
@@ -270,7 +288,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L34",
       "id": "customer_journey_simulation_apirequest",
-      "community": 28,
+      "community": 26,
       "norm_label": "apirequest()"
     },
     {
@@ -279,7 +297,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L59",
       "id": "customer_journey_simulation_assertsuccess",
-      "community": 28,
+      "community": 26,
       "norm_label": "assertsuccess()"
     },
     {
@@ -288,7 +306,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L71",
       "id": "customer_journey_simulation_login",
-      "community": 28,
+      "community": 26,
       "norm_label": "login()"
     },
     {
@@ -297,7 +315,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L87",
       "id": "customer_journey_simulation_firstlistitem",
-      "community": 28,
+      "community": 26,
       "norm_label": "firstlistitem()"
     },
     {
@@ -306,7 +324,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\customer-journey-simulation.ts",
       "source_location": "L94",
       "id": "customer_journey_simulation_main",
-      "community": 28,
+      "community": 26,
       "norm_label": "main()"
     },
     {
@@ -315,7 +333,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scripts_role_simulation_ts",
-      "community": 29,
+      "community": 27,
       "norm_label": "role-simulation.ts"
     },
     {
@@ -324,7 +342,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L78",
       "id": "role_simulation_apirequest",
-      "community": 29,
+      "community": 27,
       "norm_label": "apirequest()"
     },
     {
@@ -333,7 +351,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L98",
       "id": "role_simulation_login",
-      "community": 29,
+      "community": 27,
       "norm_label": "login()"
     },
     {
@@ -342,7 +360,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L116",
       "id": "role_simulation_isallowedstatus",
-      "community": 29,
+      "community": 27,
       "norm_label": "isallowedstatus()"
     },
     {
@@ -351,7 +369,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L120",
       "id": "role_simulation_runrolesimulation",
-      "community": 29,
+      "community": 27,
       "norm_label": "runrolesimulation()"
     },
     {
@@ -360,7 +378,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\role-simulation.ts",
       "source_location": "L153",
       "id": "role_simulation_main",
-      "community": 29,
+      "community": 27,
       "norm_label": "main()"
     },
     {
@@ -369,7 +387,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\verify_menu.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_scripts_verify_menu_ts",
-      "community": 62,
+      "community": 61,
       "norm_label": "verify_menu.ts"
     },
     {
@@ -378,7 +396,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\scripts\\verify_menu.ts",
       "source_location": "L3",
       "id": "verify_menu_main",
-      "community": 62,
+      "community": 61,
       "norm_label": "main()"
     },
     {
@@ -387,7 +405,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.spec.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_app_controller_spec_ts",
-      "community": 100,
+      "community": 99,
       "norm_label": "app.controller.spec.ts"
     },
     {
@@ -396,7 +414,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_app_controller_ts",
-      "community": 33,
+      "community": 31,
       "norm_label": "app.controller.ts"
     },
     {
@@ -405,7 +423,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.ts",
       "source_location": "L5",
       "id": "app_controller_appcontroller",
-      "community": 33,
+      "community": 31,
       "norm_label": "appcontroller"
     },
     {
@@ -414,7 +432,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.ts",
       "source_location": "L6",
       "id": "app_controller_appcontroller_constructor",
-      "community": 33,
+      "community": 31,
       "norm_label": ".constructor()"
     },
     {
@@ -423,7 +441,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.ts",
       "source_location": "L9",
       "id": "app_controller_appcontroller_gethello",
-      "community": 33,
+      "community": 31,
       "norm_label": ".gethello()"
     },
     {
@@ -432,7 +450,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.controller.ts",
       "source_location": "L14",
       "id": "app_controller_appcontroller_gethealth",
-      "community": 33,
+      "community": 31,
       "norm_label": ".gethealth()"
     },
     {
@@ -441,7 +459,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_app_module_ts",
-      "community": 63,
+      "community": 62,
       "norm_label": "app.module.ts"
     },
     {
@@ -450,7 +468,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.module.ts",
       "source_location": "L76",
       "id": "app_module_appmodule",
-      "community": 63,
+      "community": 62,
       "norm_label": "appmodule"
     },
     {
@@ -459,7 +477,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_app_service_ts",
-      "community": 40,
+      "community": 38,
       "norm_label": "app.service.ts"
     },
     {
@@ -468,7 +486,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.service.ts",
       "source_location": "L4",
       "id": "app_service_appservice",
-      "community": 40,
+      "community": 38,
       "norm_label": "appservice"
     },
     {
@@ -477,7 +495,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.service.ts",
       "source_location": "L5",
       "id": "app_service_appservice_gethello",
-      "community": 40,
+      "community": 38,
       "norm_label": ".gethello()"
     },
     {
@@ -486,7 +504,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\app.service.ts",
       "source_location": "L9",
       "id": "app_service_appservice_gethealth",
-      "community": 40,
+      "community": 38,
       "norm_label": ".gethealth()"
     },
     {
@@ -495,7 +513,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\main.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_main_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "main.ts"
     },
     {
@@ -504,7 +522,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\main.ts",
       "source_location": "L7",
       "id": "main_readallowedorigins",
-      "community": 1,
+      "community": 2,
       "norm_label": "readallowedorigins()"
     },
     {
@@ -513,7 +531,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\main.ts",
       "source_location": "L18",
       "id": "main_validateenvironment",
-      "community": 1,
+      "community": 2,
       "norm_label": "validateenvironment()"
     },
     {
@@ -522,7 +540,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\main.ts",
       "source_location": "L41",
       "id": "main_bootstrap",
-      "community": 1,
+      "community": 2,
       "norm_label": "bootstrap()"
     },
     {
@@ -531,7 +549,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_audit_logs_audit_logs_controller_ts",
-      "community": 34,
+      "community": 32,
       "norm_label": "audit-logs.controller.ts"
     },
     {
@@ -540,7 +558,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.controller.ts",
       "source_location": "L11",
       "id": "audit_logs_controller_auditlogscontroller",
-      "community": 34,
+      "community": 32,
       "norm_label": "auditlogscontroller"
     },
     {
@@ -549,7 +567,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.controller.ts",
       "source_location": "L12",
       "id": "audit_logs_controller_auditlogscontroller_constructor",
-      "community": 34,
+      "community": 32,
       "norm_label": ".constructor()"
     },
     {
@@ -558,7 +576,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.controller.ts",
       "source_location": "L16",
       "id": "audit_logs_controller_auditlogscontroller_getauditlog",
-      "community": 34,
+      "community": 32,
       "norm_label": ".getauditlog()"
     },
     {
@@ -567,7 +585,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.controller.ts",
       "source_location": "L32",
       "id": "audit_logs_controller_auditlogscontroller_listauditlogs",
-      "community": 34,
+      "community": 32,
       "norm_label": ".listauditlogs()"
     },
     {
@@ -576,7 +594,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_audit_logs_audit_logs_interceptor_ts",
-      "community": 22,
+      "community": 20,
       "norm_label": "audit-logs.interceptor.ts"
     },
     {
@@ -585,7 +603,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L11",
       "id": "audit_logs_interceptor_auditlogsinterceptor",
-      "community": 22,
+      "community": 20,
       "norm_label": "auditlogsinterceptor"
     },
     {
@@ -594,7 +612,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L12",
       "id": "audit_logs_interceptor_auditlogsinterceptor_constructor",
-      "community": 22,
+      "community": 20,
       "norm_label": ".constructor()"
     },
     {
@@ -603,7 +621,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L14",
       "id": "audit_logs_interceptor_auditlogsinterceptor_ismutation",
-      "community": 22,
+      "community": 20,
       "norm_label": ".ismutation()"
     },
     {
@@ -612,7 +630,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L18",
       "id": "audit_logs_interceptor_auditlogsinterceptor_isuuid",
-      "community": 22,
+      "community": 20,
       "norm_label": ".isuuid()"
     },
     {
@@ -621,7 +639,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L27",
       "id": "audit_logs_interceptor_auditlogsinterceptor_resolveentitytype",
-      "community": 22,
+      "community": 20,
       "norm_label": ".resolveentitytype()"
     },
     {
@@ -630,7 +648,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L37",
       "id": "audit_logs_interceptor_auditlogsinterceptor_resolveentitytypefromurl",
-      "community": 22,
+      "community": 20,
       "norm_label": ".resolveentitytypefromurl()"
     },
     {
@@ -639,7 +657,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L47",
       "id": "audit_logs_interceptor_auditlogsinterceptor_resolveentityid",
-      "community": 22,
+      "community": 20,
       "norm_label": ".resolveentityid()"
     },
     {
@@ -648,7 +666,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.interceptor.ts",
       "source_location": "L61",
       "id": "audit_logs_interceptor_auditlogsinterceptor_intercept",
-      "community": 22,
+      "community": 20,
       "norm_label": ".intercept()"
     },
     {
@@ -657,7 +675,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_audit_logs_audit_logs_module_ts",
-      "community": 64,
+      "community": 63,
       "norm_label": "audit-logs.module.ts"
     },
     {
@@ -666,7 +684,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.module.ts",
       "source_location": "L13",
       "id": "audit_logs_module_auditlogsmodule",
-      "community": 64,
+      "community": 63,
       "norm_label": "auditlogsmodule"
     },
     {
@@ -675,7 +693,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_audit_logs_audit_logs_service_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "audit-logs.service.ts"
     },
     {
@@ -684,7 +702,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L5",
       "id": "audit_logs_service_auditlogsservice",
-      "community": 1,
+      "community": 2,
       "norm_label": "auditlogsservice"
     },
     {
@@ -693,7 +711,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L6",
       "id": "audit_logs_service_auditlogsservice_constructor",
-      "community": 1,
+      "community": 2,
       "norm_label": ".constructor()"
     },
     {
@@ -702,7 +720,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L8",
       "id": "audit_logs_service_auditlogsservice_createauditlog",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createauditlog()"
     },
     {
@@ -711,7 +729,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L32",
       "id": "audit_logs_service_auditlogsservice_listauditlogs",
-      "community": 1,
+      "community": 2,
       "norm_label": ".listauditlogs()"
     },
     {
@@ -720,7 +738,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\audit-logs\\audit-logs.service.ts",
       "source_location": "L113",
       "id": "audit_logs_service_auditlogsservice_getauditlog",
-      "community": 1,
+      "community": 2,
       "norm_label": ".getauditlog()"
     },
     {
@@ -792,7 +810,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_auth_module_ts",
-      "community": 65,
+      "community": 64,
       "norm_label": "auth.module.ts"
     },
     {
@@ -801,7 +819,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.module.ts",
       "source_location": "L33",
       "id": "auth_module_authmodule",
-      "community": 65,
+      "community": 64,
       "norm_label": "authmodule"
     },
     {
@@ -810,7 +828,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_auth_service_ts",
-      "community": 10,
+      "community": 0,
       "norm_label": "auth.service.ts"
     },
     {
@@ -819,7 +837,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L7",
       "id": "auth_service_jwtconfigservice",
-      "community": 10,
+      "community": 0,
       "norm_label": "jwtconfigservice"
     },
     {
@@ -828,7 +846,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L8",
       "id": "auth_service_jwtconfigservice_constructor",
-      "community": 10,
+      "community": 0,
       "norm_label": ".constructor()"
     },
     {
@@ -837,7 +855,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L10",
       "id": "auth_service_jwtconfigservice_generateaccesstoken",
-      "community": 10,
+      "community": 0,
       "norm_label": ".generateaccesstoken()"
     },
     {
@@ -846,7 +864,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L17",
       "id": "auth_service_jwtconfigservice_generaterefreshtoken",
-      "community": 10,
+      "community": 0,
       "norm_label": ".generaterefreshtoken()"
     },
     {
@@ -855,7 +873,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L24",
       "id": "auth_service_jwtconfigservice_verifyaccesstoken",
-      "community": 3,
+      "community": 1,
       "norm_label": ".verifyaccesstoken()"
     },
     {
@@ -864,7 +882,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L28",
       "id": "auth_service_jwtconfigservice_verifyrefreshtoken",
-      "community": 10,
+      "community": 0,
       "norm_label": ".verifyrefreshtoken()"
     },
     {
@@ -873,7 +891,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L34",
       "id": "auth_service_passwordservice",
-      "community": 10,
+      "community": 0,
       "norm_label": "passwordservice"
     },
     {
@@ -882,7 +900,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L35",
       "id": "auth_service_passwordservice_hashpassword",
-      "community": 10,
+      "community": 0,
       "norm_label": ".hashpassword()"
     },
     {
@@ -891,7 +909,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L40",
       "id": "auth_service_passwordservice_validatepassword",
-      "community": 10,
+      "community": 0,
       "norm_label": ".validatepassword()"
     },
     {
@@ -900,7 +918,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L49",
       "id": "auth_service_authservice",
-      "community": 10,
+      "community": 0,
       "norm_label": "authservice"
     },
     {
@@ -909,7 +927,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L50",
       "id": "auth_service_authservice_constructor",
-      "community": 10,
+      "community": 0,
       "norm_label": ".constructor()"
     },
     {
@@ -918,7 +936,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L56",
       "id": "auth_service_authservice_login",
-      "community": 10,
+      "community": 0,
       "norm_label": ".login()"
     },
     {
@@ -927,7 +945,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L140",
       "id": "auth_service_authservice_register",
-      "community": 10,
+      "community": 0,
       "norm_label": ".register()"
     },
     {
@@ -936,7 +954,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\auth.service.ts",
       "source_location": "L202",
       "id": "auth_service_authservice_refreshaccesstoken",
-      "community": 10,
+      "community": 0,
       "norm_label": ".refreshaccesstoken()"
     },
     {
@@ -945,7 +963,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.guard.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_jwt_guard_ts",
-      "community": 41,
+      "community": 39,
       "norm_label": "jwt.guard.ts"
     },
     {
@@ -954,7 +972,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.guard.ts",
       "source_location": "L5",
       "id": "jwt_guard_jwtauthguard",
-      "community": 41,
+      "community": 39,
       "norm_label": "jwtauthguard"
     },
     {
@@ -963,7 +981,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.guard.ts",
       "source_location": "L6",
       "id": "jwt_guard_jwtauthguard_canactivate",
-      "community": 41,
+      "community": 39,
       "norm_label": ".canactivate()"
     },
     {
@@ -972,7 +990,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.guard.ts",
       "source_location": "L10",
       "id": "jwt_guard_jwtauthguard_handlerequest",
-      "community": 41,
+      "community": 39,
       "norm_label": ".handlerequest()"
     },
     {
@@ -981,7 +999,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.strategy.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_jwt_strategy_ts",
-      "community": 42,
+      "community": 40,
       "norm_label": "jwt.strategy.ts"
     },
     {
@@ -990,7 +1008,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.strategy.ts",
       "source_location": "L8",
       "id": "jwt_strategy_jwtstrategy",
-      "community": 42,
+      "community": 40,
       "norm_label": "jwtstrategy"
     },
     {
@@ -999,7 +1017,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.strategy.ts",
       "source_location": "L9",
       "id": "jwt_strategy_jwtstrategy_constructor",
-      "community": 42,
+      "community": 40,
       "norm_label": ".constructor()"
     },
     {
@@ -1008,7 +1026,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\jwt.strategy.ts",
       "source_location": "L20",
       "id": "jwt_strategy_jwtstrategy_validate",
-      "community": 42,
+      "community": 40,
       "norm_label": ".validate()"
     },
     {
@@ -1206,7 +1224,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\dto\\auth.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_auth_dto_auth_dto_ts",
-      "community": 35,
+      "community": 33,
       "norm_label": "auth.dto.ts"
     },
     {
@@ -1215,7 +1233,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\dto\\auth.dto.ts",
       "source_location": "L3",
       "id": "auth_dto_logindto",
-      "community": 35,
+      "community": 33,
       "norm_label": "logindto"
     },
     {
@@ -1224,7 +1242,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\dto\\auth.dto.ts",
       "source_location": "L12",
       "id": "auth_dto_registerdto",
-      "community": 35,
+      "community": 33,
       "norm_label": "registerdto"
     },
     {
@@ -1233,7 +1251,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\dto\\auth.dto.ts",
       "source_location": "L30",
       "id": "auth_dto_authresponsedto",
-      "community": 35,
+      "community": 33,
       "norm_label": "authresponsedto"
     },
     {
@@ -1242,7 +1260,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\auth\\dto\\auth.dto.ts",
       "source_location": "L44",
       "id": "auth_dto_loginresponsedto",
-      "community": 35,
+      "community": 33,
       "norm_label": "loginresponsedto"
     },
     {
@@ -1251,7 +1269,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_bar_orders_controller_ts",
-      "community": 4,
+      "community": 1,
       "norm_label": "bar-orders.controller.ts"
     },
     {
@@ -1260,7 +1278,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L30",
       "id": "bar_orders_controller_barorderscontroller",
-      "community": 4,
+      "community": 1,
       "norm_label": "barorderscontroller"
     },
     {
@@ -1269,7 +1287,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L31",
       "id": "bar_orders_controller_barorderscontroller_constructor",
-      "community": 4,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -1278,7 +1296,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L37",
       "id": "bar_orders_controller_barorderscontroller_assertcanmutateorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".assertcanmutateorder()"
     },
     {
@@ -1287,7 +1305,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L61",
       "id": "bar_orders_controller_barorderscontroller_createorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".createorder()"
     },
     {
@@ -1296,7 +1314,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L83",
       "id": "bar_orders_controller_barorderscontroller_getorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".getorder()"
     },
     {
@@ -1305,7 +1323,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L99",
       "id": "bar_orders_controller_barorderscontroller_listorders",
-      "community": 4,
+      "community": 1,
       "norm_label": ".listorders()"
     },
     {
@@ -1314,7 +1332,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L129",
       "id": "bar_orders_controller_barorderscontroller_updatestatus",
-      "community": 4,
+      "community": 1,
       "norm_label": ".updatestatus()"
     },
     {
@@ -1323,7 +1341,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L158",
       "id": "bar_orders_controller_barorderscontroller_cancelorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".cancelorder()"
     },
     {
@@ -1332,7 +1350,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.controller.ts",
       "source_location": "L183",
       "id": "bar_orders_controller_barorderscontroller_updateitems",
-      "community": 4,
+      "community": 1,
       "norm_label": ".updateitems()"
     },
     {
@@ -1341,7 +1359,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_bar_orders_gateway_ts",
-      "community": 3,
+      "community": 1,
       "norm_label": "bar-orders.gateway.ts"
     },
     {
@@ -1350,7 +1368,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L22",
       "id": "bar_orders_gateway_barordersgateway",
-      "community": 3,
+      "community": 1,
       "norm_label": "barordersgateway"
     },
     {
@@ -1359,7 +1377,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L30",
       "id": "bar_orders_gateway_barordersgateway_constructor",
-      "community": 3,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -1368,7 +1386,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L32",
       "id": "bar_orders_gateway_barordersgateway_afterinit",
-      "community": 3,
+      "community": 1,
       "norm_label": ".afterinit()"
     },
     {
@@ -1377,7 +1395,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L36",
       "id": "bar_orders_gateway_barordersgateway_handleconnection",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handleconnection()"
     },
     {
@@ -1386,7 +1404,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L60",
       "id": "bar_orders_gateway_barordersgateway_handledisconnect",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handledisconnect()"
     },
     {
@@ -1395,7 +1413,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L67",
       "id": "bar_orders_gateway_barordersgateway_emitneworder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".emitneworder()"
     },
     {
@@ -1404,7 +1422,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L75",
       "id": "bar_orders_gateway_barordersgateway_emitorderstatusupdate",
-      "community": 4,
+      "community": 1,
       "norm_label": ".emitorderstatusupdate()"
     },
     {
@@ -1413,7 +1431,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L84",
       "id": "bar_orders_gateway_barordersgateway_emitdashboardrefresh",
-      "community": 4,
+      "community": 1,
       "norm_label": ".emitdashboardrefresh()"
     },
     {
@@ -1422,7 +1440,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L94",
       "id": "bar_orders_gateway_barordersgateway_roomfor",
-      "community": 3,
+      "community": 1,
       "norm_label": ".roomfor()"
     },
     {
@@ -1431,7 +1449,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L99",
       "id": "bar_orders_gateway_barordersgateway_handleping",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handleping()"
     },
     {
@@ -1440,7 +1458,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L107",
       "id": "bar_orders_gateway_barordersgateway_handlejoin",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handlejoin()"
     },
     {
@@ -1449,7 +1467,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L114",
       "id": "bar_orders_gateway_barordersgateway_handlechathistory",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handlechathistory()"
     },
     {
@@ -1458,7 +1476,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L143",
       "id": "bar_orders_gateway_barordersgateway_handlechatmessage",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handlechatmessage()"
     },
     {
@@ -1467,7 +1485,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.gateway.ts",
       "source_location": "L182",
       "id": "bar_orders_gateway_barordersgateway_canaccessconversation",
-      "community": 3,
+      "community": 1,
       "norm_label": ".canaccessconversation()"
     },
     {
@@ -1476,7 +1494,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_bar_orders_module_ts",
-      "community": 66,
+      "community": 65,
       "norm_label": "bar-orders.module.ts"
     },
     {
@@ -1485,7 +1503,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.module.ts",
       "source_location": "L17",
       "id": "bar_orders_module_barordersmodule",
-      "community": 66,
+      "community": 65,
       "norm_label": "barordersmodule"
     },
     {
@@ -1494,7 +1512,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_bar_orders_service_ts",
-      "community": 4,
+      "community": 10,
       "norm_label": "bar-orders.service.ts"
     },
     {
@@ -1503,7 +1521,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L17",
       "id": "bar_orders_service_isnondiscountedproduct",
-      "community": 4,
+      "community": 10,
       "norm_label": "isnondiscountedproduct()"
     },
     {
@@ -1512,7 +1530,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L74",
       "id": "bar_orders_service_computeunitprice",
-      "community": 4,
+      "community": 10,
       "norm_label": "computeunitprice()"
     },
     {
@@ -1521,7 +1539,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L89",
       "id": "bar_orders_service_barordersservice",
-      "community": 4,
+      "community": 10,
       "norm_label": "barordersservice"
     },
     {
@@ -1530,7 +1548,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L90",
       "id": "bar_orders_service_barordersservice_constructor",
-      "community": 4,
+      "community": 10,
       "norm_label": ".constructor()"
     },
     {
@@ -1539,7 +1557,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L95",
       "id": "bar_orders_service_barordersservice_createorder",
-      "community": 4,
+      "community": 10,
       "norm_label": ".createorder()"
     },
     {
@@ -1548,7 +1566,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L185",
       "id": "bar_orders_service_barordersservice_validateguestcode",
-      "community": 4,
+      "community": 10,
       "norm_label": ".validateguestcode()"
     },
     {
@@ -1557,7 +1575,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L254",
       "id": "bar_orders_service_barordersservice_createorderbyguestcode",
-      "community": 4,
+      "community": 10,
       "norm_label": ".createorderbyguestcode()"
     },
     {
@@ -1566,7 +1584,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L276",
       "id": "bar_orders_service_barordersservice_getorder",
-      "community": 4,
+      "community": 10,
       "norm_label": ".getorder()"
     },
     {
@@ -1575,7 +1593,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L292",
       "id": "bar_orders_service_barordersservice_listorders",
-      "community": 4,
+      "community": 10,
       "norm_label": ".listorders()"
     },
     {
@@ -1584,7 +1602,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L345",
       "id": "bar_orders_service_barordersservice_updateorderstatus",
-      "community": 4,
+      "community": 10,
       "norm_label": ".updateorderstatus()"
     },
     {
@@ -1593,7 +1611,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L452",
       "id": "bar_orders_service_barordersservice_cancelorder",
-      "community": 4,
+      "community": 10,
       "norm_label": ".cancelorder()"
     },
     {
@@ -1602,7 +1620,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L467",
       "id": "bar_orders_service_barordersservice_cancelguestorder",
-      "community": 4,
+      "community": 10,
       "norm_label": ".cancelguestorder()"
     },
     {
@@ -1611,7 +1629,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L495",
       "id": "bar_orders_service_barordersservice_updateorderitems",
-      "community": 4,
+      "community": 10,
       "norm_label": ".updateorderitems()"
     },
     {
@@ -1620,7 +1638,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\bar-orders.service.ts",
       "source_location": "L554",
       "id": "bar_orders_service_barordersservice_getbaristadashboard",
-      "community": 4,
+      "community": 10,
       "norm_label": ".getbaristadashboard()"
     },
     {
@@ -1629,7 +1647,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_guest_orders_controller_ts",
-      "community": 4,
+      "community": 1,
       "norm_label": "guest-orders.controller.ts"
     },
     {
@@ -1638,7 +1656,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L9",
       "id": "guest_orders_controller_guestorderscontroller",
-      "community": 4,
+      "community": 1,
       "norm_label": "guestorderscontroller"
     },
     {
@@ -1647,7 +1665,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L10",
       "id": "guest_orders_controller_guestorderscontroller_constructor",
-      "community": 4,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -1656,7 +1674,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L18",
       "id": "guest_orders_controller_guestorderscontroller_listproducts",
-      "community": 4,
+      "community": 1,
       "norm_label": ".listproducts()"
     },
     {
@@ -1665,7 +1683,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L34",
       "id": "guest_orders_controller_guestorderscontroller_placeorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".placeorder()"
     },
     {
@@ -1674,7 +1692,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L63",
       "id": "guest_orders_controller_guestorderscontroller_validateguestcode",
-      "community": 4,
+      "community": 1,
       "norm_label": ".validateguestcode()"
     },
     {
@@ -1683,7 +1701,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L79",
       "id": "guest_orders_controller_guestorderscontroller_getstatus",
-      "community": 4,
+      "community": 10,
       "norm_label": ".getstatus()"
     },
     {
@@ -1692,7 +1710,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\guest-orders.controller.ts",
       "source_location": "L99",
       "id": "guest_orders_controller_guestorderscontroller_cancelorder",
-      "community": 4,
+      "community": 1,
       "norm_label": ".cancelorder()"
     },
     {
@@ -1701,7 +1719,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\dto\\bar-order.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bar_orders_dto_bar_order_dto_ts",
-      "community": 43,
+      "community": 41,
       "norm_label": "bar-order.dto.ts"
     },
     {
@@ -1710,7 +1728,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\dto\\bar-order.dto.ts",
       "source_location": "L13",
       "id": "bar_order_dto_createbarorderitemdto",
-      "community": 43,
+      "community": 41,
       "norm_label": "createbarorderitemdto"
     },
     {
@@ -1719,7 +1737,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\dto\\bar-order.dto.ts",
       "source_location": "L22",
       "id": "bar_order_dto_createbarorderdto",
-      "community": 43,
+      "community": 41,
       "norm_label": "createbarorderdto"
     },
     {
@@ -1728,7 +1746,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bar-orders\\dto\\bar-order.dto.ts",
       "source_location": "L46",
       "id": "bar_order_dto_updatebarorderstatusdto",
-      "community": 43,
+      "community": 41,
       "norm_label": "updatebarorderstatusdto"
     },
     {
@@ -1737,7 +1755,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bookings_bookings_controller_ts",
-      "community": 14,
+      "community": 4,
       "norm_label": "bookings.controller.ts"
     },
     {
@@ -1746,7 +1764,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L17",
       "id": "bookings_controller_bookingscontroller",
-      "community": 14,
+      "community": 4,
       "norm_label": "bookingscontroller"
     },
     {
@@ -1755,7 +1773,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L18",
       "id": "bookings_controller_bookingscontroller_constructor",
-      "community": 14,
+      "community": 4,
       "norm_label": ".constructor()"
     },
     {
@@ -1764,7 +1782,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L25",
       "id": "bookings_controller_bookingscontroller_createbooking",
-      "community": 14,
+      "community": 4,
       "norm_label": ".createbooking()"
     },
     {
@@ -1773,7 +1791,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L52",
       "id": "bookings_controller_bookingscontroller_getsummary",
-      "community": 14,
+      "community": 4,
       "norm_label": ".getsummary()"
     },
     {
@@ -1782,7 +1800,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L71",
       "id": "bookings_controller_bookingscontroller_checkconflicts",
-      "community": 0,
+      "community": 4,
       "norm_label": ".checkconflicts()"
     },
     {
@@ -1791,7 +1809,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L92",
       "id": "bookings_controller_bookingscontroller_getbooking",
-      "community": 14,
+      "community": 4,
       "norm_label": ".getbooking()"
     },
     {
@@ -1800,7 +1818,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L108",
       "id": "bookings_controller_bookingscontroller_listbookings",
-      "community": 14,
+      "community": 4,
       "norm_label": ".listbookings()"
     },
     {
@@ -1809,7 +1827,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L141",
       "id": "bookings_controller_bookingscontroller_updatebooking",
-      "community": 14,
+      "community": 4,
       "norm_label": ".updatebooking()"
     },
     {
@@ -1818,7 +1836,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L168",
       "id": "bookings_controller_bookingscontroller_cancelbooking",
-      "community": 14,
+      "community": 4,
       "norm_label": ".cancelbooking()"
     },
     {
@@ -1827,7 +1845,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L193",
       "id": "bookings_controller_bookingscontroller_completebooking",
-      "community": 14,
+      "community": 4,
       "norm_label": ".completebooking()"
     },
     {
@@ -1836,7 +1854,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.controller.ts",
       "source_location": "L215",
       "id": "bookings_controller_bookingscontroller_markasnoshow",
-      "community": 14,
+      "community": 4,
       "norm_label": ".markasnoshow()"
     },
     {
@@ -1845,7 +1863,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bookings_bookings_module_ts",
-      "community": 67,
+      "community": 66,
       "norm_label": "bookings.module.ts"
     },
     {
@@ -1854,7 +1872,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.module.ts",
       "source_location": "L11",
       "id": "bookings_module_bookingsmodule",
-      "community": 67,
+      "community": 66,
       "norm_label": "bookingsmodule"
     },
     {
@@ -1863,7 +1881,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bookings_bookings_service_ts",
-      "community": 0,
+      "community": 4,
       "norm_label": "bookings.service.ts"
     },
     {
@@ -1872,7 +1890,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L6",
       "id": "bookings_service_bookingsservice",
-      "community": 0,
+      "community": 4,
       "norm_label": "bookingsservice"
     },
     {
@@ -1881,7 +1899,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L7",
       "id": "bookings_service_bookingsservice_constructor",
-      "community": 0,
+      "community": 4,
       "norm_label": ".constructor()"
     },
     {
@@ -1890,7 +1908,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L9",
       "id": "bookings_service_bookingsservice_validatebookingtimerange",
-      "community": 0,
+      "community": 4,
       "norm_label": ".validatebookingtimerange()"
     },
     {
@@ -1899,7 +1917,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L15",
       "id": "bookings_service_bookingsservice_checkroomconflicts",
-      "community": 0,
+      "community": 4,
       "norm_label": ".checkroomconflicts()"
     },
     {
@@ -1908,7 +1926,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L61",
       "id": "bookings_service_bookingsservice_createbooking",
-      "community": 0,
+      "community": 4,
       "norm_label": ".createbooking()"
     },
     {
@@ -1926,7 +1944,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L141",
       "id": "bookings_service_bookingsservice_listbookings",
-      "community": 0,
+      "community": 4,
       "norm_label": ".listbookings()"
     },
     {
@@ -1935,7 +1953,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L209",
       "id": "bookings_service_bookingsservice_updatebooking",
-      "community": 0,
+      "community": 4,
       "norm_label": ".updatebooking()"
     },
     {
@@ -1971,7 +1989,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\bookings.service.ts",
       "source_location": "L322",
       "id": "bookings_service_bookingsservice_getbookingsummary",
-      "community": 14,
+      "community": 4,
       "norm_label": ".getbookingsummary()"
     },
     {
@@ -1980,7 +1998,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\dto\\booking.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_bookings_dto_booking_dto_ts",
-      "community": 44,
+      "community": 42,
       "norm_label": "booking.dto.ts"
     },
     {
@@ -1989,7 +2007,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\dto\\booking.dto.ts",
       "source_location": "L12",
       "id": "booking_dto_createbookingdto",
-      "community": 44,
+      "community": 42,
       "norm_label": "createbookingdto"
     },
     {
@@ -1998,7 +2016,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\dto\\booking.dto.ts",
       "source_location": "L47",
       "id": "booking_dto_updatebookingdto",
-      "community": 44,
+      "community": 42,
       "norm_label": "updatebookingdto"
     },
     {
@@ -2007,7 +2025,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\bookings\\dto\\booking.dto.ts",
       "source_location": "L84",
       "id": "booking_dto_bookingconflictquerydto",
-      "community": 44,
+      "community": 42,
       "norm_label": "bookingconflictquerydto"
     },
     {
@@ -2016,7 +2034,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_common_prisma_prisma_module_ts",
-      "community": 68,
+      "community": 67,
       "norm_label": "prisma.module.ts"
     },
     {
@@ -2025,7 +2043,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.module.ts",
       "source_location": "L8",
       "id": "prisma_module_prismamodule",
-      "community": 68,
+      "community": 67,
       "norm_label": "prismamodule"
     },
     {
@@ -2034,7 +2052,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_common_prisma_prisma_service_ts",
-      "community": 36,
+      "community": 34,
       "norm_label": "prisma.service.ts"
     },
     {
@@ -2043,7 +2061,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.service.ts",
       "source_location": "L5",
       "id": "prisma_service_prismaservice",
-      "community": 36,
+      "community": 34,
       "norm_label": "prismaservice"
     },
     {
@@ -2052,7 +2070,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.service.ts",
       "source_location": "L6",
       "id": "prisma_service_prismaservice_constructor",
-      "community": 36,
+      "community": 34,
       "norm_label": ".constructor()"
     },
     {
@@ -2061,7 +2079,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.service.ts",
       "source_location": "L17",
       "id": "prisma_service_prismaservice_onmoduleinit",
-      "community": 36,
+      "community": 34,
       "norm_label": ".onmoduleinit()"
     },
     {
@@ -2070,7 +2088,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\common\\prisma\\prisma.service.ts",
       "source_location": "L27",
       "id": "prisma_service_prismaservice_onmoduledestroy",
-      "community": 36,
+      "community": 34,
       "norm_label": ".onmoduledestroy()"
     },
     {
@@ -2079,7 +2097,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_customers_customers_controller_ts",
-      "community": 18,
+      "community": 17,
       "norm_label": "customers.controller.ts"
     },
     {
@@ -2088,7 +2106,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L16",
       "id": "customers_controller_customerscontroller",
-      "community": 18,
+      "community": 17,
       "norm_label": "customerscontroller"
     },
     {
@@ -2097,7 +2115,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L17",
       "id": "customers_controller_customerscontroller_constructor",
-      "community": 18,
+      "community": 17,
       "norm_label": ".constructor()"
     },
     {
@@ -2106,7 +2124,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L21",
       "id": "customers_controller_customerscontroller_createcustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".createcustomer()"
     },
     {
@@ -2115,7 +2133,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L43",
       "id": "customers_controller_customerscontroller_getcustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".getcustomer()"
     },
     {
@@ -2124,7 +2142,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L59",
       "id": "customers_controller_customerscontroller_searchcustomers",
-      "community": 18,
+      "community": 17,
       "norm_label": ".searchcustomers()"
     },
     {
@@ -2133,7 +2151,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L96",
       "id": "customers_controller_customerscontroller_updatecustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".updatecustomer()"
     },
     {
@@ -2142,7 +2160,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L118",
       "id": "customers_controller_customerscontroller_getcustomerhistory",
-      "community": 18,
+      "community": 17,
       "norm_label": ".getcustomerhistory()"
     },
     {
@@ -2151,7 +2169,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L136",
       "id": "customers_controller_customerscontroller_getactivesession",
-      "community": 18,
+      "community": 17,
       "norm_label": ".getactivesession()"
     },
     {
@@ -2160,7 +2178,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L152",
       "id": "customers_controller_customerscontroller_deactivatecustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".deactivatecustomer()"
     },
     {
@@ -2169,7 +2187,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L171",
       "id": "customers_controller_customerscontroller_blacklistcustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".blacklistcustomer()"
     },
     {
@@ -2178,7 +2196,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.controller.ts",
       "source_location": "L194",
       "id": "customers_controller_customerscontroller_reactivatecustomer",
-      "community": 18,
+      "community": 17,
       "norm_label": ".reactivatecustomer()"
     },
     {
@@ -2187,7 +2205,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_customers_customers_module_ts",
-      "community": 69,
+      "community": 68,
       "norm_label": "customers.module.ts"
     },
     {
@@ -2196,7 +2214,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.module.ts",
       "source_location": "L12",
       "id": "customers_module_customersmodule",
-      "community": 69,
+      "community": 68,
       "norm_label": "customersmodule"
     },
     {
@@ -2232,7 +2250,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\customers.service.ts",
       "source_location": "L13",
       "id": "customers_service_customersservice_createcustomer",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createcustomer()"
     },
     {
@@ -2322,7 +2340,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_customers_dto_customer_dto_ts",
-      "community": 30,
+      "community": 28,
       "norm_label": "customer.dto.ts"
     },
     {
@@ -2331,7 +2349,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L3",
       "id": "customer_dto_createcustomerdto",
-      "community": 30,
+      "community": 28,
       "norm_label": "createcustomerdto"
     },
     {
@@ -2340,7 +2358,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L44",
       "id": "customer_dto_updatecustomerdto",
-      "community": 30,
+      "community": 28,
       "norm_label": "updatecustomerdto"
     },
     {
@@ -2349,7 +2367,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L90",
       "id": "customer_dto_searchcustomerdto",
-      "community": 30,
+      "community": 28,
       "norm_label": "searchcustomerdto"
     },
     {
@@ -2358,7 +2376,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L110",
       "id": "customer_dto_customerresponsedto",
-      "community": 30,
+      "community": 28,
       "norm_label": "customerresponsedto"
     },
     {
@@ -2367,7 +2385,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\customers\\dto\\customer.dto.ts",
       "source_location": "L131",
       "id": "customer_dto_customerslistresponsedto",
-      "community": 30,
+      "community": 28,
       "norm_label": "customerslistresponsedto"
     },
     {
@@ -2376,7 +2394,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_dashboards_dashboards_controller_ts",
-      "community": 23,
+      "community": 21,
       "norm_label": "dashboards.controller.ts"
     },
     {
@@ -2385,7 +2403,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L11",
       "id": "dashboards_controller_dashboardscontroller",
-      "community": 23,
+      "community": 21,
       "norm_label": "dashboardscontroller"
     },
     {
@@ -2394,7 +2412,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L12",
       "id": "dashboards_controller_dashboardscontroller_constructor",
-      "community": 23,
+      "community": 21,
       "norm_label": ".constructor()"
     },
     {
@@ -2403,7 +2421,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L16",
       "id": "dashboards_controller_dashboardscontroller_getownerdashboard",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getownerdashboard()"
     },
     {
@@ -2412,7 +2430,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L32",
       "id": "dashboards_controller_dashboardscontroller_getoperationsdashboard",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getoperationsdashboard()"
     },
     {
@@ -2421,7 +2439,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L48",
       "id": "dashboards_controller_dashboardscontroller_getreceptiondashboard",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getreceptiondashboard()"
     },
     {
@@ -2430,7 +2448,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L64",
       "id": "dashboards_controller_dashboardscontroller_getbaristadashboard",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getbaristadashboard()"
     },
     {
@@ -2439,7 +2457,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L81",
       "id": "dashboards_controller_dashboardscontroller_getoperationsbyrole",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getoperationsbyrole()"
     },
     {
@@ -2448,7 +2466,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.controller.ts",
       "source_location": "L98",
       "id": "dashboards_controller_dashboardscontroller_getanalytics",
-      "community": 23,
+      "community": 21,
       "norm_label": ".getanalytics()"
     },
     {
@@ -2457,7 +2475,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_dashboards_dashboards_module_ts",
-      "community": 70,
+      "community": 69,
       "norm_label": "dashboards.module.ts"
     },
     {
@@ -2466,7 +2484,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\dashboards\\dashboards.module.ts",
       "source_location": "L11",
       "id": "dashboards_module_dashboardsmodule",
-      "community": 70,
+      "community": 69,
       "norm_label": "dashboardsmodule"
     },
     {
@@ -2619,7 +2637,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_expenses_expenses_controller_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "expenses.controller.ts"
     },
     {
@@ -2628,7 +2646,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L9",
       "id": "expenses_controller_expensescontroller",
-      "community": 1,
+      "community": 2,
       "norm_label": "expensescontroller"
     },
     {
@@ -2637,7 +2655,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L10",
       "id": "expenses_controller_expensescontroller_constructor",
-      "community": 1,
+      "community": 2,
       "norm_label": ".constructor()"
     },
     {
@@ -2646,7 +2664,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L13",
       "id": "expenses_controller_expensescontroller_create",
-      "community": 1,
+      "community": 2,
       "norm_label": ".create()"
     },
     {
@@ -2655,7 +2673,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L19",
       "id": "expenses_controller_expensescontroller_findall",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findall()"
     },
     {
@@ -2664,7 +2682,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L40",
       "id": "expenses_controller_expensescontroller_getsummary",
-      "community": 1,
+      "community": 2,
       "norm_label": ".getsummary()"
     },
     {
@@ -2673,7 +2691,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L45",
       "id": "expenses_controller_expensescontroller_findallcategories",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findallcategories()"
     },
     {
@@ -2682,7 +2700,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L50",
       "id": "expenses_controller_expensescontroller_createcategory",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createcategory()"
     },
     {
@@ -2691,7 +2709,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L55",
       "id": "expenses_controller_expensescontroller_findallvendors",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findallvendors()"
     },
     {
@@ -2700,7 +2718,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L60",
       "id": "expenses_controller_expensescontroller_createvendor",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createvendor()"
     },
     {
@@ -2709,7 +2727,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L65",
       "id": "expenses_controller_expensescontroller_findone",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findone()"
     },
     {
@@ -2727,7 +2745,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.controller.ts",
       "source_location": "L75",
       "id": "expenses_controller_expensescontroller_remove",
-      "community": 1,
+      "community": 2,
       "norm_label": ".remove()"
     },
     {
@@ -2736,7 +2754,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_expenses_expenses_module_ts",
-      "community": 71,
+      "community": 70,
       "norm_label": "expenses.module.ts"
     },
     {
@@ -2745,7 +2763,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.module.ts",
       "source_location": "L12",
       "id": "expenses_module_expensesmodule",
-      "community": 71,
+      "community": 70,
       "norm_label": "expensesmodule"
     },
     {
@@ -2754,7 +2772,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_expenses_expenses_service_ts",
-      "community": 1,
+      "community": 2,
       "norm_label": "expenses.service.ts"
     },
     {
@@ -2763,7 +2781,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L6",
       "id": "expenses_service_expensesservice",
-      "community": 1,
+      "community": 2,
       "norm_label": "expensesservice"
     },
     {
@@ -2772,7 +2790,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L7",
       "id": "expenses_service_expensesservice_constructor",
-      "community": 1,
+      "community": 2,
       "norm_label": ".constructor()"
     },
     {
@@ -2781,7 +2799,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L10",
       "id": "expenses_service_expensesservice_createexpense",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createexpense()"
     },
     {
@@ -2790,7 +2808,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L44",
       "id": "expenses_service_expensesservice_findallexpenses",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findallexpenses()"
     },
     {
@@ -2799,7 +2817,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L91",
       "id": "expenses_service_expensesservice_findoneexpense",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findoneexpense()"
     },
     {
@@ -2808,7 +2826,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L105",
       "id": "expenses_service_expensesservice_updateexpense",
-      "community": 1,
+      "community": 2,
       "norm_label": ".updateexpense()"
     },
     {
@@ -2817,7 +2835,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L114",
       "id": "expenses_service_expensesservice_removeexpense",
-      "community": 1,
+      "community": 2,
       "norm_label": ".removeexpense()"
     },
     {
@@ -2826,7 +2844,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L120",
       "id": "expenses_service_expensesservice_createcategory",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createcategory()"
     },
     {
@@ -2835,7 +2853,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L124",
       "id": "expenses_service_expensesservice_findallcategories",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findallcategories()"
     },
     {
@@ -2844,7 +2862,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L156",
       "id": "expenses_service_expensesservice_createvendor",
-      "community": 1,
+      "community": 2,
       "norm_label": ".createvendor()"
     },
     {
@@ -2853,7 +2871,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L160",
       "id": "expenses_service_expensesservice_findallvendors",
-      "community": 1,
+      "community": 2,
       "norm_label": ".findallvendors()"
     },
     {
@@ -2862,7 +2880,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\expenses.service.ts",
       "source_location": "L180",
       "id": "expenses_service_expensesservice_getfinancialsummary",
-      "community": 1,
+      "community": 2,
       "norm_label": ".getfinancialsummary()"
     },
     {
@@ -2871,7 +2889,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\dto\\expense.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_expenses_dto_expense_dto_ts",
-      "community": 37,
+      "community": 35,
       "norm_label": "expense.dto.ts"
     },
     {
@@ -2880,7 +2898,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\dto\\expense.dto.ts",
       "source_location": "L3",
       "id": "expense_dto_createexpensedto",
-      "community": 37,
+      "community": 35,
       "norm_label": "createexpensedto"
     },
     {
@@ -2889,7 +2907,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\dto\\expense.dto.ts",
       "source_location": "L50",
       "id": "expense_dto_updateexpensedto",
-      "community": 37,
+      "community": 35,
       "norm_label": "updateexpensedto"
     },
     {
@@ -2898,7 +2916,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\dto\\expense.dto.ts",
       "source_location": "L97",
       "id": "expense_dto_createcategorydto",
-      "community": 37,
+      "community": 35,
       "norm_label": "createcategorydto"
     },
     {
@@ -2907,7 +2925,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\expenses\\dto\\expense.dto.ts",
       "source_location": "L107",
       "id": "expense_dto_createvendordto",
-      "community": 37,
+      "community": 35,
       "norm_label": "createvendordto"
     },
     {
@@ -3051,7 +3069,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\inventory\\inventory.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_inventory_inventory_module_ts",
-      "community": 72,
+      "community": 71,
       "norm_label": "inventory.module.ts"
     },
     {
@@ -3060,7 +3078,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\inventory\\inventory.module.ts",
       "source_location": "L13",
       "id": "inventory_module_inventorymodule",
-      "community": 72,
+      "community": 71,
       "norm_label": "inventorymodule"
     },
     {
@@ -3159,7 +3177,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\inventory\\inventory.service.ts",
       "source_location": "L295",
       "id": "inventory_service_inventoryservice_deductstockfororder",
-      "community": 4,
+      "community": 10,
       "norm_label": ".deductstockfororder()"
     },
     {
@@ -3285,7 +3303,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\invoices\\invoices.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_invoices_invoices_module_ts",
-      "community": 73,
+      "community": 72,
       "norm_label": "invoices.module.ts"
     },
     {
@@ -3294,7 +3312,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\invoices\\invoices.module.ts",
       "source_location": "L12",
       "id": "invoices_module_invoicesmodule",
-      "community": 73,
+      "community": 72,
       "norm_label": "invoicesmodule"
     },
     {
@@ -3402,7 +3420,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\invoices\\dto\\invoice.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_invoices_dto_invoice_dto_ts",
-      "community": 74,
+      "community": 73,
       "norm_label": "invoice.dto.ts"
     },
     {
@@ -3411,7 +3429,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\invoices\\dto\\invoice.dto.ts",
       "source_location": "L3",
       "id": "invoice_dto_createinvoicedto",
-      "community": 74,
+      "community": 73,
       "norm_label": "createinvoicedto"
     },
     {
@@ -3501,7 +3519,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\owner-reports\\owner-reports.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_owner_reports_owner_reports_module_ts",
-      "community": 75,
+      "community": 74,
       "norm_label": "owner-reports.module.ts"
     },
     {
@@ -3510,7 +3528,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\owner-reports\\owner-reports.module.ts",
       "source_location": "L11",
       "id": "owner_reports_module_ownerreportsmodule",
-      "community": 75,
+      "community": 74,
       "norm_label": "ownerreportsmodule"
     },
     {
@@ -3645,7 +3663,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_payments_payments_controller_ts",
-      "community": 3,
+      "community": 1,
       "norm_label": "payments.controller.ts"
     },
     {
@@ -3654,7 +3672,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L13",
       "id": "payments_controller_paymentscontroller",
-      "community": 3,
+      "community": 1,
       "norm_label": "paymentscontroller"
     },
     {
@@ -3663,7 +3681,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L14",
       "id": "payments_controller_paymentscontroller_constructor",
-      "community": 3,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -3672,7 +3690,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L21",
       "id": "payments_controller_paymentscontroller_recordpayment",
-      "community": 3,
+      "community": 1,
       "norm_label": ".recordpayment()"
     },
     {
@@ -3681,7 +3699,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L44",
       "id": "payments_controller_paymentscontroller_getsummary",
-      "community": 3,
+      "community": 1,
       "norm_label": ".getsummary()"
     },
     {
@@ -3690,7 +3708,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L59",
       "id": "payments_controller_paymentscontroller_listpayments",
-      "community": 3,
+      "community": 1,
       "norm_label": ".listpayments()"
     },
     {
@@ -3699,7 +3717,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.controller.ts",
       "source_location": "L87",
       "id": "payments_controller_paymentscontroller_refundpayment",
-      "community": 3,
+      "community": 1,
       "norm_label": ".refundpayment()"
     },
     {
@@ -3708,7 +3726,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_payments_payments_module_ts",
-      "community": 76,
+      "community": 75,
       "norm_label": "payments.module.ts"
     },
     {
@@ -3717,7 +3735,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.module.ts",
       "source_location": "L11",
       "id": "payments_module_paymentsmodule",
-      "community": 76,
+      "community": 75,
       "norm_label": "paymentsmodule"
     },
     {
@@ -3726,7 +3744,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_payments_payments_service_ts",
-      "community": 27,
+      "community": 25,
       "norm_label": "payments.service.ts"
     },
     {
@@ -3735,7 +3753,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L6",
       "id": "payments_service_paymentsservice",
-      "community": 27,
+      "community": 25,
       "norm_label": "paymentsservice"
     },
     {
@@ -3744,7 +3762,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L7",
       "id": "payments_service_paymentsservice_constructor",
-      "community": 27,
+      "community": 25,
       "norm_label": ".constructor()"
     },
     {
@@ -3753,7 +3771,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L9",
       "id": "payments_service_paymentsservice_getpaymentstatus",
-      "community": 27,
+      "community": 25,
       "norm_label": ".getpaymentstatus()"
     },
     {
@@ -3762,7 +3780,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L19",
       "id": "payments_service_paymentsservice_recordpayment",
-      "community": 27,
+      "community": 25,
       "norm_label": ".recordpayment()"
     },
     {
@@ -3771,7 +3789,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L73",
       "id": "payments_service_paymentsservice_listpayments",
-      "community": 27,
+      "community": 25,
       "norm_label": ".listpayments()"
     },
     {
@@ -3780,7 +3798,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L134",
       "id": "payments_service_paymentsservice_getsummary",
-      "community": 27,
+      "community": 25,
       "norm_label": ".getsummary()"
     },
     {
@@ -3789,7 +3807,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\payments.service.ts",
       "source_location": "L177",
       "id": "payments_service_paymentsservice_refundpayment",
-      "community": 27,
+      "community": 25,
       "norm_label": ".refundpayment()"
     },
     {
@@ -3798,7 +3816,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\dto\\payment.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_payments_dto_payment_dto_ts",
-      "community": 50,
+      "community": 48,
       "norm_label": "payment.dto.ts"
     },
     {
@@ -3807,7 +3825,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\dto\\payment.dto.ts",
       "source_location": "L3",
       "id": "payment_dto_recordpaymentdto",
-      "community": 50,
+      "community": 48,
       "norm_label": "recordpaymentdto"
     },
     {
@@ -3816,7 +3834,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\payments\\dto\\payment.dto.ts",
       "source_location": "L19",
       "id": "payment_dto_refundpaymentdto",
-      "community": 50,
+      "community": 48,
       "norm_label": "refundpaymentdto"
     },
     {
@@ -3825,7 +3843,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_products_products_controller_ts",
-      "community": 24,
+      "community": 22,
       "norm_label": "products.controller.ts"
     },
     {
@@ -3834,7 +3852,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L12",
       "id": "products_controller_productscontroller",
-      "community": 24,
+      "community": 22,
       "norm_label": "productscontroller"
     },
     {
@@ -3843,7 +3861,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L13",
       "id": "products_controller_productscontroller_constructor",
-      "community": 24,
+      "community": 22,
       "norm_label": ".constructor()"
     },
     {
@@ -3852,7 +3870,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L17",
       "id": "products_controller_productscontroller_createproduct",
-      "community": 24,
+      "community": 22,
       "norm_label": ".createproduct()"
     },
     {
@@ -3861,7 +3879,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L33",
       "id": "products_controller_productscontroller_getproduct",
-      "community": 24,
+      "community": 22,
       "norm_label": ".getproduct()"
     },
     {
@@ -3870,7 +3888,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L49",
       "id": "products_controller_productscontroller_listproducts",
-      "community": 24,
+      "community": 22,
       "norm_label": ".listproducts()"
     },
     {
@@ -3879,7 +3897,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L79",
       "id": "products_controller_productscontroller_updateproduct",
-      "community": 24,
+      "community": 22,
       "norm_label": ".updateproduct()"
     },
     {
@@ -3888,7 +3906,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L101",
       "id": "products_controller_productscontroller_deactivateproduct",
-      "community": 24,
+      "community": 22,
       "norm_label": ".deactivateproduct()"
     },
     {
@@ -3897,7 +3915,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.controller.ts",
       "source_location": "L118",
       "id": "products_controller_productscontroller_reactivateproduct",
-      "community": 24,
+      "community": 22,
       "norm_label": ".reactivateproduct()"
     },
     {
@@ -3906,7 +3924,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_products_products_module_ts",
-      "community": 77,
+      "community": 76,
       "norm_label": "products.module.ts"
     },
     {
@@ -3915,7 +3933,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\products.module.ts",
       "source_location": "L12",
       "id": "products_module_productsmodule",
-      "community": 77,
+      "community": 76,
       "norm_label": "productsmodule"
     },
     {
@@ -4005,7 +4023,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\dto\\product.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_products_dto_product_dto_ts",
-      "community": 51,
+      "community": 49,
       "norm_label": "product.dto.ts"
     },
     {
@@ -4014,7 +4032,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\dto\\product.dto.ts",
       "source_location": "L10",
       "id": "product_dto_createproductdto",
-      "community": 51,
+      "community": 49,
       "norm_label": "createproductdto"
     },
     {
@@ -4023,7 +4041,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\products\\dto\\product.dto.ts",
       "source_location": "L47",
       "id": "product_dto_updateproductdto",
-      "community": 51,
+      "community": 49,
       "norm_label": "updateproductdto"
     },
     {
@@ -4032,7 +4050,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_realtime_realtime_gateway_ts",
-      "community": 3,
+      "community": 1,
       "norm_label": "realtime.gateway.ts"
     },
     {
@@ -4041,7 +4059,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L37",
       "id": "realtime_gateway_realtimegateway",
-      "community": 3,
+      "community": 1,
       "norm_label": "realtimegateway"
     },
     {
@@ -4050,7 +4068,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L45",
       "id": "realtime_gateway_realtimegateway_constructor",
-      "community": 3,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -4059,7 +4077,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L50",
       "id": "realtime_gateway_realtimegateway_afterinit",
-      "community": 3,
+      "community": 1,
       "norm_label": ".afterinit()"
     },
     {
@@ -4068,7 +4086,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L54",
       "id": "realtime_gateway_realtimegateway_handleconnection",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handleconnection()"
     },
     {
@@ -4077,7 +4095,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L79",
       "id": "realtime_gateway_realtimegateway_handledisconnect",
-      "community": 3,
+      "community": 1,
       "norm_label": ".handledisconnect()"
     },
     {
@@ -4086,7 +4104,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L83",
       "id": "realtime_gateway_realtimegateway_emit",
-      "community": 3,
+      "community": 1,
       "norm_label": ".emit()"
     },
     {
@@ -4095,7 +4113,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L88",
       "id": "realtime_gateway_realtimegateway_emitsessionchanged",
-      "community": 3,
+      "community": 1,
       "norm_label": ".emitsessionchanged()"
     },
     {
@@ -4104,7 +4122,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L96",
       "id": "realtime_gateway_realtimegateway_emitinvoicechanged",
-      "community": 3,
+      "community": 1,
       "norm_label": ".emitinvoicechanged()"
     },
     {
@@ -4113,7 +4131,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L104",
       "id": "realtime_gateway_realtimegateway_emitbookingchanged",
-      "community": 14,
+      "community": 4,
       "norm_label": ".emitbookingchanged()"
     },
     {
@@ -4122,7 +4140,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L112",
       "id": "realtime_gateway_realtimegateway_emitshiftchanged",
-      "community": 3,
+      "community": 1,
       "norm_label": ".emitshiftchanged()"
     },
     {
@@ -4131,7 +4149,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L120",
       "id": "realtime_gateway_realtimegateway_emitroomchanged",
-      "community": 3,
+      "community": 1,
       "norm_label": ".emitroomchanged()"
     },
     {
@@ -4140,7 +4158,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_realtime_realtime_module_ts",
-      "community": 78,
+      "community": 77,
       "norm_label": "realtime.module.ts"
     },
     {
@@ -4149,7 +4167,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.module.ts",
       "source_location": "L16",
       "id": "realtime_module_realtimemodule",
-      "community": 78,
+      "community": 77,
       "norm_label": "realtimemodule"
     },
     {
@@ -4158,7 +4176,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_rooms_rooms_controller_ts",
-      "community": 20,
+      "community": 19,
       "norm_label": "rooms.controller.ts"
     },
     {
@@ -4167,7 +4185,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L12",
       "id": "rooms_controller_roomscontroller",
-      "community": 20,
+      "community": 19,
       "norm_label": "roomscontroller"
     },
     {
@@ -4176,7 +4194,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L13",
       "id": "rooms_controller_roomscontroller_constructor",
-      "community": 20,
+      "community": 19,
       "norm_label": ".constructor()"
     },
     {
@@ -4185,7 +4203,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L17",
       "id": "rooms_controller_roomscontroller_createroom",
-      "community": 20,
+      "community": 19,
       "norm_label": ".createroom()"
     },
     {
@@ -4194,7 +4212,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L33",
       "id": "rooms_controller_roomscontroller_getavailability",
-      "community": 20,
+      "community": 19,
       "norm_label": ".getavailability()"
     },
     {
@@ -4203,7 +4221,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L61",
       "id": "rooms_controller_roomscontroller_getroom",
-      "community": 20,
+      "community": 19,
       "norm_label": ".getroom()"
     },
     {
@@ -4212,7 +4230,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L77",
       "id": "rooms_controller_roomscontroller_listrooms",
-      "community": 20,
+      "community": 19,
       "norm_label": ".listrooms()"
     },
     {
@@ -4221,7 +4239,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L106",
       "id": "rooms_controller_roomscontroller_updateroom",
-      "community": 20,
+      "community": 19,
       "norm_label": ".updateroom()"
     },
     {
@@ -4230,7 +4248,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L125",
       "id": "rooms_controller_roomscontroller_deactivateroom",
-      "community": 20,
+      "community": 19,
       "norm_label": ".deactivateroom()"
     },
     {
@@ -4239,7 +4257,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.controller.ts",
       "source_location": "L142",
       "id": "rooms_controller_roomscontroller_reactivateroom",
-      "community": 20,
+      "community": 19,
       "norm_label": ".reactivateroom()"
     },
     {
@@ -4248,7 +4266,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_rooms_rooms_module_ts",
-      "community": 79,
+      "community": 78,
       "norm_label": "rooms.module.ts"
     },
     {
@@ -4257,7 +4275,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.module.ts",
       "source_location": "L11",
       "id": "rooms_module_roomsmodule",
-      "community": 79,
+      "community": 78,
       "norm_label": "roomsmodule"
     },
     {
@@ -4293,7 +4311,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.service.ts",
       "source_location": "L9",
       "id": "rooms_service_roomsservice_createroom",
-      "community": 1,
+      "community": 0,
       "norm_label": ".createroom()"
     },
     {
@@ -4347,7 +4365,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\rooms.service.ts",
       "source_location": "L135",
       "id": "rooms_service_roomsservice_getavailablerooms",
-      "community": 20,
+      "community": 19,
       "norm_label": ".getavailablerooms()"
     },
     {
@@ -4356,7 +4374,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\dto\\room.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_rooms_dto_room_dto_ts",
-      "community": 38,
+      "community": 36,
       "norm_label": "room.dto.ts"
     },
     {
@@ -4365,7 +4383,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\dto\\room.dto.ts",
       "source_location": "L12",
       "id": "room_dto_createroomdto",
-      "community": 38,
+      "community": 36,
       "norm_label": "createroomdto"
     },
     {
@@ -4374,7 +4392,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\dto\\room.dto.ts",
       "source_location": "L40",
       "id": "room_dto_updateroomdto",
-      "community": 38,
+      "community": 36,
       "norm_label": "updateroomdto"
     },
     {
@@ -4383,7 +4401,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\dto\\room.dto.ts",
       "source_location": "L71",
       "id": "room_dto_roomavailabilitydto",
-      "community": 38,
+      "community": 36,
       "norm_label": "roomavailabilitydto"
     },
     {
@@ -4392,7 +4410,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\rooms\\dto\\room.dto.ts",
       "source_location": "L79",
       "id": "room_dto_roomresponsedto",
-      "community": 38,
+      "community": 36,
       "norm_label": "roomresponsedto"
     },
     {
@@ -4401,7 +4419,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_sessions_sessions_controller_ts",
-      "community": 3,
+      "community": 1,
       "norm_label": "sessions.controller.ts"
     },
     {
@@ -4410,7 +4428,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L13",
       "id": "sessions_controller_sessionscontroller",
-      "community": 3,
+      "community": 1,
       "norm_label": "sessionscontroller"
     },
     {
@@ -4419,7 +4437,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L14",
       "id": "sessions_controller_sessionscontroller_constructor",
-      "community": 3,
+      "community": 1,
       "norm_label": ".constructor()"
     },
     {
@@ -4428,7 +4446,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L21",
       "id": "sessions_controller_sessionscontroller_opensession",
-      "community": 3,
+      "community": 1,
       "norm_label": ".opensession()"
     },
     {
@@ -4437,7 +4455,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L48",
       "id": "sessions_controller_sessionscontroller_getsession",
-      "community": 3,
+      "community": 1,
       "norm_label": ".getsession()"
     },
     {
@@ -4446,7 +4464,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L64",
       "id": "sessions_controller_sessionscontroller_listactivesessions",
-      "community": 3,
+      "community": 1,
       "norm_label": ".listactivesessions()"
     },
     {
@@ -4455,7 +4473,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L84",
       "id": "sessions_controller_sessionscontroller_closesession",
-      "community": 3,
+      "community": 1,
       "norm_label": ".closesession()"
     },
     {
@@ -4464,7 +4482,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L115",
       "id": "sessions_controller_sessionscontroller_cancelsession",
-      "community": 3,
+      "community": 1,
       "norm_label": ".cancelsession()"
     },
     {
@@ -4473,7 +4491,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_sessions_sessions_module_ts",
-      "community": 80,
+      "community": 79,
       "norm_label": "sessions.module.ts"
     },
     {
@@ -4482,7 +4500,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.module.ts",
       "source_location": "L14",
       "id": "sessions_module_sessionsmodule",
-      "community": 80,
+      "community": 79,
       "norm_label": "sessionsmodule"
     },
     {
@@ -4543,7 +4561,7 @@
       "label": ".getSession()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L344",
+      "source_location": "L371",
       "id": "sessions_service_sessionsservice_getsession",
       "community": 5,
       "norm_label": ".getsession()"
@@ -4552,7 +4570,7 @@
       "label": ".listActiveSessions()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L363",
+      "source_location": "L390",
       "id": "sessions_service_sessionsservice_listactivesessions",
       "community": 5,
       "norm_label": ".listactivesessions()"
@@ -4561,7 +4579,7 @@
       "label": ".cancelSession()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L397",
+      "source_location": "L424",
       "id": "sessions_service_sessionsservice_cancelsession",
       "community": 5,
       "norm_label": ".cancelsession()"
@@ -4572,7 +4590,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\dto\\session.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_sessions_dto_session_dto_ts",
-      "community": 45,
+      "community": 43,
       "norm_label": "session.dto.ts"
     },
     {
@@ -4581,7 +4599,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\dto\\session.dto.ts",
       "source_location": "L3",
       "id": "session_dto_createsessiondto",
-      "community": 45,
+      "community": 43,
       "norm_label": "createsessiondto"
     },
     {
@@ -4590,7 +4608,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\dto\\session.dto.ts",
       "source_location": "L26",
       "id": "session_dto_closesessiondto",
-      "community": 45,
+      "community": 43,
       "norm_label": "closesessiondto"
     },
     {
@@ -4599,7 +4617,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\dto\\session.dto.ts",
       "source_location": "L31",
       "id": "session_dto_sessionresponsedto",
-      "community": 45,
+      "community": 43,
       "norm_label": "sessionresponsedto"
     },
     {
@@ -4608,7 +4626,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_shifts_shifts_controller_ts",
-      "community": 25,
+      "community": 23,
       "norm_label": "shifts.controller.ts"
     },
     {
@@ -4617,7 +4635,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L12",
       "id": "shifts_controller_shiftscontroller",
-      "community": 25,
+      "community": 23,
       "norm_label": "shiftscontroller"
     },
     {
@@ -4626,7 +4644,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L13",
       "id": "shifts_controller_shiftscontroller_constructor",
-      "community": 25,
+      "community": 23,
       "norm_label": ".constructor()"
     },
     {
@@ -4635,7 +4653,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L17",
       "id": "shifts_controller_shiftscontroller_startshift",
-      "community": 25,
+      "community": 23,
       "norm_label": ".startshift()"
     },
     {
@@ -4644,7 +4662,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L23",
       "id": "shifts_controller_shiftscontroller_getcurrentshift",
-      "community": 25,
+      "community": 23,
       "norm_label": ".getcurrentshift()"
     },
     {
@@ -4653,7 +4671,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L29",
       "id": "shifts_controller_shiftscontroller_closeshift",
-      "community": 25,
+      "community": 23,
       "norm_label": ".closeshift()"
     },
     {
@@ -4662,7 +4680,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L45",
       "id": "shifts_controller_shiftscontroller_getshiftssummary",
-      "community": 25,
+      "community": 23,
       "norm_label": ".getshiftssummary()"
     },
     {
@@ -4671,7 +4689,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L54",
       "id": "shifts_controller_shiftscontroller_getshiftreport",
-      "community": 25,
+      "community": 23,
       "norm_label": ".getshiftreport()"
     },
     {
@@ -4680,7 +4698,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.controller.ts",
       "source_location": "L61",
       "id": "shifts_controller_shiftscontroller_listshifts",
-      "community": 25,
+      "community": 23,
       "norm_label": ".listshifts()"
     },
     {
@@ -4689,7 +4707,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_shifts_shifts_module_ts",
-      "community": 81,
+      "community": 80,
       "norm_label": "shifts.module.ts"
     },
     {
@@ -4698,7 +4716,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.module.ts",
       "source_location": "L12",
       "id": "shifts_module_shiftsmodule",
-      "community": 81,
+      "community": 80,
       "norm_label": "shiftsmodule"
     },
     {
@@ -4707,7 +4725,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_shifts_shifts_service_ts",
-      "community": 15,
+      "community": 14,
       "norm_label": "shifts.service.ts"
     },
     {
@@ -4716,7 +4734,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L5",
       "id": "shifts_service_shiftsservice",
-      "community": 15,
+      "community": 14,
       "norm_label": "shiftsservice"
     },
     {
@@ -4725,7 +4743,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L6",
       "id": "shifts_service_shiftsservice_constructor",
-      "community": 15,
+      "community": 14,
       "norm_label": ".constructor()"
     },
     {
@@ -4734,7 +4752,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L8",
       "id": "shifts_service_shiftsservice_canaccessanyshift",
-      "community": 15,
+      "community": 14,
       "norm_label": ".canaccessanyshift()"
     },
     {
@@ -4743,7 +4761,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L12",
       "id": "shifts_service_shiftsservice_assertcanaccessshift",
-      "community": 15,
+      "community": 14,
       "norm_label": ".assertcanaccessshift()"
     },
     {
@@ -4752,7 +4770,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L22",
       "id": "shifts_service_shiftsservice_startshift",
-      "community": 15,
+      "community": 14,
       "norm_label": ".startshift()"
     },
     {
@@ -4761,7 +4779,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L42",
       "id": "shifts_service_shiftsservice_getcurrentshift",
-      "community": 15,
+      "community": 14,
       "norm_label": ".getcurrentshift()"
     },
     {
@@ -4770,7 +4788,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L58",
       "id": "shifts_service_shiftsservice_closeshift",
-      "community": 15,
+      "community": 14,
       "norm_label": ".closeshift()"
     },
     {
@@ -4779,7 +4797,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L118",
       "id": "shifts_service_shiftsservice_getshiftstats",
-      "community": 15,
+      "community": 14,
       "norm_label": ".getshiftstats()"
     },
     {
@@ -4788,7 +4806,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L162",
       "id": "shifts_service_shiftsservice_getshiftstatsdetailed",
-      "community": 15,
+      "community": 14,
       "norm_label": ".getshiftstatsdetailed()"
     },
     {
@@ -4797,7 +4815,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L283",
       "id": "shifts_service_shiftsservice_getshiftreport",
-      "community": 15,
+      "community": 14,
       "norm_label": ".getshiftreport()"
     },
     {
@@ -4806,7 +4824,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L348",
       "id": "shifts_service_shiftsservice_listshifts",
-      "community": 15,
+      "community": 14,
       "norm_label": ".listshifts()"
     },
     {
@@ -4815,7 +4833,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\shifts.service.ts",
       "source_location": "L365",
       "id": "shifts_service_shiftsservice_getshiftssummary",
-      "community": 15,
+      "community": 14,
       "norm_label": ".getshiftssummary()"
     },
     {
@@ -4824,7 +4842,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\dto\\shift.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_shifts_dto_shift_dto_ts",
-      "community": 52,
+      "community": 50,
       "norm_label": "shift.dto.ts"
     },
     {
@@ -4833,7 +4851,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\dto\\shift.dto.ts",
       "source_location": "L4",
       "id": "shift_dto_startshiftdto",
-      "community": 52,
+      "community": 50,
       "norm_label": "startshiftdto"
     },
     {
@@ -4842,7 +4860,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\shifts\\dto\\shift.dto.ts",
       "source_location": "L15",
       "id": "shift_dto_closeshiftdto",
-      "community": 52,
+      "community": 50,
       "norm_label": "closeshiftdto"
     },
     {
@@ -4851,7 +4869,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_users_users_controller_ts",
-      "community": 16,
+      "community": 15,
       "norm_label": "users.controller.ts"
     },
     {
@@ -4860,7 +4878,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L12",
       "id": "users_controller_userscontroller",
-      "community": 16,
+      "community": 15,
       "norm_label": "userscontroller"
     },
     {
@@ -4869,7 +4887,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L13",
       "id": "users_controller_userscontroller_constructor",
-      "community": 16,
+      "community": 15,
       "norm_label": ".constructor()"
     },
     {
@@ -4878,7 +4896,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L18",
       "id": "users_controller_userscontroller_createuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".createuser()"
     },
     {
@@ -4887,7 +4905,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L34",
       "id": "users_controller_userscontroller_listroles",
-      "community": 16,
+      "community": 15,
       "norm_label": ".listroles()"
     },
     {
@@ -4896,7 +4914,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L50",
       "id": "users_controller_userscontroller_getcurrentuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".getcurrentuser()"
     },
     {
@@ -4905,7 +4923,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L67",
       "id": "users_controller_userscontroller_getuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".getuser()"
     },
     {
@@ -4914,7 +4932,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L84",
       "id": "users_controller_userscontroller_listusers",
-      "community": 16,
+      "community": 15,
       "norm_label": ".listusers()"
     },
     {
@@ -4923,7 +4941,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L108",
       "id": "users_controller_userscontroller_updateuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".updateuser()"
     },
     {
@@ -4932,7 +4950,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L128",
       "id": "users_controller_userscontroller_changepassword",
-      "community": 16,
+      "community": 15,
       "norm_label": ".changepassword()"
     },
     {
@@ -4941,7 +4959,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L161",
       "id": "users_controller_userscontroller_deactivateuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".deactivateuser()"
     },
     {
@@ -4950,7 +4968,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L180",
       "id": "users_controller_userscontroller_deleteuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".deleteuser()"
     },
     {
@@ -4959,7 +4977,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.controller.ts",
       "source_location": "L198",
       "id": "users_controller_userscontroller_reactivateuser",
-      "community": 16,
+      "community": 15,
       "norm_label": ".reactivateuser()"
     },
     {
@@ -4968,7 +4986,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.module.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_users_users_module_ts",
-      "community": 82,
+      "community": 81,
       "norm_label": "users.module.ts"
     },
     {
@@ -4977,7 +4995,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.module.ts",
       "source_location": "L13",
       "id": "users_module_usersmodule",
-      "community": 82,
+      "community": 81,
       "norm_label": "usersmodule"
     },
     {
@@ -5013,7 +5031,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
       "source_location": "L13",
       "id": "users_service_usersservice_createuser",
-      "community": 10,
+      "community": 0,
       "norm_label": ".createuser()"
     },
     {
@@ -5049,7 +5067,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\users.service.ts",
       "source_location": "L150",
       "id": "users_service_usersservice_changepassword",
-      "community": 10,
+      "community": 0,
       "norm_label": ".changepassword()"
     },
     {
@@ -5103,7 +5121,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_src_users_dto_user_dto_ts",
-      "community": 31,
+      "community": 29,
       "norm_label": "user.dto.ts"
     },
     {
@@ -5112,7 +5130,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L3",
       "id": "user_dto_createuserdto",
-      "community": 31,
+      "community": 29,
       "norm_label": "createuserdto"
     },
     {
@@ -5121,7 +5139,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L24",
       "id": "user_dto_updateuserdto",
-      "community": 31,
+      "community": 29,
       "norm_label": "updateuserdto"
     },
     {
@@ -5130,7 +5148,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L44",
       "id": "user_dto_changepassworddto",
-      "community": 31,
+      "community": 29,
       "norm_label": "changepassworddto"
     },
     {
@@ -5139,7 +5157,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L53",
       "id": "user_dto_userresponsedto",
-      "community": 31,
+      "community": 29,
       "norm_label": "userresponsedto"
     },
     {
@@ -5148,7 +5166,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\users\\dto\\user.dto.ts",
       "source_location": "L67",
       "id": "user_dto_userslistresponsedto",
-      "community": 31,
+      "community": 29,
       "norm_label": "userslistresponsedto"
     },
     {
@@ -5157,7 +5175,7 @@
       "source_file": "D:\\coders\\eduvers\\backend\\test\\app.e2e-spec.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_backend_test_app_e2e_spec_ts",
-      "community": 101,
+      "community": 100,
       "norm_label": "app.e2e-spec.ts"
     },
     {
@@ -5166,7 +5184,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\eslint.config.mjs",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_eslint_config_mjs",
-      "community": 102,
+      "community": 101,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -5175,7 +5193,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\next-env.d.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_next_env_d_ts",
-      "community": 103,
+      "community": 102,
       "norm_label": "next-env.d.ts"
     },
     {
@@ -5184,7 +5202,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\next.config.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_next_config_ts",
-      "community": 104,
+      "community": 103,
       "norm_label": "next.config.ts"
     },
     {
@@ -5193,7 +5211,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\postcss.config.mjs",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_postcss_config_mjs",
-      "community": 105,
+      "community": 104,
       "norm_label": "postcss.config.mjs"
     },
     {
@@ -5202,7 +5220,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\error.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_error_tsx",
-      "community": 83,
+      "community": 82,
       "norm_label": "error.tsx"
     },
     {
@@ -5211,7 +5229,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\error.tsx",
       "source_location": "L6",
       "id": "error_errorpage",
-      "community": 83,
+      "community": 82,
       "norm_label": "errorpage()"
     },
     {
@@ -5220,7 +5238,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\layout.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_layout_tsx",
-      "community": 106,
+      "community": 105,
       "norm_label": "layout.tsx"
     },
     {
@@ -5229,7 +5247,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\not-found.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_not_found_tsx",
-      "community": 84,
+      "community": 83,
       "norm_label": "not-found.tsx"
     },
     {
@@ -5238,7 +5256,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\not-found.tsx",
       "source_location": "L6",
       "id": "not_found_notfound",
-      "community": 84,
+      "community": 83,
       "norm_label": "notfound()"
     },
     {
@@ -5247,7 +5265,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_page_tsx",
-      "community": 107,
+      "community": 106,
       "norm_label": "page.tsx"
     },
     {
@@ -5256,7 +5274,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\robots.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_robots_ts",
-      "community": 85,
+      "community": 84,
       "norm_label": "robots.ts"
     },
     {
@@ -5265,7 +5283,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\robots.ts",
       "source_location": "L3",
       "id": "robots_robots",
-      "community": 85,
+      "community": 84,
       "norm_label": "robots()"
     },
     {
@@ -5274,7 +5292,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\sitemap.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_sitemap_ts",
-      "community": 86,
+      "community": 85,
       "norm_label": "sitemap.ts"
     },
     {
@@ -5283,7 +5301,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\sitemap.ts",
       "source_location": "L3",
       "id": "sitemap_sitemap",
-      "community": 86,
+      "community": 85,
       "norm_label": "sitemap()"
     },
     {
@@ -5292,7 +5310,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\layout.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_layout_tsx",
-      "community": 87,
+      "community": 86,
       "norm_label": "layout.tsx"
     },
     {
@@ -5301,7 +5319,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\layout.tsx",
       "source_location": "L6",
       "id": "layout_protectedlayout",
-      "community": 87,
+      "community": 86,
       "norm_label": "protectedlayout()"
     },
     {
@@ -5373,7 +5391,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\bar-orders\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_bar_orders_page_tsx",
-      "community": 21,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -5382,7 +5400,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\bar-orders\\page.tsx",
       "source_location": "L55",
       "id": "page_handleorderupdate",
-      "community": 21,
+      "community": 3,
       "norm_label": "handleorderupdate()"
     },
     {
@@ -5391,7 +5409,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L41",
       "id": "page_waitbadge",
-      "community": 21,
+      "community": 3,
       "norm_label": "waitbadge()"
     },
     {
@@ -5400,7 +5418,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\billing\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_billing_page_tsx",
-      "community": 2,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -5409,7 +5427,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L24",
       "id": "page_printinvoiceonly",
-      "community": 2,
+      "community": 4,
       "norm_label": "printinvoiceonly()"
     },
     {
@@ -5418,7 +5436,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L63",
       "id": "page_downloadinvoicesnapshot",
-      "community": 2,
+      "community": 4,
       "norm_label": "downloadinvoicesnapshot()"
     },
     {
@@ -5427,7 +5445,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L86",
       "id": "page_money",
-      "community": 2,
+      "community": 3,
       "norm_label": "money()"
     },
     {
@@ -5517,7 +5535,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_page_tsx",
-      "community": 88,
+      "community": 87,
       "norm_label": "page.tsx"
     },
     {
@@ -5526,7 +5544,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\page.tsx",
       "source_location": "L9",
       "id": "page_dashboardpage",
-      "community": 88,
+      "community": 87,
       "norm_label": "dashboardpage()"
     },
     {
@@ -5535,7 +5553,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_barista_page_tsx",
-      "community": 21,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -5544,7 +5562,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L53",
       "id": "page_ordercard",
-      "community": 21,
+      "community": 3,
       "norm_label": "ordercard()"
     },
     {
@@ -5553,7 +5571,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L211",
       "id": "page_openedititems",
-      "community": 21,
+      "community": 3,
       "norm_label": "openedititems()"
     },
     {
@@ -5562,7 +5580,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L237",
       "id": "page_changeeditqty",
-      "community": 21,
+      "community": 3,
       "norm_label": "changeeditqty()"
     },
     {
@@ -5571,7 +5589,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L245",
       "id": "page_addedititem",
-      "community": 21,
+      "community": 3,
       "norm_label": "addedititem()"
     },
     {
@@ -5580,7 +5598,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L228",
       "id": "page_handlegesture",
-      "community": 21,
+      "community": 3,
       "norm_label": "handlegesture()"
     },
     {
@@ -5589,7 +5607,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\page.tsx",
       "source_location": "L410",
       "id": "page_handlesendchat",
-      "community": 21,
+      "community": 3,
       "norm_label": "handlesendchat()"
     },
     {
@@ -5598,7 +5616,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_barista_pos_page_tsx",
-      "community": 2,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -5607,7 +5625,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L58",
       "id": "page_isnondiscountedproduct",
-      "community": 2,
+      "community": 3,
       "norm_label": "isnondiscountedproduct()"
     },
     {
@@ -5616,7 +5634,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L112",
       "id": "page_geteffectiveunitprice",
-      "community": 2,
+      "community": 3,
       "norm_label": "geteffectiveunitprice()"
     },
     {
@@ -5625,7 +5643,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L75",
       "id": "page_getcategorymeta",
-      "community": 2,
+      "community": 3,
       "norm_label": "getcategorymeta()"
     },
     {
@@ -5634,7 +5652,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L245",
       "id": "page_handleresize",
-      "community": 2,
+      "community": 3,
       "norm_label": "handleresize()"
     },
     {
@@ -5643,7 +5661,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L264",
       "id": "page_selectcategoryandflip",
-      "community": 2,
+      "community": 3,
       "norm_label": "selectcategoryandflip()"
     },
     {
@@ -5652,7 +5670,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L383",
       "id": "page_extract",
-      "community": 2,
+      "community": 3,
       "norm_label": "extract()"
     },
     {
@@ -5661,7 +5679,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\barista\\pos\\page.tsx",
       "source_location": "L707",
       "id": "page_rendervintagepage",
-      "community": 2,
+      "community": 3,
       "norm_label": "rendervintagepage()"
     },
     {
@@ -5670,7 +5688,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\operations-manager\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_operations_manager_page_tsx",
-      "community": 46,
+      "community": 44,
       "norm_label": "page.tsx"
     },
     {
@@ -5679,7 +5697,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\operations-manager\\page.tsx",
       "source_location": "L75",
       "id": "page_minutessince",
-      "community": 46,
+      "community": 44,
       "norm_label": "minutessince()"
     },
     {
@@ -5688,7 +5706,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\operations-manager\\page.tsx",
       "source_location": "L79",
       "id": "page_minutesto",
-      "community": 46,
+      "community": 44,
       "norm_label": "minutesto()"
     },
     {
@@ -5697,7 +5715,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\operations-manager\\page.tsx",
       "source_location": "L229",
       "id": "page_translateroomtype",
-      "community": 46,
+      "community": 44,
       "norm_label": "translateroomtype()"
     },
     {
@@ -5706,7 +5724,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\dashboard\\owner\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_dashboard_owner_page_tsx",
-      "community": 108,
+      "community": 107,
       "norm_label": "page.tsx"
     },
     {
@@ -5733,7 +5751,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\expenses\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_expenses_page_tsx",
-      "community": 89,
+      "community": 88,
       "norm_label": "page.tsx"
     },
     {
@@ -5742,7 +5760,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\expenses\\page.tsx",
       "source_location": "L45",
       "id": "page_handleclickoutside",
-      "community": 89,
+      "community": 88,
       "norm_label": "handleclickoutside()"
     },
     {
@@ -5751,7 +5769,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_inventory_page_tsx",
-      "community": 26,
+      "community": 24,
       "norm_label": "page.tsx"
     },
     {
@@ -5760,7 +5778,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L116",
       "id": "page_fetchtransactions",
-      "community": 26,
+      "community": 24,
       "norm_label": "fetchtransactions()"
     },
     {
@@ -5769,7 +5787,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L141",
       "id": "page_fetchinventory",
-      "community": 26,
+      "community": 24,
       "norm_label": "fetchinventory()"
     },
     {
@@ -5778,7 +5796,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L153",
       "id": "page_handlesavestocktake",
-      "community": 26,
+      "community": 24,
       "norm_label": "handlesavestocktake()"
     },
     {
@@ -5787,7 +5805,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L189",
       "id": "page_handlesavewithdraw",
-      "community": 26,
+      "community": 24,
       "norm_label": "handlesavewithdraw()"
     },
     {
@@ -5796,7 +5814,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L222",
       "id": "page_openhistory",
-      "community": 26,
+      "community": 24,
       "norm_label": "openhistory()"
     },
     {
@@ -5805,7 +5823,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L309",
       "id": "page_handlecreateitem",
-      "community": 26,
+      "community": 24,
       "norm_label": "handlecreateitem()"
     },
     {
@@ -5814,7 +5832,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L343",
       "id": "page_handleaddstock",
-      "community": 26,
+      "community": 24,
       "norm_label": "handleaddstock()"
     },
     {
@@ -5823,7 +5841,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\inventory\\page.tsx",
       "source_location": "L374",
       "id": "page_handlerecordwaste",
-      "community": 26,
+      "community": 24,
       "norm_label": "handlerecordwaste()"
     },
     {
@@ -5832,7 +5850,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_products_page_tsx",
-      "community": 32,
+      "community": 30,
       "norm_label": "page.tsx"
     },
     {
@@ -5841,7 +5859,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L180",
       "id": "page_openrecipemodal",
-      "community": 32,
+      "community": 30,
       "norm_label": "openrecipemodal()"
     },
     {
@@ -5850,7 +5868,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L206",
       "id": "page_handleaddrecipeitem",
-      "community": 32,
+      "community": 30,
       "norm_label": "handleaddrecipeitem()"
     },
     {
@@ -5859,7 +5877,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L229",
       "id": "page_handleremoverecipeitem",
-      "community": 32,
+      "community": 30,
       "norm_label": "handleremoverecipeitem()"
     },
     {
@@ -5868,7 +5886,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L233",
       "id": "page_handlesaverecipe",
-      "community": 32,
+      "community": 30,
       "norm_label": "handlesaverecipe()"
     },
     {
@@ -5877,7 +5895,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\products\\page.tsx",
       "source_location": "L340",
       "id": "page_openedit",
-      "community": 32,
+      "community": 30,
       "norm_label": "openedit()"
     },
     {
@@ -5886,7 +5904,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_reports_page_tsx",
-      "community": 53,
+      "community": 51,
       "norm_label": "page.tsx"
     },
     {
@@ -5895,7 +5913,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\page.tsx",
       "source_location": "L104",
       "id": "page_shiftperiod",
-      "community": 53,
+      "community": 51,
       "norm_label": "shiftperiod()"
     },
     {
@@ -5904,7 +5922,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\page.tsx",
       "source_location": "L126",
       "id": "page_exportexcel",
-      "community": 53,
+      "community": 51,
       "norm_label": "exportexcel()"
     },
     {
@@ -5913,7 +5931,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\bookings\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_reports_bookings_page_tsx",
-      "community": 54,
+      "community": 52,
       "norm_label": "page.tsx"
     },
     {
@@ -5922,7 +5940,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\bookings\\page.tsx",
       "source_location": "L39",
       "id": "page_tocsv",
-      "community": 54,
+      "community": 52,
       "norm_label": "tocsv()"
     },
     {
@@ -5931,7 +5949,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\reports\\bookings\\page.tsx",
       "source_location": "L120",
       "id": "page_handleexport",
-      "community": 54,
+      "community": 52,
       "norm_label": "handleexport()"
     },
     {
@@ -5967,7 +5985,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_sessions_page_tsx",
-      "community": 2,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -5976,7 +5994,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L75",
       "id": "page_usesessiontimer",
-      "community": 2,
+      "community": 4,
       "norm_label": "usesessiontimer()"
     },
     {
@@ -5985,7 +6003,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L96",
       "id": "page_activesessioncard",
-      "community": 2,
+      "community": 4,
       "norm_label": "activesessioncard()"
     },
     {
@@ -5994,7 +6012,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L314",
       "id": "page_istoday",
-      "community": 2,
+      "community": 4,
       "norm_label": "istoday()"
     },
     {
@@ -6003,7 +6021,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L634",
       "id": "page_datetime",
-      "community": 2,
+      "community": 4,
       "norm_label": "datetime()"
     },
     {
@@ -6012,7 +6030,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\sessions\\page.tsx",
       "source_location": "L744",
       "id": "page_boolean",
-      "community": 0,
+      "community": 4,
       "norm_label": "boolean()"
     },
     {
@@ -6021,7 +6039,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\settings\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_settings_page_tsx",
-      "community": 109,
+      "community": 108,
       "norm_label": "page.tsx"
     },
     {
@@ -6030,7 +6048,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\(protected)\\shifts\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_protected_shifts_page_tsx",
-      "community": 110,
+      "community": 109,
       "norm_label": "page.tsx"
     },
     {
@@ -6165,7 +6183,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_app_order_page_tsx",
-      "community": 2,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -6174,7 +6192,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L22",
       "id": "page_cn",
-      "community": 2,
+      "community": 3,
       "norm_label": "cn()"
     },
     {
@@ -6183,7 +6201,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L79",
       "id": "page_getproductimage",
-      "community": 2,
+      "community": 3,
       "norm_label": "getproductimage()"
     },
     {
@@ -6192,7 +6210,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L89",
       "id": "page_productimage",
-      "community": 2,
+      "community": 3,
       "norm_label": "productimage()"
     },
     {
@@ -6201,7 +6219,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L182",
       "id": "page_tick",
-      "community": 2,
+      "community": 3,
       "norm_label": "tick()"
     },
     {
@@ -6210,7 +6228,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L259",
       "id": "page_if",
-      "community": 2,
+      "community": 3,
       "norm_label": "if()"
     },
     {
@@ -6219,7 +6237,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\app\\order\\page.tsx",
       "source_location": "L342",
       "id": "page_getbaseurl",
-      "community": 2,
+      "community": 3,
       "norm_label": "getbaseurl()"
     },
     {
@@ -6228,7 +6246,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\app-shell.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_app_shell_tsx",
-      "community": 111,
+      "community": 110,
       "norm_label": "app-shell.tsx"
     },
     {
@@ -6237,7 +6255,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\auth-gate.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_auth_gate_tsx",
-      "community": 90,
+      "community": 89,
       "norm_label": "auth-gate.tsx"
     },
     {
@@ -6246,7 +6264,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\auth-gate.tsx",
       "source_location": "L8",
       "id": "auth_gate_authgate",
-      "community": 90,
+      "community": 89,
       "norm_label": "authgate()"
     },
     {
@@ -6255,7 +6273,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\BarMenuDisplay.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_barmenudisplay_tsx",
-      "community": 39,
+      "community": 37,
       "norm_label": "barmenudisplay.tsx"
     },
     {
@@ -6264,7 +6282,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\BarMenuDisplay.tsx",
       "source_location": "L36",
       "id": "barmenudisplay_loadmenu",
-      "community": 39,
+      "community": 37,
       "norm_label": "loadmenu()"
     },
     {
@@ -6273,7 +6291,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_invoicereceipt_tsx",
-      "community": 47,
+      "community": 45,
       "norm_label": "invoicereceipt.tsx"
     },
     {
@@ -6282,7 +6300,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
       "source_location": "L24",
       "id": "invoicereceipt_itemtypelabel",
-      "community": 47,
+      "community": 45,
       "norm_label": "itemtypelabel()"
     },
     {
@@ -6291,7 +6309,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
       "source_location": "L343",
       "id": "invoicereceipt_sum",
-      "community": 47,
+      "community": 45,
       "norm_label": "sum()"
     },
     {
@@ -6300,7 +6318,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
       "source_location": "L371",
       "id": "invoicereceipt_row",
-      "community": 47,
+      "community": 45,
       "norm_label": "row()"
     },
     {
@@ -6309,7 +6327,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\providers.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_providers_tsx",
-      "community": 91,
+      "community": 90,
       "norm_label": "providers.tsx"
     },
     {
@@ -6318,7 +6336,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\providers.tsx",
       "source_location": "L6",
       "id": "providers_providers",
-      "community": 91,
+      "community": 90,
       "norm_label": "providers()"
     },
     {
@@ -6327,7 +6345,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_ui_tsx",
-      "community": 2,
+      "community": 3,
       "norm_label": "ui.tsx"
     },
     {
@@ -6336,7 +6354,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L26",
       "id": "ui_badge",
-      "community": 2,
+      "community": 3,
       "norm_label": "badge()"
     },
     {
@@ -6345,7 +6363,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L39",
       "id": "ui_statusbadgetone",
-      "community": 2,
+      "community": 3,
       "norm_label": "statusbadgetone()"
     },
     {
@@ -6354,7 +6372,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L302",
       "id": "ui_clsx",
-      "community": 2,
+      "community": 3,
       "norm_label": "clsx()"
     },
     {
@@ -6363,7 +6381,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L410",
       "id": "ui_handlesort",
-      "community": 2,
+      "community": 3,
       "norm_label": "handlesort()"
     },
     {
@@ -6372,7 +6390,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L419",
       "id": "ui_handleselectrow",
-      "community": 2,
+      "community": 3,
       "norm_label": "handleselectrow()"
     },
     {
@@ -6381,7 +6399,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\ui.tsx",
       "source_location": "L428",
       "id": "ui_handleselectall",
-      "community": 2,
+      "community": 3,
       "norm_label": "handleselectall()"
     },
     {
@@ -6390,7 +6408,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\landing\\Footer.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_landing_footer_tsx",
-      "community": 112,
+      "community": 111,
       "norm_label": "footer.tsx"
     },
     {
@@ -6399,7 +6417,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\landing\\Navbar.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_components_landing_navbar_tsx",
-      "community": 92,
+      "community": 91,
       "norm_label": "navbar.tsx"
     },
     {
@@ -6408,7 +6426,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\landing\\Navbar.tsx",
       "source_location": "L13",
       "id": "navbar_handlescroll",
-      "community": 92,
+      "community": 91,
       "norm_label": "handlescroll()"
     },
     {
@@ -6471,7 +6489,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\excel-reader.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_excel_reader_ts",
-      "community": 39,
+      "community": 37,
       "norm_label": "excel-reader.ts"
     },
     {
@@ -6480,7 +6498,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\excel-reader.ts",
       "source_location": "L11",
       "id": "excel_reader_readbarmenufromexcel",
-      "community": 39,
+      "community": 37,
       "norm_label": "readbarmenufromexcel()"
     },
     {
@@ -6489,7 +6507,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\excel-reader.ts",
       "source_location": "L36",
       "id": "excel_reader_formatbarmenufordisplay",
-      "community": 39,
+      "community": 37,
       "norm_label": "formatbarmenufordisplay()"
     },
     {
@@ -6498,7 +6516,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_format_ts",
-      "community": 2,
+      "community": 4,
       "norm_label": "format.ts"
     },
     {
@@ -6507,7 +6525,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L1",
       "id": "format_money",
-      "community": 2,
+      "community": 4,
       "norm_label": "money()"
     },
     {
@@ -6516,7 +6534,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\format.ts",
       "source_location": "L12",
       "id": "format_datetime",
-      "community": 2,
+      "community": 4,
       "norm_label": "datetime()"
     },
     {
@@ -6525,7 +6543,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_labels_ts",
-      "community": 2,
+      "community": 3,
       "norm_label": "labels.ts"
     },
     {
@@ -6534,7 +6552,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L1",
       "id": "labels_translatecustomertype",
-      "community": 2,
+      "community": 3,
       "norm_label": "translatecustomertype()"
     },
     {
@@ -6552,7 +6570,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L71",
       "id": "labels_translateroomtype",
-      "community": 2,
+      "community": 3,
       "norm_label": "translateroomtype()"
     },
     {
@@ -6561,7 +6579,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L86",
       "id": "labels_translatesessiontype",
-      "community": 2,
+      "community": 3,
       "norm_label": "translatesessiontype()"
     },
     {
@@ -6570,7 +6588,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L101",
       "id": "labels_translatepaymentmethod",
-      "community": 2,
+      "community": 3,
       "norm_label": "translatepaymentmethod()"
     },
     {
@@ -6579,7 +6597,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L116",
       "id": "labels_normalizecategorykey",
-      "community": 2,
+      "community": 3,
       "norm_label": "normalizecategorykey()"
     },
     {
@@ -6588,7 +6606,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L129",
       "id": "labels_translateproductcategory",
-      "community": 2,
+      "community": 3,
       "norm_label": "translateproductcategory()"
     },
     {
@@ -6597,7 +6615,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L177",
       "id": "labels_translatebookingtype",
-      "community": 2,
+      "community": 3,
       "norm_label": "translatebookingtype()"
     },
     {
@@ -6606,7 +6624,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L192",
       "id": "labels_translateoperationalalert",
-      "community": 2,
+      "community": 3,
       "norm_label": "translateoperationalalert()"
     },
     {
@@ -6615,7 +6633,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L203",
       "id": "labels_translateauditaction",
-      "community": 2,
+      "community": 3,
       "norm_label": "translateauditaction()"
     },
     {
@@ -6624,7 +6642,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\labels.ts",
       "source_location": "L370",
       "id": "labels_translateproductname",
-      "community": 2,
+      "community": 3,
       "norm_label": "translateproductname()"
     },
     {
@@ -6633,7 +6651,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\types.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_types_ts",
-      "community": 113,
+      "community": 112,
       "norm_label": "types.ts"
     },
     {
@@ -6642,7 +6660,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useBarOrderSocket.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_usebarordersocket_ts",
-      "community": 48,
+      "community": 46,
       "norm_label": "usebarordersocket.ts"
     },
     {
@@ -6651,7 +6669,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useBarOrderSocket.ts",
       "source_location": "L7",
       "id": "usebarordersocket_getbaseurl",
-      "community": 48,
+      "community": 46,
       "norm_label": "getbaseurl()"
     },
     {
@@ -6660,7 +6678,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useBarOrderSocket.ts",
       "source_location": "L27",
       "id": "usebarordersocket_getorcreatesocket",
-      "community": 48,
+      "community": 46,
       "norm_label": "getorcreatesocket()"
     },
     {
@@ -6669,7 +6687,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useBarOrderSocket.ts",
       "source_location": "L52",
       "id": "usebarordersocket_usebarordersocket",
-      "community": 48,
+      "community": 46,
       "norm_label": "usebarordersocket()"
     },
     {
@@ -6678,7 +6696,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useRealtime.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_lib_userealtime_ts",
-      "community": 49,
+      "community": 47,
       "norm_label": "userealtime.ts"
     },
     {
@@ -6687,7 +6705,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useRealtime.ts",
       "source_location": "L20",
       "id": "userealtime_getbaseurl",
-      "community": 49,
+      "community": 47,
       "norm_label": "getbaseurl()"
     },
     {
@@ -6696,7 +6714,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useRealtime.ts",
       "source_location": "L37",
       "id": "userealtime_getorcreatesocket",
-      "community": 49,
+      "community": 47,
       "norm_label": "getorcreatesocket()"
     },
     {
@@ -6705,7 +6723,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\lib\\useRealtime.ts",
       "source_location": "L61",
       "id": "userealtime_userealtime",
-      "community": 49,
+      "community": 47,
       "norm_label": "userealtime()"
     },
     {
@@ -6714,7 +6732,7 @@
       "source_file": "D:\\coders\\eduvers\\frontend\\store\\auth-store.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_frontend_store_auth_store_ts",
-      "community": 114,
+      "community": 113,
       "norm_label": "auth-store.ts"
     },
     {
@@ -6723,7 +6741,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\next-env.d.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_next_env_d_ts",
-      "community": 115,
+      "community": 114,
       "norm_label": "next-env.d.ts"
     },
     {
@@ -6732,7 +6750,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\next.config.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_next_config_ts",
-      "community": 116,
+      "community": 115,
       "norm_label": "next.config.ts"
     },
     {
@@ -6741,7 +6759,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\postcss.config.mjs",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_postcss_config_mjs",
-      "community": 117,
+      "community": 116,
       "norm_label": "postcss.config.mjs"
     },
     {
@@ -6750,7 +6768,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\layout.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_layout_tsx",
-      "community": 93,
+      "community": 92,
       "norm_label": "layout.tsx"
     },
     {
@@ -6759,7 +6777,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\layout.tsx",
       "source_location": "L10",
       "id": "layout_rootlayout",
-      "community": 93,
+      "community": 92,
       "norm_label": "rootlayout()"
     },
     {
@@ -6768,7 +6786,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_page_tsx",
-      "community": 94,
+      "community": 93,
       "norm_label": "page.tsx"
     },
     {
@@ -6777,7 +6795,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\page.tsx",
       "source_location": "L7",
       "id": "page_home",
-      "community": 94,
+      "community": 93,
       "norm_label": "home()"
     },
     {
@@ -6786,7 +6804,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\dashboard\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_dashboard_page_tsx",
-      "community": 118,
+      "community": 117,
       "norm_label": "page.tsx"
     },
     {
@@ -6795,7 +6813,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\login\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_login_page_tsx",
-      "community": 17,
+      "community": 16,
       "norm_label": "page.tsx"
     },
     {
@@ -6804,7 +6822,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\login\\page.tsx",
       "source_location": "L15",
       "id": "page_handlesubmit",
-      "community": 17,
+      "community": 16,
       "norm_label": "handlesubmit()"
     },
     {
@@ -6813,7 +6831,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\bar\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_reports_bar_page_tsx",
-      "community": 119,
+      "community": 118,
       "norm_label": "page.tsx"
     },
     {
@@ -6822,7 +6840,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\expenses\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_reports_expenses_page_tsx",
-      "community": 120,
+      "community": 119,
       "norm_label": "page.tsx"
     },
     {
@@ -6831,7 +6849,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\inventory\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_reports_inventory_page_tsx",
-      "community": 121,
+      "community": 120,
       "norm_label": "page.tsx"
     },
     {
@@ -6840,7 +6858,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\profit\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_reports_profit_page_tsx",
-      "community": 95,
+      "community": 94,
       "norm_label": "page.tsx"
     },
     {
@@ -6849,7 +6867,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\profit\\page.tsx",
       "source_location": "L112",
       "id": "page_fmtmoney",
-      "community": 95,
+      "community": 94,
       "norm_label": "fmtmoney()"
     },
     {
@@ -6858,7 +6876,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\app\\reports\\revenue\\page.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_app_reports_revenue_page_tsx",
-      "community": 122,
+      "community": 121,
       "norm_label": "page.tsx"
     },
     {
@@ -6867,7 +6885,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\ChangeIndicator.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_components_changeindicator_tsx",
-      "community": 96,
+      "community": 95,
       "norm_label": "changeindicator.tsx"
     },
     {
@@ -6876,7 +6894,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\ChangeIndicator.tsx",
       "source_location": "L5",
       "id": "changeindicator_changeindicator",
-      "community": 96,
+      "community": 95,
       "norm_label": "changeindicator()"
     },
     {
@@ -6885,7 +6903,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\DateRangePicker.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_components_daterangepicker_tsx",
-      "community": 19,
+      "community": 18,
       "norm_label": "daterangepicker.tsx"
     },
     {
@@ -6894,7 +6912,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\DateRangePicker.tsx",
       "source_location": "L25",
       "id": "daterangepicker_setpreset",
-      "community": 19,
+      "community": 18,
       "norm_label": "setpreset()"
     },
     {
@@ -6903,7 +6921,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\KpiCard.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_components_kpicard_tsx",
-      "community": 97,
+      "community": 96,
       "norm_label": "kpicard.tsx"
     },
     {
@@ -6912,7 +6930,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\KpiCard.tsx",
       "source_location": "L5",
       "id": "kpicard_kpicard",
-      "community": 97,
+      "community": 96,
       "norm_label": "kpicard()"
     },
     {
@@ -6921,7 +6939,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\components\\PortalShell.tsx",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_components_portalshell_tsx",
-      "community": 123,
+      "community": 122,
       "norm_label": "portalshell.tsx"
     },
     {
@@ -6930,7 +6948,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_lib_api_ts",
-      "community": 17,
+      "community": 16,
       "norm_label": "api.ts"
     },
     {
@@ -6939,7 +6957,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L14",
       "id": "api_gettoken",
-      "community": 17,
+      "community": 16,
       "norm_label": "gettoken()"
     },
     {
@@ -6948,7 +6966,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L19",
       "id": "api_setsession",
-      "community": 17,
+      "community": 16,
       "norm_label": "setsession()"
     },
     {
@@ -6957,7 +6975,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L26",
       "id": "api_getuser",
-      "community": 17,
+      "community": 16,
       "norm_label": "getuser()"
     },
     {
@@ -6966,7 +6984,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L37",
       "id": "api_clearsession",
-      "community": 17,
+      "community": 16,
       "norm_label": "clearsession()"
     },
     {
@@ -6975,7 +6993,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L44",
       "id": "api_apierror",
-      "community": 17,
+      "community": 16,
       "norm_label": "apierror"
     },
     {
@@ -6984,7 +7002,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L47",
       "id": "api_apierror_constructor",
-      "community": 17,
+      "community": 16,
       "norm_label": ".constructor()"
     },
     {
@@ -6993,7 +7011,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L54",
       "id": "api_request",
-      "community": 17,
+      "community": 16,
       "norm_label": "request()"
     },
     {
@@ -7002,7 +7020,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L92",
       "id": "api_login",
-      "community": 17,
+      "community": 16,
       "norm_label": "login()"
     },
     {
@@ -7011,7 +7029,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L107",
       "id": "api_logout",
-      "community": 17,
+      "community": 16,
       "norm_label": "logout()"
     },
     {
@@ -7020,7 +7038,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\api.ts",
       "source_location": "L118",
       "id": "api_qs",
-      "community": 17,
+      "community": 16,
       "norm_label": "qs()"
     },
     {
@@ -7029,7 +7047,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L1",
       "id": "d_coders_eduvers_owner_portal_lib_format_ts",
-      "community": 19,
+      "community": 18,
       "norm_label": "format.ts"
     },
     {
@@ -7038,7 +7056,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L1",
       "id": "format_fmtmoney",
-      "community": 19,
+      "community": 18,
       "norm_label": "fmtmoney()"
     },
     {
@@ -7047,7 +7065,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L12",
       "id": "format_fmtnumber",
-      "community": 19,
+      "community": 18,
       "norm_label": "fmtnumber()"
     },
     {
@@ -7056,7 +7074,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L20",
       "id": "format_fmtpercent",
-      "community": 19,
+      "community": 18,
       "norm_label": "fmtpercent()"
     },
     {
@@ -7065,7 +7083,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L26",
       "id": "format_fmtdate",
-      "community": 19,
+      "community": 18,
       "norm_label": "fmtdate()"
     },
     {
@@ -7074,7 +7092,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L37",
       "id": "format_fmtdatetime",
-      "community": 19,
+      "community": 18,
       "norm_label": "fmtdatetime()"
     },
     {
@@ -7083,7 +7101,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L53",
       "id": "format_ymd",
-      "community": 19,
+      "community": 18,
       "norm_label": "ymd()"
     },
     {
@@ -7092,7 +7110,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L60",
       "id": "format_preset",
-      "community": 19,
+      "community": 18,
       "norm_label": "preset()"
     },
     {
@@ -7101,7 +7119,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L84",
       "id": "format_paymentmethodlabel",
-      "community": 19,
+      "community": 18,
       "norm_label": "paymentmethodlabel()"
     },
     {
@@ -7110,7 +7128,7 @@
       "source_file": "D:\\coders\\eduvers\\owner-portal\\lib\\format.ts",
       "source_location": "L98",
       "id": "format_customertypelabel",
-      "community": 19,
+      "community": 18,
       "norm_label": "customertypelabel()"
     }
   ],
@@ -7269,6 +7287,18 @@
       "_tgt": "check_products_main",
       "source": "d_coders_eduvers_backend_scratch_check_products_ts",
       "target": "check_products_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\coders\\eduvers\\backend\\scratch\\check_session_room.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "d_coders_eduvers_backend_scratch_check_session_room_js",
+      "_tgt": "check_session_room_main",
+      "source": "d_coders_eduvers_backend_scratch_check_session_room_js",
+      "target": "check_session_room_main",
       "confidence_score": 1.0
     },
     {
@@ -8370,8 +8400,8 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\realtime\\realtime.gateway.ts",
       "source_location": "L61",
       "weight": 1.0,
-      "_src": "realtime_gateway_realtimegateway_handleconnection",
-      "_tgt": "auth_service_jwtconfigservice_verifyaccesstoken",
+      "_src": "auth_service_jwtconfigservice_verifyaccesstoken",
+      "_tgt": "realtime_gateway_realtimegateway_handleconnection",
       "source": "auth_service_jwtconfigservice_verifyaccesstoken",
       "target": "realtime_gateway_realtimegateway_handleconnection"
     },
@@ -14478,8 +14508,8 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L30",
       "weight": 1.0,
-      "_src": "sessions_controller_sessionscontroller_opensession",
-      "_tgt": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_src": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_tgt": "sessions_controller_sessionscontroller_opensession",
       "source": "realtime_gateway_realtimegateway_emitsessionchanged",
       "target": "sessions_controller_sessionscontroller_opensession"
     },
@@ -14490,8 +14520,8 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L95",
       "weight": 1.0,
-      "_src": "sessions_controller_sessionscontroller_closesession",
-      "_tgt": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_src": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_tgt": "sessions_controller_sessionscontroller_closesession",
       "source": "realtime_gateway_realtimegateway_emitsessionchanged",
       "target": "sessions_controller_sessionscontroller_closesession"
     },
@@ -14502,8 +14532,8 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L121",
       "weight": 1.0,
-      "_src": "sessions_controller_sessionscontroller_cancelsession",
-      "_tgt": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_src": "realtime_gateway_realtimegateway_emitsessionchanged",
+      "_tgt": "sessions_controller_sessionscontroller_cancelsession",
       "source": "realtime_gateway_realtimegateway_emitsessionchanged",
       "target": "sessions_controller_sessionscontroller_cancelsession"
     },
@@ -14514,8 +14544,8 @@
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.controller.ts",
       "source_location": "L100",
       "weight": 1.0,
-      "_src": "sessions_controller_sessionscontroller_closesession",
-      "_tgt": "realtime_gateway_realtimegateway_emitinvoicechanged",
+      "_src": "realtime_gateway_realtimegateway_emitinvoicechanged",
+      "_tgt": "sessions_controller_sessionscontroller_closesession",
       "source": "realtime_gateway_realtimegateway_emitinvoicechanged",
       "target": "sessions_controller_sessionscontroller_closesession"
     },
@@ -15051,7 +15081,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L344",
+      "source_location": "L371",
       "weight": 1.0,
       "_src": "sessions_service_sessionsservice",
       "_tgt": "sessions_service_sessionsservice_getsession",
@@ -15063,7 +15093,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L363",
+      "source_location": "L390",
       "weight": 1.0,
       "_src": "sessions_service_sessionsservice",
       "_tgt": "sessions_service_sessionsservice_listactivesessions",
@@ -15075,7 +15105,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\backend\\src\\sessions\\sessions.service.ts",
-      "source_location": "L397",
+      "source_location": "L424",
       "weight": 1.0,
       "_src": "sessions_service_sessionsservice",
       "_tgt": "sessions_service_sessionsservice_cancelsession",

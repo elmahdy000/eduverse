@@ -499,7 +499,7 @@ export default function BaristaPOSPage() {
         isBakery: product.isBakery
       }];
     });
-  }, []);
+  }, [setMessage, setCart]);
 
   const updateQuantity = useCallback((productId: string, delta: number) => {
     setCart((prev) => {

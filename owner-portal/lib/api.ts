@@ -16,6 +16,11 @@ export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+export function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(REFRESH_KEY);
+}
+
 export function setSession(accessToken: string, refreshToken: string, user: any) {
   if (typeof window === "undefined") return;
   localStorage.setItem(TOKEN_KEY, accessToken);
@@ -51,7 +56,51 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+// Single-flight refresh: تجديد واحد فقط مهما تعددت الطلبات الفاشلة بالتوازي
+let refreshPromise: Promise<boolean> | null = null;
+
+async function tryRefreshToken(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return false;
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) return false;
+      const json = await res.json();
+      const data = json?.data ?? json;
+      if (!data?.accessToken) return false;
+      // الـ backend لا يُرجع refresh token جديد — نحتفظ بالحالي
+      localStorage.setItem(TOKEN_KEY, data.accessToken);
+      if (data.user) localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      return true;
+    } catch {
+      return false;
+    } finally {
+      // السماح بمحاولة تجديد جديدة لاحقاً
+      setTimeout(() => {
+        refreshPromise = null;
+      }, 0);
+    }
+  })();
+
+  return refreshPromise;
+}
+
+function redirectToLogin(): never {
+  clearSession();
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+  throw new ApiError(401, "انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى");
+}
+
+async function request<T>(path: string, init: RequestInit = {}, isRetry = false): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -61,13 +110,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
-  if (res.status === 401) {
-    // Session expired — redirect to login
-    clearSession();
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
+  // مسارات المصادقة نفسها لا تخضع لمنطق التجديد/التحويل (مثال: كلمة مرور خاطئة = 401)
+  if (res.status === 401 && !path.startsWith("/auth/")) {
+    // نحاول تجديد الـ access token مرة واحدة قبل إنهاء الجلسة
+    if (!isRetry && (await tryRefreshToken())) {
+      return request<T>(path, init, true);
     }
-    throw new ApiError(401, "انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى");
+    redirectToLogin();
   }
 
   const contentType = res.headers.get("content-type") || "";
@@ -105,6 +154,12 @@ export async function login(email: string, password: string) {
 }
 
 export async function logout() {
+  // إبلاغ الخادم بتسجيل الخروج (best-effort — لا نعطّل الخروج المحلي لو فشل)
+  try {
+    await api.post("/auth/logout");
+  } catch {
+    // تجاهل — الخروج المحلي يتم في كل الأحوال
+  }
   clearSession();
   if (typeof window !== "undefined") {
     window.location.href = "/login";

@@ -242,8 +242,8 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-slate-100">
-            {(invoice.items ?? []).map((item, idx) => (
-              <tr key={idx}>
+            {(invoice.items ?? []).map((item) => (
+              <tr key={item.id ?? `${item.itemType}-${item.description}`}>
                 <td className="py-3">
                   <div className="flex flex-col gap-0.5">
                     <span className="rc-item-name font-bold text-slate-900">

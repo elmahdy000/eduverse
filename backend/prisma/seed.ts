@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -207,83 +209,144 @@ async function main() {
   }
 
   // 8. Create Bar Products & Recipes with Automatic Cost Calculation
-  console.log('☕ Creating products and recipes...');
-  const productTemplates = [
-    { 
-      name: 'اسبريسو', category: 'coffee', price: 45, 
-      recipe: [{ name: 'بن برازيلي (حبوب)', qty: 18 }] 
+  console.log('☕ Creating products and recipes from CSV...');
+
+  const categoryImages: Record<string, string> = {
+    'Coffee': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=400',
+    'Tea': 'https://images.unsplash.com/photo-1544787210-2213d84ad960?auto=format&fit=crop&q=80&w=400',
+    'Cold Coffee': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&q=80&w=400',
+    'Hot Drinks': 'https://images.unsplash.com/photo-1544787210-2213d84ad960?auto=format&fit=crop&q=80&w=400',
+    'Frappe': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=400',
+    'Frappuccino': 'https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&q=80&w=400',
+    'Milk Shake': 'https://images.unsplash.com/photo-1579954115545-a95591f28bcc?auto=format&fit=crop&q=80&w=400',
+    'Yogurt': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&q=80&w=400',
+    'Cans': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400',
+    'Mocktails': 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400',
+    'Boba Additions': 'https://images.unsplash.com/photo-1558857563-b371f31ca735?auto=format&fit=crop&q=80&w=400',
+    'Smoothies': 'https://images.unsplash.com/photo-1502741224143-90386d7f8c82?auto=format&fit=crop&q=80&w=400',
+    'Fresh Juice': 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&q=80&w=400',
+    'Indomy': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=400',
+    'Indomy Add-ons': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=400',
+    'Additions': 'https://images.unsplash.com/photo-1551024601-bec78acc704b?auto=format&fit=crop&q=80&w=400',
+    'Extra\'s': 'https://images.unsplash.com/photo-1551024601-bec78acc704b?auto=format&fit=crop&q=80&w=400'
+  };
+
+  const recipeMap: Record<string, { recipe: Array<{ name: string; qty: number }>; description?: string }> = {
+    "Espresso (M)": {
+      recipe: [{ name: 'بن برازيلي (حبوب)', qty: 18 }],
+      description: "إسبريسو (وسط) - تحضير طازج"
     },
-    { 
-      name: 'لاتيه', category: 'coffee', price: 75, 
+    "Latte (M)": {
       recipe: [
         { name: 'بن برازيلي (حبوب)', qty: 18 },
         { name: 'حليب كامل الدسم', qty: 250 },
         { name: 'أكواب ورقية 9oz', qty: 1 }
-      ] 
+      ],
+      description: "لاتيه (وسط) - تحضير طازج"
     },
-    { 
-      name: 'كابتشينو', category: 'coffee', price: 70, 
+    "Cappuccino (M)": {
       recipe: [
         { name: 'بن برازيلي (حبوب)', qty: 18 },
         { name: 'حليب كامل الدسم', qty: 200 },
         { name: 'أكواب ورقية 9oz', qty: 1 }
-      ] 
+      ],
+      description: "كابتشينو (وسط) - تحضير طازج"
     },
-    { 
-      name: 'مياه معدنية صغير', category: 'water', price: 15, 
-      recipe: [{ name: 'مياه معدنية 500ml', qty: 1 }] 
+    "Water": {
+      recipe: [{ name: 'مياه معدنية 500ml', qty: 1 }],
+      description: "مياه معدنية صغير"
     },
-    { 
-      name: 'شاي أحمر', category: 'tea', price: 25, 
+    "Tea": {
       recipe: [
         { name: 'شاي فتلة', qty: 1 },
         { name: 'سكر أبيض', qty: 10 },
         { name: 'أكواب ورقية 9oz', qty: 1 }
-      ] 
+      ],
+      description: "شاي فتلة أحمر - تحضير طازج"
     },
-    { 
-      name: 'فرابيه كراميل', category: 'frappe', price: 95, 
+    "Frappe Special": {
       recipe: [
         { name: 'بن برازيلي (حبوب)', qty: 18 },
         { name: 'حليب كامل الدسم', qty: 150 },
         { name: 'بودرة فرابيه', qty: 30 },
         { name: 'أكواب ورقية 9oz', qty: 1 }
-      ] 
-    },
-  ];
+      ],
+      description: "فرابيه سبيشيال - تحضير طازج"
+    }
+  };
 
-  for (const template of productTemplates) {
-    // 1. Calculate cost from recipe
-    let costPrice = 0;
-    for (const r of template.recipe) {
-      const invItem = invMap[r.name];
-      costPrice += Number(invItem.costPerUnit) * r.qty;
+  const csvPath = path.resolve(__dirname, '../../eduverse_menu_prices.csv');
+  const fileContent = fs.readFileSync(csvPath, 'utf8');
+  const lines = fileContent.split('\n');
+
+  let importedCount = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const [category, item, size, priceStr, notes] = line.split(',');
+    if (!item || !priceStr) continue;
+
+    const price = parseFloat(priceStr);
+    if (isNaN(price)) continue;
+
+    const productName = size && size !== 'One Size' ? `${item} (${size})` : item;
+    const categoryName = category.trim();
+    const imageUrl = categoryImages[categoryName] || 'https://images.unsplash.com/photo-1551024601-bec78acc704b?auto=format&fit=crop&q=80&w=400';
+
+    // Check if we have a specific recipe
+    const hasRecipe = recipeMap[productName];
+    let costPrice = price * 0.4;
+    let recipeItems: Array<{ name: string; qty: number }> = [];
+    let customDescription = notes ? `${notes} - Imported from menu` : `Fresh ${productName}`;
+
+    if (hasRecipe) {
+      recipeItems = hasRecipe.recipe;
+      if (hasRecipe.description) {
+        customDescription = hasRecipe.description;
+      }
+      // Calculate exact cost from recipe
+      costPrice = 0;
+      for (const r of recipeItems) {
+        const invItem = invMap[r.name];
+        if (invItem) {
+          costPrice += Number(invItem.costPerUnit) * r.qty;
+        }
+      }
     }
 
-    // 2. Create product
     const product = await prisma.product.create({
       data: {
-        name: template.name,
-        category: template.category,
-        price: template.price,
+        name: productName,
+        category: categoryName,
+        price: price,
         costPrice: costPrice,
-        description: `${template.name} - تحضير طازج`,
+        description: customDescription,
+        imageUrl: imageUrl,
         availability: true,
         active: true,
       },
     });
 
-    // 3. Create recipe items
-    for (const r of template.recipe) {
-      await prisma.recipeItem.create({
-        data: {
-          productId: product.id,
-          inventoryItemId: invMap[r.name].id,
-          quantity: r.qty,
-        },
-      });
+    // Create recipe items if any
+    for (const r of recipeItems) {
+      const invItem = invMap[r.name];
+      if (invItem) {
+        await prisma.recipeItem.create({
+          data: {
+            productId: product.id,
+            inventoryItemId: invItem.id,
+            quantity: r.qty,
+          },
+        });
+      }
     }
+
+    importedCount++;
   }
+
+  console.log(`✅ Seeding complete! Total products imported from CSV: ${importedCount}`);
 
   // 9. Create some Rooms for coworking
   console.log('🛋️ Creating rooms...');

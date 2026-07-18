@@ -120,7 +120,7 @@ export function normalizeCategoryKey(category?: string | null): string {
   if (key === "yogurt") return "yougert";
   if (key === "boba-additions") return "boba-drinks";
   if (key === "fresh-juice") return "juice";
-  if (key === "indomy-add-ons") return "additions";
+  if (key === "indomy-add-ons") return "indomy-addons";
   if (key === "extras") return "additions";
 
   return key;
@@ -155,6 +155,8 @@ export function translateProductCategory(category?: string | null) {
       return "موكتيل";
     case "indomy":
       return "إندومي";
+    case "indomy-addons":
+      return "إضافات إندومي";
     case "boba-drinks":
       return "بوبا";
     case "additions":
@@ -356,10 +358,23 @@ const productTranslations: Record<string, string> = {
   "Passion Fruit": "باشون فروت",
   "Smoothies": "سموذي",
   "Fresh Juice": "عصير طازج",
+  // Indomy types
   "Indomy": "إندومي",
+  "Indomy Plain": "إندومي عادي",
+  "Indomy with Cheese": "إندومي بجبنة",
+  "Indomy with Hot Dog": "إندومي بهوت دوج",
+  "Indomy with Turkey": "إندومي بتركي",
+  "Indomy with Egg": "إندومي بالبيض",
+  "Indomy Spicy": "إندومي حار",
+  "Indomy with Butter": "إندومي بالزبدة",
+  "Indomy Special": "إندومي سبيشيال",
+  // Indomy Add-ons
+  "Add Cheese": "إضافة جبنة",
   "Add Mix Cheese": "إضافة ميكس جبن",
   "Add Hot Dog": "إضافة هوت دوج",
   "Add Turkey": "إضافة تركي",
+  "Add Egg": "إضافة بيضة",
+  "Add Butter": "إضافة زبدة",
   "Flavour": "نكهة",
   "Milk": "حليب",
   "Cheese": "جبنة",

@@ -76,7 +76,7 @@ export class ProductsService {
       q?: string;
     },
   ) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = Math.min(Math.max(limit, 1), 500);
     const safePage = Math.max(page, 1);
     const skip = (safePage - 1) * safeLimit;
 

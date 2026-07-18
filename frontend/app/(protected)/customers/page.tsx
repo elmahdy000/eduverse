@@ -123,15 +123,27 @@ export default function CustomersPage() {
   const [editJobTitle, setEditJobTitle] = useState("");
   const [editCustomerType, setEditCustomerType] = useState("visitor");
 
+  // Debounce search inputs to reduce API calls
+  const [debouncedSearchName, setDebouncedSearchName] = useState(searchName);
+  const [debouncedSearchPhone, setDebouncedSearchPhone] = useState(searchPhone);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchName(searchName);
+      setDebouncedSearchPhone(searchPhone);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchName, searchPhone]);
+
   const customersQuery = useQuery({
-    queryKey: ["customers", searchName, searchPhone],
+    queryKey: ["customers", debouncedSearchName, debouncedSearchPhone],
     queryFn: async () => {
       const response = await api.get("/customers", {
         params: {
           page: 1,
           limit: 50,
-          name: searchName || undefined,
-          phone: searchPhone || undefined,
+          name: debouncedSearchName || undefined,
+          phone: debouncedSearchPhone || undefined,
         },
       });
       return response.data.data as Paginated<Customer>;

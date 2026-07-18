@@ -21,14 +21,27 @@ export default function RevenuePage() {
   const [range, setRange] = useState<DateRange>({ from: "", to: "" });
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!range.from || !range.to) return;
+    let cancelled = false;
     setLoading(true);
+    setError(null);
     reports
       .revenue(range.from, range.to)
-      .then(setData)
-      .finally(() => setLoading(false));
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e?.message || "خطأ في تحميل البيانات");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [range.from, range.to]);
 
   return (
@@ -50,7 +63,11 @@ export default function RevenuePage() {
         </div>
       )}
 
-      {!loading && data && (
+      {error && (
+        <div className="op-panel text-rose-300 text-sm">خطأ: {error}</div>
+      )}
+
+      {!loading && !error && data && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <StatBox title="المُحصَّل" value={fmtMoney(data.totals?.collected)} tint="revenue" />

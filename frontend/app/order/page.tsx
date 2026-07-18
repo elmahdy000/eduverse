@@ -68,6 +68,7 @@ const categoryConfig: Record<string, CategoryMeta> = {
   cans: { icon: Package, iconColor: "text-slate-500", bgColor: "bg-slate-50" },
   mocktails: { icon: Wine, iconColor: "text-rose-600", bgColor: "bg-rose-50" },
   indomy: { icon: Utensils, iconColor: "text-red-600", bgColor: "bg-red-50" },
+  "indomy-addons": { icon: Plus, iconColor: "text-orange-500", bgColor: "bg-orange-50" },
   "boba-drinks": { icon: Sparkles, iconColor: "text-purple-600", bgColor: "bg-purple-50" },
   additions: { icon: Plus, iconColor: "text-slate-500", bgColor: "bg-slate-100" },
 };

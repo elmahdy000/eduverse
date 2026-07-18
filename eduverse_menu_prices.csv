@@ -1,4 +1,4 @@
-﻿Category,Item,Size,Price_EGP,Notes,Source_Page
+Category,Item,Size,Price_EGP,Notes,Source_Page
 Coffee,Turkish Coffee,M,30,,1
 Coffee,Turkish Coffee,L,40,,1
 Coffee,French Coffee,M,40,,1
@@ -119,10 +119,19 @@ Boba Additions,Blue Berry,One Size,40,,2
 Boba Additions,Passion Fruit,One Size,40,,2
 Smoothies,Smoothies,One Size,75,Ask,2
 Fresh Juice,Fresh Juice,One Size,80,Ask,2
-Indomy,Indomy,One Size,30,,2
-Indomy Add-ons,Add Mix Cheese,One Size,20,,2
-Indomy Add-ons,Add Hot Dog,One Size,20,,2
-Indomy Add-ons,Add Turkey,One Size,20,,2
+Indomy,Indomy Plain,One Size,30,,2
+Indomy,Indomy with Cheese,One Size,45,,2
+Indomy,Indomy with Hot Dog,One Size,45,,2
+Indomy,Indomy with Turkey,One Size,45,,2
+Indomy,Indomy with Egg,One Size,40,,2
+Indomy,Indomy Spicy,One Size,35,,2
+Indomy,Indomy with Butter,One Size,35,,2
+Indomy,Indomy Special,One Size,65,Cheese + Hot Dog + Turkey,2
+Indomy Add-ons,Add Cheese,One Size,15,,2
+Indomy Add-ons,Add Hot Dog,One Size,15,,2
+Indomy Add-ons,Add Turkey,One Size,15,,2
+Indomy Add-ons,Add Egg,One Size,10,,2
+Indomy Add-ons,Add Butter,One Size,5,,2
 Additions,Flavour,One Size,30,,2
 Additions,Milk,One Size,20,,2
 Extra's,Cheese,One Size,10,,2

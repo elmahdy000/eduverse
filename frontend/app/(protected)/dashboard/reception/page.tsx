@@ -69,6 +69,7 @@ export default function ReceptionDashboardPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["dashboard", "reception"],
     queryFn: async () => { const r = await api.get("/dashboards/reception"); return r.data.data as ReceptionDashboard; },
+    staleTime: 15000,
     refetchInterval: 20000,
   });
 

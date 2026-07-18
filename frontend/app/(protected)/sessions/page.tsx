@@ -6,7 +6,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Clock, PlayCircle, StopCircle, XCircle, Users, DoorOpen,
-  Timer, RefreshCw, Zap, History, Search, ChevronRight
+  Timer, RefreshCw, Zap, History, Search, ChevronRight,
+  Coffee
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
@@ -74,13 +75,31 @@ function downloadInvoiceSnapshot(invoice: Invoice) {
 /* ─── live timer ───────────────────────────────────────────── */
 function useSessionTimer(startTime: string | null) {
   const [elapsed, setElapsed] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
-    if (!startTime) return;
+    if (!startTime) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      setElapsed(0);
+      return;
+    }
     const start = new Date(startTime).getTime();
     const update = () => setElapsed(Math.floor((Date.now() - start) / 1000));
     update();
-    const i = setInterval(update, 1000);
-    return () => clearInterval(i);
+    // Clear any existing interval before creating new one
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(update, 1000);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [startTime]);
 
   const h = Math.floor(elapsed / 3600);

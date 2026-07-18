@@ -17,7 +17,7 @@ export class GuestOrdersController {
   @ApiOperation({ summary: 'List available products for guests' })
   async listProducts() {
     try {
-      const result = await this.productsService.listProducts(1, 100);
+      const result = await this.productsService.listProducts(1, 500);
       return {
         success: true,
         data: result.data.filter(p => p.availability && p.active),

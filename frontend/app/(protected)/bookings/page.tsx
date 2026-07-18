@@ -7,7 +7,7 @@ import {
   ChevronLeft, ChevronRight, Calendar, Clock, User, MapPin, 
   Plus, RefreshCw, X, Search, Filter, LayoutGrid, List,
   CheckCircle2, AlertCircle, Ban, History, Users, Zap,
-  PlayCircle
+  PlayCircle, CheckCircle
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";

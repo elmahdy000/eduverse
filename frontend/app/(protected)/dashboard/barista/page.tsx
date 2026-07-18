@@ -191,7 +191,7 @@ export default function BaristaDashboardPage() {
     staleTime: 0,
   });
 
-  const [prevNewCount, setPrevNewCount] = useState<number | null>(null);
+  const prevNewCountRef = useRef<number | null>(null);
 
   // ── تعديل بنود الطلب ──
   const [editingOrder, setEditingOrder] = useState<BarOrder | null>(null);
@@ -258,24 +258,24 @@ export default function BaristaDashboardPage() {
 
   // Auto-resume AudioContext on first user interaction to satisfy browser autoplay policies
   useEffect(() => {
+    // Initialize AudioContext eagerly on mount (not lazily) to avoid creating multiple instances
+    if (typeof window !== "undefined" && !audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtxRef.current = new AudioContextClass();
+      }
+    }
+
     const handleGesture = () => {
-      if (typeof window !== "undefined") {
-        if (!audioCtxRef.current) {
-          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-          if (AudioContextClass) {
-            audioCtxRef.current = new AudioContextClass();
-          }
-        }
-        if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-          audioCtxRef.current.resume().catch(() => {});
-        }
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume().catch(() => {});
       }
     };
     window.addEventListener("click", handleGesture, { capture: true, passive: true });
     window.addEventListener("touchstart", handleGesture, { capture: true, passive: true });
     return () => {
-      window.removeEventListener("click", handleGesture);
-      window.removeEventListener("touchstart", handleGesture);
+      window.removeEventListener("click", handleGesture, { capture: true });
+      window.removeEventListener("touchstart", handleGesture, { capture: true });
     };
   }, []);
 
@@ -362,22 +362,26 @@ export default function BaristaDashboardPage() {
       setIsSocketLive(true);
     },
     onChatMessage: (msg) => {
-      console.log("[Socket.IO] 💬 Barista received chat:", msg);
       setChatMessages(prev => {
         if (prev.some(m => m.id === msg.id)) return prev;
-        return [...prev, msg];
+        const next = [...prev, msg];
+        // Limit to last 100 messages to prevent unbounded growth
+        return next.length > 100 ? next.slice(-100) : next;
       });
       
       // Update unreads if chat window is not open for this guest
       if (selectedGuestCode !== msg.orderId) {
         setUnreadsByCode(prev => {
           const next = { ...prev, [msg.orderId]: (prev[msg.orderId] || 0) + 1 };
-          console.log("[Chat] Unreads updated:", next);
           return next;
         });
       }
-      // Play chat sound
-      try { new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3').play().catch(() => {}) } catch {}
+      // Play chat sound (reuse single Audio instance)
+      try { 
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3');
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+      } catch {}
     },
     onChatHistory: (history) => {
       console.log("[Socket.IO] 💬 Barista received history:", history);
@@ -398,13 +402,21 @@ export default function BaristaDashboardPage() {
 
   // الانضمام لغرف كل الطلبات النشطة اللي ليها كود عميل — عشان نستقبل رسايلها
   // لحظياً وعدّاد غير المقروء يشتغل حتى لو الشات مقفول.
+  const joinedCodesRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!data) return;
-    const codes = new Set<string>();
+    const currentCodes = new Set<string>();
     [...data.newOrders, ...data.inPreparationOrders, ...data.readyOrders].forEach((o) => {
-      if (o.guestCode) codes.add(o.guestCode);
+      if (o.guestCode) currentCodes.add(o.guestCode);
     });
-    codes.forEach((code) => joinChat(code));
+    
+    // Join new codes only
+    currentCodes.forEach((code) => {
+      if (!joinedCodesRef.current.has(code)) {
+        joinedCodesRef.current.add(code);
+        joinChat(code);
+      }
+    });
   }, [data]);
 
   const handleSendChat = (e?: React.FormEvent) => {
@@ -417,10 +429,10 @@ export default function BaristaDashboardPage() {
   // Polling fallback notification — only fires when WebSocket is NOT live
   // When socket is live, sound is already played via onNewOrder handler
   useEffect(() => {
-    if (data && prevNewCount !== null && data.counts.new > prevNewCount && !isSocketLive) {
+    if (data && prevNewCountRef.current !== null && data.counts.new > prevNewCountRef.current && !isSocketLive) {
       playNotificationSound();
     }
-    if (data) setPrevNewCount(data.counts.new);
+    if (data) prevNewCountRef.current = data.counts.new;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.counts.new]);
 

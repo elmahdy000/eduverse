@@ -76,6 +76,7 @@ export default function OwnerDashboardPage() {
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "صباح الخير" : now.getHours() < 17 ? "النهارده إيه أخباره" : "مساء الخير";
+  const todayStr = now.toISOString().split('T')[0];
 
   if (isLoading) return (
     <div className="space-y-6">
@@ -161,7 +162,7 @@ export default function OwnerDashboardPage() {
               {entries.map(([date, amount]) => {
                 const pct = Math.round((amount / maxVal) * 100);
                 const d = new Date(date);
-                const isToday = date === new Date().toISOString().split('T')[0];
+                const isToday = date === todayStr;
                 return (
                   <div key={date} className="flex flex-1 flex-col items-center gap-1">
                     <span className="text-[9px] font-bold text-slate-500">{amount > 0 ? Math.round(amount).toLocaleString('ar') : ''}</span>
@@ -195,12 +196,12 @@ export default function OwnerDashboardPage() {
               { label: "المحصّل النهارده",    value: money(data.paymentsTodayAmount), color: "text-emerald-700 font-bold" },
               { label: "إيراد امبارح",         value: money(data.yesterdayRevenue),   color: "text-slate-900" },
               { label: "إيراد الأسبوع",         value: money(data.weekRevenue),        color: "text-slate-900" },
-              { label: "واتير صادرة النهارده", value: data.invoicesToday,             color: "text-slate-900" },
+              { label: "فواتير صادرة النهارده", value: data.invoicesToday,             color: "text-slate-900" },
               { label: "إجمالي العملاء",         value: data.totalCustomers,            color: "text-blue-700 font-semibold" },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex items-center justify-between py-2.5">
-                <span className={`text-sm ${color}`}>{value}</span>
                 <span className="text-sm text-slate-500">{label}</span>
+                <span className={`text-sm ${color}`}>{value}</span>
               </div>
             ))}
           </dl>
@@ -213,7 +214,7 @@ export default function OwnerDashboardPage() {
           ) : (
             <div className="space-y-3">
               {data.topProducts.map((item, i) => {
-                const pct = Math.round((item.revenue / (data.topProducts[0]?.revenue ?? 1)) * 100);
+                const pct = Math.round((item.revenue / (data.topProducts[0]?.revenue || 1)) * 100);
                 const colors = ["bg-amber-400", "bg-slate-400", "bg-orange-400", "bg-blue-400", "bg-emerald-400"];
                 return (
                   <div key={item.productName}>

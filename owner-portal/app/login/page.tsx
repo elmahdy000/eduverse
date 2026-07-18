@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api";
+import { getUser, login } from "@/lib/api";
 import { ShieldCheck, Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -11,6 +11,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // لو المستخدم مسجّل دخول بالفعل، حوّله للداشبورد مباشرة
+  useEffect(() => {
+    const u = getUser();
+    if (u?.role?.name === "OwnerPortal") {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

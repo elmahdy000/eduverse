@@ -105,8 +105,9 @@ model Customer {
   updatedAt             DateTime @updatedAt
   createdByUserId       String   @db.Uuid
 
-  createdByUser User      @relation(fields: [createdByUserId], references: [id])
+  createdByUser User                   @relation(fields: [createdByUserId], references: [id])
   sessions      Session[]
+  subscriptions CustomerSubscription[]
   bookings      Booking[]
   barOrders     BarOrder[]
   invoices      Invoice[]
@@ -122,17 +123,21 @@ model Customer {
 // ============================================================================
 
 model Room {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
-  roomType     String   // coworking, study, meeting, hall
-  capacity     Int
-  features     String[] // projector, whiteboard, wifi, ac
-  hourlyRate   Decimal? @db.Decimal(10, 2)
-  dailyRate    Decimal? @db.Decimal(10, 2)
-  status       String   @default("available") // available, occupied, booked_soon, under_prep, out_of_service
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String
+  roomType             String   // coworking, study, meeting, hall
+  capacity             Int
+  features             String[] // projector, whiteboard, wifi, ac
+  hourlyRate           Decimal? @db.Decimal(10, 2)
+  dailyRate            Decimal? @db.Decimal(10, 2)
+  individualHourlyRate Decimal? @db.Decimal(10, 2)
+  wholeRoomHourlyRate  Decimal? @db.Decimal(10, 2)
+  fixedEventRate       Decimal? @db.Decimal(10, 2)
+  defaultBillingMode   String   @default("individual") // individual, whole_room_hourly, fixed_event
+  status               String   @default("available") // available, occupied, booked_soon, under_prep, out_of_service
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   sessions Session[]
   bookings Booking[]
@@ -143,6 +148,30 @@ model Room {
 }
 
 // ============================================================================
+// CUSTOMER SUBSCRIPTIONS / PACKAGES
+// ============================================================================
+
+model CustomerSubscription {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId   String   @db.Uuid
+  packageType  String   // daily, weekly, monthly
+  startDate    DateTime
+  endDate      DateTime
+  status       String   @default("active") // active, expired, cancelled
+  pricePaid    Decimal  @db.Decimal(10, 2)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer Customer  @relation(fields: [customerId], references: [id])
+  sessions Session[]
+
+  @@index([customerId])
+  @@index([status])
+  @@map("customer_subscriptions")
+}
+
+// ============================================================================
 // SESSIONS
 // ============================================================================
 
@@ -150,8 +179,10 @@ model Session {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   customerId      String   @db.Uuid
   sessionType     String   // hourly, daily, package, booking_linked
+  billingType     String?  // hourly_individual, hourly_room, flat_event, subscription_covered
   roomId          String?  @db.Uuid
   bookingId       String?  @unique @db.Uuid  // ربط بالحجز المسبق
+  subscriptionId  String?  @db.Uuid
   startTime       DateTime
   endTime         DateTime?
   durationMinutes Int?
@@ -164,11 +195,12 @@ model Session {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  customer      Customer   @relation(fields: [customerId], references: [id])
-  room          Room?      @relation(fields: [roomId], references: [id])
-  booking       Booking?   @relation(fields: [bookingId], references: [id])
-  openedByUser  User       @relation("OpenedBy", fields: [openedByUserId], references: [id])
-  closedByUser  User?      @relation("ClosedBy", fields: [closedByUserId], references: [id])
+  customer      Customer              @relation(fields: [customerId], references: [id])
+  room          Room?                 @relation(fields: [roomId], references: [id])
+  booking       Booking?              @relation(fields: [bookingId], references: [id])
+  subscription  CustomerSubscription? @relation(fields: [subscriptionId], references: [id])
+  openedByUser  User                  @relation("OpenedBy", fields: [openedByUserId], references: [id])
+  closedByUser  User?                 @relation("ClosedBy", fields: [closedByUserId], references: [id])
   barOrders     BarOrder[]
   invoice       Invoice?
 

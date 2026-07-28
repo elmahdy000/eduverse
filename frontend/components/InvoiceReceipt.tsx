@@ -42,117 +42,124 @@ function itemTypeLabel(itemType: string) {
  * بيتجاهل الخلفيات ويطلع بقع)، خط monospace واضح للأرقام.
  */
 export const RECEIPT_PRINT_CSS = `
-  @page { size: 80mm auto; margin: 0; }
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .no-print { display: none !important; }
-
-  /* أخفي كل الصفحة وأظهر الفاتورة بس — أضمن طريقة تمنع المعاينة الفاضية
-     لما نطبع من داخل صفحة فيها عناصر تانية (قوائم/أزرار/فورمات) */
-  body * { visibility: hidden !important; }
-  #printable-invoice, #printable-invoice * { visibility: visible !important; }
-
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-    color: #000 !important;
-    font-family: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif !important;
-  }
-  #printable-invoice {
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    left: 0 !important;
-    width: 76mm;
-    margin: 0 auto;
-    padding: 3mm 2mm;
-    font-family: 'Cairo', 'Tahoma', sans-serif;
-    color: #000;
-    background: #fff;
-    direction: rtl;
-    text-align: right;
-    line-height: 1.5;
-  }
-  #printable-invoice .rc-center { text-align: center; }
-  #printable-invoice .rc-venue {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 1px;
+  @page {
+    size: 80mm auto;
     margin: 0;
   }
-  #printable-invoice .rc-venue-ar { font-size: 13px; font-weight: 700; margin: 1px 0; }
-  #printable-invoice .rc-muted { font-size: 10px; color: #000; }
+  @media print {
+    html, body {
+      width: 80mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #000 !important;
+      font-family: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .no-print { display: none !important; }
+    
+    /* منع الانقطاع المفاجئ للنصوص والصفوف عند حد الصفحة */
+    tr, td, th, div, p {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+  }
+
+  #printable-invoice {
+    box-sizing: border-box !important;
+    width: 72mm !important;
+    max-width: 72mm !important;
+    margin: 0 auto !important;
+    padding: 2mm 3mm 8mm 3mm !important; /* هامش سفلي كافٍ لمنع قطع الهادر النهائي للطابعة */
+    font-family: 'Cairo', 'Tahoma', sans-serif !important;
+    color: #000 !important;
+    background: #fff !important;
+    direction: rtl !important;
+    text-align: right !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+  }
+  #printable-invoice .rc-center { text-align: center !important; }
+  #printable-invoice .rc-venue {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 !important;
+  }
+  #printable-invoice .rc-venue-ar { font-size: 12px !important; font-weight: 700 !important; margin: 1px 0 !important; }
+  #printable-invoice .rc-muted { font-size: 9px !important; color: #000 !important; }
   #printable-invoice .rc-divider {
-    border: 0;
-    border-top: 1px dashed #000;
-    margin: 6px 0;
+    border: 0 !important;
+    border-top: 1px dashed #000 !important;
+    margin: 5px 0 !important;
   }
   #printable-invoice .rc-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    margin: 2px 0;
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 10px !important;
+    margin: 2px 0 !important;
   }
-  #printable-invoice .rc-meta .lbl { font-weight: 400; }
-  #printable-invoice .rc-meta .val { font-weight: 700; }
+  #printable-invoice .rc-meta .lbl { font-weight: 400 !important; }
+  #printable-invoice .rc-meta .val { font-weight: 700 !important; }
   #printable-invoice table.rc-items {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin: 2px 0;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 11px !important;
+    margin: 3px 0 !important;
   }
   #printable-invoice table.rc-items th {
-    border-bottom: 1px solid #000;
-    padding: 3px 0;
-    font-weight: 800;
-    font-size: 11px;
+    border-bottom: 1px solid #000 !important;
+    padding: 2px 0 !important;
+    font-weight: 800 !important;
+    font-size: 10px !important;
   }
   #printable-invoice table.rc-items th.amt,
   #printable-invoice table.rc-items td.amt {
-    text-align: left;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    text-align: left !important;
+    font-variant-numeric: tabular-nums !important;
+    white-space: nowrap !important;
   }
   #printable-invoice table.rc-items td {
-    padding: 3px 0;
-    vertical-align: top;
-    border-bottom: 1px dotted #999;
+    padding: 3px 0 !important;
+    vertical-align: top !important;
+    border-bottom: 1px dotted #777 !important;
   }
-  #printable-invoice .rc-item-name { font-weight: 700; }
-  #printable-invoice .rc-item-sub { font-size: 9px; }
+  #printable-invoice .rc-item-name { font-weight: 700 !important; font-size: 11px !important; }
+  #printable-invoice .rc-item-sub { font-size: 8.5px !important; }
   #printable-invoice .rc-line {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    margin: 2px 0;
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 10px !important;
+    margin: 2px 0 !important;
   }
   #printable-invoice .rc-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-top: 2px solid #000;
-    border-bottom: 2px solid #000;
-    padding: 6px 0;
-    margin: 5px 0;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    border-top: 1.5px solid #000 !important;
+    border-bottom: 1.5px solid #000 !important;
+    padding: 4px 0 !important;
+    margin: 4px 0 !important;
   }
-  #printable-invoice .rc-total span:first-child { font-size: 11px; font-weight: 800; }
-  #printable-invoice .rc-total .amt { font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  #printable-invoice .rc-total span:first-child { font-size: 11px !important; font-weight: 800 !important; }
+  #printable-invoice .rc-total .amt { font-size: 20px !important; font-weight: 900 !important; font-variant-numeric: tabular-nums !important; }
   #printable-invoice .rc-status {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 800;
-    border: 2px solid #000;
-    border-radius: 4px;
-    padding: 5px 0;
-    margin: 5px 0;
+    text-align: center !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    border: 1px solid #000 !important;
+    border-radius: 3px !important;
+    padding: 4px 0 !important;
+    margin: 4px 0 !important;
   }
   #printable-invoice .rc-foot {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    margin-top: 6px;
+    text-align: center !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    margin-top: 6px !important;
   }
-  #printable-invoice .rc-foot-sm { text-align: center; font-size: 9px; margin-top: 2px; }
+  #printable-invoice .rc-foot-sm { text-align: center !important; font-size: 8.5px !important; margin-top: 2px !important; }
 `;
 
 export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: InvoiceReceiptProps) {

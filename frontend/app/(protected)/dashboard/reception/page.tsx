@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ConciergeBell, Users, Receipt, TrendingUp, RefreshCw, UserPlus, Timer,
   Coffee, X, User, GraduationCap, Briefcase, Dumbbell, Heart, UserCircle,
-  CalendarPlus, PlayCircle, FileText,
+  CalendarPlus, PlayCircle, FileText, Wallet, Clock,
 } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../../lib/api";
@@ -216,10 +216,12 @@ export default function ReceptionDashboardPage() {
 
       {/* Quick actions */}
       <Panel title="اختصارات سريعة" icon={<ConciergeBell size={15} />}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[
             { label: "سجّل عميل جديد",  href: "/customers?new=1",  desc: "أضف عميل للنظام",          color: "border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700",         icon: <UserPlus size={20} /> },
             { label: "افتح جلسة",        href: "/sessions",   desc: "ابدأ جلسة لعميل موجود",    color: "border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700", icon: <PlayCircle size={20} /> },
+            { label: "تسجيل مصروفات",   href: "/expenses",   desc: "إضافة مصروف يومي كاش",     color: "border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700",           icon: <Wallet size={20} /> },
+            { label: "الوردية والشفت",   href: "/shifts",     desc: "فتح/إغلاق وتقارير الوردية", color: "border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700",           icon: <Clock size={20} /> },
             { label: "حجز جديد",          href: "/bookings",   desc: "سجّل حجز غرفة",            color: "border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700",   icon: <CalendarPlus size={20} /> },
             { label: "الفواتير والتحصيل", href: "/billing", desc: "راجع فاتورة أو سجّل دفعة", color: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700", icon: <FileText size={20} /> },
           ].map((item) => (

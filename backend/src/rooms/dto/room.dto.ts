@@ -33,6 +33,22 @@ export class CreateRoomDto {
   dailyRate?: number;
 
   @IsOptional()
+  @IsNumber()
+  individualHourlyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  wholeRoomHourlyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  fixedEventRate?: number;
+
+  @IsOptional()
+  @IsString()
+  defaultBillingMode?: string;
+
+  @IsOptional()
   @IsString()
   notes?: string;
 }
@@ -58,6 +74,22 @@ export class UpdateRoomDto {
   @IsOptional()
   @IsNumber()
   dailyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  individualHourlyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  wholeRoomHourlyRate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  fixedEventRate?: number;
+
+  @IsOptional()
+  @IsString()
+  defaultBillingMode?: string;
 
   @IsOptional()
   @IsEnum(['available', 'occupied', 'booked_soon', 'under_prep', 'out_of_service'])

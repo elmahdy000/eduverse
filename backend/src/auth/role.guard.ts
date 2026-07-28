@@ -217,11 +217,12 @@ export class RoleGuard implements CanActivate {
         bookings:   ['read', 'create', 'update', 'cancel', 'complete', 'no_show'],
         customers:  ['read', 'create', 'update', 'deactivate', 'blacklist', 'reactivate'],
         rooms:      ['read'],
-        products:   ['read'],
+        products:   ['read', 'create', 'update', 'deactivate'],
         bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
         // الريسبشن يصدر فواتير ويسجّل مدفوعات فقط — الـ refund والحذف للمالك (طبقاً للتصميم)
         invoices:   ['read', 'generate'],
         payments:   ['read', 'record'],
+        expenses:   ['read', 'create'],
         dashboards: ['view_reception'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';

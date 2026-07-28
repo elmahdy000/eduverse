@@ -137,9 +137,9 @@ function ProductCard({ product, onEdit, onRecipe, onToggleActive, onToggleAvail,
 export default function ProductsPage() {
   const qc = useQueryClient();
   const { user } = useAuthStore();
-  // الإدارة (إضافة/تعديل/حالة/وصفة) للمالك ومدير العمليات فقط.
+  // الإدارة (إضافة/تعديل/حالة/وصفة) للمالك ومدير العمليات وموظف الاستقبال.
   // الباريستا يشوف المنيو والأسعار للعرض فقط (صلاحيته read).
-  const canManage = user?.role?.name === "Owner" || user?.role?.name === "Operations Manager";
+  const canManage = user?.role?.name === "Owner" || user?.role?.name === "Operations Manager" || user?.role?.name === "Receptionist";
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [activeFilter, setActiveFilter] = useState("true");

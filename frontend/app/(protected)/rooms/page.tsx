@@ -124,6 +124,9 @@ export default function RoomsPage() {
   const [capacity, setCapacity] = useState("4");
   const [hourlyRate, setHourlyRate] = useState("");
   const [dailyRate, setDailyRate] = useState("");
+  const [individualHourlyRate, setIndividualHourlyRate] = useState("");
+  const [wholeRoomHourlyRate, setWholeRoomHourlyRate] = useState("");
+  const [fixedEventRate, setFixedEventRate] = useState("");
   const [featuresText, setFeaturesText] = useState("");
   const [notes, setNotes] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -160,13 +163,16 @@ export default function RoomsPage() {
         name, roomType, capacity: Number(capacity),
         hourlyRate: hourlyRate ? Number(hourlyRate) : undefined,
         dailyRate: dailyRate ? Number(dailyRate) : undefined,
+        individualHourlyRate: individualHourlyRate ? Number(individualHourlyRate) : undefined,
+        wholeRoomHourlyRate: wholeRoomHourlyRate ? Number(wholeRoomHourlyRate) : undefined,
+        fixedEventRate: fixedEventRate ? Number(fixedEventRate) : undefined,
         features: featuresText ? featuresText.split(",").map((v) => v.trim()).filter(Boolean) : undefined,
         notes: notes || undefined,
       });
     },
     onSuccess: () => {
       setName(""); setRoomType("meeting"); setCapacity("4");
-      setHourlyRate(""); setDailyRate(""); setFeaturesText(""); setNotes("");
+      setHourlyRate(""); setDailyRate(""); setIndividualHourlyRate(""); setWholeRoomHourlyRate(""); setFixedEventRate(""); setFeaturesText(""); setNotes("");
       setShowAddForm(false);
       setMessage({ text: "تم إضافة الغرفة بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
@@ -313,11 +319,17 @@ export default function RoomsPage() {
             <FormField label="السعة (شخص)">
               <Input type="number" min="1" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             </FormField>
-            <FormField label="سعر الساعة (اختياري)">
-              <Input type="number" min="0" step="0.01" value={hourlyRate} onChange={(e) => setHourlyRate(e.target.value)} placeholder="0.00" />
+            <FormField label="سعر ساعة الفرد (اختياري)">
+              <Input type="number" min="0" step="0.01" value={individualHourlyRate} onChange={(e) => setIndividualHourlyRate(e.target.value)} placeholder="مثال: 40" />
             </FormField>
-            <FormField label="سعر اليوم (اختياري)">
-              <Input type="number" min="0" step="0.01" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} placeholder="0.00" />
+            <FormField label="سعر ساعة الغرفة كاملاً للميتنج (اختياري)">
+              <Input type="number" min="0" step="0.01" value={wholeRoomHourlyRate} onChange={(e) => setWholeRoomHourlyRate(e.target.value)} placeholder="مثال: 200" />
+            </FormField>
+            <FormField label="السعر الثابت للمحاضرة/الحدث (اختياري)">
+              <Input type="number" min="0" step="0.01" value={fixedEventRate} onChange={(e) => setFixedEventRate(e.target.value)} placeholder="مثال: 500" />
+            </FormField>
+            <FormField label="سعر اليوم (Day Pass اختياري)">
+              <Input type="number" min="0" step="0.01" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} placeholder="مثال: 150" />
             </FormField>
             <FormField label="المميزات (مفصولة بفاصلة)">
               <Input value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="واي فاي، تكييف، بروجيكتور" />

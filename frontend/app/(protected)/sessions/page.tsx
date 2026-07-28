@@ -195,6 +195,7 @@ export default function SessionsPage() {
 
   const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");
   const [sessionType, setSessionType] = useState("hourly");
+  const [billingType, setBillingType] = useState("hourly_individual");
   const [roomId, setRoomId] = useState("");
   const [bookingId, setBookingId] = useState("");
   const [chargeAmount, setChargeAmount] = useState("");
@@ -235,7 +236,7 @@ export default function SessionsPage() {
     queryFn: async () => (await api.get("/rooms", { params: { page: 1, limit: 50 } })).data.data as Paginated<Room>,
   });
   const bookingsQuery = useQuery({
-    queryKey: ["bookings", "active"],
+    queryKey: ["bookings", "for-sessions"],
     queryFn: async () => (await api.get("/bookings", { params: { status: "confirmed", page: 1, limit: 50 } })).data.data as Paginated<any>,
   });
   const currentShiftQuery = useQuery({
@@ -267,7 +268,7 @@ export default function SessionsPage() {
   /* mutations */
   const openMutation = useMutation({
     mutationFn: async () => api.post("/sessions", {
-      customerId, sessionType,
+      customerId, sessionType, billingType,
       roomId: roomId || undefined,
       bookingId: bookingId || undefined,
       chargeAmount: chargeAmount ? Number(chargeAmount) : undefined,
@@ -629,15 +630,26 @@ export default function SessionsPage() {
               </FormField>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                <FormField label="نوع الجلسة">
-                  <Select value={sessionType} onChange={(e) => setSessionType(e.target.value)}>
-                    <option value="hourly">بالساعة (أو جزء)</option>
-                    <option value="daily">يومي (Day Pass)</option>
+                <FormField label="نمط المحاسبة والجلسة">
+                  <Select 
+                    value={billingType} 
+                    onChange={(e) => {
+                      setBillingType(e.target.value);
+                      if (e.target.value === "daily") setSessionType("daily");
+                      else if (e.target.value === "subscription_covered") setSessionType("package");
+                      else setSessionType("hourly");
+                    }}
+                  >
+                    <option value="hourly_individual">👤 فردي بالساعة</option>
+                    <option value="hourly_room">🏢 غرفة بالكامل بالساعة (ميتنج/تدريب)</option>
+                    <option value="flat_event">📌 سعر ثابت للمحاضرة / الحدث</option>
+                    <option value="subscription_covered">💳 مشمولة بباقة العميل (يومي/أسبوعي/شهري)</option>
+                    <option value="daily">☀️ يومي (Day Pass)</option>
                   </Select>
                 </FormField>
                 <FormField label="الغرفة (اختياري)">
                   <Select value={roomId} onChange={(e) => setRoomId(e.target.value)}>
-                    <option value="">-- بدون غرفة --</option>
+                    <option value="">-- بدون غرفة (مساحة مشتركة) --</option>
                     {roomsQuery.data?.data?.map((r) => (
                       <option key={r.id} value={r.id}>{r.name}</option>
                     ))}

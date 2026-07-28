@@ -18,48 +18,10 @@ import {
   Alert, Badge, Btn, EmptyState, FormField, Input, Modal, Panel,
   SectionTitle, Select, StatCard, statusBadgeTone
 } from "../../../components/ui";
-import { InvoiceReceipt, SessionCloseSummary, RECEIPT_PRINT_CSS } from "../../../components/InvoiceReceipt";
+import { InvoiceReceipt, SessionCloseSummary, printThermalInvoice } from "../../../components/InvoiceReceipt";
 import clsx from "clsx";
 
 /* ─── helpers ─────────────────────────────────────────────── */
-function printInvoiceOnly() {
-  const node = document.getElementById("printable-invoice");
-  if (!node) return window.print();
-  const w = window.open("", "_blank", "width=380,height=700");
-  if (!w) return window.print();
-
-  // نحقن الفونت وأنماط الطباعة الحرارية (80mm) في النافذة الجديدة —
-  // من غير كده الأنماط بتضيع والفاتورة بتطبع بمقاس A4 غلط.
-  w.document.write(`<!DOCTYPE html>
-    <html dir="rtl" lang="ar">
-      <head>
-        <meta charset="utf-8" />
-        <title>طباعة فاتورة</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
-        <style>
-          html, body { margin: 0; padding: 0; background: #fff; font-family: 'Cairo', 'Tahoma', sans-serif; }
-          * { box-sizing: border-box; }
-          ${RECEIPT_PRINT_CSS}
-        </style>
-      </head>
-      <body>
-        ${node.outerHTML}
-        <script>
-          (function () {
-            var go = function () { window.print(); window.close(); };
-            if (document.fonts && document.fonts.ready) {
-              document.fonts.ready.then(function () { setTimeout(go, 150); }).catch(function () { setTimeout(go, 400); });
-            } else {
-              setTimeout(go, 400);
-            }
-          })();
-        </script>
-      </body>
-    </html>
-  `);
-  w.document.close();
-}
 
 function downloadInvoiceSnapshot(invoice: Invoice) {
   const payload = { type: "invoice_snapshot", exportedAt: new Date().toISOString(), invoice };
@@ -705,7 +667,7 @@ export default function SessionsPage() {
             />
             <InvoiceReceipt
               invoice={selectedInvoice}
-              onPrint={printInvoiceOnly}
+              onPrint={printThermalInvoice}
               onDownload={() => downloadInvoiceSnapshot(selectedInvoice)}
             />
 

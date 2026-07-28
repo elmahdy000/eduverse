@@ -44,122 +44,131 @@ function itemTypeLabel(itemType: string) {
 export const RECEIPT_PRINT_CSS = `
   @page {
     size: 80mm auto;
-    margin: 0;
+    margin: 0mm !important;
   }
   @media print {
     html, body {
       width: 80mm !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: #fff !important;
-      color: #000 !important;
-      font-family: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif !important;
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-family: 'Cairo', 'Courier New', Courier, monospace, sans-serif !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
     .no-print { display: none !important; }
     
-    /* منع الانقطاع المفاجئ للنصوص والصفوف عند حد الصفحة */
     tr, td, th, div, p {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
   }
 
+  /* Xprinter & 80mm Thermal Receipt Container */
   #printable-invoice {
     box-sizing: border-box !important;
-    width: 72mm !important;
-    max-width: 72mm !important;
+    width: 68mm !important;
+    max-width: 68mm !important;
     margin: 0 auto !important;
-    padding: 2mm 3mm 8mm 3mm !important; /* هامش سفلي كافٍ لمنع قطع الهادر النهائي للطابعة */
-    font-family: 'Cairo', 'Tahoma', sans-serif !important;
-    color: #000 !important;
-    background: #fff !important;
+    padding: 2mm 1mm 12mm 1mm !important; /* 12mm bottom padding to prevent auto-cutter from cutting text */
+    font-family: 'Cairo', 'Courier New', Courier, monospace, sans-serif !important;
+    color: #000000 !important;
+    background: #ffffff !important;
     direction: rtl !important;
     text-align: right !important;
-    line-height: 1.4 !important;
-    word-break: break-word !important;
+    line-height: 1.3 !important;
+    word-wrap: break-word !important;
+    overflow: hidden !important;
   }
   #printable-invoice .rc-center { text-align: center !important; }
   #printable-invoice .rc-venue {
-    font-size: 18px !important;
+    font-size: 16px !important;
     font-weight: 800 !important;
-    letter-spacing: 0.5px !important;
-    margin: 0 !important;
+    letter-spacing: 0px !important;
+    margin: 0 0 2px 0 !important;
+    text-align: center !important;
   }
-  #printable-invoice .rc-venue-ar { font-size: 12px !important; font-weight: 700 !important; margin: 1px 0 !important; }
-  #printable-invoice .rc-muted { font-size: 9px !important; color: #000 !important; }
+  #printable-invoice .rc-venue-ar { font-size: 11px !important; font-weight: 700 !important; margin: 1px 0 !important; text-align: center !important; }
+  #printable-invoice .rc-muted { font-size: 8.5px !important; color: #000000 !important; text-align: center !important; }
   #printable-invoice .rc-divider {
     border: 0 !important;
-    border-top: 1px dashed #000 !important;
-    margin: 5px 0 !important;
+    border-top: 1px dashed #000000 !important;
+    margin: 4px 0 !important;
+    width: 100% !important;
   }
-  #printable-invoice .rc-meta {
-    display: flex !important;
-    justify-content: space-between !important;
-    font-size: 10px !important;
+  
+  /* Layout rows using table for reliable Xprinter printing (flex layout sometimes breaks in print drivers) */
+  #printable-invoice .rc-meta-row {
+    width: 100% !important;
     margin: 2px 0 !important;
+    font-size: 9.5px !important;
+    border-collapse: collapse !important;
   }
-  #printable-invoice .rc-meta .lbl { font-weight: 400 !important; }
-  #printable-invoice .rc-meta .val { font-weight: 700 !important; }
+  #printable-invoice .rc-meta-row td {
+    padding: 1px 0 !important;
+    font-size: 9.5px !important;
+  }
+  #printable-invoice .rc-meta-row .lbl { font-weight: 400 !important; text-align: right !important; color: #000 !important; }
+  #printable-invoice .rc-meta-row .val { font-weight: 700 !important; text-align: left !important; color: #000 !important; }
+
   #printable-invoice table.rc-items {
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     margin: 3px 0 !important;
+    table-layout: fixed !important;
   }
   #printable-invoice table.rc-items th {
-    border-bottom: 1px solid #000 !important;
+    border-bottom: 1px solid #000000 !important;
     padding: 2px 0 !important;
     font-weight: 800 !important;
-    font-size: 10px !important;
+    font-size: 9.5px !important;
   }
   #printable-invoice table.rc-items th.amt,
   #printable-invoice table.rc-items td.amt {
     text-align: left !important;
     font-variant-numeric: tabular-nums !important;
     white-space: nowrap !important;
+    width: 32% !important;
   }
   #printable-invoice table.rc-items td {
     padding: 3px 0 !important;
     vertical-align: top !important;
-    border-bottom: 1px dotted #777 !important;
+    border-bottom: 1px dotted #777777 !important;
   }
-  #printable-invoice .rc-item-name { font-weight: 700 !important; font-size: 11px !important; }
-  #printable-invoice .rc-item-sub { font-size: 8.5px !important; }
-  #printable-invoice .rc-line {
-    display: flex !important;
-    justify-content: space-between !important;
-    font-size: 10px !important;
-    margin: 2px 0 !important;
-  }
+  #printable-invoice .rc-item-name { font-weight: 700 !important; font-size: 10px !important; word-break: break-word !important; }
+  #printable-invoice .rc-item-sub { font-size: 8px !important; color: #333 !important; }
+
   #printable-invoice .rc-total {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: baseline !important;
-    border-top: 1.5px solid #000 !important;
-    border-bottom: 1.5px solid #000 !important;
+    border-top: 1.5px solid #000000 !important;
+    border-bottom: 1.5px solid #000000 !important;
     padding: 4px 0 !important;
     margin: 4px 0 !important;
+    width: 100% !important;
   }
-  #printable-invoice .rc-total span:first-child { font-size: 11px !important; font-weight: 800 !important; }
-  #printable-invoice .rc-total .amt { font-size: 20px !important; font-weight: 900 !important; font-variant-numeric: tabular-nums !important; }
+  #printable-invoice .rc-total td {
+    vertical-align: middle !important;
+  }
+  #printable-invoice .rc-total .title { font-size: 11px !important; font-weight: 800 !important; text-align: right !important; }
+  #printable-invoice .rc-total .amt { font-size: 18px !important; font-weight: 900 !important; text-align: left !important; font-variant-numeric: tabular-nums !important; }
+
   #printable-invoice .rc-status {
     text-align: center !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 800 !important;
-    border: 1px solid #000 !important;
-    border-radius: 3px !important;
-    padding: 4px 0 !important;
+    border: 1px solid #000000 !important;
+    border-radius: 2px !important;
+    padding: 3px 0 !important;
     margin: 4px 0 !important;
   }
   #printable-invoice .rc-foot {
     text-align: center !important;
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     font-weight: 700 !important;
-    margin-top: 6px !important;
+    margin-top: 5px !important;
   }
-  #printable-invoice .rc-foot-sm { text-align: center !important; font-size: 8.5px !important; margin-top: 2px !important; }
+  #printable-invoice .rc-foot-sm { text-align: center !important; font-size: 8px !important; margin-top: 2px !important; }
 `;
 
 export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: InvoiceReceiptProps) {
@@ -222,36 +231,38 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
 
         <hr className="rc-divider border-t-2 border-dashed border-slate-100" />
 
-        {/* بيانات الفاتورة */}
-        <div className="my-4 space-y-1.5 text-[11px] font-bold text-slate-600">
-          <div className="rc-meta flex justify-between">
-            <span className="lbl text-slate-400">التاريخ:</span>
-            <span className="val">{dateTime(invoice.issuedAt)}</span>
-          </div>
-          <div className="rc-meta flex justify-between">
-            <span className="lbl text-slate-400">العميل:</span>
-            <span className="val text-slate-900">{invoice.customer?.fullName ?? "عميل عام"}</span>
-          </div>
-          <div className="rc-meta flex justify-between">
-            <span className="lbl text-slate-400">رقم الفاتورة:</span>
-            <span className="val font-mono">{invoice.invoiceNumber}</span>
-          </div>
-        </div>
+        {/* بيانات الفاتورة — جدول لتوافق طابعات Xprinter */}
+        <table className="rc-meta-row my-3 w-full">
+          <tbody>
+            <tr>
+              <td className="lbl text-slate-500">التاريخ:</td>
+              <td className="val font-mono">{dateTime(invoice.issuedAt)}</td>
+            </tr>
+            <tr>
+              <td className="lbl text-slate-500">العميل:</td>
+              <td className="val text-slate-900">{invoice.customer?.fullName ?? "عميل عام"}</td>
+            </tr>
+            <tr>
+              <td className="lbl text-slate-500">رقم الفاتورة:</td>
+              <td className="val font-mono">{invoice.invoiceNumber}</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <hr className="rc-divider border-t-2 border-dashed border-slate-100" />
+        <hr className="rc-divider" />
 
         {/* البنود */}
         <table className="rc-items w-full text-sm">
           <thead className="text-[10px] font-black uppercase text-slate-400">
             <tr>
-              <th className="pb-3 text-right">الصنف</th>
-              <th className="amt pb-3 text-left">المبلغ</th>
+              <th className="pb-2 text-right">الصنف</th>
+              <th className="amt pb-2 text-left">المبلغ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-slate-100">
             {(invoice.items ?? []).map((item) => (
               <tr key={item.id ?? `${item.itemType}-${item.description}`}>
-                <td className="py-3">
+                <td className="py-2">
                   <div className="flex flex-col gap-0.5">
                     <span className="rc-item-name font-bold text-slate-900">
                       {item.description || "بند خدمة"}
@@ -261,7 +272,7 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
                     </span>
                   </div>
                 </td>
-                <td className="amt py-3 text-left font-mono font-black text-slate-900">
+                <td className="amt py-2 text-left font-mono font-black text-slate-900">
                   {money(item.total)}
                 </td>
               </tr>
@@ -269,48 +280,57 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
           </tbody>
         </table>
 
-        <hr className="rc-divider border-t-2 border-dashed border-slate-100" />
+        <hr className="rc-divider" />
 
         {/* الإجماليات */}
-        <div className="mt-4 space-y-1.5">
-          <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
-            <span>المجموع الفرعي</span>
-            <span className="amt font-mono">{money(subtotal)}</span>
-          </div>
+        <table className="rc-meta-row mt-3 w-full">
+          <tbody>
+            <tr>
+              <td className="lbl text-slate-500">المجموع الفرعي</td>
+              <td className="val font-mono">{money(subtotal)}</td>
+            </tr>
+            {discountAmount > 0 && (
+              <tr>
+                <td className="lbl text-slate-500">خصم العميل</td>
+                <td className="val font-mono">-{money(discountAmount)}</td>
+              </tr>
+            )}
+            {taxAmount > 0 && (
+              <tr>
+                <td className="lbl text-slate-500">ضريبة</td>
+                <td className="val font-mono">{money(taxAmount)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
 
-          {discountAmount > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
-              <span>خصم العميل</span>
-              <span className="amt font-mono">-{money(discountAmount)}</span>
-            </div>
-          )}
+        {/* الإجمالي */}
+        <table className="rc-total my-2 w-full">
+          <tbody>
+            <tr>
+              <td className="title text-xs font-black text-slate-900">الإجمالي</td>
+              <td className="amt text-left text-2xl font-black font-mono text-slate-900">{money(totalAmount)}</td>
+            </tr>
+          </tbody>
+        </table>
 
-          {taxAmount > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
-              <span>ضريبة</span>
-              <span className="amt font-mono">{money(taxAmount)}</span>
-            </div>
-          )}
-
-          {/* الإجمالي — خطين فوق وتحت زي الصورة */}
-          <div className="rc-total flex items-baseline justify-between border-t-2 border-b-2 border-slate-900 py-3 mt-3">
-            <span className="text-xs font-black text-slate-900">الإجمالي</span>
-            <span className="amt text-4xl font-black tracking-tighter font-mono text-slate-900">{money(totalAmount)}</span>
-          </div>
-
-          {/* المدفوع */}
-          {amountPaid > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-slate-500">
-              <span>المدفوع{lastMethod ? ` (${translatePaymentMethod(lastMethod)})` : ""}</span>
-              <span className="amt font-mono">{money(amountPaid)}</span>
-            </div>
-          )}
-          {remainingAmount > 0 && (
-            <div className="rc-line flex justify-between text-xs font-bold text-rose-600">
-              <span>المتبقي</span>
-              <span className="amt font-mono">{money(remainingAmount)}</span>
-            </div>
-          )}
+        {/* المدفوع والمتبقي */}
+        <table className="rc-meta-row w-full">
+          <tbody>
+            {amountPaid > 0 && (
+              <tr>
+                <td className="lbl text-slate-500">المدفوع{lastMethod ? ` (${translatePaymentMethod(lastMethod)})` : ""}</td>
+                <td className="val font-mono">{money(amountPaid)}</td>
+              </tr>
+            )}
+            {remainingAmount > 0 && (
+              <tr>
+                <td className="lbl text-rose-600 font-bold">المتبقي</td>
+                <td className="val font-mono text-rose-600 font-bold">{money(remainingAmount)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
 
           {/* حالة الدفع — badge بإطار كامل */}
           <div className="rc-status mt-2 rounded-lg border-2 border-slate-900 py-2 text-center text-sm font-black text-slate-900">

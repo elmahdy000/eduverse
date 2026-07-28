@@ -116,13 +116,13 @@ export default function ExpensesPage() {
   const [filterTo, setFilterTo] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: expensesData, isLoading: isLoadingExpenses, refetch } = useQuery({
+  const { data: expensesRes, isLoading: isLoadingExpenses, refetch } = useQuery({
     queryKey: ["expenses", filterCategory, filterFrom, filterTo],
     queryFn: async () => {
       const r = await api.get("/expenses", {
-        params: { categoryId: filterCategory || undefined, fromDate: filterFrom || undefined, toDate: filterTo || undefined, limit: 500 },
+        params: { categoryId: filterCategory || undefined, fromDate: filterFrom || undefined, toDate: filterTo || undefined, limit: 1000 },
       });
-      return r.data.data;
+      return r.data;
     },
   });
 
@@ -197,22 +197,22 @@ export default function ExpensesPage() {
   }, [editingExpense, isExpenseModalOpen]);
 
   const filteredExpenses = useMemo(() => {
-    const list = expensesData?.data ?? [];
+    const list = Array.isArray(expensesRes?.data) ? expensesRes.data : Array.isArray(expensesRes) ? expensesRes : [];
     if (!searchTerm.trim()) return list;
     const q = searchTerm.toLowerCase();
     return list.filter((e: Expense) => 
-      e.description.toLowerCase().includes(q) || (e.vendor?.name ?? "").toLowerCase().includes(q) || e.category.name.toLowerCase().includes(q)
+      e.description.toLowerCase().includes(q) || (e.vendor?.name ?? "").toLowerCase().includes(q) || e.category?.name?.toLowerCase().includes(q)
     );
-  }, [expensesData, searchTerm]);
+  }, [expensesRes, searchTerm]);
 
   const headers = ["التاريخ", "البيان", "التصنيف", "المبلغ", "الوسيلة", "الحالة", ""];
   const rows = filteredExpenses.map((e: Expense) => [
     <div key={e.id} className="text-xs text-slate-400 font-bold">{dateTime(e.date).split(',')[0]}</div>,
     <div key={e.id + "desc"}>
       <div className="font-bold text-slate-800 text-sm">{e.description}</div>
-      <div className="text-[10px] text-slate-400 mt-1">{e.vendor?.name || 'مورد عام'} • {e.recordedByUser.firstName}</div>
+      <div className="text-[10px] text-slate-400 mt-1">{e.vendor?.name || 'مورد عام'} • {e.recordedByUser?.firstName ?? ''}</div>
     </div>,
-    <Badge key={e.id + "cat"} tone="neutral" className="px-3 py-1 text-[11px] font-bold">{e.category.name}</Badge>,
+    <Badge key={e.id + "cat"} tone="neutral" className="px-3 py-1 text-[11px] font-bold">{e.category?.name ?? 'عام'}</Badge>,
     <div key={e.id + "amt"} className="text-left font-black text-rose-600 text-base">{money(e.amount)}</div>,
     <div key={e.id + "pm"} className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
       {e.paymentMethod === 'cash' ? <Banknote size={14} /> : <CreditCard size={14} />}
@@ -248,7 +248,7 @@ export default function ExpensesPage() {
           <CompactStat label="إجمالي المصروفات" value={summary?.expensesTotal ?? 0} tone="rose" icon={<ArrowDownRight size={16} />} />
           <CompactStat label="إجمالي الإيرادات" value={summary?.revenueTotal ?? 0} tone="emerald" icon={<ArrowUpRight size={16} />} />
           <CompactStat label="صافي الربح" value={summary?.netProfit ?? 0} tone="blue" icon={<TrendingUp size={16} />} />
-          <CompactStat label="العمليات المنفذة" value={expensesData?.total || 0} tone="slate" icon={<FileText size={16} />} isCurrency={false} />
+          <CompactStat label="العمليات المنفذة" value={expensesRes?.total || filteredExpenses.length} tone="slate" icon={<FileText size={16} />} isCurrency={false} />
         </div>
       </div>
 

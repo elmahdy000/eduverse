@@ -254,24 +254,36 @@ export default function ExpensesPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-4">
-          <Panel className="flex items-center gap-4 p-4 bg-white shadow-sm border-slate-200">
-            <div className="relative flex-1">
+          <Panel className="flex flex-wrap items-center gap-4 p-4 bg-white shadow-sm border-slate-200">
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input type="text" placeholder="بحث في السجل..." className="w-full bg-slate-50 border-none rounded-xl pr-11 py-2.5 text-sm font-bold focus:ring-1 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input type="text" placeholder="بحث بالبيان أو المورد أو القسم..." className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-xl pr-11 pl-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
-            <div className="hidden sm:flex items-center gap-3">
-               <input type="date" className="border rounded-xl text-xs py-2 px-3 focus:ring-1 outline-none text-slate-700 font-bold shadow-sm" value={filterFrom} onChange={(e) => setFilterFrom(e.target.value)} />
-               <input type="date" className="border rounded-xl text-xs py-2 px-3 focus:ring-1 outline-none text-slate-700 font-bold shadow-sm" value={filterTo} onChange={(e) => setFilterTo(e.target.value)} />
+            <div className="flex items-center gap-2 flex-wrap">
+               <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-600">
+                 <span>من:</span>
+                 <input type="date" className="bg-transparent outline-none text-slate-800 font-bold" value={filterFrom} onChange={(e) => setFilterFrom(e.target.value)} />
+               </div>
+               <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-600">
+                 <span>إلى:</span>
+                 <input type="date" className="bg-transparent outline-none text-slate-800 font-bold" value={filterTo} onChange={(e) => setFilterTo(e.target.value)} />
+               </div>
+               {(filterCategory || filterFrom || filterTo || searchTerm) && (
+                 <Btn variant="secondary" size="sm" onClick={() => { setFilterCategory(""); setFilterFrom(""); setFilterTo(""); setSearchTerm(""); }} className="text-xs text-rose-600 hover:bg-rose-50 border-rose-200">إلغاء الفلاتر</Btn>
+               )}
             </div>
-            <button className="p-2.5 text-slate-400 hover:text-blue-600 transition-colors" onClick={() => refetch()}><RefreshCw size={18} /></button>
+            <button title="تحديث السجل" className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors" onClick={() => refetch()}><RefreshCw size={18} /></button>
           </Panel>
 
           <Panel className="!p-0 overflow-hidden shadow-lg border-slate-200">
-            <div className="p-5 border-b flex justify-between items-center bg-slate-50/80">
-               <h2 className="text-base font-bold text-slate-800">تفاصيل السجل المالي</h2>
-               <div className="w-[450px]">
+            <div className="p-5 border-b flex flex-wrap justify-between items-center gap-4 bg-slate-50/80">
+               <div className="flex items-center gap-3">
+                 <h2 className="text-base font-bold text-slate-800">تفاصيل السجل المالي</h2>
+                 <Badge tone="primary" className="px-2.5 py-1 text-xs font-black">{filteredExpenses.length} معاملة</Badge>
+               </div>
+               <div className="w-full sm:w-[320px]">
                  <AdvancedSelect 
-                  label="فلترة القسم"
+                  label="القسم"
                   horizontal={true}
                   options={[{id: "", name: "كل الأقسام"}, ...(categories || []).map((c: any) => ({id: c.id, name: c.name}))]} 
                   value={filterCategory} 
@@ -279,7 +291,13 @@ export default function ExpensesPage() {
                  />
                </div>
             </div>
-            <div className="p-3"><DataTable headers={headers} rows={rows} selectable={false} /></div>
+            {isLoadingExpenses ? (
+              <div className="flex items-center justify-center py-20"><Spinner size="lg" /></div>
+            ) : filteredExpenses.length === 0 ? (
+              <EmptyState icon={<Wallet size={40} className="text-slate-300" />} title="لا توجد مصروفات مسجلة" description="لم يتم العثور على أي عمليات مصروفات تطابق معايير البحث أو التصفية الحالية." />
+            ) : (
+              <div className="p-3"><DataTable headers={headers} rows={rows} selectable={false} /></div>
+            )}
           </Panel>
         </div>
 

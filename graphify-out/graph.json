@@ -6334,7 +6334,7 @@
       "label": "printThermalInvoice()",
       "file_type": "code",
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
-      "source_location": "L114",
+      "source_location": "L95",
       "id": "invoicereceipt_printthermalinvoice",
       "community": 54,
       "norm_label": "printthermalinvoice()"
@@ -17634,7 +17634,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "D:\\coders\\eduvers\\frontend\\components\\InvoiceReceipt.tsx",
-      "source_location": "L114",
+      "source_location": "L95",
       "weight": 1.0,
       "_src": "d_coders_eduvers_frontend_components_invoicereceipt_tsx",
       "_tgt": "invoicereceipt_printthermalinvoice",

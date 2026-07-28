@@ -42,133 +42,154 @@ function itemTypeLabel(itemType: string) {
  * بيتجاهل الخلفيات ويطلع بقع)، خط monospace واضح للأرقام.
  */
 export const RECEIPT_PRINT_CSS = `
+@media print {
   @page {
     size: 80mm auto;
-    margin: 0mm !important;
-  }
-  @media print {
-    html, body {
-      width: 80mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      color: #000000 !important;
-      font-family: 'Cairo', 'Courier New', Courier, monospace, sans-serif !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    .no-print { display: none !important; }
-    
-    tr, td, th, div, p {
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-    }
+    margin: 0;
   }
 
-  /* Xprinter & 80mm Thermal Receipt Container */
-  #printable-invoice {
-    box-sizing: border-box !important;
-    width: 68mm !important;
-    max-width: 68mm !important;
-    margin: 0 auto !important;
-    padding: 2mm 1mm 12mm 1mm !important; /* 12mm bottom padding to prevent auto-cutter from cutting text */
-    font-family: 'Cairo', 'Courier New', Courier, monospace, sans-serif !important;
-    color: #000000 !important;
+  html,
+  body {
+    width: 80mm !important;
+    min-width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .invoice-print,
+  .invoice-print * {
+    visibility: visible;
+  }
+
+  .invoice-print {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 72mm !important;
+    max-width: 72mm !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    padding: 2mm 2mm 10mm 2mm !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    transform: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     direction: rtl !important;
+    font-family: 'Cairo', 'Tahoma', 'Courier New', Courier, monospace, sans-serif !important;
+    line-height: 1.35 !important;
     text-align: right !important;
-    line-height: 1.3 !important;
-    word-wrap: break-word !important;
-    overflow: hidden !important;
   }
-  #printable-invoice .rc-center { text-align: center !important; }
-  #printable-invoice .rc-venue {
-    font-size: 16px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0px !important;
-    margin: 0 0 2px 0 !important;
-    text-align: center !important;
-  }
-  #printable-invoice .rc-venue-ar { font-size: 11px !important; font-weight: 700 !important; margin: 1px 0 !important; text-align: center !important; }
-  #printable-invoice .rc-muted { font-size: 8.5px !important; color: #000000 !important; text-align: center !important; }
-  #printable-invoice .rc-divider {
-    border: 0 !important;
-    border-top: 1px dashed #000000 !important;
-    margin: 4px 0 !important;
-    width: 100% !important;
-  }
-  
-  /* Layout rows using table for reliable Xprinter printing (flex layout sometimes breaks in print drivers) */
-  #printable-invoice .rc-meta-row {
-    width: 100% !important;
-    margin: 2px 0 !important;
-    font-size: 9.5px !important;
-    border-collapse: collapse !important;
-  }
-  #printable-invoice .rc-meta-row td {
-    padding: 1px 0 !important;
-    font-size: 9.5px !important;
-  }
-  #printable-invoice .rc-meta-row .lbl { font-weight: 400 !important; text-align: right !important; color: #000 !important; }
-  #printable-invoice .rc-meta-row .val { font-weight: 700 !important; text-align: left !important; color: #000 !important; }
 
-  #printable-invoice table.rc-items {
+  .invoice-print,
+  .invoice-print * {
+    box-sizing: border-box !important;
+  }
+
+  .invoice-print table {
     width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 10px !important;
-    margin: 3px 0 !important;
+    max-width: 100% !important;
     table-layout: fixed !important;
+    border-collapse: collapse !important;
   }
-  #printable-invoice table.rc-items th {
-    border-bottom: 1px solid #000000 !important;
-    padding: 2px 0 !important;
-    font-weight: 800 !important;
-    font-size: 9.5px !important;
-  }
-  #printable-invoice table.rc-items th.amt,
-  #printable-invoice table.rc-items td.amt {
-    text-align: left !important;
-    font-variant-numeric: tabular-nums !important;
-    white-space: nowrap !important;
-    width: 32% !important;
-  }
-  #printable-invoice table.rc-items td {
-    padding: 3px 0 !important;
-    vertical-align: top !important;
-    border-bottom: 1px dotted #777777 !important;
-  }
-  #printable-invoice .rc-item-name { font-weight: 700 !important; font-size: 10px !important; word-break: break-word !important; }
-  #printable-invoice .rc-item-sub { font-size: 8px !important; color: #333 !important; }
 
-  #printable-invoice .rc-total {
-    border-top: 1.5px solid #000000 !important;
-    border-bottom: 1.5px solid #000000 !important;
-    padding: 4px 0 !important;
-    margin: 4px 0 !important;
-    width: 100% !important;
-  }
-  #printable-invoice .rc-total td {
-    vertical-align: middle !important;
-  }
-  #printable-invoice .rc-total .title { font-size: 11px !important; font-weight: 800 !important; text-align: right !important; }
-  #printable-invoice .rc-total .amt { font-size: 18px !important; font-weight: 900 !important; text-align: left !important; font-variant-numeric: tabular-nums !important; }
-
-  #printable-invoice .rc-status {
-    text-align: center !important;
+  .invoice-print th,
+  .invoice-print td {
+    max-width: 100% !important;
+    padding: 2px !important;
     font-size: 10px !important;
-    font-weight: 800 !important;
-    border: 1px solid #000000 !important;
-    border-radius: 2px !important;
-    padding: 3px 0 !important;
-    margin: 4px 0 !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    text-overflow: clip !important;
   }
-  #printable-invoice .rc-foot {
-    text-align: center !important;
-    font-size: 9.5px !important;
+
+  .invoice-print img,
+  .invoice-print svg,
+  .invoice-print canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .invoice-print .product-name {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
     font-weight: 700 !important;
-    margin-top: 5px !important;
+    font-size: 10.5px !important;
   }
-  #printable-invoice .rc-foot-sm { text-align: center !important; font-size: 8px !important; margin-top: 2px !important; }
+
+  .invoice-print .invoice-row,
+  .invoice-print tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .no-print,
+  button,
+  nav,
+  aside,
+  header,
+  footer {
+    display: none !important;
+  }
+}
+
+/* Screen Fallback & Print Window Helper Styles */
+#printable-invoice {
+  box-sizing: border-box;
+  width: 72mm;
+  max-width: 72mm;
+  margin: 0 auto;
+  padding: 2mm 2mm 10mm 2mm;
+  font-family: 'Cairo', 'Tahoma', sans-serif;
+  color: #000000;
+  background: #ffffff;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.35;
+}
+#printable-invoice .rc-center { text-align: center; }
+#printable-invoice .rc-venue { font-size: 18px; font-weight: 800; margin: 0; text-align: center; }
+#printable-invoice .rc-venue-ar { font-size: 12px; font-weight: 700; margin: 1px 0; text-align: center; }
+#printable-invoice .rc-muted { font-size: 9px; color: #000; text-align: center; }
+#printable-invoice .rc-divider { border: 0; border-top: 1px dashed #000; margin: 5px 0; width: 100%; }
+
+#printable-invoice .rc-meta-table { width: 100%; border-collapse: collapse; margin: 3px 0; font-size: 10px; }
+#printable-invoice .rc-meta-table td { padding: 1.5px 0; vertical-align: top; }
+#printable-invoice .rc-meta-table .lbl { font-weight: 400; color: #333; text-align: right; }
+#printable-invoice .rc-meta-table .val { font-weight: 700; color: #000; text-align: left; }
+
+#printable-invoice table.rc-items-table { width: 100%; border-collapse: collapse; margin: 4px 0; table-layout: fixed; }
+#printable-invoice table.rc-items-table th { border-bottom: 1px solid #000; padding: 3px 2px; font-weight: 800; font-size: 10px; }
+#printable-invoice table.rc-items-table td { padding: 3px 2px; vertical-align: top; border-bottom: 1px dotted #888; font-size: 10px; }
+#printable-invoice table.rc-items-table th.col-name { width: 44%; text-align: right; }
+#printable-invoice table.rc-items-table th.col-qty { width: 16%; text-align: center; }
+#printable-invoice table.rc-items-table th.col-price { width: 20%; text-align: left; }
+#printable-invoice table.rc-items-table th.col-total { width: 20%; text-align: left; }
+#printable-invoice table.rc-items-table td.col-qty { text-align: center; font-variant-numeric: tabular-nums; }
+#printable-invoice table.rc-items-table td.col-price,
+#printable-invoice table.rc-items-table td.col-total { text-align: left; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+#printable-invoice .rc-total-box { border-top: 1.5px solid #000; border-bottom: 1.5px solid #000; padding: 4px 0; margin: 6px 0; width: 100%; }
+#printable-invoice .rc-total-box td { vertical-align: middle; }
+#printable-invoice .rc-total-box .title { font-size: 12px; font-weight: 800; text-align: right; }
+#printable-invoice .rc-total-box .amt { font-size: 20px; font-weight: 900; text-align: left; font-variant-numeric: tabular-nums; }
+
+#printable-invoice .rc-status-box { text-align: center; font-size: 11px; font-weight: 800; border: 1.5px solid #000; border-radius: 3px; padding: 4px 0; margin: 5px 0; }
+#printable-invoice .rc-foot { text-align: center; font-size: 10px; font-weight: 700; margin-top: 6px; }
+#printable-invoice .rc-foot-sm { text-align: center; font-size: 8.5px; margin-top: 2px; }
 `;
 
 export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: InvoiceReceiptProps) {
@@ -212,15 +233,15 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
         </div>
       </div>
 
-      {/* محتوى الفاتورة القابل للطباعة */}
-      <div id="printable-invoice" className="relative p-6 pt-8 text-right" dir="rtl">
+      {/* محتوى الفاتورة القابل للطباعة بحجم الـ 80mm وطابعة Xprinter */}
+      <div id="printable-invoice" className="invoice-print relative p-4 text-right" dir="rtl">
         {/* أنماط الطباعة الحرارية */}
         <style
-          dangerouslySetInnerHTML={{ __html: `@media print { .no-print { display: none !important; } ${RECEIPT_PRINT_CSS} }` }}
+          dangerouslySetInnerHTML={{ __html: RECEIPT_PRINT_CSS }}
         />
 
-        {/* الرأس */}
-        <div className="rc-center receipt-header mb-6 flex flex-col items-center justify-center gap-1">
+        {/* الرأس واللوجو */}
+        <div className="rc-center receipt-header mb-4 flex flex-col items-center justify-center gap-1">
           <h1 className="rc-venue text-2xl font-black tracking-tighter text-slate-900">{VENUE.name}</h1>
           <p className="rc-venue-ar text-sm font-bold text-slate-700">{VENUE.nameAr}</p>
           <div className="flex flex-col items-center gap-0.5 text-[10px] font-bold text-slate-400">
@@ -229,52 +250,58 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
           </div>
         </div>
 
-        <hr className="rc-divider border-t-2 border-dashed border-slate-100" />
+        <hr className="rc-divider" />
 
-        {/* بيانات الفاتورة — جدول لتوافق طابعات Xprinter */}
-        <table className="rc-meta-row my-3 w-full">
+        {/* بيانات الفاتورة Metadata */}
+        <table className="rc-meta-table rc-meta-row my-2 w-full">
           <tbody>
-            <tr>
-              <td className="lbl text-slate-500">التاريخ:</td>
+            <tr className="invoice-row">
+              <td className="lbl">التاريخ:</td>
               <td className="val font-mono">{dateTime(invoice.issuedAt)}</td>
             </tr>
-            <tr>
-              <td className="lbl text-slate-500">العميل:</td>
+            <tr className="invoice-row">
+              <td className="lbl">العميل:</td>
               <td className="val text-slate-900">{invoice.customer?.fullName ?? "عميل عام"}</td>
             </tr>
-            <tr>
-              <td className="lbl text-slate-500">رقم الفاتورة:</td>
+            <tr className="invoice-row">
+              <td className="lbl">رقم الفاتورة:</td>
               <td className="val font-mono">{invoice.invoiceNumber}</td>
             </tr>
+            {invoice.notes && (
+              <tr className="invoice-row">
+                <td className="lbl">ملاحظات:</td>
+                <td className="val">{invoice.notes}</td>
+              </tr>
+            )}
           </tbody>
         </table>
 
         <hr className="rc-divider" />
 
-        {/* البنود */}
-        <table className="rc-items w-full text-sm">
-          <thead className="text-[10px] font-black uppercase text-slate-400">
-            <tr>
-              <th className="pb-2 text-right">الصنف</th>
-              <th className="amt pb-2 text-left">المبلغ</th>
+        {/* جدول البنود بأسماء عريضة وأعمدة نسبية */}
+        <table className="rc-items-table rc-items w-full text-sm">
+          <thead>
+            <tr className="invoice-row">
+              <th className="col-name text-right">الصنف</th>
+              <th className="col-qty text-center">العدد</th>
+              <th className="col-price text-left">السعر</th>
+              <th className="col-total text-left">المبلغ</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-dashed divide-slate-100">
+          <tbody>
             {(invoice.items ?? []).map((item) => (
-              <tr key={item.id ?? `${item.itemType}-${item.description}`}>
-                <td className="py-2">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="rc-item-name font-bold text-slate-900">
-                      {item.description || "بند خدمة"}
-                    </span>
-                    <span className="rc-item-sub text-[9px] uppercase tracking-wider text-slate-400">
-                      {itemTypeLabel(item.itemType)} {item.quantity > 1 && `x${item.quantity}`}
-                    </span>
+              <tr key={item.id ?? `${item.itemType}-${item.description}`} className="invoice-row">
+                <td className="col-name">
+                  <div className="product-name">
+                    {item.description || "بند خدمة"}
+                  </div>
+                  <div className="rc-item-sub text-[8.5px] text-slate-400">
+                    {itemTypeLabel(item.itemType)}
                   </div>
                 </td>
-                <td className="amt py-2 text-left font-mono font-black text-slate-900">
-                  {money(item.total)}
-                </td>
+                <td className="col-qty">{item.quantity || 1}</td>
+                <td className="col-price">{money(item.unitPrice ?? item.total)}</td>
+                <td className="col-total">{money(item.total)}</td>
               </tr>
             ))}
           </tbody>
@@ -283,64 +310,64 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
         <hr className="rc-divider" />
 
         {/* الإجماليات */}
-        <table className="rc-meta-row mt-3 w-full">
+        <table className="rc-meta-table rc-meta-row mt-2 w-full">
           <tbody>
-            <tr>
-              <td className="lbl text-slate-500">المجموع الفرعي</td>
+            <tr className="invoice-row">
+              <td className="lbl">المجموع الفرعي</td>
               <td className="val font-mono">{money(subtotal)}</td>
             </tr>
             {discountAmount > 0 && (
-              <tr>
-                <td className="lbl text-slate-500">خصم العميل</td>
+              <tr className="invoice-row">
+                <td className="lbl">خصم العميل</td>
                 <td className="val font-mono">-{money(discountAmount)}</td>
               </tr>
             )}
             {taxAmount > 0 && (
-              <tr>
-                <td className="lbl text-slate-500">ضريبة</td>
+              <tr className="invoice-row">
+                <td className="lbl">ضريبة</td>
                 <td className="val font-mono">{money(taxAmount)}</td>
               </tr>
             )}
           </tbody>
         </table>
 
-        {/* الإجمالي */}
-        <table className="rc-total my-2 w-full">
+        {/* الإجمالي الكبير */}
+        <table className="rc-total-box rc-total my-2 w-full">
           <tbody>
-            <tr>
-              <td className="title text-xs font-black text-slate-900">الإجمالي</td>
+            <tr className="invoice-row">
+              <td className="title text-xs font-black text-slate-900">الإجمالي النهائي</td>
               <td className="amt text-left text-2xl font-black font-mono text-slate-900">{money(totalAmount)}</td>
             </tr>
           </tbody>
         </table>
 
         {/* المدفوع والمتبقي */}
-        <table className="rc-meta-row w-full">
+        <table className="rc-meta-table rc-meta-row w-full">
           <tbody>
             {amountPaid > 0 && (
-              <tr>
-                <td className="lbl text-slate-500">المدفوع{lastMethod ? ` (${translatePaymentMethod(lastMethod)})` : ""}</td>
+              <tr className="invoice-row">
+                <td className="lbl">المدفوع{lastMethod ? ` (${translatePaymentMethod(lastMethod)})` : ""}</td>
                 <td className="val font-mono">{money(amountPaid)}</td>
               </tr>
             )}
             {remainingAmount > 0 && (
-              <tr>
-                <td className="lbl text-rose-600 font-bold">المتبقي</td>
-                <td className="val font-mono text-rose-600 font-bold">{money(remainingAmount)}</td>
+              <tr className="invoice-row">
+                <td className="lbl font-bold text-rose-600">المتبقي</td>
+                <td className="val font-mono font-bold text-rose-600">{money(remainingAmount)}</td>
               </tr>
             )}
           </tbody>
         </table>
 
-          {/* حالة الدفع — badge بإطار كامل */}
-          <div className="rc-status mt-2 rounded-lg border-2 border-slate-900 py-2 text-center text-sm font-black text-slate-900">
-            {translateStatus(invoice.paymentStatus)}
-          </div>
+        {/* حالة الدفع */}
+        <div className="rc-status-box rc-status mt-2 rounded-lg border-2 border-slate-900 py-1.5 text-center text-xs font-black text-slate-900">
+          {translateStatus(invoice.paymentStatus)}
+        </div>
 
         {/* التذييل */}
-        <div className="mt-6 flex flex-col items-center gap-1.5 border-t border-dashed border-slate-100 pt-6 text-center">
-          <p className="rc-foot text-[11px] font-black text-slate-900">شكراً لزيارتكم — نتمنى لكم يوماً سعيداً!</p>
-          <p className="rc-foot-sm font-mono text-[9px] font-bold text-slate-400">
+        <div className="mt-4 flex flex-col items-center gap-1 border-t border-dashed border-slate-200 pt-4 text-center">
+          <p className="rc-foot text-[10px] font-black text-slate-900">شكراً لزيارتكم — نتمنى لكم يوماً سعيداً!</p>
+          <p className="rc-foot-sm font-mono text-[8.5px] font-bold text-slate-400">
             {invoice.invoiceNumber}
           </p>
         </div>

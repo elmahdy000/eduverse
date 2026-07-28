@@ -279,7 +279,7 @@ export default function ExpensesPage() {
             <div className="p-5 border-b flex flex-wrap justify-between items-center gap-4 bg-slate-50/80">
                <div className="flex items-center gap-3">
                  <h2 className="text-base font-bold text-slate-800">تفاصيل السجل المالي</h2>
-                 <Badge tone="primary" className="px-2.5 py-1 text-xs font-black">{filteredExpenses.length} معاملة</Badge>
+                 <Badge tone="info" className="px-2.5 py-1 text-xs font-black">{filteredExpenses.length} معاملة</Badge>
                </div>
                <div className="w-full sm:w-[320px]">
                  <AdvancedSelect 
@@ -292,9 +292,9 @@ export default function ExpensesPage() {
                </div>
             </div>
             {isLoadingExpenses ? (
-              <div className="flex items-center justify-center py-20"><Spinner size="lg" /></div>
+              <div className="flex items-center justify-center py-20"><Spinner size={32} /></div>
             ) : filteredExpenses.length === 0 ? (
-              <EmptyState icon={<Wallet size={40} className="text-slate-300" />} title="لا توجد مصروفات مسجلة" description="لم يتم العثور على أي عمليات مصروفات تطابق معايير البحث أو التصفية الحالية." />
+              <EmptyState icon={<Wallet size={40} className="text-slate-300" />} title="لا توجد مصروفات مسجلة" sub="لم يتم العثور على أي عمليات مصروفات تطابق معايير البحث أو التصفية الحالية." />
             ) : (
               <div className="p-3"><DataTable headers={headers} rows={rows} selectable={false} /></div>
             )}

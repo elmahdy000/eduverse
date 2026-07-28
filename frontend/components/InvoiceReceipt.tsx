@@ -77,16 +77,6 @@ const THERMAL_PRINT_CSS = `
   }
 
   .thermal-receipt {
-    display: block !important;
-    position: static !important;
-    transform: none !important;
-    width: 74mm !important;
-    max-width: 74mm !important;
-    margin: 0 auto !important;
-    padding: 3mm 2mm 10mm !important;
-    background: #fff !important;
-    color: #000 !important;
-    font-family: 'Cairo', 'Tahoma', sans-serif !important;
     font-size: 11px !important;
     line-height: 1.5 !important;
     direction: rtl !important;
@@ -102,15 +92,6 @@ const THERMAL_PRINT_CSS = `
 }
 `;
 
-/* ══════════════════════════════════════════════════════════════
- * printThermalInvoice
- * الخطوات:
- * 1. Clone عنصر #thermal-invoice-print
- * 2. أضف الـ clone مباشرة لـ document.body (خارج أي Modal/Dialog)
- * 3. أضف <style> في <head> يخفي كل شيء ويظهر الفاتورة فقط
- * 4. window.print()
- * 5. تنظيف بعد الطباعة (afterprint event)
- * ══════════════════════════════════════════════════════════════ */
 export function printThermalInvoice() {
   if (typeof window === "undefined") return;
 
@@ -127,17 +108,17 @@ export function printThermalInvoice() {
   }
 
   const htmlContent = `<!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>معاينة وطباعة الفاتورة - Eduverse</title>
+  <title>طباعة الفاتورة - Eduverse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
   <style>
     @page {
       size: 80mm auto;
-      margin: 0;
+      margin: 0 !important;
     }
     * {
       box-sizing: border-box !important;
@@ -149,7 +130,7 @@ export function printThermalInvoice() {
       padding: 0 !important;
       background: #f1f5f9;
       font-family: 'Cairo', 'Tahoma', sans-serif !important;
-      direction: rtl !important;
+      width: 100% !important;
     }
     .preview-toolbar {
       position: sticky;
@@ -162,6 +143,7 @@ export function printThermalInvoice() {
       justify-content: space-between;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 999;
+      direction: rtl;
     }
     .preview-toolbar h2 {
       margin: 0;
@@ -178,24 +160,22 @@ export function printThermalInvoice() {
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .preview-btn:hover {
-      background: #2563eb;
     }
     .preview-container {
       display: flex;
       justify-content: center;
       padding: 20px 10px;
+      direction: ltr; /* حماية حاوي الصفحة من زحزحة RTL في محرك الطباعة */
     }
     .thermal-receipt-wrap {
       background: #ffffff;
-      width: 76mm;
+      width: 70mm;
+      max-width: 70mm;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       border-radius: 4px;
       overflow: hidden;
+      margin: 0 auto;
+      direction: rtl;
     }
     @media print {
       .preview-toolbar {
@@ -203,21 +183,28 @@ export function printThermalInvoice() {
       }
       .preview-container {
         padding: 0 !important;
+        margin: 0 !important;
+        width: 80mm !important;
+        display: block !important;
       }
       .thermal-receipt-wrap {
         box-shadow: none !important;
-        width: 76mm !important;
+        width: 70mm !important;
+        max-width: 70mm !important;
         margin: 0 auto !important;
+        padding: 0 !important;
+        float: none !important;
       }
       html, body {
         background: #fff !important;
+        width: 80mm !important;
       }
     }
   </style>
 </head>
 <body>
   <div class="preview-toolbar">
-    <h2>🖨️ معاينة طباعة الفاتورة (80mm)</h2>
+    <h2>🖨️ معاينة الفاتورة الحرارية (80mm)</h2>
     <button class="preview-btn" onclick="window.print()">طباعة الفاتورة الأن</button>
   </div>
   <div class="preview-container">

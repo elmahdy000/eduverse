@@ -336,7 +336,6 @@ export function InvoiceReceipt({ invoice, payments = [], onPrint, onDownload }: 
           <div className="rc-status mt-2 rounded-lg border-2 border-slate-900 py-2 text-center text-sm font-black text-slate-900">
             {translateStatus(invoice.paymentStatus)}
           </div>
-        </div>
 
         {/* التذييل */}
         <div className="mt-6 flex flex-col items-center gap-1.5 border-t border-dashed border-slate-100 pt-6 text-center">

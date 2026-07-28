@@ -219,17 +219,19 @@ export class SessionsService {
     } else if (session.billingType === 'flat_event') {
       chargeAmount = Number(session.room?.fixedEventRate ?? 0);
     } else if (session.billingType === 'hourly_room') {
-      const roomHourly = Number(session.room?.wholeRoomHourlyRate ?? session.room?.hourlyRate ?? 100);
+      const roomHourly = Number(session.room?.wholeRoomHourlyRate ?? session.room?.hourlyRate ?? 50);
       chargeAmount = hours * roomHourly;
     } else if (session.sessionType === 'hourly' || session.billingType === 'hourly_individual') {
       let rate: number;
       if (session.room) {
-        rate = Number(session.room.individualHourlyRate ?? session.room.hourlyRate ?? 40);
+        // If room has an explicit individual rate or hourly rate, use it
+        const defaultRate = session.room.name.toLowerCase().includes('outdoor') ? 10 : 20;
+        rate = Number(session.room.individualHourlyRate ?? session.room.hourlyRate ?? defaultRate);
       } else {
         const coworkingRoom = await this.prisma.room.findFirst({
           where: { roomType: 'coworking', hourlyRate: { not: null } },
         });
-        rate = coworkingRoom?.hourlyRate ? Number(coworkingRoom.hourlyRate) : 40;
+        rate = coworkingRoom?.hourlyRate ? Number(coworkingRoom.hourlyRate) : 20;
       }
       chargeAmount = hours * rate;
     } else if (session.sessionType === 'daily') {

@@ -222,7 +222,8 @@ export class RoleGuard implements CanActivate {
         // الريسبشن يصدر فواتير ويسجّل مدفوعات فقط — الـ refund والحذف للمالك (طبقاً للتصميم)
         invoices:   ['read', 'generate'],
         payments:   ['read', 'record'],
-        expenses:   ['read', 'create'],
+        expenses:   ['read', 'create', 'update', 'delete'],
+        users:      ['read', 'manage'],
         dashboards: ['view_reception'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';

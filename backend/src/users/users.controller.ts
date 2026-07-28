@@ -79,8 +79,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(OpsManagerGuard)
-  @ApiOperation({ summary: 'List users with pagination (Owner/Ops Manager)' })
+  @ApiOperation({ summary: 'List users with pagination' })
   async listUsers(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 20,

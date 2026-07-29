@@ -78,6 +78,12 @@ export class BarOrdersController {
     }
   }
 
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get barista dashboard' })
+  async getDashboard() {
+    return this.barOrdersService.getBaristaDashboard();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get bar order details' })
   async getOrder(@Param('id') orderId: string) {

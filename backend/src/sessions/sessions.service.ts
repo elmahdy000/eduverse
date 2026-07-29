@@ -336,6 +336,10 @@ export class SessionsService {
       include: {
         customer: true,
         room: true,
+        booking: true,
+        subscription: true,
+        openedByUser: { select: { id: true, firstName: true, lastName: true, email: true } },
+        closedByUser: { select: { id: true, firstName: true, lastName: true, email: true } },
         barOrders: {
           orderBy: { createdAt: 'desc' },
         },
@@ -367,6 +371,7 @@ export class SessionsService {
         include: {
           customer: true,
           room: true,
+          subscription: true,
           barOrders: {
             where: { status: { not: 'cancelled' } },
           },
@@ -380,6 +385,7 @@ export class SessionsService {
       total,
       page,
       limit,
+      totalPages: Math.ceil(total / limit),
       hasMore: skip + sessions.length < total,
     };
   }
@@ -397,6 +403,9 @@ export class SessionsService {
       throw new BadRequestException('Only active sessions can be cancelled');
     }
 
+    const now = new Date();
+    const durationMinutes = Math.round((now.getTime() - session.startTime.getTime()) / 60000);
+
     const cancelledSession = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.session.update({
         where: { id: sessionId },
@@ -404,7 +413,10 @@ export class SessionsService {
           status: 'cancelled',
           closedByUserId: userId,
           guestCode: null,
+          endTime: now,
+          durationMinutes,
         },
+        include: { customer: true, room: true, booking: true, subscription: true, openedByUser: { select: { id: true, firstName: true, lastName: true, email: true } } },
       });
 
       if (session.roomId) {

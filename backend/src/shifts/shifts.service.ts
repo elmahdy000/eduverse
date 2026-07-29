@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 
 @Injectable()
@@ -65,8 +65,12 @@ export class ShiftsService {
       where: { id: shiftId },
     });
 
-    if (!shift || shift.status === 'closed') {
-      throw new BadRequestException('Shift not found or already closed');
+    if (!shift) {
+      throw new NotFoundException('الشفت غير موجود');
+    }
+
+    if (shift.status === 'closed') {
+      throw new BadRequestException('الشفت مغلق بالفعل');
     }
 
     this.assertCanAccessShift(shift.userId, actor);
@@ -294,7 +298,7 @@ export class ShiftsService {
     });
 
     if (!shift) {
-      throw new BadRequestException('Shift not found');
+      throw new NotFoundException('الشفت غير موجود');
     }
 
     this.assertCanAccessShift(shift.userId, actor);
@@ -357,7 +361,7 @@ export class ShiftsService {
       this.prisma.shift.count(),
     ]);
 
-    return { data, total, page, limit };
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
 

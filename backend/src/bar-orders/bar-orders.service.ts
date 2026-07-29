@@ -206,7 +206,7 @@ export class BarOrdersService {
         const firstUser = await this.prisma.user.findFirst({
           where: { status: 'active' },
         });
-        if (!firstUser) throw new Error('No active user found to create customer');
+        if (!firstUser) throw new BadRequestException('No active user found to create customer');
 
         customer = await this.prisma.customer.create({
           data: {
@@ -229,7 +229,7 @@ export class BarOrdersService {
         const creatorUser = await this.prisma.user.findFirst({
           where: { status: 'active' },
         });
-        if (!creatorUser) throw new Error('No active user found to open session');
+        if (!creatorUser) throw new BadRequestException('No active user found to open session');
 
         await this.prisma.session.create({
           data: {
@@ -338,6 +338,7 @@ export class BarOrdersService {
       total,
       page: safePage,
       limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
       hasMore: skip + orders.length < total,
     };
   }

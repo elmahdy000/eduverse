@@ -33,8 +33,8 @@ export class GuestOrdersController {
   @ApiOperation({ summary: 'Place order using guest code' })
   async placeOrder(@Body() body: { guestCode: string; items: any[]; notes?: string }) {
     try {
-      if (!body.guestCode) throw new Error('Guest code is required');
-      if (!body.items || body.items.length === 0) throw new Error('No items selected');
+      if (!body.guestCode) throw new BadRequestException('Guest code is required');
+      if (!body.items || body.items.length === 0) throw new BadRequestException('No items selected');
 
       const order = await this.barOrdersService.createOrderByGuestCode(
         body.guestCode,
@@ -101,7 +101,7 @@ export class GuestOrdersController {
     @Body('guestCode') guestCode: string,
   ) {
     try {
-      if (!guestCode) throw new Error('Guest code is required');
+      if (!guestCode) throw new BadRequestException('Guest code is required');
       const order = await this.barOrdersService.cancelGuestOrder(orderId, guestCode);
 
       // Emit real-time event

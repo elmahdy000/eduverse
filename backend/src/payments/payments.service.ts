@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { RecordPaymentDto, RefundPaymentDto } from './dto/payment.dto';
 
@@ -22,7 +22,7 @@ export class PaymentsService {
         where: { id: recordPaymentDto.invoiceId },
       });
       if (!invoice) {
-        throw new Error('Invoice not found');
+        throw new NotFoundException('الفاتورة غير موجودة');
       }
 
       // Ensure user has an open shift to record payment
@@ -30,12 +30,12 @@ export class PaymentsService {
         where: { userId, status: 'open' },
       });
       if (!openShift) {
-        throw new Error('يجب فتح شفت أولاً قبل تسجيل أي عملية دفع');
+        throw new BadRequestException('يجب فتح شفت أولاً قبل تسجيل أي عملية دفع');
       }
 
       const remainingAmount = Number(invoice.remainingAmount);
       if (recordPaymentDto.amount > remainingAmount) {
-        throw new Error('Payment amount exceeds remaining invoice amount');
+        throw new BadRequestException('Payment amount exceeds remaining invoice amount');
       }
 
       const payment = await tx.payment.create({
@@ -63,7 +63,7 @@ export class PaymentsService {
       });
 
       if (updated.count !== 1) {
-        throw new Error('Failed to update invoice payment state');
+        throw new InternalServerErrorException('Failed to update invoice payment state');
       }
 
       return payment;
@@ -127,6 +127,7 @@ export class PaymentsService {
       total,
       page: safePage,
       limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
       hasMore: skip + payments.length < total,
     };
   }
@@ -181,7 +182,7 @@ export class PaymentsService {
         include: { invoice: true },
       });
       if (!payment) {
-        throw new Error('Payment not found');
+        throw new NotFoundException('الدفعة غير موجودة');
       }
 
       // Ensure user has an open shift to record refund
@@ -189,12 +190,12 @@ export class PaymentsService {
         where: { userId, status: 'open' },
       });
       if (!openShift) {
-        throw new Error('يجب فتح شفت أولاً قبل تسجيل أي عملية إرجاع (استرداد مالي)');
+        throw new BadRequestException('يجب فتح شفت أولاً قبل تسجيل أي عملية إرجاع (استرداد مالي)');
       }
 
       const originalAmount = Number(payment.amount);
       if (originalAmount <= 0) {
-        throw new Error('Cannot refund a refund payment');
+        throw new BadRequestException('Cannot refund a refund payment');
       }
 
       const refundAmount = refundDto.amount ?? originalAmount;
@@ -205,7 +206,7 @@ export class PaymentsService {
       const alreadyRefunded = Math.abs(Number(previousRefunds._sum.amount ?? 0));
       const refundableAmount = Number((originalAmount - alreadyRefunded).toFixed(2));
       if (refundAmount > refundableAmount) {
-        throw new Error('Refund amount cannot exceed original payment amount');
+        throw new BadRequestException('Refund amount cannot exceed original payment amount');
       }
 
       const refundPayment = await tx.payment.create({
@@ -240,7 +241,7 @@ export class PaymentsService {
       });
 
       if (updated.count !== 1) {
-        throw new Error('Failed to update invoice after refund');
+        throw new InternalServerErrorException('Failed to update invoice after refund');
       }
 
       return refundPayment;

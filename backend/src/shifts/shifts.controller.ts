@@ -58,7 +58,10 @@ export class ShiftsController {
   @Get()
   @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'List all shifts (Admin only)' })
-  async listShifts() {
-    return this.shiftsService.listShifts();
+  async listShifts(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.shiftsService.listShifts(page ? +page : 1, limit ? +limit : 20);
   }
 }

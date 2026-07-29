@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateBookingDto, UpdateBookingDto } from './dto/booking.dto';
 
@@ -8,7 +8,7 @@ export class BookingsService {
 
   private async validateBookingTimeRange(startTime: Date, endTime: Date) {
     if (startTime >= endTime) {
-      throw new Error('startTime must be before endTime');
+      throw new BadRequestException('startTime must be before endTime');
     }
   }
 

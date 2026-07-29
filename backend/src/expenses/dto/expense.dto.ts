@@ -1,5 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString, IsOptional, IsUUID, IsDateString, IsEnum, IsBoolean, Min } from 'class-validator';
 
+// ── Expenses ──
+
 export class CreateExpenseDto {
   @IsNumber()
   @Min(0.01)
@@ -24,7 +26,7 @@ export class CreateExpenseDto {
 
   @IsEnum(['cash', 'bank_transfer', 'card', 'wallet'])
   @IsNotEmpty()
-  paymentMethod: string; // cash, bank_transfer, card, wallet
+  paymentMethod: string;
 
   @IsString()
   @IsOptional()
@@ -32,7 +34,7 @@ export class CreateExpenseDto {
 
   @IsUUID()
   @IsOptional()
-  linkedUserId?: string; // For salaries
+  linkedUserId?: string;
 
   @IsBoolean()
   @IsOptional()
@@ -40,11 +42,11 @@ export class CreateExpenseDto {
 
   @IsEnum(['weekly', 'monthly', 'yearly'])
   @IsOptional()
-  frequency?: string; // monthly, weekly, yearly
+  frequency?: string;
 
   @IsEnum(['paid', 'pending', 'cancelled'])
   @IsOptional()
-  status?: string; // paid, pending
+  status?: string;
 }
 
 export class UpdateExpenseDto {
@@ -94,6 +96,8 @@ export class UpdateExpenseDto {
   status?: string;
 }
 
+// ── Categories ──
+
 export class CreateCategoryDto {
   @IsString()
   @IsNotEmpty()
@@ -104,10 +108,48 @@ export class CreateCategoryDto {
   description?: string;
 }
 
+export class UpdateCategoryDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+// ── Vendors ──
+
 export class CreateVendorDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsOptional()
+  contactName?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  category?: string;
+}
+
+export class UpdateVendorDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsOptional()

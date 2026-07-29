@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
-import { CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto, CreateVendorDto } from './dto/expense.dto';
+import { CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto, UpdateCategoryDto, CreateVendorDto, UpdateVendorDto } from './dto/expense.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
 
@@ -9,9 +9,10 @@ import { RoleGuard } from '../auth/role.guard';
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
+  // ── Expenses ──
+
   @Post()
   create(@Request() req, @Body() createExpenseDto: CreateExpenseDto) {
-    // نستخدم req.user.userId لأن هذا هو المسمى المتبع في JwtStrategy لهذا المشروع
     return this.expensesService.createExpense(req.user.userId || req.user.id, createExpenseDto);
   }
 
@@ -22,6 +23,8 @@ export class ExpensesController {
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
     @Query('status') status?: string,
+    @Query('paymentMethod') paymentMethod?: string,
+    @Query('search') search?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -31,6 +34,8 @@ export class ExpensesController {
       fromDate,
       toDate,
       status,
+      paymentMethod,
+      search,
       page: page ? +page : 1,
       limit: limit ? +limit : 10,
     });
@@ -41,15 +46,39 @@ export class ExpensesController {
     return this.expensesService.getFinancialSummary({ fromDate, toDate });
   }
 
+  @Get('trend')
+  getMonthlyTrend(@Query('months') months?: string) {
+    return this.expensesService.getMonthlyTrend(months ? +months : 6);
+  }
+
+  @Get('top-vendors')
+  getTopVendors(@Query('limit') limit?: string) {
+    return this.expensesService.getTopVendors(limit ? +limit : 10);
+  }
+
+  // ── Categories ──
+
   @Get('categories')
   findAllCategories() {
     return this.expensesService.findAllCategories();
   }
 
   @Post('categories')
-  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.expensesService.createCategory(createCategoryDto);
+  createCategory(@Body() dto: CreateCategoryDto) {
+    return this.expensesService.createCategory(dto);
   }
+
+  @Patch('categories/:id')
+  updateCategory(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
+    return this.expensesService.updateCategory(id, dto);
+  }
+
+  @Delete('categories/:id')
+  removeCategory(@Param('id') id: string) {
+    return this.expensesService.removeCategory(id);
+  }
+
+  // ── Vendors ──
 
   @Get('vendors')
   findAllVendors() {
@@ -57,9 +86,21 @@ export class ExpensesController {
   }
 
   @Post('vendors')
-  createVendor(@Body() createVendorDto: CreateVendorDto) {
-    return this.expensesService.createVendor(createVendorDto);
+  createVendor(@Body() dto: CreateVendorDto) {
+    return this.expensesService.createVendor(dto);
   }
+
+  @Patch('vendors/:id')
+  updateVendor(@Param('id') id: string, @Body() dto: UpdateVendorDto) {
+    return this.expensesService.updateVendor(id, dto);
+  }
+
+  @Delete('vendors/:id')
+  removeVendor(@Param('id') id: string) {
+    return this.expensesService.removeVendor(id);
+  }
+
+  // ── Single expense ──
 
   @Get(':id')
   findOne(@Param('id') id: string) {

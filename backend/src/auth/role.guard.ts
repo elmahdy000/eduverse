@@ -79,9 +79,8 @@ export class RoleGuard implements CanActivate {
 
 
     if (moduleName === 'users') {
-
+      if (method === 'GET') return 'read';
       return 'manage';
-
     }
 
 

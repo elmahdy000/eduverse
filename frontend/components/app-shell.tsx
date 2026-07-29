@@ -42,6 +42,7 @@ const navGroups: NavGroup[] = [
       { label: "الغرف", href: "/rooms", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <DoorOpen size={14} /> },
       { label: "الحجوزات", href: "/bookings", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <BookOpen size={14} /> },
       { label: "طلبات البار", href: "/bar-orders", roles: ["Owner", "Operations Manager", "Receptionist", "Barista"], icon: <Coffee size={14} /> },
+      { label: "الباقات والاشتراكات", href: "/subscriptions", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <CreditCard size={14} /> },
       { label: "الفواتير والدفع", href: "/billing", roles: ["Owner", "Operations Manager", "Receptionist"], icon: <Receipt size={14} /> },
     ],
   },

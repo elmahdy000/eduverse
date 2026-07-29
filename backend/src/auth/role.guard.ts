@@ -185,33 +185,24 @@ export class RoleGuard implements CanActivate {
 
 
 
-    if (role.name === 'Owner') {
+    const rName = (role.name || '').toLowerCase().trim();
 
+    if (rName === 'owner' || rName.includes('owner')) {
       return true;
-
     }
-
-
 
     const moduleName = this.resolveModule(request);
 
     if (!moduleName) {
-
       // رفض افتراضي: لو مقدرناش نحدد الموديول، مانسمحش (deny by default)
       // بدل ما نفتح الباب لأي راوت غير متوقع.
-
       throw new ForbiddenException('Unable to resolve permission scope for this route');
-
     }
-
-
 
     const action = this.resolveAction(request, moduleName);
 
-
-
     // Receptionist: precise action-level bypass (matches roles_permissions.md)
-    if (role.name === 'Receptionist') {
+    if (rName === 'receptionist' || rName.includes('reception')) {
       const receptionist: Record<string, string[]> = {
         sessions:   ['read', 'create', 'update', 'close', 'cancel'],
         bookings:   ['read', 'create', 'update', 'cancel', 'complete', 'no_show'],
@@ -223,27 +214,55 @@ export class RoleGuard implements CanActivate {
         invoices:   ['read', 'generate'],
         payments:   ['read', 'record'],
         expenses:   ['read', 'create', 'update', 'delete'],
+        shifts:     ['read', 'create', 'close'],
         users:      ['read', 'manage'],
-        dashboards: ['view_reception'],
+        dashboards: ['view_reception', 'read'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = receptionist[moduleName] ?? receptionist[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException('Insufficient permissions for Receptionist');
     }
 
-    if (role.name === 'Barista') {
+    if (rName === 'barista' || rName.includes('barista')) {
       const barista: Record<string, string[]> = {
         bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
         products:   ['read'],
         customers:  ['read'],
         sessions:   ['read'],
-        dashboards: ['view_barista'],
+        expenses:   ['read', 'create'],
+        users:      ['read'],
+        dashboards: ['view_barista', 'read'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = barista[moduleName] ?? barista[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException('Insufficient permissions for Barista');
+    }
+
+    // Operations Manager: full access like Owner except user deletion and some admin actions
+    if (rName === 'operations manager' || rName.includes('manager')) {
+      const opsManager: Record<string, string[]> = {
+        sessions:    ['read', 'create', 'update', 'close', 'cancel'],
+        bookings:    ['read', 'create', 'update', 'cancel', 'complete', 'no_show'],
+        customers:   ['read', 'create', 'update', 'deactivate', 'blacklist', 'reactivate'],
+        rooms:       ['read', 'create', 'update', 'deactivate', 'reactivate'],
+        products:    ['read', 'create', 'update', 'delete', 'deactivate'],
+        bar_orders:  ['read', 'create', 'update', 'cancel', 'items'],
+        invoices:    ['read', 'generate'],
+        payments:    ['read', 'record', 'refund'],
+        expenses:    ['read', 'create', 'update', 'delete'],
+        inventory:   ['read', 'create', 'update', 'delete'],
+        shifts:      ['read', 'create', 'close'],
+        users:       ['read', 'manage'],
+        audit_logs:  ['read'],
+        dashboards:  ['view_ops_manager', 'view_reception', 'view_barista', 'read'],
+        owner_reports: ['read'],
+      };
+      const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
+      const allowed = opsManager[moduleName] ?? opsManager[normalizedModule];
+      if (allowed && allowed.includes(action)) return true;
+      throw new ForbiddenException('Insufficient permissions for Operations Manager');
     }
 
     const permission = await this.prisma.permission.findUnique({

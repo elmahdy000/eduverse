@@ -120,6 +120,11 @@ async function main() {
     { module: 'invoices', action: 'generate' },
     { module: 'payments', action: 'read' },
     { module: 'payments', action: 'record' },
+    { module: 'expenses', action: 'read' },
+    { module: 'expenses', action: 'create' },
+    { module: 'expenses', action: 'update' },
+    { module: 'expenses', action: 'delete' },
+    { module: 'users', action: 'read' },
     { module: 'dashboards', action: 'view_reception' },
   ];
 

@@ -151,9 +151,26 @@ model Room {
 // CUSTOMER SUBSCRIPTIONS / PACKAGES
 // ============================================================================
 
+model SubscriptionPlan {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String   // e.g. "باقة يومية", "باقة أسبوعية", "باقة شهرية"
+  packageType   String   @unique // daily, weekly, monthly
+  durationDays  Int      // 1, 7, 30
+  price         Decimal  @db.Decimal(10, 2)
+  description   String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions CustomerSubscription[]
+
+  @@map("subscription_plans")
+}
+
 model CustomerSubscription {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   customerId   String   @db.Uuid
+  planId       String?  @db.Uuid
   packageType  String   // daily, weekly, monthly
   startDate    DateTime
   endDate      DateTime
@@ -163,11 +180,13 @@ model CustomerSubscription {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  customer Customer  @relation(fields: [customerId], references: [id])
+  customer Customer          @relation(fields: [customerId], references: [id])
+  plan     SubscriptionPlan? @relation(fields: [planId], references: [id])
   sessions Session[]
 
   @@index([customerId])
   @@index([status])
+  @@index([planId])
   @@map("customer_subscriptions")
 }
 

@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../common/prisma/prisma.service';
 
@@ -7,6 +7,8 @@ import { PrismaService } from '../common/prisma/prisma.service';
 @Injectable()
 
 export class RoleGuard implements CanActivate {
+
+  private readonly logger = new Logger(RoleGuard.name);
 
   constructor(private prisma: PrismaService) {}
 
@@ -156,10 +158,11 @@ export class RoleGuard implements CanActivate {
 
     const user = request.user;
 
-
+    const url = request.originalUrl || request.url;
+    const method = request.method;
 
     if (!user || !user.roleId) {
-
+      this.logger.warn(`[DENIED] ${method} ${url} — no user or roleId (user: ${JSON.stringify(user)})`);
       throw new ForbiddenException('User not authenticated');
 
     }
@@ -177,7 +180,7 @@ export class RoleGuard implements CanActivate {
 
 
     if (!role) {
-
+      this.logger.warn(`[DENIED] ${method} ${url} — role not found for roleId=${user.roleId}`);
       throw new ForbiddenException('User role not found');
 
     }
@@ -193,12 +196,13 @@ export class RoleGuard implements CanActivate {
     const moduleName = this.resolveModule(request);
 
     if (!moduleName) {
-      // رفض افتراضي: لو مقدرناش نحدد الموديول، مانسمحش (deny by default)
-      // بدل ما نفتح الباب لأي راوت غير متوقع.
+      this.logger.warn(`[DENIED] ${method} ${url} — could not resolve module (baseUrl=${request.baseUrl}, originalUrl=${url})`);
       throw new ForbiddenException('Unable to resolve permission scope for this route');
     }
 
     const action = this.resolveAction(request, moduleName);
+
+    this.logger.debug(`[CHECK] ${method} ${url} — role="${role.name}" module="${moduleName}" action="${action}"`);
 
     // Receptionist: precise action-level bypass (matches roles_permissions.md)
     if (rName === 'receptionist' || rName.includes('reception')) {
@@ -209,17 +213,18 @@ export class RoleGuard implements CanActivate {
         rooms:      ['read'],
         products:   ['read', 'create', 'update', 'deactivate'],
         bar_orders: ['read', 'create', 'update', 'cancel', 'items'],
-        // الريسبشن يصدر فواتير ويسجّل مدفوعات فقط — الـ refund والحذف للمالك (طبقاً للتصميم)
         invoices:   ['read', 'generate'],
         payments:   ['read', 'record'],
         expenses:   ['read', 'create', 'update', 'delete'],
         shifts:     ['read', 'create', 'close'],
         users:      ['read', 'manage'],
+        subscriptions: ['read', 'create', 'update', 'cancel'],
         dashboards: ['view_reception', 'read'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = receptionist[moduleName] ?? receptionist[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
+      this.logger.warn(`[DENIED] ${method} ${url} — Receptionist not allowed: module="${moduleName}" action="${action}" (allowed=${JSON.stringify(allowed)})`);
       throw new ForbiddenException('Insufficient permissions for Receptionist');
     }
 
@@ -231,11 +236,13 @@ export class RoleGuard implements CanActivate {
         sessions:   ['read'],
         expenses:   ['read', 'create'],
         users:      ['read'],
+        subscriptions: ['read'],
         dashboards: ['view_barista', 'read'],
       };
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = barista[moduleName] ?? barista[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
+      this.logger.warn(`[DENIED] ${method} ${url} — Barista not allowed: module="${moduleName}" action="${action}" (allowed=${JSON.stringify(allowed)})`);
       throw new ForbiddenException('Insufficient permissions for Barista');
     }
 
@@ -254,6 +261,7 @@ export class RoleGuard implements CanActivate {
         inventory:   ['read', 'create', 'update', 'delete'],
         shifts:      ['read', 'create', 'close'],
         users:       ['read', 'manage'],
+        subscriptions: ['read', 'create', 'update', 'delete', 'cancel'],
         audit_logs:  ['read'],
         dashboards:  ['view_ops_manager', 'view_reception', 'view_barista', 'read'],
         owner_reports: ['read'],
@@ -261,7 +269,15 @@ export class RoleGuard implements CanActivate {
       const normalizedModule = moduleName.endsWith('s') ? moduleName : moduleName + 's';
       const allowed = opsManager[moduleName] ?? opsManager[normalizedModule];
       if (allowed && allowed.includes(action)) return true;
+      this.logger.warn(`[DENIED] ${method} ${url} — Ops Manager not allowed: module="${moduleName}" action="${action}" (allowed=${JSON.stringify(allowed)})`);
       throw new ForbiddenException('Insufficient permissions for Operations Manager');
+    }
+
+    // Fallback: any other active staff gets read/create on core modules
+    const coreModules = ['expenses', 'users', 'dashboards', 'products', 'customers', 'shifts', 'subscriptions'];
+    if (coreModules.includes(moduleName) && (action === 'read' || action === 'create')) {
+      this.logger.debug(`[ALLOWED] ${method} ${url} — fallback grant for role="${role.name}" on ${moduleName}:${action}`);
+      return true;
     }
 
     const permission = await this.prisma.permission.findUnique({
@@ -275,9 +291,7 @@ export class RoleGuard implements CanActivate {
     });
 
     if (!permission) {
-      if (['expenses', 'users', 'dashboards', 'products', 'customers', 'shifts'].includes(moduleName) && (action === 'read' || action === 'create')) {
-        return true;
-      }
+      this.logger.warn(`[DENIED] ${method} ${url} — no permission mapping for ${moduleName}:${action}, role="${role.name}"`);
       throw new ForbiddenException(
         `No permission mapping found for ${moduleName}:${action}`,
       );
@@ -296,9 +310,7 @@ export class RoleGuard implements CanActivate {
     });
 
     if (!rolePermission) {
-      if (['expenses', 'users', 'dashboards', 'products', 'customers', 'shifts'].includes(moduleName) && (action === 'read' || action === 'create')) {
-        return true;
-      }
+      this.logger.warn(`[DENIED] ${method} ${url} — role="${role.name}" lacks permission ${moduleName}:${action}`);
       throw new ForbiddenException('Insufficient permissions');
     }
 
@@ -342,18 +354,13 @@ export class OwnerGuard implements CanActivate {
 
 
 
-    if (!role || role.name !== 'Owner') {
-
+    const rName = (role?.name || '').toLowerCase().trim();
+    if (!role || (!rName.includes('owner') && rName !== 'owner')) {
       throw new ForbiddenException('Only Owner can access this resource');
-
     }
 
-
-
     return true;
-
   }
-
 }
 
 
@@ -390,56 +397,35 @@ export class OpsManagerGuard implements CanActivate {
 
 
 
-    if (!role || (role.name !== 'Owner' && role.name !== 'Operations Manager')) {
-
+    const rName = (role?.name || '').toLowerCase().trim();
+    if (!role || (!rName.includes('owner') && !rName.includes('manager') && rName !== 'operations manager')) {
       throw new ForbiddenException(
-
         'Only Owner or Operations Manager can access this resource',
-
       );
-
     }
-
-
 
     return true;
-
   }
-
 }
 
-
-
 @Injectable()
-
 export class ReceptionistGuard implements CanActivate {
-
   constructor(private prisma: PrismaService) {}
 
-
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
-
     const request = context.switchToHttp().getRequest();
-
     const user = request.user;
 
-
-
     if (!user || !user.roleId) {
-
       throw new ForbiddenException('User not authenticated');
-
     }
 
-
-
     const role = await this.prisma.role.findUnique({
-
       where: { id: user.roleId },
-
     });
-    if (!role || role.name !== 'Receptionist') {
+
+    const recRole = (role?.name || '').toLowerCase().trim();
+    if (!role || (!recRole.includes('reception') && recRole !== 'receptionist')) {
       throw new ForbiddenException(
         'Only Receptionist can access this resource',
       );
@@ -465,7 +451,8 @@ export class BaristaGuard implements CanActivate {
       where: { id: user.roleId },
     });
 
-    if (!role || role.name !== 'Barista') {
+    const bName = (role?.name || '').toLowerCase().trim();
+    if (!role || (!bName.includes('barista') && bName !== 'barista')) {
       throw new ForbiddenException(
         'Only Barista can access this resource',
       );

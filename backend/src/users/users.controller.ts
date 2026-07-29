@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { OwnerGuard, OpsManagerGuard } from '../auth/role.guard';
+import { OwnerGuard, OpsManagerGuard, RoleGuard } from '../auth/role.guard';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -79,6 +79,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(RoleGuard)
   @ApiOperation({ summary: 'List users with pagination' })
   async listUsers(
     @Query('page') page: number = 1,

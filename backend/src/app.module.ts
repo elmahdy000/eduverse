@@ -23,6 +23,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { ShiftsModule } from './shifts/shifts.module';
 import { OwnerReportsModule } from './owner-reports/owner-reports.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { RealtimeModule } from './realtime/realtime.module';
     ShiftsModule,
     OwnerReportsModule,
     RealtimeModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [

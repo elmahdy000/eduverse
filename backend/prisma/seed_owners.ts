@@ -32,15 +32,14 @@ async function main() {
     });
 
     if (!existing) {
-      const created = await prisma.customer.create({
-        data: {
-          fullName: owner.fullName,
-          phoneNumber: owner.phoneNumber,
-          customerType: 'owner_discount',
-          notes: 'مالك مكان - خصم 50% للحجوزات و 70% للبار',
-          createdByUserId: createdById,
-        }
-      });
+      const createData: any = {
+        fullName: owner.fullName,
+        phoneNumber: owner.phoneNumber,
+        customerType: 'owner_discount',
+        notes: 'مالك مكان - خصم 50% للحجوزات و 70% للبار',
+      };
+      if (createdById) createData.createdByUserId = createdById;
+      const created = await prisma.customer.create({ data: createData });
       console.log(` Created owner customer: ${created.fullName} (${created.id})`);
     } else {
       const updated = await prisma.customer.update({

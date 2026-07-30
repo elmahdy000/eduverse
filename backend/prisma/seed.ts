@@ -379,8 +379,8 @@ async function main() {
   const rooms = [
     { name: 'قاعة الاجتماعات الكبرى', roomType: 'meeting', capacity: 12, hourlyRate: 150, individualHourlyRate: 30 },
     { name: 'منطقة العمل المشترك (Outdoor)', roomType: 'coworking', capacity: 25, hourlyRate: 10, individualHourlyRate: 10 },
-    { name: 'منطقة العمل المشترك (Space)', roomType: 'coworking', capacity: 20, hourlyRate: 20, individualHourlyRate: 20 },
-    { name: 'غرفة مذاكرة هادئة', roomType: 'study', capacity: 4, hourlyRate: 20, individualHourlyRate: 20 },
+    { name: 'منطقة العمل المشترك (Space)', roomType: 'coworking', capacity: 20, hourlyRate: 10, individualHourlyRate: 10 },
+    { name: 'غرفة مذاكرة هادئة', roomType: 'study', capacity: 4, hourlyRate: 10, individualHourlyRate: 10 },
   ];
 
   for (const r of rooms) {

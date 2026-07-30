@@ -266,9 +266,8 @@ export class SessionsService {
       let rate: number;
       if (session.room) {
         // If room has an explicit individual rate or hourly rate, use it
-        const defaultRate = session.room.name.toLowerCase().includes('outdoor')
-          ? 10
-          : 20;
+        // Default: 10 EGP/hr per person for all coworking/cafe areas
+        const defaultRate = 10;
         rate = Number(
           session.room.individualHourlyRate ??
             session.room.hourlyRate ??
@@ -280,7 +279,7 @@ export class SessionsService {
         });
         rate = coworkingRoom?.hourlyRate
           ? Number(coworkingRoom.hourlyRate)
-          : 20;
+          : 10;
       }
       chargeAmount = hours * rate;
     } else if (session.sessionType === 'daily') {

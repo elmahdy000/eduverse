@@ -165,7 +165,8 @@ export default function SessionsPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   // معلومات الجلسة المقفولة للملخص (المدة + عدد أصناف البار)
   const [closedInfo, setClosedInfo] = useState<{ durationMinutes?: number | null } | null>(null);
-  const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string } | null>(null);
+  const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string; session?: Session } | null>(null);
+  const [closeDiscount, setCloseDiscount] = useState("");
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
   const [payNotes, setPayNotes] = useState("");
@@ -246,7 +247,11 @@ export default function SessionsPage() {
   });
 
   const closeMutation = useMutation({
-    mutationFn: async (sessionId: string) => (await api.post(`/sessions/${sessionId}/close`, { notes: "تم الإنهاء من شاشة الإدارة" })).data,
+    mutationFn: async ({ sessionId, chargeOverride }: { sessionId: string; chargeOverride?: number }) =>
+      (await api.post(`/sessions/${sessionId}/close`, {
+        notes: "تم الإنهاء من شاشة الإدارة",
+        ...(chargeOverride !== undefined ? { chargeAmount: chargeOverride } : {}),
+      })).data,
     onSuccess: (data: any) => {
       setMessage({ text: "تم إنهاء الجلسة بنجاح.", ok: true });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
@@ -254,6 +259,7 @@ export default function SessionsPage() {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       if (data?.data?.invoice) setSelectedInvoice(data.data.invoice);
       setClosedInfo({ durationMinutes: data?.data?.durationMinutes ?? null });
+      setCloseDiscount("");
       setTimeout(() => setMessage(null), 3000);
     },
     onError: (err: unknown) => setMessage({ text: translateApiError((err as any)?.response?.data?.message), ok: false }),
@@ -366,7 +372,7 @@ export default function SessionsPage() {
                   <ActiveSessionCard
                     key={s.id}
                     session={s}
-                    onClose={(id) => setPendingSessionAction({ id, action: "close", customerName: s.customer?.fullName })}
+                    onClose={(id) => setPendingSessionAction({ id, action: "close", customerName: s.customer?.fullName, session: s })}
                     onCancel={(id) => setPendingSessionAction({ id, action: "cancel", customerName: s.customer?.fullName })}
                     isClosing={closeMutation.isPending}
                     isCancelling={cancelMutation.isPending}
@@ -453,7 +459,7 @@ export default function SessionsPage() {
                         <td className="py-3">
                           {session.status === "active" && (
                             <button
-                              onClick={() => setPendingSessionAction({ id: session.id, action: "close", customerName: session.customer?.fullName })}
+                              onClick={() => setPendingSessionAction({ id: session.id, action: "close", customerName: session.customer?.fullName, session })}
                               disabled={closeMutation.isPending}
                               className="rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 opacity-0 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 disabled:opacity-50"
                             >
@@ -734,36 +740,125 @@ export default function SessionsPage() {
       </Modal>
 
       {/* ── مودال تأكيد إنهاء/إلغاء الجلسة ── */}
-      <Modal isOpen={Boolean(pendingSessionAction)} onClose={() => setPendingSessionAction(null)} title={pendingSessionAction?.action === "close" ? "إنهاء الجلسة وإصدار الفاتورة" : "إلغاء الجلسة"} size="sm">
-        <div className="space-y-4">
-          {pendingSessionAction?.action === "close" && !currentShiftQuery.data && (
-            <Alert tone="danger">
-              تنبيه: لا يوجد وردية (Shift) مفتوحة حالياً. يجب فتح وردية أولاً لتتمكن من إغلاق الجلسة وتحصيل الحساب.
-              <br />
-              يمكنك فتح وردية جديدة من صفحة <Link href="/shifts" className="underline font-bold hover:text-red-800 transition-colors">الورديات</Link>.
-            </Alert>
-          )}
-          <Alert tone={pendingSessionAction?.action === "close" ? "warn" : "danger"}>
-            {pendingSessionAction?.action === "close"
-              ? `سيتم إنهاء جلسة ${pendingSessionAction.customerName ?? "العميل"} وحساب المدة وإصدار الفاتورة. هل تريد المتابعة؟`
-              : `سيتم إلغاء جلسة ${pendingSessionAction?.customerName ?? "العميل"} بدون إصدار فاتورة. هل أنت متأكد؟`}
-          </Alert>
-          <div className="flex gap-2">
-            <Btn 
-              variant={pendingSessionAction?.action === "close" ? "warn" : "danger"} 
-              loading={closeMutation.isPending || cancelMutation.isPending} 
-              disabled={pendingSessionAction?.action === "close" && !currentShiftQuery.data}
-              onClick={() => {
-                if (!pendingSessionAction) return;
-                const mutation = pendingSessionAction.action === "close" ? closeMutation : cancelMutation;
-                mutation.mutate(pendingSessionAction.id, { onSuccess: () => setPendingSessionAction(null) });
-              }}
-            >
-              {pendingSessionAction?.action === "close" ? "إنهاء وإصدار الفاتورة" : "تأكيد الإلغاء"}
-            </Btn>
-            <Btn variant="ghost" onClick={() => setPendingSessionAction(null)}>رجوع</Btn>
-          </div>
-        </div>
+      <Modal
+        isOpen={Boolean(pendingSessionAction)}
+        onClose={() => { setPendingSessionAction(null); setCloseDiscount(""); }}
+        title={pendingSessionAction?.action === "close" ? "إنهاء الجلسة وإصدار الفاتورة" : "إلغاء الجلسة"}
+        size="sm"
+      >
+        {(() => {
+          if (!pendingSessionAction) return null;
+          const sess = pendingSessionAction.session;
+          const isClose = pendingSessionAction.action === "close";
+
+          // Is this a meeting/lecture room billed at 200 EGP/hr?
+          const MEETING_RATE = 200;
+          const isMeetingOrLecture = isClose && sess?.room && (
+            sess.billingType === "hourly_room" ||
+            sess.room.name?.toLowerCase().includes("lecture") ||
+            sess.room.name?.toLowerCase().includes("ميتنج") ||
+            sess.room.name?.toLowerCase().includes("meeting")
+          );
+
+          // Live elapsed hours (from startTime to now)
+          const elapsedMinutes = sess?.startTime
+            ? Math.ceil((Date.now() - new Date(sess.startTime).getTime()) / 60000)
+            : 0;
+          const elapsedHours = Math.max(1, Math.ceil(elapsedMinutes / 60));
+          const baseAmount = isMeetingOrLecture ? elapsedHours * MEETING_RATE : null;
+          const discountVal = Number(closeDiscount) || 0;
+          const finalAmount = baseAmount !== null ? Math.max(0, baseAmount - discountVal) : null;
+
+          return (
+            <div className="space-y-4">
+              {isClose && !currentShiftQuery.data && (
+                <Alert tone="danger">
+                  تنبيه: لا يوجد وردية (Shift) مفتوحة حالياً. يجب فتح وردية أولاً لتتمكن من إغلاق الجلسة.
+                  <br />
+                  <Link href="/shifts" className="underline font-bold hover:text-red-800 transition-colors">افتح وردية جديدة</Link>
+                </Alert>
+              )}
+
+              {/* Smart price breakdown for meeting/lecture rooms */}
+              {isMeetingOrLecture && baseAmount !== null && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 space-y-3">
+                  <p className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                    <Coffee size={14} /> حساب الجلسة — {sess?.room?.name}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="rounded-xl bg-white border border-amber-100 p-2">
+                      <p className="text-[10px] font-bold text-slate-500">المدة</p>
+                      <p className="text-base font-black text-slate-900 font-mono">{elapsedHours} س</p>
+                    </div>
+                    <div className="rounded-xl bg-white border border-amber-100 p-2">
+                      <p className="text-[10px] font-bold text-slate-500">السعر/ساعة</p>
+                      <p className="text-base font-black text-amber-700 font-mono">{MEETING_RATE} ج</p>
+                    </div>
+                    <div className="rounded-xl bg-white border border-amber-100 p-2">
+                      <p className="text-[10px] font-bold text-slate-500">الإجمالي</p>
+                      <p className="text-base font-black text-emerald-700 font-mono">{baseAmount} ج</p>
+                    </div>
+                  </div>
+
+                  {/* Discount field */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">خصم (جنيه) — اختياري</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={closeDiscount}
+                      onChange={(e) => setCloseDiscount(e.target.value)}
+                      placeholder="0"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none focus:border-amber-500 font-mono"
+                    />
+                  </div>
+
+                  {/* Final amount */}
+                  <div className="flex items-center justify-between rounded-xl bg-emerald-600 text-white px-4 py-2.5">
+                    <span className="text-xs font-black">المبلغ النهائي بعد الخصم</span>
+                    <span className="text-lg font-black font-mono">{finalAmount} جنيه</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Default message for non-meeting sessions */}
+              {!isMeetingOrLecture && (
+                <Alert tone={isClose ? "warn" : "danger"}>
+                  {isClose
+                    ? `سيتم إنهاء جلسة ${pendingSessionAction.customerName ?? "العميل"} وحساب المدة وإصدار الفاتورة.`
+                    : `سيتم إلغاء جلسة ${pendingSessionAction?.customerName ?? "العميل"} بدون إصدار فاتورة. هل أنت متأكد؟`}
+                </Alert>
+              )}
+
+              <div className="flex gap-2">
+                <Btn
+                  variant={isClose ? "warn" : "danger"}
+                  loading={closeMutation.isPending || cancelMutation.isPending}
+                  disabled={isClose && !currentShiftQuery.data}
+                  onClick={() => {
+                    if (!pendingSessionAction) return;
+                    if (pendingSessionAction.action === "close") {
+                      closeMutation.mutate(
+                        {
+                          sessionId: pendingSessionAction.id,
+                          chargeOverride: finalAmount !== null ? finalAmount : undefined,
+                        },
+                        { onSuccess: () => setPendingSessionAction(null) }
+                      );
+                    } else {
+                      cancelMutation.mutate(pendingSessionAction.id, {
+                        onSuccess: () => setPendingSessionAction(null),
+                      });
+                    }
+                  }}
+                >
+                  {isClose ? `إنهاء وإصدار الفاتورة${finalAmount !== null ? ` — ${finalAmount} ج` : ""}` : "تأكيد الإلغاء"}
+                </Btn>
+                <Btn variant="ghost" onClick={() => { setPendingSessionAction(null); setCloseDiscount(""); }}>رجوع</Btn>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
         </div>
       </div>

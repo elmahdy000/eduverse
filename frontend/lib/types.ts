@@ -55,6 +55,7 @@ export interface Session {
   id: string;
   customerId: string;
   sessionType: string;
+  billingType?: string | null;
   status: string;
   startTime: string;
   endTime?: string | null;
@@ -63,6 +64,9 @@ export interface Session {
   room?: {
     id: string;
     name: string;
+    roomType?: string | null;
+    hourlyRate?: string | number | null;
+    wholeRoomHourlyRate?: string | number | null;
   } | null;
   chargeAmount?: string | number | null;
   customer?: Customer;

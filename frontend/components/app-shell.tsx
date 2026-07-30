@@ -691,11 +691,11 @@ export function AppShell({ children }: PropsWithChildren) {
       api
         .get("/shifts/current")
         .then((res) => {
-          if (!res.data) return api.post("/shifts/start", { startCash: 0 });
+          if (!res.data?.data && !res.data?.id) return api.post("/shifts/start", { startCash: 0 });
         })
         .catch((err) => {
           if (err.response?.status === 404) {
-            api.post("/shifts/start", { startCash: 0 }).catch(console.error);
+            api.post("/shifts/start", { startCash: 0 }).catch(() => {});
           }
         });
     }

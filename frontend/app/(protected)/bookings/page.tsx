@@ -877,10 +877,10 @@ export default function BookingsPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                     {[
                       { match: "elmahdy", label: "د. محمود المهدي" },
-                      { match: "khaled", label: "أ. خالد صلاح" },
-                      { match: "ezz", label: "أ. محمود عز" },
+                      { match: "khaled", label: "م. خالد صلاح" },
+                      { match: "ezz", label: "م. محمود عز" },
                       { match: "abdelazim", label: "أ. محمد عبد العظيم" },
-                      { match: "elbaz", label: "أ. ندى الباز" },
+                      { match: "elbaz", label: "م. ندى الباز" },
                       { match: "abd rabou", label: "أ. محمود عبد ربه" },
                       { match: "eng.mohamed", label: "م. محمد" }
                     ].map(o => {

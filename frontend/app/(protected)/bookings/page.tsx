@@ -103,14 +103,10 @@ export default function BookingsPage() {
   });
 
   const customersQuery = useQuery({
-    queryKey: ["customers", "for-bookings", customerSearchQuery],
+    queryKey: ["customers", "for-bookings-all"],
     enabled: isAllowed,
     queryFn: async () => {
-      const params: Record<string, any> = { page: 1, limit: 100 };
-      if (customerSearchQuery.trim()) {
-        params.name = customerSearchQuery.trim();
-      }
-      const response = await api.get("/customers", { params });
+      const response = await api.get("/customers", { params: { page: 1, limit: 500 } });
       return response.data.data as Paginated<Customer>;
     },
   });
@@ -161,7 +157,16 @@ export default function BookingsPage() {
     const list = customersQuery.data?.data ?? [];
     const q = customerSearchQuery.trim().toLowerCase();
 
-    // Helper to check if customer is owner
+    // Arabic normalization helper (أ إ آ -> ا, ة -> ه, ى -> ي)
+    const normalize = (text: string) => {
+      return (text || "")
+        .toLowerCase()
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[\u064B-\u0652]/g, ""); // remove harakat
+    };
+
     const isOwnerCustomer = (c: Customer) => {
       const name = (c.fullName || "").toLowerCase();
       const notes = (c.notes || "").toLowerCase();
@@ -178,14 +183,14 @@ export default function BookingsPage() {
     let results = list;
 
     if (q) {
-      const tokens = q.split(/\s+/).filter(Boolean);
+      const qNorm = normalize(q);
+      const tokens = qNorm.split(/\s+/).filter(Boolean);
       results = list.filter(c => {
-        const fullName = (c.fullName || "").toLowerCase();
-        const phone = (c.phoneNumber || "").toLowerCase();
-        const phone2 = (c.phoneNumberSecondary || "").toLowerCase();
-        const notes = (c.notes || "").toLowerCase();
+        const fullName = normalize(c.fullName || "");
+        const phone = normalize(c.phoneNumber || "");
+        const phone2 = normalize(c.phoneNumberSecondary || "");
+        const notes = normalize(c.notes || "");
         const combined = `${fullName} ${phone} ${phone2} ${notes}`;
-        // Match all search tokens against combined string
         return tokens.every(token => combined.includes(token));
       });
     }

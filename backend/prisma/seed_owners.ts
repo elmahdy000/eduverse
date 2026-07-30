@@ -32,27 +32,27 @@ async function main() {
     });
 
     if (!existing) {
-      const data: any = {
-        fullName: owner.fullName,
-        phoneNumber: owner.phoneNumber,
-        customerType: owner.customerType,
-        notes: 'مالك مكان - خصم 70%',
-      };
-      if (createdById) {
-        data.createdByUserId = createdById;
-      }
-      const created = await prisma.customer.create({ data });
+      const created = await prisma.customer.create({
+        data: {
+          fullName: owner.fullName,
+          phoneNumber: owner.phoneNumber,
+          customerType: 'owner_discount',
+          notes: 'مالك مكان - خصم 50% للحجوزات و 70% للبار',
+          createdByUserId: createdById,
+        }
+      });
       console.log(` Created owner customer: ${created.fullName} (${created.id})`);
     } else {
       const updated = await prisma.customer.update({
         where: { id: existing.id },
         data: {
           fullName: owner.fullName,
+          phoneNumber: owner.phoneNumber,
           customerType: 'owner_discount',
-          notes: 'مالك مكان - خصم 70%'
+          notes: 'مالك مكان - خصم 50% للحجوزات و 70% للبار'
         }
       });
-      console.log(` Updated owner customer: ${updated.fullName} -> owner_discount (70%)`);
+      console.log(` Updated owner customer: ${updated.fullName} -> owner_discount`);
     }
   }
 

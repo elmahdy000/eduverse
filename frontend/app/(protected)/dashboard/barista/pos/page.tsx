@@ -376,15 +376,17 @@ export default function BaristaPOSPage() {
   const staffQuery = useQuery({
     queryKey: ["customers", "staff-list"],
     queryFn: async () => {
-      const [staffRes, ownersRes] = await Promise.all([
-        api.get("/customers", { params: { customerType: "staff", limit: 200 } }),
+      const [ownersRes, staffRes] = await Promise.all([
         api.get("/customers", { params: { customerType: "owner_discount", limit: 200 } }),
+        api.get("/customers", { params: { customerType: "staff", limit: 200 } }),
       ]);
       const extract = (res: any): Customer[] => {
         const d = res.data.data;
         return Array.isArray(d) ? d : (d?.data ?? []);
       };
-      return [...extract(staffRes), ...extract(ownersRes)];
+      const owners = extract(ownersRes);
+      const staff = extract(staffRes);
+      return [...owners, ...staff];
     },
   });
 

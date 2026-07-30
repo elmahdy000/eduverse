@@ -182,23 +182,38 @@ async function main() {
   // 6. Create Customers (Including Staff/Owners for discounts)
   console.log('👥 Creating customers...');
   const customers = [
-    { fullName: 'المهدي (مالك)', phoneNumber: '01000000000', customerType: 'owner_discount' },
-    { fullName: 'أحمد علي (موظف)', phoneNumber: '01011111111', customerType: 'staff' },
-    { fullName: 'محمد محمود (مالك)', phoneNumber: '01022222222', customerType: 'owner_discount' },
-    { fullName: 'سارة حسن (طالب)', phoneNumber: '01033333333', customerType: 'student' },
-    { fullName: 'ياسين كمال (زائر)', phoneNumber: '01044444444', customerType: 'visitor' },
     { fullName: 'Mahmoud Elmahdy', phoneNumber: '01000000001', customerType: 'owner_discount' },
     { fullName: 'Khaled Salah', phoneNumber: '01000000002', customerType: 'owner_discount' },
     { fullName: 'Mahmoud Ezz', phoneNumber: '01000000003', customerType: 'owner_discount' },
-    { fullName: 'Mahmoud Abd-elrabo', phoneNumber: '01000000004', customerType: 'owner_discount' },
+    { fullName: 'Mahmoud Abd Rabou', phoneNumber: '01000000004', customerType: 'owner_discount' },
     { fullName: 'Mohamed Abdelazim', phoneNumber: '01000000005', customerType: 'owner_discount' },
     { fullName: 'Nada Elbaz', phoneNumber: '01000000006', customerType: 'owner_discount' },
+    { fullName: 'Eng. Mohamed', phoneNumber: '01000000007', customerType: 'owner_discount' },
+    { fullName: 'أحمد علي (موظف)', phoneNumber: '01011111111', customerType: 'staff' },
+    { fullName: 'سارة حسن (طالب)', phoneNumber: '01033333333', customerType: 'student' },
+    { fullName: 'ياسين كمال (زائر)', phoneNumber: '01044444444', customerType: 'visitor' },
   ];
 
   for (const c of customers) {
-    await prisma.customer.create({
-      data: { ...c, createdByUserId: owner.id },
+    const existing = await prisma.customer.findFirst({
+      where: {
+        OR: [
+          { phoneNumber: c.phoneNumber },
+          { fullName: c.fullName }
+        ]
+      }
     });
+
+    if (!existing) {
+      await prisma.customer.create({
+        data: { ...c, createdByUserId: owner.id },
+      });
+    } else {
+      await prisma.customer.update({
+        where: { id: existing.id },
+        data: { customerType: c.customerType, fullName: c.fullName }
+      });
+    }
   }
 
   // 7. Create Inventory Items with Costs

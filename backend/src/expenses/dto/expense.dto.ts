@@ -79,7 +79,7 @@ export class UpdateExpenseDto {
 
   @IsUUID()
   @IsOptional()
-  vendorId?: string;
+  vendorId?: string | null;
 
   @IsEnum(['cash', 'bank_transfer', 'card', 'wallet'])
   @IsOptional()
@@ -91,7 +91,7 @@ export class UpdateExpenseDto {
 
   @IsUUID()
   @IsOptional()
-  linkedUserId?: string;
+  linkedUserId?: string | null;
 
   @IsBoolean()
   @IsOptional()

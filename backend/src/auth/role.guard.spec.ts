@@ -6,13 +6,17 @@ import {
   SubscriptionPlanManagerGuard,
 } from './role.guard';
 
-function contextFor(roleId = 'role-1'): ExecutionContext {
+function contextFor(
+  roleId = 'role-1',
+  requestOverrides: Record<string, unknown> = {},
+): ExecutionContext {
   const request = {
     user: { id: 'user-1', roleId },
     method: 'GET',
     baseUrl: '/api/users',
     originalUrl: '/api/users',
     route: { path: '/' },
+    ...requestOverrides,
   };
   return {
     switchToHttp: () => ({ getRequest: () => request }),
@@ -55,6 +59,38 @@ describe('role guards', () => {
     const guard = new SubscriptionPlanManagerGuard(prisma as never);
 
     await expect(guard.canActivate(contextFor())).resolves.toBe(true);
+  });
+
+  it('allows Receptionist to read inventory items', async () => {
+    const prisma = {
+      role: { findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }) },
+    };
+    const guard = new RoleGuard(prisma as never);
+    const context = contextFor('role-1', {
+      method: 'GET',
+      baseUrl: '/api/inventory',
+      originalUrl: '/api/inventory/items',
+      route: { path: '/items' },
+    });
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+  });
+
+  it('does not allow Receptionist to modify inventory', async () => {
+    const prisma = {
+      role: { findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }) },
+    };
+    const guard = new RoleGuard(prisma as never);
+    const context = contextFor('role-1', {
+      method: 'POST',
+      baseUrl: '/api/inventory',
+      originalUrl: '/api/inventory/items',
+      route: { path: '/items' },
+    });
+
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 
   it('denies Barista from managing subscription plans', async () => {

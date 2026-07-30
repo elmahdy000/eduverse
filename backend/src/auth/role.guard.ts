@@ -83,7 +83,13 @@ export class RoleGuard implements CanActivate {
       'reactivate',
       'items',
     ];
-    if (lastSegment && actions.includes(lastSegment)) {
+    // Action-like route names only represent mutations. A GET such as
+    // /inventory/items is a normal read and must not resolve to "items".
+    const isNamedAction =
+      lastSegment &&
+      actions.includes(lastSegment) &&
+      (lastSegment !== 'items' || moduleName === 'bar_orders');
+    if (method !== 'GET' && isNamedAction) {
       return lastSegment.replace(/-/g, '_');
     }
 
@@ -180,6 +186,7 @@ export class RoleGuard implements CanActivate {
         invoices: ['read', 'generate'],
         payments: ['read', 'record'],
         expenses: ['read', 'create', 'update', 'delete'],
+        inventory: ['read'],
         shifts: ['read', 'create', 'close'],
         users: ['read', 'manage'],
         subscriptions: ['read', 'create', 'update', 'delete', 'cancel'],
@@ -204,6 +211,7 @@ export class RoleGuard implements CanActivate {
         customers: ['read'],
         sessions: ['read'],
         expenses: ['read', 'create'],
+        inventory: ['read'],
         users: ['read'],
         subscriptions: ['read'],
         dashboards: ['view_barista', 'read'],

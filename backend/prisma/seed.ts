@@ -129,6 +129,7 @@ async function main() {
     { module: 'expenses', action: 'create' },
     { module: 'expenses', action: 'update' },
     { module: 'expenses', action: 'delete' },
+    { module: 'inventory', action: 'read' },
     { module: 'users', action: 'read' },
     { module: 'dashboards', action: 'view_reception' },
   ];

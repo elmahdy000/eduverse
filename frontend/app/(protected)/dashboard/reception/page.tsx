@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   ConciergeBell, Users, Receipt, TrendingUp, RefreshCw, UserPlus, Timer,
-  Coffee, X, User, GraduationCap, Briefcase, Dumbbell, Heart, UserCircle,
+  Coffee, User, GraduationCap, Briefcase, Dumbbell, Heart, UserCircle,
   CalendarPlus, PlayCircle, FileText, Wallet, Clock,
 } from "lucide-react";
 import { useState } from "react";
@@ -13,7 +13,7 @@ import { money } from "../../../../lib/format";
 import { translateCustomerType } from "../../../../lib/labels";
 import type { BarOrder } from "../../../../lib/types";
 import { useEffect } from "react";
-import { Alert, EmptyState, Panel, SectionTitle, StatCard, Badge, CardSkeleton } from "../../../../components/ui";
+import { Alert, EmptyState, Panel, SectionTitle, StatCard, Badge, CardSkeleton, Modal } from "../../../../components/ui";
 
 interface ReceptionDashboard {
   activeSessionCount: number;
@@ -22,6 +22,7 @@ interface ReceptionDashboard {
   todayRevenuePartial: number;
   todayBarOrders: number;
   activeSessions: Array<{ id: string; startTime: string; customer?: { id: string; fullName: string; customerType: string }; room?: { name: string } }>;
+  deliveredBarOrders: BarOrder[];
 }
 
 const ctypeColors: Record<string, string> = {
@@ -49,7 +50,7 @@ function LiveDuration({ startTime }: { startTime: string }) {
   useEffect(() => {
     const update = () => {
       const diffMs = Date.now() - new Date(startTime).getTime();
-      const m = Math.round(diffMs / 60000);
+      const m = Math.max(0, Math.floor(diffMs / 60000));
       if (m >= 60) {
         setElapsed(`${Math.floor(m / 60)}س ${m % 60}د`);
       } else {
@@ -71,16 +72,6 @@ export default function ReceptionDashboardPage() {
     queryFn: async () => { const r = await api.get("/dashboards/reception"); return r.data.data as ReceptionDashboard; },
     staleTime: 15000,
     refetchInterval: 20000,
-  });
-
-  const barOrdersQuery = useQuery({
-    queryKey: ["bar-orders", "delivered"],
-    queryFn: async () => {
-      const response = await api.get("/bar-orders", {
-        params: { status: "delivered", page: 1, limit: 20 }
-      });
-      return response.data.data as { data: BarOrder[] };
-    },
   });
 
   if (isLoading) return (
@@ -128,7 +119,7 @@ export default function ReceptionDashboardPage() {
       {/* Who's inside right now */}
       {data.activeSessions && data.activeSessions.length > 0 && (
         <Panel title="الموجودين جوا دلوقتي" icon={<Users size={15} />} action={
-          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">{data.activeSessions.length} شخص</span>
+          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">{data.activeSessionCount} شخص</span>
         }>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {data.activeSessions.map((s) => (
@@ -172,20 +163,17 @@ export default function ReceptionDashboardPage() {
       </Panel>
 
       {/* Bar orders */}
-      <Panel title="طلبات البار المنتهية" icon={<Coffee size={15} />}>
-        {barOrdersQuery.isLoading ? (
-          <div className="flex justify-center py-10"><Coffee size={28} className="animate-pulse text-slate-300" /></div>
-        ) : barOrdersQuery.isError ? (
-          <Alert tone="danger">حصل خطأ في تحميل طلبات البار.</Alert>
-        ) : (barOrdersQuery.data?.data?.length ?? 0) === 0 ? (
+      <Panel title="طلبات البار المسلّمة اليوم" icon={<Coffee size={15} />}>
+        {(data.deliveredBarOrders?.length ?? 0) === 0 ? (
           <EmptyState icon={<Coffee size={36} />} title="مفيش طلبات بار منتهية" sub="الطلبات المنتهية هتظهر هنا." />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {barOrdersQuery.data?.data?.map((order) => (
-              <div
+            {data.deliveredBarOrders.map((order) => (
+              <button
+                type="button"
                 key={order.id}
                 onClick={() => setSelectedBarOrder(order)}
-                className="cursor-pointer rounded-xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm hover:shadow-md transition-all"
+                className="cursor-pointer rounded-xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 text-right shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <div className="flex items-center justify-between mb-2">
                   <Badge tone="success">تم التسليم</Badge>
@@ -208,7 +196,7 @@ export default function ReceptionDashboardPage() {
                     <span className="text-sm font-bold text-slate-900">{money(order.totalAmount)}</span>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -235,24 +223,15 @@ export default function ReceptionDashboardPage() {
         </div>
       </Panel>
 
-      {/* Bar Order Details Modal */}
-      {selectedBarOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 p-6">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">تفاصيل طلب البار #{selectedBarOrder.id.slice(0, 8)}</h2>
-                <p className="text-sm text-slate-600">{new Date(selectedBarOrder.createdAt).toLocaleString('ar-EG')}</p>
-              </div>
-              <button
-                onClick={() => setSelectedBarOrder(null)}
-                className="rounded-lg border border-slate-300 bg-white p-2 hover:bg-slate-50"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-6 max-h-[60vh] overflow-y-auto">
+      <Modal
+        isOpen={Boolean(selectedBarOrder)}
+        onClose={() => setSelectedBarOrder(null)}
+        title={selectedBarOrder ? `تفاصيل طلب البار #${selectedBarOrder.id.slice(0, 8)}` : undefined}
+        size="lg"
+      >
+        {selectedBarOrder && (
+          <>
+            <p className="mb-4 text-sm text-slate-600">{new Date(selectedBarOrder.createdAt).toLocaleString('ar-EG')}</p>
               <div className="space-y-4">
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs font-semibold text-slate-600 mb-2">معلومات العميل</p>
@@ -278,7 +257,7 @@ export default function ReceptionDashboardPage() {
                           <p className="font-medium">{item.product?.name}</p>
                           <p className="text-xs text-slate-500">{item.quantity} × {money(item.unitPrice)}</p>
                         </div>
-                        <span className="font-semibold">{money(item.total)}</span>
+                        <span className="font-semibold">{money(item.subtotal)}</span>
                       </div>
                     ))}
                   </div>
@@ -298,10 +277,9 @@ export default function ReceptionDashboardPage() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

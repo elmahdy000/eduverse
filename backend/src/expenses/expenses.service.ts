@@ -1,6 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto, UpdateCategoryDto, CreateVendorDto, UpdateVendorDto } from './dto/expense.dto';
+import {
+  CreateExpenseDto,
+  UpdateExpenseDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  CreateVendorDto,
+  UpdateVendorDto,
+} from './dto/expense.dto';
 
 @Injectable()
 export class ExpensesService {
@@ -10,19 +21,29 @@ export class ExpensesService {
   private readonly expenseIncludes = {
     category: true,
     vendor: true,
-    recordedByUser: { select: { id: true, firstName: true, lastName: true, email: true } },
-    linkedUser: { select: { id: true, firstName: true, lastName: true, email: true } },
+    recordedByUser: {
+      select: { id: true, firstName: true, lastName: true, email: true },
+    },
+    linkedUser: {
+      select: { id: true, firstName: true, lastName: true, email: true },
+    },
   };
 
   private parseDateRange(fromDate?: string, toDate?: string) {
     const range: any = {};
     if (fromDate) {
       const d = new Date(fromDate);
-      if (!isNaN(d.getTime())) { d.setHours(0, 0, 0, 0); range.gte = d; }
+      if (!isNaN(d.getTime())) {
+        d.setHours(0, 0, 0, 0);
+        range.gte = d;
+      }
     }
     if (toDate) {
       const d = new Date(toDate);
-      if (!isNaN(d.getTime())) { d.setHours(23, 59, 59, 999); range.lte = d; }
+      if (!isNaN(d.getTime())) {
+        d.setHours(23, 59, 59, 999);
+        range.lte = d;
+      }
     }
     return Object.keys(range).length > 0 ? range : undefined;
   }
@@ -43,12 +64,16 @@ export class ExpensesService {
     }
 
     // التأكد من وجود التصنيف
-    const category = await this.prisma.expenseCategory.findUnique({ where: { id: dto.categoryId } });
+    const category = await this.prisma.expenseCategory.findUnique({
+      where: { id: dto.categoryId },
+    });
     if (!category) throw new NotFoundException('التصنيف غير موجود');
 
     // التأكد من وجود المورد (لو تم إرساله)
     if (dto.vendorId) {
-      const vendor = await this.prisma.vendor.findUnique({ where: { id: dto.vendorId } });
+      const vendor = await this.prisma.vendor.findUnique({
+        where: { id: dto.vendorId },
+      });
       if (!vendor) throw new NotFoundException('المورد غير موجود');
     }
 
@@ -65,7 +90,9 @@ export class ExpensesService {
         category: { connect: { id: dto.categoryId } },
         vendor: dto.vendorId ? { connect: { id: dto.vendorId } } : undefined,
         recordedByUser: { connect: { id: userId } },
-        linkedUser: dto.linkedUserId ? { connect: { id: dto.linkedUserId } } : undefined,
+        linkedUser: dto.linkedUserId
+          ? { connect: { id: dto.linkedUserId } }
+          : undefined,
       },
       include: this.expenseIncludes,
     });
@@ -82,7 +109,17 @@ export class ExpensesService {
     page?: number;
     limit?: number;
   }) {
-    const { categoryId, vendorId, fromDate, toDate, status, paymentMethod, search, page = 1, limit = 10 } = query;
+    const {
+      categoryId,
+      vendorId,
+      fromDate,
+      toDate,
+      status,
+      paymentMethod,
+      search,
+      page = 1,
+      limit = 10,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -137,13 +174,17 @@ export class ExpensesService {
 
     // التحقق من التصنيف الجديد
     if (dto.categoryId) {
-      const cat = await this.prisma.expenseCategory.findUnique({ where: { id: dto.categoryId } });
+      const cat = await this.prisma.expenseCategory.findUnique({
+        where: { id: dto.categoryId },
+      });
       if (!cat) throw new NotFoundException('التصنيف غير موجود');
     }
 
     // التحقق من المورد الجديد
     if (dto.vendorId) {
-      const vendor = await this.prisma.vendor.findUnique({ where: { id: dto.vendorId } });
+      const vendor = await this.prisma.vendor.findUnique({
+        where: { id: dto.vendorId },
+      });
       if (!vendor) throw new NotFoundException('المورد غير موجود');
     }
 
@@ -155,9 +196,13 @@ export class ExpensesService {
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
         ...(dto.vendorId !== undefined && { vendorId: dto.vendorId }),
-        ...(dto.paymentMethod !== undefined && { paymentMethod: dto.paymentMethod }),
+        ...(dto.paymentMethod !== undefined && {
+          paymentMethod: dto.paymentMethod,
+        }),
         ...(dto.receiptUrl !== undefined && { receiptUrl: dto.receiptUrl }),
-        ...(dto.linkedUserId !== undefined && { linkedUserId: dto.linkedUserId }),
+        ...(dto.linkedUserId !== undefined && {
+          linkedUserId: dto.linkedUserId,
+        }),
         ...(dto.isRecurring !== undefined && { isRecurring: dto.isRecurring }),
         ...(dto.frequency !== undefined && { frequency: dto.frequency }),
         ...(dto.status !== undefined && { status: dto.status }),
@@ -183,8 +228,11 @@ export class ExpensesService {
   // ════════════════════════════════════════════════════════════════════════════
 
   async createCategory(dto: CreateCategoryDto) {
-    const exists = await this.prisma.expenseCategory.findUnique({ where: { name: dto.name } });
-    if (exists) throw new BadRequestException(`تصنيف "${dto.name}" موجود بالفعل`);
+    const exists = await this.prisma.expenseCategory.findUnique({
+      where: { name: dto.name },
+    });
+    if (exists)
+      throw new BadRequestException(`تصنيف "${dto.name}" موجود بالفعل`);
     return this.prisma.expenseCategory.create({ data: dto });
   }
 
@@ -219,8 +267,11 @@ export class ExpensesService {
     if (!cat) throw new NotFoundException('التصنيف غير موجود');
 
     if (dto.name && dto.name !== cat.name) {
-      const dup = await this.prisma.expenseCategory.findUnique({ where: { name: dto.name } });
-      if (dup) throw new BadRequestException(`تصنيف "${dto.name}" موجود بالفعل`);
+      const dup = await this.prisma.expenseCategory.findUnique({
+        where: { name: dto.name },
+      });
+      if (dup)
+        throw new BadRequestException(`تصنيف "${dto.name}" موجود بالفعل`);
     }
 
     return this.prisma.expenseCategory.update({ where: { id }, data: dto });
@@ -230,9 +281,13 @@ export class ExpensesService {
     const cat = await this.prisma.expenseCategory.findUnique({ where: { id } });
     if (!cat) throw new NotFoundException('التصنيف غير موجود');
 
-    const count = await this.prisma.expense.count({ where: { categoryId: id } });
+    const count = await this.prisma.expense.count({
+      where: { categoryId: id },
+    });
     if (count > 0) {
-      throw new BadRequestException(`لا يمكن حذف التصنيف — مرتبط بـ ${count} مصروف`);
+      throw new BadRequestException(
+        `لا يمكن حذف التصنيف — مرتبط بـ ${count} مصروف`,
+      );
     }
 
     return this.prisma.expenseCategory.delete({ where: { id } });
@@ -243,8 +298,11 @@ export class ExpensesService {
   // ════════════════════════════════════════════════════════════════════════════
 
   async createVendor(dto: CreateVendorDto) {
-    const exists = await this.prisma.vendor.findUnique({ where: { name: dto.name } });
-    if (exists) throw new BadRequestException(`مورد "${dto.name}" موجود بالفعل`);
+    const exists = await this.prisma.vendor.findUnique({
+      where: { name: dto.name },
+    });
+    if (exists)
+      throw new BadRequestException(`مورد "${dto.name}" موجود بالفعل`);
     return this.prisma.vendor.create({ data: dto });
   }
 
@@ -272,7 +330,9 @@ export class ExpensesService {
     if (!vendor) throw new NotFoundException('المورد غير موجود');
 
     if (dto.name && dto.name !== vendor.name) {
-      const dup = await this.prisma.vendor.findUnique({ where: { name: dto.name } });
+      const dup = await this.prisma.vendor.findUnique({
+        where: { name: dto.name },
+      });
       if (dup) throw new BadRequestException(`مورد "${dto.name}" موجود بالفعل`);
     }
 
@@ -285,7 +345,9 @@ export class ExpensesService {
 
     const count = await this.prisma.expense.count({ where: { vendorId: id } });
     if (count > 0) {
-      throw new BadRequestException(`لا يمكن حذف المورد — مرتبط بـ ${count} مصروف`);
+      throw new BadRequestException(
+        `لا يمكن حذف المورد — مرتبط بـ ${count} مصروف`,
+      );
     }
 
     return this.prisma.vendor.delete({ where: { id } });
@@ -304,41 +366,46 @@ export class ExpensesService {
       paymentWhere.paidAt = dateRange;
     }
 
-    const [expensesByCategory, totalExpenses, totalRevenue, expensesByPaymentMethod, recentExpenses] =
-      await Promise.all([
-        // تقسيم المصروفات بالتصنيف
-        this.prisma.expense.groupBy({
-          by: ['categoryId'],
-          where: expenseWhere,
-          _sum: { amount: true },
-          _count: true,
-        }),
-        // إجمالي المصروفات
-        this.prisma.expense.aggregate({
-          where: expenseWhere,
-          _sum: { amount: true },
-          _count: true,
-        }),
-        // إجمالي الإيرادات
-        this.prisma.payment.aggregate({
-          where: paymentWhere,
-          _sum: { amount: true },
-        }),
-        // تقسيم بطريقة الدفع
-        this.prisma.expense.groupBy({
-          by: ['paymentMethod'],
-          where: expenseWhere,
-          _sum: { amount: true },
-          _count: true,
-        }),
-        // آخر 5 مصروفات
-        this.prisma.expense.findMany({
-          where: expenseWhere,
-          orderBy: { date: 'desc' },
-          take: 5,
-          include: { category: true, vendor: true },
-        }),
-      ]);
+    const [
+      expensesByCategory,
+      totalExpenses,
+      totalRevenue,
+      expensesByPaymentMethod,
+      recentExpenses,
+    ] = await Promise.all([
+      // تقسيم المصروفات بالتصنيف
+      this.prisma.expense.groupBy({
+        by: ['categoryId'],
+        where: expenseWhere,
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // إجمالي المصروفات
+      this.prisma.expense.aggregate({
+        where: expenseWhere,
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // إجمالي الإيرادات
+      this.prisma.payment.aggregate({
+        where: paymentWhere,
+        _sum: { amount: true },
+      }),
+      // تقسيم بطريقة الدفع
+      this.prisma.expense.groupBy({
+        by: ['paymentMethod'],
+        where: expenseWhere,
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // آخر 5 مصروفات
+      this.prisma.expense.findMany({
+        where: expenseWhere,
+        orderBy: { date: 'desc' },
+        take: 5,
+        include: { category: true, vendor: true },
+      }),
+    ]);
 
     // جلب أسماء التصنيفات
     const categories = await this.prisma.expenseCategory.findMany();
@@ -380,7 +447,15 @@ export class ExpensesService {
 
     for (let i = months - 1; i >= 0; i--) {
       const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth() - i + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
 
       const agg = await this.prisma.expense.aggregate({
         where: { status: 'paid', date: { gte: start, lte: end } },
@@ -409,7 +484,9 @@ export class ExpensesService {
       take: limit,
     });
 
-    const vendorIds = topVendors.map((v) => v.vendorId).filter(Boolean) as string[];
+    const vendorIds = topVendors
+      .map((v) => v.vendorId)
+      .filter(Boolean) as string[];
     const vendors = await this.prisma.vendor.findMany({
       where: { id: { in: vendorIds } },
     });

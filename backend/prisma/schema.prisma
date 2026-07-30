@@ -27,7 +27,7 @@ model Role {
 }
 
 model Permission {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   module      String
   action      String
   description String?
@@ -50,32 +50,33 @@ model RolePermission {
 }
 
 model User {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String   @unique
-  passwordHash  String
-  firstName     String?
-  lastName      String?
-  phoneNumber   String?
-  roleId        String   @db.Uuid
-  status        String   @default("active") // active, inactive, suspended
-  lastLoginAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  phoneNumber  String?
+  roleId       String    @db.Uuid
+  status       String    @default("active") // active, inactive, suspended
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  role       Role        @relation(fields: [roleId], references: [id])
-  auditLogs  AuditLog[]
-  sessions   Session[]   @relation("OpenedBy")
-  sessionsClosed Session[] @relation("ClosedBy")
-  customers  Customer[]
-  bookings   Booking[]
-  payments   Payment[]
-  barOrders  BarOrder[]
-  invoices   Invoice[]
-  recordedExpenses Expense[] @relation("RecordedExpenses")
-  linkedExpenses   Expense[] @relation("LinkedExpenses")
-  wasteEntries     WasteEntry[]
+  role                  Role                   @relation(fields: [roleId], references: [id])
+  auditLogs             AuditLog[]
+  sessions              Session[]              @relation("OpenedBy")
+  sessionsClosed        Session[]              @relation("ClosedBy")
+  customers             Customer[]
+  bookings              Booking[]
+  payments              Payment[]
+  barOrders             BarOrder[]
+  invoices              Invoice[]
+  recordedExpenses      Expense[]              @relation("RecordedExpenses")
+  linkedExpenses        Expense[]              @relation("LinkedExpenses")
+  wasteEntries          WasteEntry[]
   inventoryTransactions InventoryTransaction[]
-  shifts           Shift[]
+  shifts                Shift[]
+  createdSubscriptions  CustomerSubscription[]
 
   @@map("users")
 }
@@ -85,25 +86,25 @@ model User {
 // ============================================================================
 
 model Customer {
-  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  fullName              String
-  phoneNumber           String
-  phoneNumberSecondary  String?
-  email                 String?
-  address               String?
-  customerType          String   // student, employee, trainer, parent, visitor
-  college               String?  // for students
-  studyLevel            String?  // for students
-  specialization        String?  // for students
-  employerName          String?  // for employees
-  jobTitle              String?  // for employees
-  notes                 String?
-  status                String   @default("active") // active, inactive, blacklisted
-  firstVisitAt          DateTime?
-  lastVisitAt           DateTime?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  createdByUserId       String   @db.Uuid
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName             String
+  phoneNumber          String
+  phoneNumberSecondary String?
+  email                String?
+  address              String?
+  customerType         String // student, employee, trainer, parent, visitor
+  college              String? // for students
+  studyLevel           String? // for students
+  specialization       String? // for students
+  employerName         String? // for employees
+  jobTitle             String? // for employees
+  notes                String?
+  status               String    @default("active") // active, inactive, blacklisted
+  firstVisitAt         DateTime?
+  lastVisitAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  createdByUserId      String    @db.Uuid
 
   createdByUser User                   @relation(fields: [createdByUserId], references: [id])
   sessions      Session[]
@@ -125,7 +126,7 @@ model Customer {
 model Room {
   id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String
-  roomType             String   // coworking, study, meeting, hall
+  roomType             String // coworking, study, meeting, hall
   capacity             Int
   features             String[] // projector, whiteboard, wifi, ac
   hourlyRate           Decimal? @db.Decimal(10, 2)
@@ -152,15 +153,15 @@ model Room {
 // ============================================================================
 
 model SubscriptionPlan {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String   // e.g. "باقة يومية", "باقة أسبوعية", "باقة شهرية"
-  packageType   String   @unique // daily, weekly, monthly
-  durationDays  Int      // 1, 7, 30
-  price         Decimal  @db.Decimal(10, 2)
-  description   String?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String // e.g. "باقة يومية", "باقة أسبوعية", "باقة شهرية"
+  packageType  String   @unique // daily, weekly, monthly
+  durationDays Int // 1, 7, 30
+  price        Decimal  @db.Decimal(10, 2)
+  description  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   subscriptions CustomerSubscription[]
 
@@ -168,25 +169,30 @@ model SubscriptionPlan {
 }
 
 model CustomerSubscription {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId   String   @db.Uuid
-  planId       String?  @db.Uuid
-  packageType  String   // daily, weekly, monthly
-  startDate    DateTime
-  endDate      DateTime
-  status       String   @default("active") // active, expired, cancelled
-  pricePaid    Decimal  @db.Decimal(10, 2)
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId      String   @db.Uuid
+  planId          String?  @db.Uuid
+  packageType     String // daily, weekly, monthly
+  startDate       DateTime
+  endDate         DateTime
+  status          String   @default("active") // active, expired, cancelled
+  pricePaid       Decimal  @db.Decimal(10, 2)
+  invoiceId       String?  @unique @db.Uuid
+  createdByUserId String?  @db.Uuid
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  customer Customer          @relation(fields: [customerId], references: [id])
-  plan     SubscriptionPlan? @relation(fields: [planId], references: [id])
-  sessions Session[]
+  customer      Customer          @relation(fields: [customerId], references: [id])
+  plan          SubscriptionPlan? @relation(fields: [planId], references: [id])
+  invoice       Invoice?          @relation(fields: [invoiceId], references: [id])
+  createdByUser User?             @relation(fields: [createdByUserId], references: [id])
+  sessions      Session[]
 
   @@index([customerId])
   @@index([status])
   @@index([planId])
+  @@index([createdByUserId])
   @@map("customer_subscriptions")
 }
 
@@ -195,33 +201,33 @@ model CustomerSubscription {
 // ============================================================================
 
 model Session {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId      String   @db.Uuid
-  sessionType     String   // hourly, daily, package, booking_linked
-  billingType     String?  // hourly_individual, hourly_room, flat_event, subscription_covered
-  roomId          String?  @db.Uuid
-  bookingId       String?  @unique @db.Uuid  // ربط بالحجز المسبق
-  subscriptionId  String?  @db.Uuid
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId      String    @db.Uuid
+  sessionType     String // hourly, daily, package, booking_linked
+  billingType     String? // hourly_individual, hourly_room, flat_event, subscription_covered
+  roomId          String?   @db.Uuid
+  bookingId       String?   @unique @db.Uuid // ربط بالحجز المسبق
+  subscriptionId  String?   @db.Uuid
   startTime       DateTime
   endTime         DateTime?
   durationMinutes Int?
-  status          String   @default("active") // active, suspended, closed, cancelled
-  guestCode       String?  @unique
-  chargeAmount    Decimal? @db.Decimal(10, 2)
+  status          String    @default("active") // active, suspended, closed, cancelled
+  guestCode       String?   @unique
+  chargeAmount    Decimal?  @db.Decimal(10, 2)
   notes           String?
-  openedByUserId  String   @db.Uuid
-  closedByUserId  String?  @db.Uuid
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  openedByUserId  String    @db.Uuid
+  closedByUserId  String?   @db.Uuid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  customer      Customer              @relation(fields: [customerId], references: [id])
-  room          Room?                 @relation(fields: [roomId], references: [id])
-  booking       Booking?              @relation(fields: [bookingId], references: [id])
-  subscription  CustomerSubscription? @relation(fields: [subscriptionId], references: [id])
-  openedByUser  User                  @relation("OpenedBy", fields: [openedByUserId], references: [id])
-  closedByUser  User?                 @relation("ClosedBy", fields: [closedByUserId], references: [id])
-  barOrders     BarOrder[]
-  invoice       Invoice?
+  customer     Customer              @relation(fields: [customerId], references: [id])
+  room         Room?                 @relation(fields: [roomId], references: [id])
+  booking      Booking?              @relation(fields: [bookingId], references: [id])
+  subscription CustomerSubscription? @relation(fields: [subscriptionId], references: [id])
+  openedByUser User                  @relation("OpenedBy", fields: [openedByUserId], references: [id])
+  closedByUser User?                 @relation("ClosedBy", fields: [closedByUserId], references: [id])
+  barOrders    BarOrder[]
+  invoice      Invoice?
 
   @@index([customerId])
   @@index([status])
@@ -238,7 +244,7 @@ model Booking {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   customerId       String   @db.Uuid
   roomId           String   @db.Uuid
-  bookingType      String   // meeting, training, event, private
+  bookingType      String // meeting, training, event, private
   startTime        DateTime
   endTime          DateTime
   participantCount Int?
@@ -253,7 +259,7 @@ model Booking {
   customer      Customer @relation(fields: [customerId], references: [id])
   room          Room     @relation(fields: [roomId], references: [id])
   createdByUser User     @relation(fields: [createdByUserId], references: [id])
-  session       Session?  // الجلسة المرتبطة بالحجز
+  session       Session? // الجلسة المرتبطة بالحجز
 
   @@index([customerId])
   @@index([roomId])
@@ -266,19 +272,19 @@ model Booking {
 // ============================================================================
 
 model Product {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String
-  category      String
-  price         Decimal  @db.Decimal(10, 2)
-  costPrice     Decimal  @default(0) @db.Decimal(10, 2) // سعر الوارد
-  description   String?
-  imageUrl      String?
-  availability  Boolean  @default(true)
-  active        Boolean  @default(true)
-  isFridge      Boolean  @default(false)
-  isBakery      Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  category     String
+  price        Decimal  @db.Decimal(10, 2)
+  costPrice    Decimal  @default(0) @db.Decimal(10, 2) // سعر الوارد
+  description  String?
+  imageUrl     String?
+  availability Boolean  @default(true)
+  active       Boolean  @default(true)
+  isFridge     Boolean  @default(false)
+  isBakery     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   barOrderItems BarOrderItem[]
   recipeItems   RecipeItem[]
@@ -304,12 +310,12 @@ model BarOrder {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  session Session?          @relation(fields: [sessionId], references: [id])
-  customer Customer         @relation(fields: [customerId], references: [id])
-  createdByUser User?        @relation(fields: [createdByUserId], references: [id])
-  invoice   Invoice?         @relation(fields: [invoiceId], references: [id])
-  items   BarOrderItem[]
-  invoiceItems InvoiceItem[]
+  session       Session?       @relation(fields: [sessionId], references: [id])
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  createdByUser User?          @relation(fields: [createdByUserId], references: [id])
+  invoice       Invoice?       @relation(fields: [invoiceId], references: [id])
+  items         BarOrderItem[]
+  invoiceItems  InvoiceItem[]
 
   @@index([sessionId])
   @@index([customerId])
@@ -319,14 +325,13 @@ model BarOrder {
   @@map("bar_orders")
 }
 
-
 model BarOrderItem {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId   String   @db.Uuid
-  productId String   @db.Uuid
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String  @db.Uuid
+  productId String  @db.Uuid
   quantity  Int
-  unitPrice Decimal  @db.Decimal(10, 2)
-  subtotal  Decimal  @db.Decimal(10, 2)
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
 
   order   BarOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product  @relation(fields: [productId], references: [id])
@@ -339,30 +344,31 @@ model BarOrderItem {
 // ============================================================================
 
 model Invoice {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId        String   @db.Uuid
-  sessionId         String?  @db.Uuid @unique
-  invoiceNumber     String   @unique
-  subtotal          Decimal  @default(0) @db.Decimal(10, 2)
-  discountAmount    Decimal  @default(0) @db.Decimal(10, 2)
-  taxAmount         Decimal  @default(0) @db.Decimal(10, 2)
-  totalAmount       Decimal  @db.Decimal(10, 2)
-  amountPaid        Decimal  @default(0) @db.Decimal(10, 2)
-  remainingAmount   Decimal  @db.Decimal(10, 2)
-  paymentStatus     String   @default("unpaid") // unpaid, partially_paid, paid, refunded
-  notes             String?
-  issuedAt          DateTime @default(now())
-  dueAt             DateTime?
-  createdByUserId   String   @db.Uuid
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId      String    @db.Uuid
+  sessionId       String?   @unique @db.Uuid
+  invoiceNumber   String    @unique
+  subtotal        Decimal   @default(0) @db.Decimal(10, 2)
+  discountAmount  Decimal   @default(0) @db.Decimal(10, 2)
+  taxAmount       Decimal   @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal   @db.Decimal(10, 2)
+  amountPaid      Decimal   @default(0) @db.Decimal(10, 2)
+  remainingAmount Decimal   @db.Decimal(10, 2)
+  paymentStatus   String    @default("unpaid") // unpaid, partially_paid, paid, refunded
+  notes           String?
+  issuedAt        DateTime  @default(now())
+  dueAt           DateTime?
+  createdByUserId String    @db.Uuid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  customer      Customer        @relation(fields: [customerId], references: [id])
-  session       Session?        @relation(fields: [sessionId], references: [id])
-  createdByUser User            @relation(fields: [createdByUserId], references: [id])
+  customer      Customer              @relation(fields: [customerId], references: [id])
+  session       Session?              @relation(fields: [sessionId], references: [id])
+  createdByUser User                  @relation(fields: [createdByUserId], references: [id])
   items         InvoiceItem[]
   payments      Payment[]
   barOrders     BarOrder[]
+  subscription  CustomerSubscription?
 
   @@index([customerId])
   @@index([paymentStatus])
@@ -371,16 +377,16 @@ model Invoice {
 }
 
 model InvoiceItem {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  invoiceId   String   @db.Uuid
-  itemType    String   // session, booking, bar_order, service, discount
-  itemId      String?  @db.Uuid
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId   String  @db.Uuid
+  itemType    String // session, booking, bar_order, service, discount
+  itemId      String? @db.Uuid
   description String?
-  quantity    Int      @default(1)
-  unitPrice   Decimal  @db.Decimal(10, 2)
-  total       Decimal  @db.Decimal(10, 2)
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
 
-  invoice  Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice  Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   barOrder BarOrder? @relation(fields: [itemId], references: [id])
 
   @@map("invoice_items")
@@ -391,19 +397,19 @@ model InvoiceItem {
 // ============================================================================
 
 model Payment {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  invoiceId       String   @db.Uuid
-  paymentMethod   String   // cash, bank_transfer, card, mixed
-  amount          Decimal  @db.Decimal(10, 2)
-  notes           String?
-  recordedByUserId String  @db.Uuid
-  paidAt          DateTime @default(now())
-  createdAt       DateTime @default(now())
-  refundedPaymentId String? @db.Uuid
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId         String   @db.Uuid
+  paymentMethod     String // cash, bank_transfer, card, mixed
+  amount            Decimal  @db.Decimal(10, 2)
+  notes             String?
+  recordedByUserId  String   @db.Uuid
+  paidAt            DateTime @default(now())
+  createdAt         DateTime @default(now())
+  refundedPaymentId String?  @db.Uuid
 
-  invoice       Invoice @relation(fields: [invoiceId], references: [id])
-  recordedByUser User    @relation(fields: [recordedByUserId], references: [id])
-  refundedPayment Payment? @relation("PaymentRefunds", fields: [refundedPaymentId], references: [id])
+  invoice         Invoice   @relation(fields: [invoiceId], references: [id])
+  recordedByUser  User      @relation(fields: [recordedByUserId], references: [id])
+  refundedPayment Payment?  @relation("PaymentRefunds", fields: [refundedPaymentId], references: [id])
   refunds         Payment[] @relation("PaymentRefunds")
 
   @@index([invoiceId])
@@ -417,16 +423,16 @@ model Payment {
 // ============================================================================
 
 model AuditLog {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @db.Uuid
-  action    String
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @db.Uuid
+  action     String
   entityType String
-  entityId  String   @db.Uuid
-  oldValue  Json?
-  newValue  Json?
-  timestamp DateTime @default(now())
-  ipAddress String?
-  userAgent String?
+  entityId   String   @db.Uuid
+  oldValue   Json?
+  newValue   Json?
+  timestamp  DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
 
   user User @relation(fields: [userId], references: [id])
 
@@ -457,7 +463,7 @@ model Vendor {
   phone       String?
   email       String?
   address     String?
-  category    String?   // توريد بن، صيانة، نظافة
+  category    String? // توريد بن، صيانة، نظافة
   createdAt   DateTime  @default(now())
   expenses    Expense[]
 
@@ -465,26 +471,26 @@ model Vendor {
 }
 
 model Expense {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  amount          Decimal  @db.Decimal(10, 2)
-  date            DateTime @default(now())
-  description     String
-  categoryId      String   @db.Uuid
-  vendorId        String?  @db.Uuid
-  paymentMethod   String   // cash, bank_transfer, card, wallet
-  receiptUrl      String?  // رابط صورة الفاتورة
-  recordedByUserId String  @db.Uuid
-  linkedUserId    String?  @db.Uuid // للمرتبات أو العهد
-  isRecurring     Boolean  @default(false)
-  frequency       String?  // monthly, yearly, weekly
-  status          String   @default("paid") // paid, pending, cancelled
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount           Decimal  @db.Decimal(10, 2)
+  date             DateTime @default(now())
+  description      String
+  categoryId       String   @db.Uuid
+  vendorId         String?  @db.Uuid
+  paymentMethod    String // cash, bank_transfer, card, wallet
+  receiptUrl       String? // رابط صورة الفاتورة
+  recordedByUserId String   @db.Uuid
+  linkedUserId     String?  @db.Uuid // للمرتبات أو العهد
+  isRecurring      Boolean  @default(false)
+  frequency        String? // monthly, yearly, weekly
+  status           String   @default("paid") // paid, pending, cancelled
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  category        ExpenseCategory @relation(fields: [categoryId], references: [id])
-  vendor          Vendor?         @relation(fields: [vendorId], references: [id])
-  recordedByUser  User            @relation("RecordedExpenses", fields: [recordedByUserId], references: [id])
-  linkedUser      User?           @relation("LinkedExpenses", fields: [linkedUserId], references: [id])
+  category       ExpenseCategory @relation(fields: [categoryId], references: [id])
+  vendor         Vendor?         @relation(fields: [vendorId], references: [id])
+  recordedByUser User            @relation("RecordedExpenses", fields: [recordedByUserId], references: [id])
+  linkedUser     User?           @relation("LinkedExpenses", fields: [linkedUserId], references: [id])
 
   @@index([categoryId])
   @@index([vendorId])
@@ -500,8 +506,8 @@ model Expense {
 model InventoryItem {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name          String   @unique
-  category      String?  // خامات، تعبئة، منظفات
-  unit          String   // جرام، مل، قطعة، كيس
+  category      String? // خامات، تعبئة، منظفات
+  unit          String // جرام، مل، قطعة، كيس
   currentStock  Decimal  @default(0) @db.Decimal(10, 3)
   minStockLevel Decimal  @default(0) @db.Decimal(10, 3) // حد الإنذار
   costPerUnit   Decimal  @default(0) @db.Decimal(10, 2)
@@ -518,10 +524,10 @@ model InventoryItem {
 }
 
 model RecipeItem {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  productId       String   @db.Uuid
-  inventoryItemId String   @db.Uuid
-  quantity        Decimal  @db.Decimal(10, 3) // الكمية المطلوبة لكل كوب/وحدة
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId       String  @db.Uuid
+  inventoryItemId String  @db.Uuid
+  quantity        Decimal @db.Decimal(10, 3) // الكمية المطلوبة لكل كوب/وحدة
 
   product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
   inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
@@ -531,17 +537,17 @@ model RecipeItem {
 }
 
 model InventoryTransaction {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  inventoryItemId String   @db.Uuid
-  type            String   // in (وارد), out (بيع/منصرف), adjustment (تسوية)
-  quantity        Decimal  @db.Decimal(10, 3)
-  reason          String?  // مبيعات، شراء، تالف
-  referenceId     String?  // ID الطلب أو الفاتورة المرتبطة
-  performedByUserId String @db.Uuid
-  createdAt       DateTime @default(now())
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventoryItemId   String   @db.Uuid
+  type              String // in (وارد), out (بيع/منصرف), adjustment (تسوية)
+  quantity          Decimal  @db.Decimal(10, 3)
+  reason            String? // مبيعات، شراء، تالف
+  referenceId       String? // ID الطلب أو الفاتورة المرتبطة
+  performedByUserId String   @db.Uuid
+  createdAt         DateTime @default(now())
 
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
-  performedBy     User          @relation(fields: [performedByUserId], references: [id])
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  performedBy   User          @relation(fields: [performedByUserId], references: [id])
 
   @@index([inventoryItemId])
   @@index([type])
@@ -554,15 +560,15 @@ model InventoryTransaction {
 // ============================================================================
 
 model WasteEntry {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  inventoryItemId String   @db.Uuid
-  quantity        Decimal  @db.Decimal(10, 3)
-  reason          String?  // كسر، انتهاء صلاحية، خطأ تحضير
-  recordedByUserId String  @db.Uuid
-  createdAt       DateTime @default(now())
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventoryItemId  String   @db.Uuid
+  quantity         Decimal  @db.Decimal(10, 3)
+  reason           String? // كسر، انتهاء صلاحية، خطأ تحضير
+  recordedByUserId String   @db.Uuid
+  createdAt        DateTime @default(now())
 
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
-  recordedByUser  User          @relation(fields: [recordedByUserId], references: [id])
+  inventoryItem  InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  recordedByUser User          @relation(fields: [recordedByUserId], references: [id])
 
   @@index([inventoryItemId])
   @@map("waste_entries")
@@ -573,19 +579,19 @@ model WasteEntry {
 // ============================================================================
 
 model Shift {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String    @db.Uuid
-  startTime       DateTime  @default(now())
-  endTime         DateTime?
-  startCash       Decimal   @default(0) @db.Decimal(10, 2)
-  endCash         Decimal?  @db.Decimal(10, 2)
-  actualCash      Decimal?  @db.Decimal(10, 2) // المبلغ الفعلي اللي اتسلم
-  totalSales      Decimal   @default(0) @db.Decimal(10, 2)
-  totalExpenses   Decimal   @default(0) @db.Decimal(10, 2)
-  notes           String?
-  status          String    @default("open") // open, closed
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @db.Uuid
+  startTime     DateTime  @default(now())
+  endTime       DateTime?
+  startCash     Decimal   @default(0) @db.Decimal(10, 2)
+  endCash       Decimal?  @db.Decimal(10, 2)
+  actualCash    Decimal?  @db.Decimal(10, 2) // المبلغ الفعلي اللي اتسلم
+  totalSales    Decimal   @default(0) @db.Decimal(10, 2)
+  totalExpenses Decimal   @default(0) @db.Decimal(10, 2)
+  notes         String?
+  status        String    @default("open") // open, closed
 
-  user            User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([status])
@@ -598,8 +604,8 @@ model Shift {
 
 model ChatMessage {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  conversationKey String   // مفتاح المحادثة = كود العميل (guestCode) — كل طاولة محادثة منفصلة
-  sender          String   // GUEST | الباريستا
+  conversationKey String // مفتاح المحادثة = كود العميل (guestCode) — كل طاولة محادثة منفصلة
+  sender          String // GUEST | الباريستا
   text            String
   createdAt       DateTime @default(now())
 

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, BadRequestException, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  BadRequestException,
+  HttpException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionsService } from './sessions.service';
 import { CreateSessionDto, CloseSessionDto } from './dto/session.dto';
@@ -67,7 +78,11 @@ export class SessionsController {
     @Query('customerName') customerName?: string,
   ) {
     try {
-      const result = await this.sessionsService.listActiveSessions(page, limit, customerName);
+      const result = await this.sessionsService.listActiveSessions(
+        page,
+        limit,
+        customerName,
+      );
       return {
         success: true,
         data: result,

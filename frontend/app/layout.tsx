@@ -8,6 +8,9 @@ const sans = { variable: "--font-sans" };
 const mono = { variable: "--font-mono" };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://edu-vers.com",
+  ),
   title: {
     default: "إديوفيرس | المنصة المتكاملة لإدارة المساحات التعليمية والبار",
     template: "%s | إديوفيرس"

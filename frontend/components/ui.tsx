@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, ReactNode, useState, useMemo } from "react";
+import { PropsWithChildren, ReactNode, useState, useMemo, useEffect, useId, useRef } from "react";
 import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { CalendarClock, XCircle, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
@@ -635,6 +635,23 @@ export function Modal({
   isOpen: boolean; onClose: () => void; title?: string;
   children: ReactNode; size?: "sm" | "md" | "lg" | "xl" | "full";
 }) {
+  const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
   const sizes: Record<string, string> = {
     sm: "max-w-md", md: "max-w-lg", lg: "max-w-2xl",
@@ -642,8 +659,13 @@ export function Modal({
   };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        tabIndex={-1}
         className={clsx(
           "relative w-full overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200",
           sizes[size],
@@ -652,9 +674,11 @@ export function Modal({
       >
         {title && (
           <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
-            <h3 className="text-base font-black text-slate-900">{title}</h3>
+            <h3 id={titleId} className="text-base font-black text-slate-900">{title}</h3>
             <button
               onClick={onClose}
+              type="button"
+              aria-label="إغلاق النافذة"
               className="rounded-xl p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition"
             >
               <XCircle size={18} />

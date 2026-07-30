@@ -54,11 +54,9 @@ npm run dev
 | Receptionist | Customer lifecycle, checkout |
 | Barista | Order management |
 
-### Default Login
-```
-Email: owner@eduvers.com
-Password: owner123
-```
+### Initial Login
+
+Set `SEED_DEFAULT_PASSWORD` to a strong value (12+ characters) before running the seed. No default password is stored in the repository.
 
 ## Project Structure
 

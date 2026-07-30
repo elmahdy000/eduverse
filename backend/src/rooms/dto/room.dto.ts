@@ -92,7 +92,13 @@ export class UpdateRoomDto {
   defaultBillingMode?: string;
 
   @IsOptional()
-  @IsEnum(['available', 'occupied', 'booked_soon', 'under_prep', 'out_of_service'])
+  @IsEnum([
+    'available',
+    'occupied',
+    'booked_soon',
+    'under_prep',
+    'out_of_service',
+  ])
   status?: string;
 
   @IsOptional()

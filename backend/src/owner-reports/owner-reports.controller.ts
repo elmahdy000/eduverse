@@ -17,37 +17,55 @@ export class OwnerReportsController {
 
   @Get('kpis')
   @ApiOperation({ summary: 'المؤشرات المالية والتشغيلية العامة' })
-  async getKpis(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getKpis(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getKpis(fromDate, toDate);
   }
 
   @Get('revenue')
   @ApiOperation({ summary: 'تقرير الدخل التفصيلي' })
-  async getRevenue(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getRevenue(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getRevenueReport(fromDate, toDate);
   }
 
   @Get('expenses')
   @ApiOperation({ summary: 'تقرير المصروفات التفصيلي' })
-  async getExpenses(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getExpenses(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getExpensesReport(fromDate, toDate);
   }
 
   @Get('profit')
   @ApiOperation({ summary: 'تقرير صافي الربح مع المقارنة' })
-  async getProfit(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getProfit(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getProfitReport(fromDate, toDate);
   }
 
   @Get('bar')
   @ApiOperation({ summary: 'تفاصيل مبيعات البار' })
-  async getBar(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getBar(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getBarReport(fromDate, toDate);
   }
 
   @Get('inventory')
   @ApiOperation({ summary: 'حالة المخزون + الهالك + الحركات الأخيرة' })
-  async getInventory(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  async getInventory(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.service.getInventoryReport(fromDate, toDate);
   }
 }

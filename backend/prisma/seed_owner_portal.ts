@@ -25,19 +25,21 @@ const DEFAULT_OWNERS = [
     email: 'owner-portal@eduvers.com',
     firstName: 'Owner',
     lastName: 'Portal',
-    // كلمة مرور افتراضية — يُنصح بشدة بتغييرها بعد أول دخول
-    password: 'OwnersOnly@2026',
   },
   {
     email: 'elmahdy-portal@eduvers.com',
     firstName: 'Elmahdy',
     lastName: 'Portal',
-    password: 'OwnersOnly@2026',
   },
 ];
 
 async function main() {
   console.log('🌱 [OwnerPortal Seed] Starting...');
+
+  const seedPassword = process.env.OWNER_PORTAL_SEED_PASSWORD;
+  if (!seedPassword || seedPassword.length < 12) {
+    throw new Error('OWNER_PORTAL_SEED_PASSWORD must be set to at least 12 characters before seeding');
+  }
 
   // 1) إنشاء أو جلب الـ role
   let role = await prisma.role.findUnique({ where: { name: 'OwnerPortal' } });
@@ -71,7 +73,7 @@ async function main() {
       continue;
     }
 
-    const passwordHash = await bcrypt.hash(u.password, 10);
+    const passwordHash = await bcrypt.hash(seedPassword, 10);
     await prisma.user.create({
       data: {
         email: u.email,
@@ -86,11 +88,11 @@ async function main() {
   }
 
   console.log('\n🎉 [OwnerPortal Seed] Done.');
-  console.log('👤 Default logins:');
+  console.log('👤 Created/verified logins:');
   for (const u of DEFAULT_OWNERS) {
-    console.log(`   - ${u.email} / ${u.password}`);
+    console.log(`   - ${u.email}`);
   }
-  console.log('\n⚠️  غيّر كلمات المرور فور دخولك أول مرة.');
+  console.log('\n✅ Passwords were read from OWNER_PORTAL_SEED_PASSWORD and were not printed.');
 }
 
 main()

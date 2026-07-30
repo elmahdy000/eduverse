@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateRoomDto, UpdateRoomDto } from './dto/room.dto';
 
@@ -182,7 +187,9 @@ export class RoomsService {
       orderBy: [{ roomType: 'asc' }, { name: 'asc' }],
     });
 
-    const availableRooms = rooms.filter((room) => !unavailableRoomIds.has(room.id));
+    const availableRooms = rooms.filter(
+      (room) => !unavailableRoomIds.has(room.id),
+    );
 
     return {
       data: availableRooms,

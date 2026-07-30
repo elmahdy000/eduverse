@@ -1,4 +1,11 @@
-import { BadRequestException, Controller, Get, Query, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { OwnerGuard, OpsManagerGuard, RoleGuard } from '../auth/role.guard';
@@ -93,7 +100,10 @@ export class DashboardsController {
   }
 
   @Get('analytics')
-  @ApiOperation({ summary: 'Financial analytics report (daily/weekly/monthly) for Owner & Ops' })
+  @ApiOperation({
+    summary:
+      'Financial analytics report (daily/weekly/monthly) for Owner & Ops',
+  })
   @UseGuards(JwtAuthGuard, OpsManagerGuard)
   async getAnalytics(
     @Query('period') period?: string,

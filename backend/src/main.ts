@@ -30,7 +30,8 @@ function validateEnvironment() {
 
   if (
     nodeEnv === 'production' &&
-    (jwtSecret === 'your_jwt_secret_change_in_production' || jwtSecret.length < 24)
+    (jwtSecret === 'your_jwt_secret_change_in_production' ||
+      jwtSecret.length < 24)
   ) {
     throw new Error(
       'Unsafe JWT_SECRET for production. Use a strong secret with at least 24 characters.',
@@ -40,10 +41,10 @@ function validateEnvironment() {
 
 async function bootstrap() {
   validateEnvironment();
-  
+
   // Skip Prisma migration check for existing database
   process.env.SKIP_MIGRATION = 'true';
-  
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');

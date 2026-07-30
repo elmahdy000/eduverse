@@ -117,11 +117,9 @@ D:\coders\eduvers/
 | **Receptionist** | Customer lifecycle, session management, checkout, payments |
 | **Barista** | Order creation, status updates, product viewing |
 
-### Default Credentials
-```
-Email: owner@eduvers.com
-Password: owner123
-```
+### Initial Credentials
+
+The seed requires `SEED_DEFAULT_PASSWORD` (12+ characters). Passwords are not committed or printed by the seed.
 
 ---
 

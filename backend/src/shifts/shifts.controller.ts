@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  Put,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ShiftsService } from './shifts.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -15,7 +25,11 @@ export class ShiftsController {
   @Post('start')
   @ApiOperation({ summary: 'Start a new shift' })
   async startShift(@Body() body: StartShiftDto, @Request() req: any) {
-    return this.shiftsService.startShift(req.user.userId, body.startCash, body.notes);
+    return this.shiftsService.startShift(
+      req.user.userId,
+      body.startCash,
+      body.notes,
+    );
   }
 
   @Get('current')
@@ -41,7 +55,9 @@ export class ShiftsController {
 
   @Get('summary')
   @UseGuards(OpsManagerGuard)
-  @ApiOperation({ summary: 'Get aggregate shifts summary for reports (Admin/Ops only)' })
+  @ApiOperation({
+    summary: 'Get aggregate shifts summary for reports (Admin/Ops only)',
+  })
   async getShiftsSummary(
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,

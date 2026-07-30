@@ -48,9 +48,14 @@ export class BarOrdersController {
       throw new ForbiddenException('User role not found');
     }
 
-    const allowedRoles = ['barista', 'receptionist', 'owner', 'operations manager'];
+    const allowedRoles = [
+      'barista',
+      'receptionist',
+      'owner',
+      'operations manager',
+    ];
     const roleName = (role.name || '').toLowerCase().trim();
-    if (!allowedRoles.some(r => roleName.includes(r) || roleName === r)) {
+    if (!allowedRoles.some((r) => roleName.includes(r) || roleName === r)) {
       throw new ForbiddenException(
         'Only Barista, Receptionist, Owner, or Operations Manager can modify bar orders',
       );
@@ -59,7 +64,10 @@ export class BarOrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new bar order' })
-  async createOrder(@Body() createBarOrderDto: CreateBarOrderDto, @Request() req: any) {
+  async createOrder(
+    @Body() createBarOrderDto: CreateBarOrderDto,
+    @Request() req: any,
+  ) {
     try {
       const order = await this.barOrdersService.createOrder(
         createBarOrderDto,
@@ -169,7 +177,11 @@ export class BarOrdersController {
   ) {
     try {
       await this.assertCanMutateOrder(req?.user);
-      const order = await this.barOrdersService.cancelOrder(orderId, req.user.userId, reason);
+      const order = await this.barOrdersService.cancelOrder(
+        orderId,
+        req.user.userId,
+        reason,
+      );
       // Emit real-time event
       this.barOrdersGateway.emitOrderStatusUpdate(order);
       this.barOrdersGateway.emitDashboardRefresh();
@@ -194,7 +206,10 @@ export class BarOrdersController {
   ) {
     try {
       await this.assertCanMutateOrder(req.user);
-      const order = await this.barOrdersService.updateOrderItems(orderId, items);
+      const order = await this.barOrdersService.updateOrderItems(
+        orderId,
+        items,
+      );
 
       // Emit real-time event
       this.barOrdersGateway.emitOrderStatusUpdate(order);

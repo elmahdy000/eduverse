@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { PasswordService } from '../auth/auth.service';
-import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+} from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -223,11 +227,13 @@ export class UsersService {
 
     // Check if user has orders before deleting
     const hasOrders = await this.prisma.barOrder.findFirst({
-      where: { createdByUserId: userId }
+      where: { createdByUserId: userId },
     });
 
     if (hasOrders) {
-      throw new Error('Cannot delete user with existing orders. Deactivate instead.');
+      throw new Error(
+        'Cannot delete user with existing orders. Deactivate instead.',
+      );
     }
 
     await this.prisma.user.delete({

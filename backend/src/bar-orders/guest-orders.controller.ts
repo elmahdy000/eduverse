@@ -1,4 +1,12 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  HttpException,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BarOrdersService } from './bar-orders.service';
 import { BarOrdersGateway } from './bar-orders.gateway';
@@ -20,7 +28,7 @@ export class GuestOrdersController {
       const result = await this.productsService.listProducts(1, 500);
       return {
         success: true,
-        data: result.data.filter(p => p.availability && p.active),
+        data: result.data.filter((p) => p.availability && p.active),
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
@@ -31,10 +39,14 @@ export class GuestOrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Place order using guest code' })
-  async placeOrder(@Body() body: { guestCode: string; items: any[]; notes?: string }) {
+  async placeOrder(
+    @Body() body: { guestCode: string; items: any[]; notes?: string },
+  ) {
     try {
-      if (!body.guestCode) throw new BadRequestException('Guest code is required');
-      if (!body.items || body.items.length === 0) throw new BadRequestException('No items selected');
+      if (!body.guestCode)
+        throw new BadRequestException('Guest code is required');
+      if (!body.items || body.items.length === 0)
+        throw new BadRequestException('No items selected');
 
       const order = await this.barOrdersService.createOrderByGuestCode(
         body.guestCode,
@@ -88,7 +100,6 @@ export class GuestOrdersController {
         data: result.data,
         timestamp: new Date().toISOString(),
       };
-
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
@@ -102,7 +113,10 @@ export class GuestOrdersController {
   ) {
     try {
       if (!guestCode) throw new BadRequestException('Guest code is required');
-      const order = await this.barOrdersService.cancelGuestOrder(orderId, guestCode);
+      const order = await this.barOrdersService.cancelGuestOrder(
+        orderId,
+        guestCode,
+      );
 
       // Emit real-time event
       this.barOrdersGateway.emitOrderStatusUpdate(order);

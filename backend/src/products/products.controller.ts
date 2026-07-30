@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -16,7 +27,8 @@ export class ProductsController {
   @ApiOperation({ summary: 'Create product' })
   async createProduct(@Body() createProductDto: CreateProductDto) {
     try {
-      const product = await this.productsService.createProduct(createProductDto);
+      const product =
+        await this.productsService.createProduct(createProductDto);
       return {
         success: true,
         data: product,
@@ -55,13 +67,17 @@ export class ProductsController {
     @Query('q') q?: string,
   ) {
     try {
-      const result = await this.productsService.listProducts(Number(page), Number(limit), {
-        category,
-        availability:
-          availability === undefined ? undefined : availability === 'true',
-        active: active === undefined ? true : active === 'true',
-        q,
-      });
+      const result = await this.productsService.listProducts(
+        Number(page),
+        Number(limit),
+        {
+          category,
+          availability:
+            availability === undefined ? undefined : availability === 'true',
+          active: active === undefined ? true : active === 'true',
+          q,
+        },
+      );
 
       return {
         success: true,

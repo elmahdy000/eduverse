@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { RecordPaymentDto, RefundPaymentDto } from './dto/payment.dto';
 
@@ -17,57 +22,73 @@ export class PaymentsService {
   }
 
   async recordPayment(recordPaymentDto: RecordPaymentDto, userId: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.findUnique({
-        where: { id: recordPaymentDto.invoiceId },
-      });
-      if (!invoice) {
-        throw new NotFoundException('الفاتورة غير موجودة');
-      }
+    return this.prisma.$transaction(
+      async (tx) => {
+        const invoice = await tx.invoice.findUnique({
+          where: { id: recordPaymentDto.invoiceId },
+        });
+        if (!invoice) {
+          throw new NotFoundException('الفاتورة غير موجودة');
+        }
 
-      // Ensure user has an open shift to record payment
-      const openShift = await tx.shift.findFirst({
-        where: { userId, status: 'open' },
-      });
-      if (!openShift) {
-        throw new BadRequestException('يجب فتح شفت أولاً قبل تسجيل أي عملية دفع');
-      }
+        // Ensure user has an open shift to record payment
+        const openShift = await tx.shift.findFirst({
+          where: { userId, status: 'open' },
+        });
+        if (!openShift) {
+          throw new BadRequestException(
+            'يجب فتح شفت أولاً قبل تسجيل أي عملية دفع',
+          );
+        }
 
-      const remainingAmount = Number(invoice.remainingAmount);
-      if (recordPaymentDto.amount > remainingAmount) {
-        throw new BadRequestException('Payment amount exceeds remaining invoice amount');
-      }
+        const remainingAmount = Number(invoice.remainingAmount);
+        if (recordPaymentDto.amount > remainingAmount) {
+          throw new BadRequestException(
+            'Payment amount exceeds remaining invoice amount',
+          );
+        }
 
-      const payment = await tx.payment.create({
-        data: {
-          invoiceId: recordPaymentDto.invoiceId,
-          paymentMethod: recordPaymentDto.paymentMethod,
-          amount: recordPaymentDto.amount,
-          notes: recordPaymentDto.notes,
-          recordedByUserId: userId,
-        },
-      });
+        const payment = await tx.payment.create({
+          data: {
+            invoiceId: recordPaymentDto.invoiceId,
+            paymentMethod: recordPaymentDto.paymentMethod,
+            amount: recordPaymentDto.amount,
+            notes: recordPaymentDto.notes,
+            recordedByUserId: userId,
+          },
+        });
 
-      const totalAmount = Number(invoice.totalAmount);
-      const updatedAmountPaid = Number((Number(invoice.amountPaid) + recordPaymentDto.amount).toFixed(2));
-      const updatedRemaining = Number((totalAmount - updatedAmountPaid).toFixed(2));
-      const paymentStatus = this.getPaymentStatus(totalAmount, updatedAmountPaid);
+        const totalAmount = Number(invoice.totalAmount);
+        const updatedAmountPaid = Number(
+          (Number(invoice.amountPaid) + recordPaymentDto.amount).toFixed(2),
+        );
+        const updatedRemaining = Number(
+          (totalAmount - updatedAmountPaid).toFixed(2),
+        );
+        const paymentStatus = this.getPaymentStatus(
+          totalAmount,
+          updatedAmountPaid,
+        );
 
-      const updated = await tx.invoice.updateMany({
-        where: { id: recordPaymentDto.invoiceId },
-        data: {
-          amountPaid: updatedAmountPaid,
-          remainingAmount: Math.max(0, updatedRemaining),
-          paymentStatus,
-        },
-      });
+        const updated = await tx.invoice.updateMany({
+          where: { id: recordPaymentDto.invoiceId },
+          data: {
+            amountPaid: updatedAmountPaid,
+            remainingAmount: Math.max(0, updatedRemaining),
+            paymentStatus,
+          },
+        });
 
-      if (updated.count !== 1) {
-        throw new InternalServerErrorException('Failed to update invoice payment state');
-      }
+        if (updated.count !== 1) {
+          throw new InternalServerErrorException(
+            'Failed to update invoice payment state',
+          );
+        }
 
-      return payment;
-    }, { isolationLevel: 'Serializable' });
+        return payment;
+      },
+      { isolationLevel: 'Serializable' },
+    );
   }
 
   async listPayments(
@@ -133,21 +154,28 @@ export class PaymentsService {
   }
 
   async getSummary(filters?: { fromDate?: string; toDate?: string }) {
-    const dateFilter = (filters?.fromDate || filters?.toDate)
-      ? {
-          ...(filters.fromDate ? { gte: new Date(filters.fromDate) } : {}),
-          ...(filters.toDate ? { lte: new Date(filters.toDate) } : {}),
-        }
-      : undefined;
+    const dateFilter =
+      filters?.fromDate || filters?.toDate
+        ? {
+            ...(filters.fromDate ? { gte: new Date(filters.fromDate) } : {}),
+            ...(filters.toDate ? { lte: new Date(filters.toDate) } : {}),
+          }
+        : undefined;
 
     const [collected, refunded, invoiceSummary] = await Promise.all([
       this.prisma.payment.aggregate({
-        where: { amount: { gt: 0 }, ...(dateFilter ? { paidAt: dateFilter } : {}) },
+        where: {
+          amount: { gt: 0 },
+          ...(dateFilter ? { paidAt: dateFilter } : {}),
+        },
         _sum: { amount: true },
         _count: true,
       }),
       this.prisma.payment.aggregate({
-        where: { amount: { lt: 0 }, ...(dateFilter ? { paidAt: dateFilter } : {}) },
+        where: {
+          amount: { lt: 0 },
+          ...(dateFilter ? { paidAt: dateFilter } : {}),
+        },
         _sum: { amount: true },
         _count: true,
       }),
@@ -175,76 +203,95 @@ export class PaymentsService {
     };
   }
 
-  async refundPayment(paymentId: string, refundDto: RefundPaymentDto, userId: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.findUnique({
-        where: { id: paymentId },
-        include: { invoice: true },
-      });
-      if (!payment) {
-        throw new NotFoundException('الدفعة غير موجودة');
-      }
+  async refundPayment(
+    paymentId: string,
+    refundDto: RefundPaymentDto,
+    userId: string,
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const payment = await tx.payment.findUnique({
+          where: { id: paymentId },
+          include: { invoice: true },
+        });
+        if (!payment) {
+          throw new NotFoundException('الدفعة غير موجودة');
+        }
 
-      // Ensure user has an open shift to record refund
-      const openShift = await tx.shift.findFirst({
-        where: { userId, status: 'open' },
-      });
-      if (!openShift) {
-        throw new BadRequestException('يجب فتح شفت أولاً قبل تسجيل أي عملية إرجاع (استرداد مالي)');
-      }
+        // Ensure user has an open shift to record refund
+        const openShift = await tx.shift.findFirst({
+          where: { userId, status: 'open' },
+        });
+        if (!openShift) {
+          throw new BadRequestException(
+            'يجب فتح شفت أولاً قبل تسجيل أي عملية إرجاع (استرداد مالي)',
+          );
+        }
 
-      const originalAmount = Number(payment.amount);
-      if (originalAmount <= 0) {
-        throw new BadRequestException('Cannot refund a refund payment');
-      }
+        const originalAmount = Number(payment.amount);
+        if (originalAmount <= 0) {
+          throw new BadRequestException('Cannot refund a refund payment');
+        }
 
-      const refundAmount = refundDto.amount ?? originalAmount;
-      const previousRefunds = await tx.payment.aggregate({
-        where: { refundedPaymentId: paymentId, amount: { lt: 0 } },
-        _sum: { amount: true },
-      });
-      const alreadyRefunded = Math.abs(Number(previousRefunds._sum.amount ?? 0));
-      const refundableAmount = Number((originalAmount - alreadyRefunded).toFixed(2));
-      if (refundAmount > refundableAmount) {
-        throw new BadRequestException('Refund amount cannot exceed original payment amount');
-      }
+        const refundAmount = refundDto.amount ?? originalAmount;
+        const previousRefunds = await tx.payment.aggregate({
+          where: { refundedPaymentId: paymentId, amount: { lt: 0 } },
+          _sum: { amount: true },
+        });
+        const alreadyRefunded = Math.abs(
+          Number(previousRefunds._sum.amount ?? 0),
+        );
+        const refundableAmount = Number(
+          (originalAmount - alreadyRefunded).toFixed(2),
+        );
+        if (refundAmount > refundableAmount) {
+          throw new BadRequestException(
+            'Refund amount cannot exceed original payment amount',
+          );
+        }
 
-      const refundPayment = await tx.payment.create({
-        data: {
-          invoiceId: payment.invoiceId,
-          paymentMethod: payment.paymentMethod,
-          amount: -Math.abs(refundAmount),
-          notes: refundDto.reason
-            ? `Refund for payment ${paymentId}: ${refundDto.reason}`
-            : `Refund for payment ${paymentId}`,
-          recordedByUserId: userId,
-          refundedPaymentId: paymentId,
-        },
-      });
+        const refundPayment = await tx.payment.create({
+          data: {
+            invoiceId: payment.invoiceId,
+            paymentMethod: payment.paymentMethod,
+            amount: -Math.abs(refundAmount),
+            notes: refundDto.reason
+              ? `Refund for payment ${paymentId}: ${refundDto.reason}`
+              : `Refund for payment ${paymentId}`,
+            recordedByUserId: userId,
+            refundedPaymentId: paymentId,
+          },
+        });
 
-      const invoice = payment.invoice;
-      const totalAmount = Number(invoice.totalAmount);
-      const adjustedPaid = Math.max(
-        0,
-        Number((Number(invoice.amountPaid) - refundAmount).toFixed(2)),
-      );
-      const adjustedRemaining = Number((totalAmount - adjustedPaid).toFixed(2));
-      const paymentStatus = this.getPaymentStatus(totalAmount, adjustedPaid);
+        const invoice = payment.invoice;
+        const totalAmount = Number(invoice.totalAmount);
+        const adjustedPaid = Math.max(
+          0,
+          Number((Number(invoice.amountPaid) - refundAmount).toFixed(2)),
+        );
+        const adjustedRemaining = Number(
+          (totalAmount - adjustedPaid).toFixed(2),
+        );
+        const paymentStatus = this.getPaymentStatus(totalAmount, adjustedPaid);
 
-      const updated = await tx.invoice.updateMany({
-        where: { id: invoice.id },
-        data: {
-          amountPaid: adjustedPaid,
-          remainingAmount: Math.max(0, adjustedRemaining),
-          paymentStatus,
-        },
-      });
+        const updated = await tx.invoice.updateMany({
+          where: { id: invoice.id },
+          data: {
+            amountPaid: adjustedPaid,
+            remainingAmount: Math.max(0, adjustedRemaining),
+            paymentStatus,
+          },
+        });
 
-      if (updated.count !== 1) {
-        throw new InternalServerErrorException('Failed to update invoice after refund');
-      }
+        if (updated.count !== 1) {
+          throw new InternalServerErrorException(
+            'Failed to update invoice after refund',
+          );
+        }
 
-      return refundPayment;
-    }, { isolationLevel: 'Serializable' });
+        return refundPayment;
+      },
+      { isolationLevel: 'Serializable' },
+    );
   }
 }

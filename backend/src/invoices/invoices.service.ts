@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/invoice.dto';
 
@@ -48,7 +53,7 @@ export class InvoicesService {
         customer: true,
         barOrders: {
           where: {
-            status: { not: 'cancelled' },
+            status: 'delivered',
             // منع الاحتساب المزدوج: نستبعد الطلبات اللي اتعملها فاتورة standalone بالفعل
             invoiceId: null,
           },
@@ -91,11 +96,16 @@ export class InvoicesService {
     const discountAmount = createInvoiceDto.discountAmount
       ? createInvoiceDto.discountAmount
       : createInvoiceDto.discountPercent
-        ? Number(((subtotal * createInvoiceDto.discountPercent) / 100).toFixed(2))
+        ? Number(
+            ((subtotal * createInvoiceDto.discountPercent) / 100).toFixed(2),
+          )
         : 0;
 
     const taxAmount = 0;
-    const totalAmount = Math.max(0, Number((subtotal - discountAmount + taxAmount).toFixed(2)));
+    const totalAmount = Math.max(
+      0,
+      Number((subtotal - discountAmount + taxAmount).toFixed(2)),
+    );
 
     const invoiceNumber = await this.generateInvoiceNumberWithTx(tx);
 
@@ -139,7 +149,9 @@ export class InvoicesService {
       const itemsDesc = order.items
         .map((item: any) => `${item.quantity}x ${item.product?.name ?? 'منتج'}`)
         .join('، ');
-      const description = itemsDesc ? `طلب بار: ${itemsDesc}` : `طلب بار #${order.id.slice(0, 8)}`;
+      const description = itemsDesc
+        ? `طلب بار: ${itemsDesc}`
+        : `طلب بار #${order.id.slice(0, 8)}`;
 
       itemsData.push({
         invoiceId: createdInvoice.id,
@@ -331,7 +343,9 @@ export class InvoicesService {
       data: payments,
       total: payments.length,
       totalRecorded: Number(
-        payments.reduce((sum, payment) => sum + Number(payment.amount), 0).toFixed(2),
+        payments
+          .reduce((sum, payment) => sum + Number(payment.amount), 0)
+          .toFixed(2),
       ),
       remainingAmount: Number(invoice.remainingAmount),
     };

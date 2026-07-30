@@ -30,13 +30,17 @@ describe('Eduverse API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ transform: true, whitelist: true }),
+    );
     await app.init();
 
-    const ownerLogin = await request(app.getHttpServer()).post('/auth/login').send({
-      email: 'owner@eduvers.com',
-      password: 'owner123',
-    });
+    const ownerLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'owner@eduvers.com',
+        password: 'owner123',
+      });
     ownerAccessToken = ownerLogin.body.data.accessToken;
 
     const restrictedRole = await prisma.role.create({
@@ -59,10 +63,12 @@ describe('Eduverse API (e2e)', () => {
       },
     });
 
-    const restrictedLogin = await request(app.getHttpServer()).post('/auth/login').send({
-      email: restrictedEmail,
-      password: 'restricted123',
-    });
+    const restrictedLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: restrictedEmail,
+        password: 'restricted123',
+      });
     restrictedAccessToken = restrictedLogin.body.data.accessToken;
   });
 
@@ -72,7 +78,10 @@ describe('Eduverse API (e2e)', () => {
   });
 
   it('serves root and health endpoints', async () => {
-    await request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
+    await request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect('Hello World!');
 
     await request(app.getHttpServer())
       .get('/health')
@@ -290,7 +299,9 @@ describe('Eduverse API (e2e)', () => {
       })
       .expect(400)
       .expect(({ body }) => {
-        expect(String(body.message)).toContain('exceeds remaining invoice amount');
+        expect(String(body.message)).toContain(
+          'exceeds remaining invoice amount',
+        );
       });
   });
 

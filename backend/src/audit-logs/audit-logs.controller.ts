@@ -1,4 +1,13 @@
-import { BadRequestException, Controller, Get, Param, Query, UseGuards, HttpException, Request } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+  HttpException,
+  Request,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -41,15 +50,19 @@ export class AuditLogsController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const result = await this.auditLogsService.listAuditLogs(Number(page), Number(limit), {
-        entityType,
-        entityId,
-        userId,
-        action,
-        fromDate,
-        toDate,
-        userRole: req.user.roleName,
-      });
+      const result = await this.auditLogsService.listAuditLogs(
+        Number(page),
+        Number(limit),
+        {
+          entityType,
+          entityId,
+          userId,
+          action,
+          fromDate,
+          toDate,
+          userRole: req.user.roleName,
+        },
+      );
       return {
         success: true,
         data: result,

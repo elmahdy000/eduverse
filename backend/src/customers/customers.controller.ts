@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Request, BadRequestException, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  BadRequestException,
+  HttpException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CustomersService } from './customers.service';
 import {
@@ -117,9 +129,8 @@ export class CustomersController {
   @ApiOperation({ summary: 'Get customer visit and transaction history' })
   async getCustomerHistory(@Param('id') customerId: string) {
     try {
-      const history = await this.customersService.getCustomerHistory(
-        customerId,
-      );
+      const history =
+        await this.customersService.getCustomerHistory(customerId);
       return {
         success: true,
         data: history,
@@ -151,9 +162,8 @@ export class CustomersController {
   @ApiOperation({ summary: 'Deactivate customer' })
   async deactivateCustomer(@Param('id') customerId: string) {
     try {
-      const customer = await this.customersService.deactivateCustomer(
-        customerId,
-      );
+      const customer =
+        await this.customersService.deactivateCustomer(customerId);
       return {
         success: true,
         data: customer,
@@ -193,9 +203,8 @@ export class CustomersController {
   @ApiOperation({ summary: 'Reactivate customer' })
   async reactivateCustomer(@Param('id') customerId: string) {
     try {
-      const customer = await this.customersService.reactivateCustomer(
-        customerId,
-      );
+      const customer =
+        await this.customersService.reactivateCustomer(customerId);
       return {
         success: true,
         data: customer,

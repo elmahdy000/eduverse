@@ -1,35 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
+import { getCairoDayRange, getCairoWeekRange } from '../common/time/cairo-time';
 
 @Injectable()
 export class DashboardsService {
   constructor(private prisma: PrismaService) {}
 
   private getTodayRange() {
-    const now = new Date();
-    const start = new Date(now);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(now);
-    end.setHours(23, 59, 59, 999);
-    return { start, end };
+    return getCairoDayRange();
   }
 
   private getWeekRange() {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(now.getDate() - 6);
-    start.setHours(0, 0, 0, 0);
-    return { start, end: now };
+    return getCairoWeekRange();
   }
 
   private getYesterdayRange() {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(now.getDate() - 1);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setHours(23, 59, 59, 999);
-    return { start, end };
+    return getCairoDayRange(new Date(), -1);
   }
 
   async getOwnerDashboard() {
@@ -86,7 +72,10 @@ export class DashboardsService {
         include: { product: true },
       }),
       this.prisma.session.findMany({
-        where: { status: 'closed', endTime: { gte: today.start, lte: today.end } },
+        where: {
+          status: 'closed',
+          endTime: { gte: today.start, lte: today.end },
+        },
         select: { durationMinutes: true },
       }),
       this.prisma.customer.count(),
@@ -100,35 +89,58 @@ export class DashboardsService {
     ).size;
 
     const todayRevenue = Number(
-      paymentsToday.reduce((sum, p: any) => sum + Number(p.amount), 0).toFixed(2),
+      paymentsToday
+        .reduce((sum, p: any) => sum + Number(p.amount), 0)
+        .toFixed(2),
     );
     const yesterdayRevenue = Number(
-      paymentsYesterday.reduce((sum, p: any) => sum + Number(p.amount), 0).toFixed(2),
+      paymentsYesterday
+        .reduce((sum, p: any) => sum + Number(p.amount), 0)
+        .toFixed(2),
     );
     const weekRevenue = Number(
-      paymentsWeek.reduce((sum, p: any) => sum + Number(p.amount), 0).toFixed(2),
+      paymentsWeek
+        .reduce((sum, p: any) => sum + Number(p.amount), 0)
+        .toFixed(2),
     );
-    const revenueTrend = yesterdayRevenue > 0
-      ? Number((((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100).toFixed(1))
-      : null;
+    const revenueTrend =
+      yesterdayRevenue > 0
+        ? Number(
+            (
+              ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) *
+              100
+            ).toFixed(1),
+          )
+        : null;
 
     // Average session duration today
     const durations = closedSessionsToday
       .map((s: any) => s.durationMinutes)
       .filter((d: any) => d != null && d > 0);
-    const avgSessionMinutes = durations.length > 0
-      ? Math.round(durations.reduce((a: number, b: number) => a + b, 0) / durations.length)
-      : null;
+    const avgSessionMinutes =
+      durations.length > 0
+        ? Math.round(
+            durations.reduce((a: number, b: number) => a + b, 0) /
+              durations.length,
+          )
+        : null;
 
     // Daily revenue breakdown for week chart
     const dailyRevenue: Record<string, number> = {};
     for (const p of paymentsWeek as any[]) {
-      const day = new Date(p.paidAt).toLocaleDateString('ar-EG', { weekday: 'short' });
-      dailyRevenue[day] = Number(((dailyRevenue[day] ?? 0) + Number(p.amount)).toFixed(2));
+      const day = new Date(p.paidAt).toLocaleDateString('ar-EG', {
+        weekday: 'short',
+      });
+      dailyRevenue[day] = Number(
+        ((dailyRevenue[day] ?? 0) + Number(p.amount)).toFixed(2),
+      );
     }
 
     // Top products by revenue
-    const productMap = new Map<string, { productName: string; quantity: number; revenue: number }>();
+    const productMap = new Map<
+      string,
+      { productName: string; quantity: number; revenue: number }
+    >();
     for (const item of recentOrderItems as any[]) {
       const key = item.productId;
       const existing = productMap.get(key) ?? {
@@ -145,9 +157,12 @@ export class DashboardsService {
       .slice(0, 5);
 
     const operationalAlerts: string[] = [];
-    if (currentBarOrders > 20) operationalAlerts.push('High pending bar orders volume');
-    if (activeSessionsNow > 30) operationalAlerts.push('High active sessions load');
-    if (todayRevenue === 0 && new Date().getHours() > 12) operationalAlerts.push('Zero revenue after noon — check invoices');
+    if (currentBarOrders > 20)
+      operationalAlerts.push('High pending bar orders volume');
+    if (activeSessionsNow > 30)
+      operationalAlerts.push('High active sessions load');
+    if (todayRevenue === 0 && new Date().getHours() > 12)
+      operationalAlerts.push('Zero revenue after noon — check invoices');
 
     return {
       activeCustomersNow,
@@ -199,10 +214,37 @@ export class DashboardsService {
 
     if (period === 'monthly') {
       start = new Date(base.getFullYear(), base.getMonth(), 1, 0, 0, 0, 0);
-      end = new Date(base.getFullYear(), base.getMonth() + 1, 0, 23, 59, 59, 999);
-      prevStart = new Date(base.getFullYear(), base.getMonth() - 1, 1, 0, 0, 0, 0);
-      prevEnd = new Date(base.getFullYear(), base.getMonth(), 0, 23, 59, 59, 999);
-      label = start.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+      end = new Date(
+        base.getFullYear(),
+        base.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      prevStart = new Date(
+        base.getFullYear(),
+        base.getMonth() - 1,
+        1,
+        0,
+        0,
+        0,
+        0,
+      );
+      prevEnd = new Date(
+        base.getFullYear(),
+        base.getMonth(),
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      label = start.toLocaleDateString('ar-EG', {
+        month: 'long',
+        year: 'numeric',
+      });
     } else if (period === 'weekly') {
       // الأسبوع = 7 أيام منتهية باليوم المختار
       end = new Date(base);
@@ -227,7 +269,12 @@ export class DashboardsService {
       prevStart.setDate(start.getDate() - 1);
       prevEnd = new Date(prevStart);
       prevEnd.setHours(23, 59, 59, 999);
-      label = start.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      label = start.toLocaleDateString('ar-EG', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
     }
 
     return { start, end, prevStart, prevEnd, label };
@@ -261,8 +308,13 @@ export class DashboardsService {
   }
 
   async getAnalytics(period: string = 'monthly', dateStr?: string) {
-    const p = ['daily', 'weekly', 'monthly'].includes(period) ? period : 'monthly';
-    const { start, end, prevStart, prevEnd, label } = this.resolvePeriod(p, dateStr);
+    const p = ['daily', 'weekly', 'monthly'].includes(period)
+      ? period
+      : 'monthly';
+    const { start, end, prevStart, prevEnd, label } = this.resolvePeriod(
+      p,
+      dateStr,
+    );
 
     // 1) إجماليات الفترة الحالية والسابقة
     const [current, previous] = await Promise.all([
@@ -283,7 +335,10 @@ export class DashboardsService {
     ]);
 
     // نجهّز كل الأيام في المدى (حتى الفاضية) عشان الرسم يبقى متصل
-    const trendMap: Record<string, { day: string; revenue: number; expenses: number }> = {};
+    const trendMap: Record<
+      string,
+      { day: string; revenue: number; expenses: number }
+    > = {};
     const cursor = new Date(start);
     while (cursor <= end) {
       const key = this.localDayKey(cursor);
@@ -316,8 +371,14 @@ export class DashboardsService {
       include: { product: true },
     });
 
-    const productMap = new Map<string, { productName: string; quantity: number; revenue: number }>();
-    const categoryMap = new Map<string, { category: string; quantity: number; revenue: number }>();
+    const productMap = new Map<
+      string,
+      { productName: string; quantity: number; revenue: number }
+    >();
+    const categoryMap = new Map<
+      string,
+      { category: string; quantity: number; revenue: number }
+    >();
     for (const item of orderItems as any[]) {
       const qty = Number(item.quantity);
       const rev = Number(item.subtotal ?? 0);
@@ -332,7 +393,11 @@ export class DashboardsService {
       productMap.set(pKey, pExisting);
 
       const cKey = item.product?.category ?? 'other';
-      const cExisting = categoryMap.get(cKey) ?? { category: cKey, quantity: 0, revenue: 0 };
+      const cExisting = categoryMap.get(cKey) ?? {
+        category: cKey,
+        quantity: 0,
+        revenue: 0,
+      };
       cExisting.quantity += qty;
       cExisting.revenue += rev;
       categoryMap.set(cKey, cExisting);
@@ -355,7 +420,8 @@ export class DashboardsService {
     const categories = await this.prisma.expenseCategory.findMany();
     const expenseBreakdown = expensesByCategory
       .map((e) => ({
-        categoryName: categories.find((c) => c.id === e.categoryId)?.name ?? 'غير مصنف',
+        categoryName:
+          categories.find((c) => c.id === e.categoryId)?.name ?? 'غير مصنف',
         total: Number(e._sum.amount || 0),
       }))
       .sort((a, b) => b.total - a.total);
@@ -383,64 +449,74 @@ export class DashboardsService {
     const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const today = this.getTodayRange();
 
-    const [activeSessions, rooms, upcomingBookings, pendingBarOrders, totalRooms] =
-      await Promise.all([
-        this.prisma.session.findMany({
-          where: { status: 'active' },
-          select: {
-            id: true,
-            roomId: true,
-            startTime: true,
-            guestCode: true,
-            status: true,
-            customer: { select: { id: true, fullName: true, customerType: true } },
-            room: { select: { id: true, name: true, roomType: true } },
+    const [
+      activeSessions,
+      rooms,
+      upcomingBookings,
+      pendingBarOrders,
+      totalRooms,
+    ] = await Promise.all([
+      this.prisma.session.findMany({
+        where: { status: 'active' },
+        select: {
+          id: true,
+          roomId: true,
+          startTime: true,
+          guestCode: true,
+          status: true,
+          customer: {
+            select: { id: true, fullName: true, customerType: true },
           },
-          orderBy: { startTime: 'asc' },
-          take: 100,
-        }),
-        this.prisma.room.findMany({ orderBy: { name: 'asc' } }),
-        this.prisma.booking.findMany({
-          where: {
-            status: { in: ['draft', 'confirmed'] },
-            startTime: { gte: now, lte: next24h },
-          },
-          select: {
-            id: true,
-            startTime: true,
-            endTime: true,
-            status: true,
-            customer: { select: { id: true, fullName: true } },
-            room: { select: { id: true, name: true } },
-          },
-          orderBy: { startTime: 'asc' },
-          take: 50,
-        }),
-        this.prisma.barOrder.findMany({
-          where: { status: { in: ['new', 'in_preparation'] } },
-          select: {
-            id: true,
-            status: true,
-            createdAt: true,
-            customer: { select: { id: true, fullName: true } },
-            items: {
-              select: {
-                id: true,
-                quantity: true,
-                product: { select: { id: true, name: true, category: true } },
-              },
+          room: { select: { id: true, name: true, roomType: true } },
+        },
+        orderBy: { startTime: 'asc' },
+        take: 100,
+      }),
+      this.prisma.room.findMany({ orderBy: { name: 'asc' } }),
+      this.prisma.booking.findMany({
+        where: {
+          status: { in: ['draft', 'confirmed'] },
+          startTime: { gte: now, lte: next24h },
+        },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+          customer: { select: { id: true, fullName: true } },
+          room: { select: { id: true, name: true } },
+        },
+        orderBy: { startTime: 'asc' },
+        take: 50,
+      }),
+      this.prisma.barOrder.findMany({
+        where: { status: { in: ['new', 'in_preparation'] } },
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          customer: { select: { id: true, fullName: true } },
+          items: {
+            select: {
+              id: true,
+              quantity: true,
+              product: { select: { id: true, name: true, category: true } },
             },
           },
-          orderBy: { createdAt: 'asc' },
-          take: 50,
-        }),
-        this.prisma.room.count(),
-      ]);
+        },
+        orderBy: { createdAt: 'asc' },
+        take: 50,
+      }),
+      this.prisma.room.count(),
+    ]);
 
     const occupancyByRoomId = new Map<string, number>();
     for (const session of activeSessions as any[]) {
       if (!session.roomId) continue;
-      occupancyByRoomId.set(session.roomId, (occupancyByRoomId.get(session.roomId) ?? 0) + 1);
+      occupancyByRoomId.set(
+        session.roomId,
+        (occupancyByRoomId.get(session.roomId) ?? 0) + 1,
+      );
     }
 
     const roomOccupancy = (rooms as any[]).map((room) => ({
@@ -453,14 +529,20 @@ export class DashboardsService {
       isOccupied: (occupancyByRoomId.get(room.id) ?? 0) > 0,
     }));
 
-    const availableRooms = roomOccupancy.filter((r) => r.status === 'available' && !r.isOccupied).length;
+    const availableRooms = roomOccupancy.filter(
+      (r) => r.status === 'available' && !r.isOccupied,
+    ).length;
     const occupiedRooms = roomOccupancy.filter((r) => r.isOccupied).length;
-    const offlineRooms = roomOccupancy.filter((r) => r.status === 'out_of_service').length;
+    const offlineRooms = roomOccupancy.filter(
+      (r) => r.status === 'out_of_service',
+    ).length;
 
     // Most urgent bar order (oldest pending)
     const oldestPending = pendingBarOrders[0] as any;
     const urgentOrderMinutes = oldestPending
-      ? Math.round((now.getTime() - new Date(oldestPending.createdAt).getTime()) / 60000)
+      ? Math.round(
+          (now.getTime() - new Date(oldestPending.createdAt).getTime()) / 60000,
+        )
       : null;
 
     const alerts: string[] = [];
@@ -474,7 +556,12 @@ export class DashboardsService {
     return {
       activeSessions,
       roomOccupancy,
-      roomStats: { total: totalRooms, available: availableRooms, occupied: occupiedRooms, offline: offlineRooms },
+      roomStats: {
+        total: totalRooms,
+        available: availableRooms,
+        occupied: occupiedRooms,
+        offline: offlineRooms,
+      },
       upcomingBookings,
       pendingBarOrders,
       urgentOrderMinutes,
@@ -485,33 +572,75 @@ export class DashboardsService {
   async getReceptionDashboard() {
     const today = this.getTodayRange();
 
-    const [activeSessionCount, recentCustomers, todayInvoicesCount, todayPayments, activeSessions, todayBarOrders] =
-      await Promise.all([
-        this.prisma.session.count({ where: { status: 'active' } }),
-        this.prisma.customer.findMany({
-          orderBy: { createdAt: 'desc' },
-          take: 9,
-        }),
-        this.prisma.invoice.count({
-          where: { issuedAt: { gte: today.start, lte: today.end } },
-        }),
-        this.prisma.payment.findMany({
-          where: { paidAt: { gte: today.start, lte: today.end } },
-          select: { amount: true },
-        }),
-        this.prisma.session.findMany({
-          where: { status: 'active' },
-          include: { customer: { select: { id: true, fullName: true, customerType: true } }, room: { select: { name: true } } },
-          orderBy: { startTime: 'asc' },
-          take: 20,
-        }),
-        this.prisma.barOrder.count({
-          where: { createdAt: { gte: today.start, lte: today.end } },
-        }),
-      ]);
+    const [
+      activeSessionCount,
+      recentCustomers,
+      todayInvoicesCount,
+      todayPayments,
+      activeSessions,
+      todayBarOrders,
+      deliveredBarOrders,
+    ] = await Promise.all([
+      this.prisma.session.count({ where: { status: 'active' } }),
+      this.prisma.customer.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 9,
+        select: {
+          id: true,
+          fullName: true,
+          phoneNumber: true,
+          customerType: true,
+        },
+      }),
+      this.prisma.invoice.count({
+        where: { issuedAt: { gte: today.start, lte: today.end } },
+      }),
+      this.prisma.payment.findMany({
+        where: { paidAt: { gte: today.start, lte: today.end } },
+        select: { amount: true },
+      }),
+      this.prisma.session.findMany({
+        where: { status: 'active' },
+        include: {
+          customer: {
+            select: { id: true, fullName: true, customerType: true },
+          },
+          room: { select: { name: true } },
+        },
+        orderBy: { startTime: 'asc' },
+      }),
+      this.prisma.barOrder.count({
+        where: { createdAt: { gte: today.start, lte: today.end } },
+      }),
+      this.prisma.barOrder.findMany({
+        where: {
+          status: 'delivered',
+          updatedAt: { gte: today.start, lte: today.end },
+        },
+        include: {
+          customer: {
+            select: {
+              id: true,
+              fullName: true,
+              phoneNumber: true,
+              customerType: true,
+            },
+          },
+          items: {
+            include: {
+              product: { select: { id: true, name: true, category: true } },
+            },
+          },
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: 20,
+      }),
+    ]);
 
     const todayRevenuePartial = Number(
-      todayPayments.reduce((sum, p: any) => sum + Number(p.amount), 0).toFixed(2),
+      todayPayments
+        .reduce((sum, p: any) => sum + Number(p.amount), 0)
+        .toFixed(2),
     );
 
     return {
@@ -521,13 +650,20 @@ export class DashboardsService {
       todayRevenuePartial,
       activeSessions,
       todayBarOrders,
+      deliveredBarOrders,
     };
   }
 
   async getBaristaDashboard() {
     const now = new Date();
 
-    const [newOrders, inPreparationOrders, readyOrders, deliveredToday, deliveredOrders] = await Promise.all([
+    const [
+      newOrders,
+      inPreparationOrders,
+      readyOrders,
+      deliveredToday,
+      deliveredOrders,
+    ] = await Promise.all([
       this.prisma.barOrder.findMany({
         where: { status: 'new' },
         include: {
@@ -583,7 +719,9 @@ export class DashboardsService {
     const addWaitTime = (orders: any[]) =>
       orders.map((o) => ({
         ...o,
-        waitMinutes: Math.round((now.getTime() - new Date(o.createdAt).getTime()) / 60000),
+        waitMinutes: Math.round(
+          (now.getTime() - new Date(o.createdAt).getTime()) / 60000,
+        ),
       }));
 
     return {
@@ -629,13 +767,18 @@ export class DashboardsService {
     const operationsByRole = targetRoles.map((roleName) => {
       const roleUsers = targetUsers.filter((u) => u.role.name === roleName);
       const roleUserIds = roleUsers.map((u) => u.id);
-      const roleLogs = auditLogs.filter((log) => roleUserIds.includes(log.userId));
+      const roleLogs = auditLogs.filter((log) =>
+        roleUserIds.includes(log.userId),
+      );
 
       // Count operations by action type
-      const actionCounts = roleLogs.reduce((acc, log) => {
-        acc[log.action] = (acc[log.action] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const actionCounts = roleLogs.reduce(
+        (acc, log) => {
+          acc[log.action] = (acc[log.action] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       return {
         role: roleName,

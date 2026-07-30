@@ -8,6 +8,11 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting Bar-Centric Production Seed with Inventory...');
 
+  const seedPassword = process.env.SEED_DEFAULT_PASSWORD;
+  if (!seedPassword || seedPassword.length < 12) {
+    throw new Error('SEED_DEFAULT_PASSWORD must be set to at least 12 characters before seeding');
+  }
+
   // 1. Clean existing data
   console.log('🧹 Cleaning old data...');
   await prisma.inventoryTransaction.deleteMany();
@@ -139,7 +144,7 @@ async function main() {
 
   // 5. Create Default Users
   console.log('👤 Creating default users...');
-  const passwordHash = await bcrypt.hash('123456', 10);
+  const passwordHash = await bcrypt.hash(seedPassword, 10);
   const owner = await prisma.user.create({
     data: {
       email: 'owner@eduvers.com',
@@ -151,7 +156,7 @@ async function main() {
     },
   });
 
-  const elmahdyHash = await bcrypt.hash('pass12345', 10);
+  const elmahdyHash = passwordHash;
   await prisma.user.create({
     data: {
       email: 'elmahdy@eduvers.com',

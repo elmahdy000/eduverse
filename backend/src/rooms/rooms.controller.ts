@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -83,12 +94,16 @@ export class RoomsController {
     @Query('q') q?: string,
   ) {
     try {
-      const result = await this.roomsService.listRooms(Number(page), Number(limit), {
-        roomType,
-        status,
-        minCapacity: minCapacity ? Number(minCapacity) : undefined,
-        q,
-      });
+      const result = await this.roomsService.listRooms(
+        Number(page),
+        Number(limit),
+        {
+          roomType,
+          status,
+          minCapacity: minCapacity ? Number(minCapacity) : undefined,
+          q,
+        },
+      );
 
       return {
         success: true,

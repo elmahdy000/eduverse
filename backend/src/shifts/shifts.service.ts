@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 
 @Injectable()
@@ -6,7 +11,9 @@ export class ShiftsService {
   constructor(private prisma: PrismaService) {}
 
   private canAccessAnyShift(actor?: { roleName?: string }) {
-    return actor?.roleName === 'Owner' || actor?.roleName === 'Operations Manager';
+    return (
+      actor?.roleName === 'Owner' || actor?.roleName === 'Operations Manager'
+    );
   }
 
   private assertCanAccessShift(
@@ -20,35 +27,39 @@ export class ShiftsService {
   }
 
   async startShift(userId: string, startCash: number, notes?: string) {
-    // Check if user already has an open shift
-    const openShift = await this.prisma.shift.findFirst({
-      where: { userId, status: 'open' },
-    });
-
-    if (openShift) {
-      throw new BadRequestException('You already have an open shift. Close it first.');
-    }
-
-    return this.prisma.shift.create({
-      data: {
-        userId,
-        startCash,
-        notes,
-        status: 'open',
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}))`;
+        const openShift = await tx.shift.findFirst({
+          where: { userId, status: 'open' },
+        });
+        if (openShift) {
+          throw new BadRequestException(
+            'You already have an open shift. Close it first.',
+          );
+        }
+        return tx.shift.create({
+          data: { userId, startCash, notes, status: 'open' },
+        });
       },
-    });
+      { isolationLevel: 'Serializable' },
+    );
   }
 
   async getCurrentShift(userId: string) {
     const shift = await this.prisma.shift.findFirst({
       where: { userId, status: 'open' },
     });
-    
+
     if (!shift) return null;
 
     // Calculate real-time stats for the open shift
-    const stats = await this.getShiftStats(shift.startTime, new Date(), shift.userId);
-    
+    const stats = await this.getShiftStats(
+      shift.startTime,
+      new Date(),
+      shift.userId,
+    );
+
     return {
       ...shift,
       stats,
@@ -82,7 +93,8 @@ export class ShiftsService {
       shift.userId,
     );
     // Important: Expected cash is based ONLY on cash transactions
-    const expectedCash = Number(shift.startCash) + stats.totalCashSales - stats.totalCashExpenses;
+    const expectedCash =
+      Number(shift.startCash) + stats.totalCashSales - stats.totalCashExpenses;
     const variance = Number((actualCash - expectedCash).toFixed(2));
 
     const updatedShift = await this.prisma.shift.update({
@@ -94,7 +106,9 @@ export class ShiftsService {
         totalSales: stats.totalSales,
         totalExpenses: stats.totalExpenses,
         status: 'closed',
-        notes: notes ? `${shift.notes || ''} | Close Notes: ${notes}` : shift.notes,
+        notes: notes
+          ? `${shift.notes || ''} | Close Notes: ${notes}`
+          : shift.notes,
       },
     });
 
@@ -168,91 +182,99 @@ export class ShiftsService {
     endTime: Date,
     userId: string,
   ) {
-    const [sales, expenses, cashSales, cashExpenses, paymentsByMethodRaw, expensesByCategoryRaw, recentPayments, recentExpenses] =
-      await Promise.all([
-        this.prisma.payment.aggregate({
-          where: {
-            recordedByUserId: userId,
-            paidAt: { gte: startTime, lte: endTime },
+    const [
+      sales,
+      expenses,
+      cashSales,
+      cashExpenses,
+      paymentsByMethodRaw,
+      expensesByCategoryRaw,
+      recentPayments,
+      recentExpenses,
+    ] = await Promise.all([
+      this.prisma.payment.aggregate({
+        where: {
+          recordedByUserId: userId,
+          paidAt: { gte: startTime, lte: endTime },
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.expense.aggregate({
+        where: {
+          recordedByUserId: userId,
+          date: { gte: startTime, lte: endTime },
+          status: 'paid',
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          recordedByUserId: userId,
+          paymentMethod: 'cash',
+          paidAt: { gte: startTime, lte: endTime },
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.expense.aggregate({
+        where: {
+          recordedByUserId: userId,
+          paymentMethod: 'cash',
+          date: { gte: startTime, lte: endTime },
+          status: 'paid',
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.payment.groupBy({
+        by: ['paymentMethod'],
+        where: {
+          recordedByUserId: userId,
+          paidAt: { gte: startTime, lte: endTime },
+        },
+        _sum: { amount: true },
+        _count: { _all: true },
+      }),
+      this.prisma.expense.groupBy({
+        by: ['categoryId'],
+        where: {
+          recordedByUserId: userId,
+          date: { gte: startTime, lte: endTime },
+          status: 'paid',
+        },
+        _sum: { amount: true },
+        _count: { _all: true },
+      }),
+      this.prisma.payment.findMany({
+        where: {
+          recordedByUserId: userId,
+          paidAt: { gte: startTime, lte: endTime },
+        },
+        orderBy: { paidAt: 'desc' },
+        take: 10,
+        include: {
+          recordedByUser: {
+            select: { firstName: true, lastName: true, email: true },
           },
-          _sum: { amount: true },
-        }),
-        this.prisma.expense.aggregate({
-          where: {
-            recordedByUserId: userId,
-            date: { gte: startTime, lte: endTime },
-            status: 'paid',
+          invoice: {
+            select: { invoiceNumber: true },
           },
-          _sum: { amount: true },
-        }),
-        this.prisma.payment.aggregate({
-          where: {
-            recordedByUserId: userId,
-            paymentMethod: 'cash',
-            paidAt: { gte: startTime, lte: endTime },
+        },
+      }),
+      this.prisma.expense.findMany({
+        where: {
+          recordedByUserId: userId,
+          date: { gte: startTime, lte: endTime },
+          status: 'paid',
+        },
+        orderBy: { date: 'desc' },
+        take: 10,
+        include: {
+          category: { select: { id: true, name: true } },
+          recordedByUser: {
+            select: { firstName: true, lastName: true, email: true },
           },
-          _sum: { amount: true },
-        }),
-        this.prisma.expense.aggregate({
-          where: {
-            recordedByUserId: userId,
-            paymentMethod: 'cash',
-            date: { gte: startTime, lte: endTime },
-            status: 'paid',
-          },
-          _sum: { amount: true },
-        }),
-        this.prisma.payment.groupBy({
-          by: ['paymentMethod'],
-          where: {
-            recordedByUserId: userId,
-            paidAt: { gte: startTime, lte: endTime },
-          },
-          _sum: { amount: true },
-          _count: { _all: true },
-        }),
-        this.prisma.expense.groupBy({
-          by: ['categoryId'],
-          where: {
-            recordedByUserId: userId,
-            date: { gte: startTime, lte: endTime },
-            status: 'paid',
-          },
-          _sum: { amount: true },
-          _count: { _all: true },
-        }),
-        this.prisma.payment.findMany({
-          where: {
-            recordedByUserId: userId,
-            paidAt: { gte: startTime, lte: endTime },
-          },
-          orderBy: { paidAt: 'desc' },
-          take: 10,
-          include: {
-            recordedByUser: {
-              select: { firstName: true, lastName: true, email: true },
-            },
-            invoice: {
-              select: { invoiceNumber: true },
-            },
-          },
-        }),
-        this.prisma.expense.findMany({
-          where: {
-            recordedByUserId: userId,
-            date: { gte: startTime, lte: endTime },
-            status: 'paid',
-          },
-          orderBy: { date: 'desc' },
-          take: 10,
-          include: {
-            category: { select: { id: true, name: true } },
-            recordedByUser: {
-              select: { firstName: true, lastName: true, email: true },
-            },
-          },
-        }),
-      ]);
+        },
+      }),
+    ]);
 
     const categoryIds = expensesByCategoryRaw.map((x) => x.categoryId);
     const categories = categoryIds.length
@@ -312,7 +334,9 @@ export class ShiftsService {
     const expectedCash =
       shift.status === 'closed'
         ? Number(shift.endCash || 0)
-        : Number(shift.startCash) + stats.totalCashSales - stats.totalCashExpenses;
+        : Number(shift.startCash) +
+          stats.totalCashSales -
+          stats.totalCashExpenses;
     const actualCash =
       shift.actualCash == null ? null : Number(shift.actualCash);
     const variance =
@@ -353,7 +377,9 @@ export class ShiftsService {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma.shift.findMany({
-        include: { user: { select: { firstName: true, lastName: true, email: true } } },
+        include: {
+          user: { select: { firstName: true, lastName: true, email: true } },
+        },
         orderBy: { startTime: 'desc' },
         skip,
         take: limit,
@@ -364,15 +390,15 @@ export class ShiftsService {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-
-
   async getShiftsSummary(fromDate?: string, toDate?: string) {
     const dateFilter =
       fromDate || toDate
         ? {
             startTime: {
               ...(fromDate ? { gte: new Date(fromDate) } : {}),
-              ...(toDate ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) } : {}),
+              ...(toDate
+                ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) }
+                : {}),
             },
           }
         : {};
@@ -408,7 +434,10 @@ export class ShiftsService {
     const shiftsWithVariance = closedShifts.map((s) => {
       const expectedCash = Number(s.endCash || 0);
       const actualCash = s.actualCash != null ? Number(s.actualCash) : null;
-      const variance = actualCash != null ? Number((actualCash - expectedCash).toFixed(2)) : null;
+      const variance =
+        actualCash != null
+          ? Number((actualCash - expectedCash).toFixed(2))
+          : null;
       return {
         id: s.id,
         startTime: s.startTime,
@@ -421,18 +450,21 @@ export class ShiftsService {
       };
     });
 
-    const totalVariance = shiftsWithVariance.reduce((sum, s) => sum + (s.variance ?? 0), 0);
+    const totalVariance = shiftsWithVariance.reduce(
+      (sum, s) => sum + (s.variance ?? 0),
+      0,
+    );
 
     return {
       closedCount: agg._count,
       openCount,
       totalSales: Number(agg._sum.totalSales ?? 0),
       totalExpenses: Number(agg._sum.totalExpenses ?? 0),
-      netSales: Number(agg._sum.totalSales ?? 0) - Number(agg._sum.totalExpenses ?? 0),
+      netSales:
+        Number(agg._sum.totalSales ?? 0) - Number(agg._sum.totalExpenses ?? 0),
       avgSalesPerShift: Number(agg._avg.totalSales ?? 0),
       totalVariance: Number(totalVariance.toFixed(2)),
       recentShifts: shiftsWithVariance,
     };
   }
-
 }

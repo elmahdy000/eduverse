@@ -21,7 +21,7 @@ import {
   ChevronLeft,
   CalendarDays,
 } from "lucide-react";
-import * as XLSX from "xlsx";
+import * as XLSX from "@e965/xlsx";
 import { api } from "../../../lib/api";
 import { money } from "../../../lib/format";
 import { translateProductCategory, translateProductName } from "../../../lib/labels";

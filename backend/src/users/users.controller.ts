@@ -1,7 +1,25 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, BadRequestException, HttpCode, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  BadRequestException,
+  HttpCode,
+  HttpException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+} from './dto/user.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { OwnerGuard, OpsManagerGuard, RoleGuard } from '../auth/role.guard';
 

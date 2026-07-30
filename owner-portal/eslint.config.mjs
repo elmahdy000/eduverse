@@ -2,12 +2,10 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
-const eslintConfig = defineConfig([
+export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
@@ -15,17 +13,10 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
-      // Legacy typing and React Compiler findings remain visible while the
-      // application is migrated incrementally, but do not block releases.
       "@typescript-eslint/no-explicit-any": "warn",
       "react/no-unescaped-entities": "warn",
       "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/static-components": "warn",
       "react-hooks/refs": "warn",
-      "react-hooks/immutability": "warn",
-      "react-hooks/preserve-manual-memoization": "warn",
     },
   },
 ]);
-
-export default eslintConfig;

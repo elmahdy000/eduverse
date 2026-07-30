@@ -22,7 +22,8 @@ export class OwnerReportsService {
 
     if (fromDate) {
       start = new Date(fromDate);
-      if (isNaN(start.getTime())) throw new BadRequestException('fromDate غير صالح');
+      if (isNaN(start.getTime()))
+        throw new BadRequestException('fromDate غير صالح');
       start.setHours(0, 0, 0, 0);
     } else {
       // افتراضي: أول اليوم الحالي
@@ -32,14 +33,16 @@ export class OwnerReportsService {
 
     if (toDate) {
       end = new Date(toDate);
-      if (isNaN(end.getTime())) throw new BadRequestException('toDate غير صالح');
+      if (isNaN(end.getTime()))
+        throw new BadRequestException('toDate غير صالح');
       end.setHours(23, 59, 59, 999);
     } else {
       end = new Date(now);
       end.setHours(23, 59, 59, 999);
     }
 
-    if (start > end) throw new BadRequestException('fromDate يجب أن يكون قبل toDate');
+    if (start > end)
+      throw new BadRequestException('fromDate يجب أن يكون قبل toDate');
     return { start, end };
   }
 
@@ -132,7 +135,8 @@ export class OwnerReportsService {
     const prevExpenses = this.round2(Number(expensesPrevious._sum.amount || 0));
     const netProfit = this.round2(revenue - expenses);
     const prevNetProfit = this.round2(prevRevenue - prevExpenses);
-    const profitMargin = revenue > 0 ? Number(((netProfit / revenue) * 100).toFixed(1)) : null;
+    const profitMargin =
+      revenue > 0 ? Number(((netProfit / revenue) * 100).toFixed(1)) : null;
 
     return {
       range: { start: start.toISOString(), end: end.toISOString() },
@@ -170,57 +174,65 @@ export class OwnerReportsService {
   async getRevenueReport(fromDate?: string, toDate?: string) {
     const { start, end } = this.parseRange(fromDate, toDate);
 
-    const [payments, invoicesAll, refunds, sessionCharges, barOrderRevenue] = await Promise.all([
-      this.prisma.payment.findMany({
-        where: { paidAt: { gte: start, lte: end } },
-        select: {
-          id: true,
-          amount: true,
-          paymentMethod: true,
-          paidAt: true,
-          invoice: {
-            select: {
-              invoiceNumber: true,
-              customer: { select: { fullName: true, customerType: true } },
+    const [payments, invoicesAll, refunds, sessionCharges, barOrderRevenue] =
+      await Promise.all([
+        this.prisma.payment.findMany({
+          where: { paidAt: { gte: start, lte: end } },
+          select: {
+            id: true,
+            amount: true,
+            paymentMethod: true,
+            paidAt: true,
+            invoice: {
+              select: {
+                invoiceNumber: true,
+                customer: { select: { fullName: true, customerType: true } },
+              },
             },
           },
-        },
-        orderBy: { paidAt: 'desc' },
-      }),
-      this.prisma.invoice.findMany({
-        where: { issuedAt: { gte: start, lte: end } },
-        select: {
-          id: true,
-          invoiceNumber: true,
-          totalAmount: true,
-          amountPaid: true,
-          remainingAmount: true,
-          paymentStatus: true,
-          issuedAt: true,
-          customer: { select: { fullName: true, customerType: true } },
-        },
-        orderBy: { issuedAt: 'desc' },
-      }),
-      this.prisma.payment.aggregate({
-        where: { paidAt: { gte: start, lte: end }, amount: { lt: 0 } },
-        _sum: { amount: true },
-        _count: true,
-      }),
-      this.prisma.session.aggregate({
-        where: { status: 'closed', endTime: { gte: start, lte: end } },
-        _sum: { chargeAmount: true },
-      }),
-      this.prisma.barOrder.aggregate({
-        where: { status: 'delivered', updatedAt: { gte: start, lte: end } },
-        _sum: { totalAmount: true },
-      }),
-    ]);
+          orderBy: { paidAt: 'desc' },
+        }),
+        this.prisma.invoice.findMany({
+          where: { issuedAt: { gte: start, lte: end } },
+          select: {
+            id: true,
+            invoiceNumber: true,
+            totalAmount: true,
+            amountPaid: true,
+            remainingAmount: true,
+            paymentStatus: true,
+            issuedAt: true,
+            customer: { select: { fullName: true, customerType: true } },
+          },
+          orderBy: { issuedAt: 'desc' },
+        }),
+        this.prisma.payment.aggregate({
+          where: { paidAt: { gte: start, lte: end }, amount: { lt: 0 } },
+          _sum: { amount: true },
+          _count: true,
+        }),
+        this.prisma.session.aggregate({
+          where: { status: 'closed', endTime: { gte: start, lte: end } },
+          _sum: { chargeAmount: true },
+        }),
+        this.prisma.barOrder.aggregate({
+          where: { status: 'delivered', updatedAt: { gte: start, lte: end } },
+          _sum: { totalAmount: true },
+        }),
+      ]);
 
     // تفصيل المدفوعات بالطريقة
-    const byMethodMap = new Map<string, { method: string; total: number; count: number }>();
+    const byMethodMap = new Map<
+      string,
+      { method: string; total: number; count: number }
+    >();
     for (const p of payments) {
       const key = p.paymentMethod;
-      const existing = byMethodMap.get(key) ?? { method: key, total: 0, count: 0 };
+      const existing = byMethodMap.get(key) ?? {
+        method: key,
+        total: 0,
+        count: 0,
+      };
       existing.total += Number(p.amount);
       existing.count += 1;
       byMethodMap.set(key, existing);
@@ -231,7 +243,10 @@ export class OwnerReportsService {
     }));
 
     // اتجاه يومي
-    const trendMap: Record<string, { day: string; revenue: number; count: number }> = {};
+    const trendMap: Record<
+      string,
+      { day: string; revenue: number; count: number }
+    > = {};
     for (const day of this.daysInRange(start, end)) {
       trendMap[day] = { day, revenue: 0, count: 0 };
     }
@@ -251,12 +266,19 @@ export class OwnerReportsService {
     // إجماليات
     // التحصيل = المدفوعات الموجبة فقط؛ المرتجعات (سالبة) تُطرح مرة واحدة عبر refunded
     const totalCollected = this.round2(
-      payments.reduce((s, p) => (Number(p.amount) > 0 ? s + Number(p.amount) : s), 0),
+      payments.reduce(
+        (s, p) => (Number(p.amount) > 0 ? s + Number(p.amount) : s),
+        0,
+      ),
     );
-    const totalRefunded = this.round2(Math.abs(Number(refunds._sum.amount || 0)));
+    const totalRefunded = this.round2(
+      Math.abs(Number(refunds._sum.amount || 0)),
+    );
 
     // فواتير غير مدفوعة داخل الفترة
-    const unpaidInvoices = invoicesAll.filter((i) => i.paymentStatus !== 'paid');
+    const unpaidInvoices = invoicesAll.filter(
+      (i) => i.paymentStatus !== 'paid',
+    );
     const totalOutstanding = this.round2(
       unpaidInvoices.reduce((s, i) => s + Number(i.remainingAmount), 0),
     );
@@ -267,7 +289,9 @@ export class OwnerReportsService {
         collected: totalCollected,
         refunded: totalRefunded,
         net: this.round2(totalCollected - totalRefunded),
-        sessionCharges: this.round2(Number(sessionCharges._sum.chargeAmount || 0)),
+        sessionCharges: this.round2(
+          Number(sessionCharges._sum.chargeAmount || 0),
+        ),
         barOrders: this.round2(Number(barOrderRevenue._sum.totalAmount || 0)),
         outstandingInvoices: totalOutstanding,
       },
@@ -323,10 +347,15 @@ export class OwnerReportsService {
       this.prisma.vendor.findMany(),
     ]);
 
-    const totalAmount = this.round2(expenses.reduce((s, e) => s + Number(e.amount), 0));
+    const totalAmount = this.round2(
+      expenses.reduce((s, e) => s + Number(e.amount), 0),
+    );
 
     // بالتصنيف
-    const byCategoryMap = new Map<string, { categoryId: string; categoryName: string; total: number; count: number }>();
+    const byCategoryMap = new Map<
+      string,
+      { categoryId: string; categoryName: string; total: number; count: number }
+    >();
     for (const e of expenses) {
       const key = e.categoryId;
       const existing = byCategoryMap.get(key) ?? {
@@ -340,11 +369,19 @@ export class OwnerReportsService {
       byCategoryMap.set(key, existing);
     }
     const byCategory = Array.from(byCategoryMap.values())
-      .map((x) => ({ ...x, total: this.round2(x.total), percent: totalAmount > 0 ? this.round2((x.total / totalAmount) * 100) : 0 }))
+      .map((x) => ({
+        ...x,
+        total: this.round2(x.total),
+        percent:
+          totalAmount > 0 ? this.round2((x.total / totalAmount) * 100) : 0,
+      }))
       .sort((a, b) => b.total - a.total);
 
     // بالمورد
-    const byVendorMap = new Map<string, { vendorId: string; vendorName: string; total: number; count: number }>();
+    const byVendorMap = new Map<
+      string,
+      { vendorId: string; vendorName: string; total: number; count: number }
+    >();
     for (const e of expenses) {
       if (!e.vendorId) continue;
       const key = e.vendorId;
@@ -363,10 +400,17 @@ export class OwnerReportsService {
       .sort((a, b) => b.total - a.total);
 
     // بالطريقة
-    const byMethodMap = new Map<string, { method: string; total: number; count: number }>();
+    const byMethodMap = new Map<
+      string,
+      { method: string; total: number; count: number }
+    >();
     for (const e of expenses) {
       const key = e.paymentMethod;
-      const existing = byMethodMap.get(key) ?? { method: key, total: 0, count: 0 };
+      const existing = byMethodMap.get(key) ?? {
+        method: key,
+        total: 0,
+        count: 0,
+      };
       existing.total += Number(e.amount);
       existing.count += 1;
       byMethodMap.set(key, existing);
@@ -377,7 +421,10 @@ export class OwnerReportsService {
     }));
 
     // اتجاه يومي
-    const trendMap: Record<string, { day: string; total: number; count: number }> = {};
+    const trendMap: Record<
+      string,
+      { day: string; total: number; count: number }
+    > = {};
     for (const day of this.daysInRange(start, end)) {
       trendMap[day] = { day, total: 0, count: 0 };
     }
@@ -419,8 +466,12 @@ export class OwnerReportsService {
         categoryName: e.category?.name,
         vendorName: e.vendor?.name,
         paymentMethod: e.paymentMethod,
-        recordedBy: e.recordedByUser ? `${e.recordedByUser.firstName || ''} ${e.recordedByUser.lastName || ''}`.trim() : null,
-        linkedUser: e.linkedUser ? `${e.linkedUser.firstName || ''} ${e.linkedUser.lastName || ''}`.trim() : null,
+        recordedBy: e.recordedByUser
+          ? `${e.recordedByUser.firstName || ''} ${e.recordedByUser.lastName || ''}`.trim()
+          : null,
+        linkedUser: e.linkedUser
+          ? `${e.linkedUser.firstName || ''} ${e.linkedUser.lastName || ''}`.trim()
+          : null,
         status: e.status,
       })),
     };
@@ -455,17 +506,27 @@ export class OwnerReportsService {
       }),
     ]);
 
-    const revenue = this.round2(payments.reduce((s, p) => s + Number(p.amount), 0));
-    const totalExpenses = this.round2(expenses.reduce((s, e) => s + Number(e.amount), 0));
+    const revenue = this.round2(
+      payments.reduce((s, p) => s + Number(p.amount), 0),
+    );
+    const totalExpenses = this.round2(
+      expenses.reduce((s, e) => s + Number(e.amount), 0),
+    );
     const net = this.round2(revenue - totalExpenses);
-    const margin = revenue > 0 ? Number(((net / revenue) * 100).toFixed(1)) : null;
+    const margin =
+      revenue > 0 ? Number(((net / revenue) * 100).toFixed(1)) : null;
 
     const prevRevenue = this.round2(Number(prevPayments._sum.amount || 0));
-    const prevExpensesTotal = this.round2(Number(prevExpenses._sum.amount || 0));
+    const prevExpensesTotal = this.round2(
+      Number(prevExpenses._sum.amount || 0),
+    );
     const prevNet = this.round2(prevRevenue - prevExpensesTotal);
 
     // Daily trend
-    const trendMap: Record<string, { day: string; revenue: number; expenses: number }> = {};
+    const trendMap: Record<
+      string,
+      { day: string; revenue: number; expenses: number }
+    > = {};
     for (const day of this.daysInRange(start, end)) {
       trendMap[day] = { day, revenue: 0, expenses: 0 };
     }
@@ -522,19 +583,45 @@ export class OwnerReportsService {
       },
       include: {
         product: true,
-        order: { select: { id: true, updatedAt: true, customerId: true, customer: { select: { customerType: true } } } },
+        order: {
+          select: {
+            id: true,
+            updatedAt: true,
+            customerId: true,
+            customer: { select: { customerType: true } },
+          },
+        },
       },
     });
 
-    const totalRevenue = this.round2(orderItems.reduce((s, i) => s + Number(i.subtotal), 0));
+    const totalRevenue = this.round2(
+      orderItems.reduce((s, i) => s + Number(i.subtotal), 0),
+    );
     const totalCost = this.round2(
-      orderItems.reduce((s, i) => s + Number((i as any).product?.costPrice || 0) * Number(i.quantity), 0),
+      orderItems.reduce(
+        (s, i) =>
+          s + Number((i as any).product?.costPrice || 0) * Number(i.quantity),
+        0,
+      ),
     );
     const grossProfit = this.round2(totalRevenue - totalCost);
-    const grossMargin = totalRevenue > 0 ? Number(((grossProfit / totalRevenue) * 100).toFixed(1)) : null;
+    const grossMargin =
+      totalRevenue > 0
+        ? Number(((grossProfit / totalRevenue) * 100).toFixed(1))
+        : null;
 
     // Products
-    const productMap = new Map<string, { productId: string; productName: string; category: string; quantity: number; revenue: number; cost: number }>();
+    const productMap = new Map<
+      string,
+      {
+        productId: string;
+        productName: string;
+        category: string;
+        quantity: number;
+        revenue: number;
+        cost: number;
+      }
+    >();
     for (const item of orderItems as any[]) {
       const key = item.productId;
       const existing = productMap.get(key) ?? {
@@ -547,7 +634,8 @@ export class OwnerReportsService {
       };
       existing.quantity += Number(item.quantity);
       existing.revenue += Number(item.subtotal);
-      existing.cost += Number(item.product?.costPrice || 0) * Number(item.quantity);
+      existing.cost +=
+        Number(item.product?.costPrice || 0) * Number(item.quantity);
       productMap.set(key, existing);
     }
     const products = Array.from(productMap.values())
@@ -560,10 +648,17 @@ export class OwnerReportsService {
       .sort((a, b) => b.revenue - a.revenue);
 
     // Categories
-    const categoryMap = new Map<string, { category: string; quantity: number; revenue: number }>();
+    const categoryMap = new Map<
+      string,
+      { category: string; quantity: number; revenue: number }
+    >();
     for (const item of orderItems as any[]) {
       const key = item.product?.category ?? 'other';
-      const existing = categoryMap.get(key) ?? { category: key, quantity: 0, revenue: 0 };
+      const existing = categoryMap.get(key) ?? {
+        category: key,
+        quantity: 0,
+        revenue: 0,
+      };
       existing.quantity += Number(item.quantity);
       existing.revenue += Number(item.subtotal);
       categoryMap.set(key, existing);
@@ -573,10 +668,17 @@ export class OwnerReportsService {
       .sort((a, b) => b.revenue - a.revenue);
 
     // Discounts breakdown by customer type
-    const byCustomerTypeMap = new Map<string, { type: string; orders: Set<string>; revenue: number }>();
+    const byCustomerTypeMap = new Map<
+      string,
+      { type: string; orders: Set<string>; revenue: number }
+    >();
     for (const item of orderItems as any[]) {
       const type = item.order?.customer?.customerType || 'unknown';
-      const existing = byCustomerTypeMap.get(type) ?? { type, orders: new Set<string>(), revenue: 0 };
+      const existing = byCustomerTypeMap.get(type) ?? {
+        type,
+        orders: new Set<string>(),
+        revenue: 0,
+      };
       existing.orders.add(item.order.id);
       existing.revenue += Number(item.subtotal);
       byCustomerTypeMap.set(type, existing);
@@ -588,7 +690,10 @@ export class OwnerReportsService {
     }));
 
     // Daily trend
-    const trendMap: Record<string, { day: string; revenue: number; quantity: number }> = {};
+    const trendMap: Record<
+      string,
+      { day: string; revenue: number; quantity: number }
+    > = {};
     for (const day of this.daysInRange(start, end)) {
       trendMap[day] = { day, revenue: 0, quantity: 0 };
     }
@@ -639,7 +744,9 @@ export class OwnerReportsService {
       this.prisma.inventoryTransaction.findMany({
         where: { createdAt: { gte: start, lte: end } },
         include: {
-          inventoryItem: { select: { name: true, unit: true, costPerUnit: true } },
+          inventoryItem: {
+            select: { name: true, unit: true, costPerUnit: true },
+          },
           performedBy: { select: { firstName: true, lastName: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -648,7 +755,10 @@ export class OwnerReportsService {
     ]);
 
     const totalStockValue = this.round2(
-      items.reduce((s, i) => s + Number(i.currentStock) * Number(i.costPerUnit), 0),
+      items.reduce(
+        (s, i) => s + Number(i.currentStock) * Number(i.costPerUnit),
+        0,
+      ),
     );
 
     // منتجات تحت حد الإنذار
@@ -664,7 +774,10 @@ export class OwnerReportsService {
       }));
 
     // الهالك داخل الفترة
-    const wasteByItemMap = new Map<string, { itemId: string; name: string; quantity: number; estimatedCost: number }>();
+    const wasteByItemMap = new Map<
+      string,
+      { itemId: string; name: string; quantity: number; estimatedCost: number }
+    >();
     for (const w of wasteEntries) {
       const key = w.inventoryItemId;
       const existing = wasteByItemMap.get(key) ?? {
@@ -674,7 +787,8 @@ export class OwnerReportsService {
         estimatedCost: 0,
       };
       existing.quantity += Number(w.quantity);
-      const cost = Number((w.inventoryItem as any)?.costPerUnit || 0) * Number(w.quantity);
+      const cost =
+        Number((w.inventoryItem as any)?.costPerUnit || 0) * Number(w.quantity);
       existing.estimatedCost += cost;
       wasteByItemMap.set(key, existing);
     }
@@ -682,7 +796,9 @@ export class OwnerReportsService {
       .map((x) => ({ ...x, estimatedCost: this.round2(x.estimatedCost) }))
       .sort((a, b) => b.estimatedCost - a.estimatedCost);
 
-    const totalWasteCost = this.round2(wasteByItem.reduce((s, x) => s + x.estimatedCost, 0));
+    const totalWasteCost = this.round2(
+      wasteByItem.reduce((s, x) => s + x.estimatedCost, 0),
+    );
 
     return {
       range: { start: start.toISOString(), end: end.toISOString() },

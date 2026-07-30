@@ -1,6 +1,22 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
-import { CreatePlanDto, UpdatePlanDto, CreateSubscriptionDto, UpdateSubscriptionDto } from './dto/subscription.dto';
+import {
+  CreatePlanDto,
+  UpdatePlanDto,
+  CreateSubscriptionDto,
+  UpdateSubscriptionDto,
+} from './dto/subscription.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard, OpsManagerGuard } from '../auth/role.guard';
 
@@ -22,16 +38,19 @@ export class SubscriptionsController {
   }
 
   @Post('plans')
+  @UseGuards(OpsManagerGuard)
   createPlan(@Body() dto: CreatePlanDto) {
     return this.subscriptionsService.createPlan(dto);
   }
 
   @Patch('plans/:id')
+  @UseGuards(OpsManagerGuard)
   updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.subscriptionsService.updatePlan(id, dto);
   }
 
   @Delete('plans/:id')
+  @UseGuards(OpsManagerGuard)
   deletePlan(@Param('id') id: string) {
     return this.subscriptionsService.deletePlan(id);
   }
@@ -39,8 +58,8 @@ export class SubscriptionsController {
   // ── Customer Subscriptions (اشتراكات العملاء) ──
 
   @Post()
-  subscribe(@Body() dto: CreateSubscriptionDto) {
-    return this.subscriptionsService.subscribe(dto);
+  subscribe(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
+    return this.subscriptionsService.subscribe(dto, req.user.userId);
   }
 
   @Get()
@@ -76,8 +95,8 @@ export class SubscriptionsController {
   }
 
   @Patch(':id/cancel')
-  cancel(@Param('id') id: string) {
-    return this.subscriptionsService.cancelSubscription(id);
+  cancel(@Param('id') id: string, @Request() req: any) {
+    return this.subscriptionsService.cancelSubscription(id, req.user.userId);
   }
 
   @Post('expire')

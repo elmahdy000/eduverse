@@ -10,10 +10,7 @@ import {
 export class CustomersService {
   constructor(private prisma: PrismaService) {}
 
-  async createCustomer(
-    createCustomerDto: CreateCustomerDto,
-    userId: string,
-  ) {
+  async createCustomer(createCustomerDto: CreateCustomerDto, userId: string) {
     const customer = await this.prisma.customer.create({
       data: {
         ...createCustomerDto,
@@ -52,13 +49,16 @@ export class CustomersService {
 
     if (search?.name) {
       const query = search.name.trim();
-      const nameConditions = this.buildArabicSearchConditions('fullName', query);
+      const nameConditions = this.buildArabicSearchConditions(
+        'fullName',
+        query,
+      );
       conditions.push({
         OR: [
           ...nameConditions,
           { phoneNumber: { contains: query, mode: 'insensitive' } },
           { phoneNumberSecondary: { contains: query, mode: 'insensitive' } },
-        ]
+        ],
       });
     }
 
@@ -68,22 +68,32 @@ export class CustomersService {
         OR: [
           { phoneNumber: { contains: query, mode: 'insensitive' } },
           { phoneNumberSecondary: { contains: query, mode: 'insensitive' } },
-        ]
+        ],
       });
     }
 
     if (search?.email) {
-      conditions.push({ email: { contains: search.email, mode: 'insensitive' } });
+      conditions.push({
+        email: { contains: search.email, mode: 'insensitive' },
+      });
     }
     if (search?.customerType) {
-      const types = search.customerType.split(",").map((t) => t.trim());
-      conditions.push(types.length > 1 ? { customerType: { in: types } } : { customerType: types[0] });
+      const types = search.customerType.split(',').map((t) => t.trim());
+      conditions.push(
+        types.length > 1
+          ? { customerType: { in: types } }
+          : { customerType: types[0] },
+      );
     }
     if (search?.college) {
-      conditions.push({ college: { contains: search.college, mode: 'insensitive' } });
+      conditions.push({
+        college: { contains: search.college, mode: 'insensitive' },
+      });
     }
     if (search?.employerName) {
-      conditions.push({ employerName: { contains: search.employerName, mode: 'insensitive' } });
+      conditions.push({
+        employerName: { contains: search.employerName, mode: 'insensitive' },
+      });
     }
 
     if (conditions.length > 0) {
@@ -144,17 +154,27 @@ export class CustomersService {
     }
 
     const finalTerms = new Set<string>([normalized]);
-    
+
     for (const sv of spaceVariations) {
       finalTerms.add(sv);
       for (const a of alifs) {
-        if (sv.startsWith('ا') || sv.startsWith('أ') || sv.startsWith('إ') || sv.startsWith('آ')) {
+        if (
+          sv.startsWith('ا') ||
+          sv.startsWith('أ') ||
+          sv.startsWith('إ') ||
+          sv.startsWith('آ')
+        ) {
           finalTerms.add(a + sv.slice(1));
         }
         const parts = sv.split(' ');
         if (parts.length > 1) {
           for (let i = 0; i < parts.length; i++) {
-            if (parts[i].startsWith('ا') || parts[i].startsWith('أ') || parts[i].startsWith('إ') || parts[i].startsWith('آ')) {
+            if (
+              parts[i].startsWith('ا') ||
+              parts[i].startsWith('أ') ||
+              parts[i].startsWith('إ') ||
+              parts[i].startsWith('آ')
+            ) {
               const copy = [...parts];
               copy[i] = a + parts[i].slice(1);
               finalTerms.add(copy.join(' '));
@@ -174,8 +194,8 @@ export class CustomersService {
       }
     }
 
-    return Array.from(finalTerms).map(term => ({
-      [fieldName]: { contains: term, mode: 'insensitive' }
+    return Array.from(finalTerms).map((term) => ({
+      [fieldName]: { contains: term, mode: 'insensitive' },
     }));
   }
 

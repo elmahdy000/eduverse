@@ -42,7 +42,6 @@ export class CreateBarOrderDto {
   guestCode?: string;
 }
 
-
 export class UpdateBarOrderStatusDto {
   @IsEnum(['new', 'in_preparation', 'ready', 'delivered', 'cancelled'])
   status: string;

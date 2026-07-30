@@ -1,6 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
-import { CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto, UpdateCategoryDto, CreateVendorDto, UpdateVendorDto } from './dto/expense.dto';
+import {
+  CreateExpenseDto,
+  UpdateExpenseDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  CreateVendorDto,
+  UpdateVendorDto,
+} from './dto/expense.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
 
@@ -13,7 +31,10 @@ export class ExpensesController {
 
   @Post()
   create(@Request() req, @Body() createExpenseDto: CreateExpenseDto) {
-    return this.expensesService.createExpense(req.user.userId || req.user.id, createExpenseDto);
+    return this.expensesService.createExpense(
+      req.user.userId || req.user.id,
+      createExpenseDto,
+    );
   }
 
   @Get()
@@ -42,7 +63,10 @@ export class ExpensesController {
   }
 
   @Get('summary')
-  getSummary(@Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+  getSummary(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
     return this.expensesService.getFinancialSummary({ fromDate, toDate });
   }
 

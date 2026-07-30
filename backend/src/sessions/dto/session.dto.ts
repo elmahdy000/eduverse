@@ -16,7 +16,11 @@ export class CreateSessionDto {
   bookingId?: string;
 
   @IsOptional()
-  billingType?: 'hourly_individual' | 'hourly_room' | 'flat_event' | 'subscription_covered';
+  billingType?:
+    | 'hourly_individual'
+    | 'hourly_room'
+    | 'flat_event'
+    | 'subscription_covered';
 
   @IsOptional()
   @IsUUID()

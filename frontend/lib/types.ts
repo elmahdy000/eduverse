@@ -152,7 +152,8 @@ export interface BarOrderItem {
   productId: string;
   quantity: number;
   unitPrice: string | number;
-  total: string | number;
+  subtotal: string | number;
+  total?: string | number;
   product?: {
     id: string;
     name: string;

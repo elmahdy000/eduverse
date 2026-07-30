@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query, Request, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -14,7 +25,10 @@ export class InvoicesController {
 
   @Post()
   @ApiOperation({ summary: 'Generate invoice for session' })
-  async generateInvoice(@Body() createInvoiceDto: CreateInvoiceDto, @Request() req: any) {
+  async generateInvoice(
+    @Body() createInvoiceDto: CreateInvoiceDto,
+    @Request() req: any,
+  ) {
     try {
       const invoice = await this.invoicesService.generateInvoice(
         createInvoiceDto,
@@ -51,7 +65,8 @@ export class InvoicesController {
   @ApiOperation({ summary: 'Get printable invoice payload' })
   async getPrintableInvoice(@Param('id') invoiceId: string) {
     try {
-      const payload = await this.invoicesService.getInvoicePrintPayload(invoiceId);
+      const payload =
+        await this.invoicesService.getInvoicePrintPayload(invoiceId);
       return {
         success: true,
         data: payload,
@@ -91,13 +106,17 @@ export class InvoicesController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const result = await this.invoicesService.listInvoices(Number(page), Number(limit), {
-        customerId,
-        paymentStatus,
-        sessionId,
-        fromDate,
-        toDate,
-      });
+      const result = await this.invoicesService.listInvoices(
+        Number(page),
+        Number(limit),
+        {
+          customerId,
+          paymentStatus,
+          sessionId,
+          fromDate,
+          toDate,
+        },
+      );
       return {
         success: true,
         data: result,

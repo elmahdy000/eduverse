@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query, Request, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -18,7 +29,10 @@ export class PaymentsController {
 
   @Post()
   @ApiOperation({ summary: 'Record payment for invoice' })
-  async recordPayment(@Body() recordPaymentDto: RecordPaymentDto, @Request() req: any) {
+  async recordPayment(
+    @Body() recordPaymentDto: RecordPaymentDto,
+    @Request() req: any,
+  ) {
     try {
       const payment = await this.paymentsService.recordPayment(
         recordPaymentDto,
@@ -46,8 +60,15 @@ export class PaymentsController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const result = await this.paymentsService.getSummary({ fromDate, toDate });
-      return { success: true, data: result, timestamp: new Date().toISOString() };
+      const result = await this.paymentsService.getSummary({
+        fromDate,
+        toDate,
+      });
+      return {
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString(),
+      };
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new BadRequestException(error.message);
@@ -65,12 +86,16 @@ export class PaymentsController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const result = await this.paymentsService.listPayments(Number(page), Number(limit), {
-        invoiceId,
-        paymentMethod,
-        fromDate,
-        toDate,
-      });
+      const result = await this.paymentsService.listPayments(
+        Number(page),
+        Number(limit),
+        {
+          invoiceId,
+          paymentMethod,
+          fromDate,
+          toDate,
+        },
+      );
       return {
         success: true,
         data: result,

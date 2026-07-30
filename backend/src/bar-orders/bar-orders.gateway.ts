@@ -14,7 +14,9 @@ import { JwtConfigService } from '../auth/auth.service';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_ORIGINS?.split(',').map((value) => value.trim()) || ['http://localhost:3000'],
+    origin: process.env.FRONTEND_ORIGINS?.split(',').map((value) =>
+      value.trim(),
+    ) || ['http://localhost:3000'],
     credentials: true,
   },
   namespace: '/bar-orders',
@@ -27,25 +29,41 @@ export class BarOrdersGateway
 
   private logger = new Logger('BarOrdersGateway');
 
-  constructor(private prisma: PrismaService, private jwtConfig: JwtConfigService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtConfig: JwtConfigService,
+  ) {}
 
   afterInit() {
     this.logger.log('🔌 Bar Orders WebSocket Gateway initialized');
   }
 
   async handleConnection(client: Socket) {
-    const token = String(client.handshake.auth?.token || '').replace(/^Bearer\s+/i, '');
+    const token = String(client.handshake.auth?.token || '').replace(
+      /^Bearer\s+/i,
+      '',
+    );
     const guestCode = String(client.handshake.auth?.guestCode || '').trim();
     try {
       if (token) {
         const payload = this.jwtConfig.verifyAccessToken(token);
-        const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, include: { role: true } });
+        const user = await this.prisma.user.findUnique({
+          where: { id: payload.sub },
+          include: { role: true },
+        });
         if (!user || user.status !== 'active') throw new Error('Inactive user');
-        client.data.identity = { type: 'staff', userId: user.id, roleName: user.role.name };
+        client.data.identity = {
+          type: 'staff',
+          userId: user.id,
+          roleName: user.role.name,
+        };
         await client.join('staff');
       } else if (guestCode) {
-        const session = await this.prisma.session.findUnique({ where: { guestCode } });
-        if (!session || session.status !== 'active') throw new Error('Invalid guest code');
+        const session = await this.prisma.session.findUnique({
+          where: { guestCode },
+        });
+        if (!session || session.status !== 'active')
+          throw new Error('Invalid guest code');
         client.data.identity = { type: 'guest', guestCode };
         await client.join(this.roomFor(guestCode));
       } else {
@@ -74,8 +92,13 @@ export class BarOrdersGateway
    */
   emitOrderStatusUpdate(order: any) {
     this.server.to('staff').emit('order:status-updated', order);
-    if (order.guestCode) this.server.to(this.roomFor(order.guestCode)).emit('order:status-updated', order);
-    this.logger.log(`Emitted order:status-updated for order ${order.id} → ${order.status}`);
+    if (order.guestCode)
+      this.server
+        .to(this.roomFor(order.guestCode))
+        .emit('order:status-updated', order);
+    this.logger.log(
+      `Emitted order:status-updated for order ${order.id} → ${order.status}`,
+    );
   }
 
   /**
@@ -106,7 +129,8 @@ export class BarOrdersGateway
   @SubscribeMessage('chat:join')
   handleJoin(client: Socket, payload: { orderId: string }) {
     const key = payload?.orderId;
-    if (!key || !this.canAccessConversation(client, key)) throw new WsException('Unauthorized conversation');
+    if (!key || !this.canAccessConversation(client, key))
+      throw new WsException('Unauthorized conversation');
     client.join(this.roomFor(key));
   }
 
@@ -181,6 +205,9 @@ export class BarOrdersGateway
 
   private canAccessConversation(client: Socket, key: string) {
     const identity = client.data.identity;
-    return identity?.type === 'staff' || (identity?.type === 'guest' && identity.guestCode === key);
+    return (
+      identity?.type === 'staff' ||
+      (identity?.type === 'guest' && identity.guestCode === key)
+    );
   }
 }

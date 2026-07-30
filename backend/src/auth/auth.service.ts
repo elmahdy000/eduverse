@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../common/prisma/prisma.service';
 
@@ -10,14 +10,20 @@ export class JwtConfigService {
   generateAccessToken(userId: string, email: string, roleId: string) {
     return this.jwtService.sign(
       { sub: userId, email, roleId },
-      { expiresIn: process.env.JWT_EXPIRY || '15m' },
+      {
+        expiresIn: (process.env.JWT_EXPIRY ||
+          '15m') as JwtSignOptions['expiresIn'],
+      },
     );
   }
 
   generateRefreshToken(userId: string) {
     return this.jwtService.sign(
       { sub: userId, type: 'refresh' },
-      { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || '7d' },
+      {
+        expiresIn: (process.env.REFRESH_TOKEN_EXPIRY ||
+          '7d') as JwtSignOptions['expiresIn'],
+      },
     );
   }
 
@@ -89,22 +95,26 @@ export class AuthService {
     // Auto open receptionist shift on login if no open shift exists
     let autoOpenedShift: { id: string; startTime: Date } | null = null;
     if (user.role?.name === 'Receptionist') {
-      const openShift = await this.prisma.shift.findFirst({
-        where: { userId: user.id, status: 'open' },
-        select: { id: true },
-      });
-
-      if (!openShift) {
-        autoOpenedShift = await this.prisma.shift.create({
-          data: {
-            userId: user.id,
-            startCash: 0,
-            status: 'open',
-            notes: 'Auto-opened at receptionist login',
-          },
-          select: { id: true, startTime: true },
-        });
-      }
+      autoOpenedShift = await this.prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${user.id}))`;
+          const openShift = await tx.shift.findFirst({
+            where: { userId: user.id, status: 'open' },
+            select: { id: true, startTime: true },
+          });
+          if (openShift) return openShift;
+          return tx.shift.create({
+            data: {
+              userId: user.id,
+              startCash: 0,
+              status: 'open',
+              notes: 'Auto-opened at receptionist login',
+            },
+            select: { id: true, startTime: true },
+          });
+        },
+        { isolationLevel: 'Serializable' },
+      );
     }
 
     // Generate tokens

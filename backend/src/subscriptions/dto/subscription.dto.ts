@@ -1,4 +1,13 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsUUID, IsDateString, Min } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsUUID,
+  IsDateString,
+  Min,
+  IsEnum,
+} from 'class-validator';
 
 // ── Subscription Plans (الباقات) ──
 
@@ -60,9 +69,8 @@ export class CreateSubscriptionDto {
   startDate?: string; // defaults to now
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  pricePaid?: number; // override plan price if needed
+  @IsEnum(['cash', 'bank_transfer', 'card', 'mixed'])
+  paymentMethod?: 'cash' | 'bank_transfer' | 'card' | 'mixed';
 
   @IsOptional()
   @IsString()
@@ -71,8 +79,8 @@ export class CreateSubscriptionDto {
 
 export class UpdateSubscriptionDto {
   @IsOptional()
-  @IsString()
-  status?: string; // active, expired, cancelled
+  @IsEnum(['active', 'expired'])
+  status?: 'active' | 'expired';
 
   @IsOptional()
   @IsDateString()

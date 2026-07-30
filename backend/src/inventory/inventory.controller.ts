@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -30,9 +40,14 @@ export class InventoryController {
   async addStock(
     @Param('id') itemId: string,
     @Body() body: { quantity: number; reason?: string },
-    @Request() req: any
+    @Request() req: any,
   ) {
-    return this.inventoryService.addStock(itemId, body.quantity, req.user.userId, body.reason);
+    return this.inventoryService.addStock(
+      itemId,
+      body.quantity,
+      req.user.userId,
+      body.reason,
+    );
   }
 
   @Post('items/:id/withdraw')
@@ -41,9 +56,14 @@ export class InventoryController {
   async withdrawStock(
     @Param('id') itemId: string,
     @Body() body: { quantity: number; reason: string },
-    @Request() req: any
+    @Request() req: any,
   ) {
-    return this.inventoryService.withdrawStock(itemId, body.quantity, req.user.userId, body.reason);
+    return this.inventoryService.withdrawStock(
+      itemId,
+      body.quantity,
+      req.user.userId,
+      body.reason,
+    );
   }
 
   @Post('products/:productId/recipe')
@@ -51,7 +71,7 @@ export class InventoryController {
   @ApiOperation({ summary: 'Set recipe for a product' })
   async setRecipe(
     @Param('productId') productId: string,
-    @Body() body: { items: { inventoryItemId: string; quantity: number }[] }
+    @Body() body: { items: { inventoryItemId: string; quantity: number }[] },
   ) {
     return this.inventoryService.setRecipe(productId, body.items);
   }
@@ -66,8 +86,9 @@ export class InventoryController {
   @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'Record inventory waste' })
   async recordWaste(
-    @Body() body: { inventoryItemId: string; quantity: number; reason?: string },
-    @Request() req: any
+    @Body()
+    body: { inventoryItemId: string; quantity: number; reason?: string },
+    @Request() req: any,
   ) {
     return this.inventoryService.recordWaste(body, req.user.userId);
   }
@@ -76,7 +97,9 @@ export class InventoryController {
   @ApiOperation({ summary: 'Get items with stock below minimum level' })
   async getLowStock() {
     const items = await this.inventoryService.listItems();
-    return items.filter(item => Number(item.currentStock) <= Number(item.minStockLevel));
+    return items.filter(
+      (item) => Number(item.currentStock) <= Number(item.minStockLevel),
+    );
   }
 
   @Get('transactions')
@@ -85,19 +108,25 @@ export class InventoryController {
     @Query('itemId') itemId?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.inventoryService.getTransactions(itemId, limit ? Number(limit) : 100);
+    return this.inventoryService.getTransactions(
+      itemId,
+      limit ? Number(limit) : 100,
+    );
   }
 
   @Get('items/:id/transactions')
-  @ApiOperation({ summary: 'Get movement history for a specific inventory item' })
+  @ApiOperation({
+    summary: 'Get movement history for a specific inventory item',
+  })
   async getItemTransactions(
     @Param('id') itemId: string,
     @Query('limit') limit?: string,
   ) {
-    return this.inventoryService.getTransactions(itemId, limit ? Number(limit) : 50);
+    return this.inventoryService.getTransactions(
+      itemId,
+      limit ? Number(limit) : 50,
+    );
   }
-
-
 
   @Get('waste-summary')
   @UseGuards(OpsManagerGuard)
@@ -114,10 +143,19 @@ export class InventoryController {
 
   @Post('stocktake')
   @UseGuards(OpsManagerGuard)
-  @ApiOperation({ summary: 'Perform a batch stocktake and adjust inventory items' })
+  @ApiOperation({
+    summary: 'Perform a batch stocktake and adjust inventory items',
+  })
   async performStocktake(
-    @Body() body: { items: { inventoryItemId: string; actualStock: number; reason?: string }[] },
-    @Request() req: any
+    @Body()
+    body: {
+      items: {
+        inventoryItemId: string;
+        actualStock: number;
+        reason?: string;
+      }[];
+    },
+    @Request() req: any,
   ) {
     if (!body.items || !Array.isArray(body.items)) {
       throw new BadRequestException('Items array is required');

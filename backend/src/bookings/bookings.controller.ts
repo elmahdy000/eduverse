@@ -1,4 +1,16 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query, Request, UseGuards, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Request,
+  UseGuards,
+  HttpException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -54,7 +66,10 @@ export class BookingsController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const stats = await this.bookingsService.getBookingSummary(fromDate, toDate);
+      const stats = await this.bookingsService.getBookingSummary(
+        fromDate,
+        toDate,
+      );
       return {
         success: true,
         data: stats,
@@ -116,14 +131,18 @@ export class BookingsController {
     @Query('toDate') toDate?: string,
   ) {
     try {
-      const result = await this.bookingsService.listBookings(Number(page), Number(limit), {
-        status,
-        roomId,
-        customerId,
-        customerName,
-        fromDate,
-        toDate,
-      });
+      const result = await this.bookingsService.listBookings(
+        Number(page),
+        Number(limit),
+        {
+          status,
+          roomId,
+          customerId,
+          customerName,
+          fromDate,
+          toDate,
+        },
+      );
 
       return {
         success: true,
@@ -170,7 +189,10 @@ export class BookingsController {
     @Body('reason') reason?: string,
   ) {
     try {
-      const booking = await this.bookingsService.cancelBooking(bookingId, reason);
+      const booking = await this.bookingsService.cancelBooking(
+        bookingId,
+        reason,
+      );
       this.realtime.emitBookingChanged({
         action: 'cancelled',
         bookingId,

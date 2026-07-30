@@ -1,10 +1,20 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
-function inferInventoryDefaults(name: string): { unit: string; category: string; minStockLevel: number; isFridge: boolean; isBakery: boolean } {
+function inferInventoryDefaults(name: string): {
+  unit: string;
+  category: string;
+  minStockLevel: number;
+  isFridge: boolean;
+  isBakery: boolean;
+} {
   const lowerName = name.toLowerCase();
-  
+
   // Default fallback values
   let unit = 'قطعة';
   let category = 'خامات';
@@ -14,31 +24,66 @@ function inferInventoryDefaults(name: string): { unit: string; category: string;
 
   // Fridge keywords
   const fridgeKeywords = [
-    'بيبسي', 'pepsi', 'كولا', 'cola', 'سفن', 'seven', 'سبرايت', 'sprite',
-    'ريد بول', 'red bull', 'redbull', 'بيريل', 'birell', 'فيروز', 'fayrouz',
-    'شويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
+    'بيبسي',
+    'pepsi',
+    'كولا',
+    'cola',
+    'سفن',
+    'seven',
+    'سبرايت',
+    'sprite',
+    'ريد بول',
+    'red bull',
+    'redbull',
+    'بيريل',
+    'birell',
+    'فيروز',
+    'fayrouz',
+    'شويبس',
+    'schweppes',
+    'ماء',
+    'مياه',
+    'water',
+    'صودا',
+    'ساقع',
+    'كانز',
+    'can',
   ];
 
   // Bakery keywords
   const bakeryKeywords = [
-    'كرواسون', 'croissant', 'باتيه', 'pate', 'مخبوز', 'مخبوزات', 'كيك', 'cake',
-    'كوكيز', 'cookies', 'muffin', 'مافن', 'دونات', 'donut', 'بيكرى', 'bakery'
+    'كرواسون',
+    'croissant',
+    'باتيه',
+    'pate',
+    'مخبوز',
+    'مخبوزات',
+    'كيك',
+    'cake',
+    'كوكيز',
+    'cookies',
+    'muffin',
+    'مافن',
+    'دونات',
+    'donut',
+    'بيكرى',
+    'bakery',
   ];
 
-  if (fridgeKeywords.some(kw => lowerName.includes(kw))) {
+  if (fridgeKeywords.some((kw) => lowerName.includes(kw))) {
     isFridge = true;
   }
-  if (bakeryKeywords.some(kw => lowerName.includes(kw))) {
+  if (bakeryKeywords.some((kw) => lowerName.includes(kw))) {
     isBakery = true;
   }
 
   // Inference rules based on Arabic & English keywords
   if (
-    lowerName.includes('بن') || 
-    lowerName.includes('قهوة') || 
-    lowerName.includes('اسبريسو') || 
-    lowerName.includes('سكر') || 
-    lowerName.includes('شوكولاتة') || 
+    lowerName.includes('بن') ||
+    lowerName.includes('قهوة') ||
+    lowerName.includes('اسبريسو') ||
+    lowerName.includes('سكر') ||
+    lowerName.includes('شوكولاتة') ||
     lowerName.includes('بودرة') ||
     lowerName.includes('ماتشا') ||
     lowerName.includes('كوكو') ||
@@ -53,12 +98,12 @@ function inferInventoryDefaults(name: string): { unit: string; category: string;
     category = 'خامات';
     minStockLevel = 500; // 500 grams default
   } else if (
-    lowerName.includes('حليب') || 
-    lowerName.includes('لبن') || 
-    lowerName.includes('سيرب') || 
-    lowerName.includes('شراب') || 
+    lowerName.includes('حليب') ||
+    lowerName.includes('لبن') ||
+    lowerName.includes('سيرب') ||
+    lowerName.includes('شراب') ||
     lowerName.includes('عصير') ||
-    lowerName.includes('ماء') || 
+    lowerName.includes('ماء') ||
     lowerName.includes('مياه') ||
     lowerName.includes('صودا') ||
     lowerName.includes('كريمة') ||
@@ -72,14 +117,14 @@ function inferInventoryDefaults(name: string): { unit: string; category: string;
     category = 'خامات';
     minStockLevel = 1000; // 1000 ml (1 liter) default
   } else if (
-    lowerName.includes('كوب') || 
+    lowerName.includes('كوب') ||
     lowerName.includes('أكواب') ||
-    lowerName.includes('غطا') || 
-    lowerName.includes('غطاء') || 
-    lowerName.includes('أغطية') || 
-    lowerName.includes('شفاط') || 
-    lowerName.includes('شاليموه') || 
-    lowerName.includes('معلقة') || 
+    lowerName.includes('غطا') ||
+    lowerName.includes('غطاء') ||
+    lowerName.includes('أغطية') ||
+    lowerName.includes('شفاط') ||
+    lowerName.includes('شاليموه') ||
+    lowerName.includes('معلقة') ||
     lowerName.includes('ملاعق') ||
     lowerName.includes('شوكة') ||
     lowerName.includes('شوك') ||
@@ -98,10 +143,10 @@ function inferInventoryDefaults(name: string): { unit: string; category: string;
     category = 'تعبئة';
     minStockLevel = 100; // 100 pieces default
   } else if (
-    lowerName.includes('صابون') || 
-    lowerName.includes('منظف') || 
-    lowerName.includes('كلور') || 
-    lowerName.includes('ديتول') || 
+    lowerName.includes('صابون') ||
+    lowerName.includes('منظف') ||
+    lowerName.includes('كلور') ||
+    lowerName.includes('ديتول') ||
     lowerName.includes('مناديل') ||
     lowerName.includes('soap') ||
     lowerName.includes('tissue') ||
@@ -146,11 +191,16 @@ export class InventoryService {
 
     const unit = data.unit || inferred.unit;
     const category = data.category || inferred.category;
-    const minStockLevel = data.minStockLevel !== undefined ? data.minStockLevel : inferred.minStockLevel;
+    const minStockLevel =
+      data.minStockLevel !== undefined
+        ? data.minStockLevel
+        : inferred.minStockLevel;
     const costPerUnit = data.costPerUnit || 0;
     const initialStock = data.initialStock || 0;
-    const isFridge = data.isFridge !== undefined ? data.isFridge : inferred.isFridge;
-    const isBakery = data.isBakery !== undefined ? data.isBakery : inferred.isBakery;
+    const isFridge =
+      data.isFridge !== undefined ? data.isFridge : inferred.isFridge;
+    const isBakery =
+      data.isBakery !== undefined ? data.isBakery : inferred.isBakery;
 
     return this.prisma.$transaction(async (tx) => {
       const createdItem = await tx.inventoryItem.create({
@@ -192,7 +242,12 @@ export class InventoryService {
     });
   }
 
-  async addStock(itemId: string, quantity: number, userId: string, reason?: string) {
+  async addStock(
+    itemId: string,
+    quantity: number,
+    userId: string,
+    reason?: string,
+  ) {
     if (quantity <= 0) {
       throw new BadRequestException('الكمية المضافة يجب أن تكون أكبر من صفر');
     }
@@ -220,14 +275,23 @@ export class InventoryService {
         action: 'ADD_STOCK',
         entityType: 'inventory_item',
         entityId: itemId,
-        newValue: { quantity, reason: reason || 'Stock Entry', currentStock: updated.currentStock },
+        newValue: {
+          quantity,
+          reason: reason || 'Stock Entry',
+          currentStock: updated.currentStock,
+        },
       });
 
       return updated;
     });
   }
 
-  async withdrawStock(itemId: string, quantity: number, userId: string, reason: string) {
+  async withdrawStock(
+    itemId: string,
+    quantity: number,
+    userId: string,
+    reason: string,
+  ) {
     if (quantity <= 0) {
       throw new BadRequestException('الكمية المسحوبة يجب أن تكون أكبر من صفر');
     }
@@ -236,7 +300,9 @@ export class InventoryService {
       if (!item) throw new NotFoundException('Inventory item not found');
 
       if (Number(item.currentStock) < quantity) {
-        throw new BadRequestException('الكمية المتاحة في المخزن غير كافية للسحب');
+        throw new BadRequestException(
+          'الكمية المتاحة في المخزن غير كافية للسحب',
+        );
       }
 
       await tx.inventoryTransaction.create({
@@ -266,7 +332,10 @@ export class InventoryService {
     });
   }
 
-  async setRecipe(productId: string, items: { inventoryItemId: string; quantity: number }[]) {
+  async setRecipe(
+    productId: string,
+    items: { inventoryItemId: string; quantity: number }[],
+  ) {
     for (const item of items) {
       if (item.quantity <= 0) {
         throw new BadRequestException('كمية المكون يجب أن تكون أكبر من صفر');
@@ -277,7 +346,11 @@ export class InventoryService {
       const created = await Promise.all(
         items.map((item) =>
           tx.recipeItem.create({
-            data: { productId, inventoryItemId: item.inventoryItemId, quantity: item.quantity },
+            data: {
+              productId,
+              inventoryItemId: item.inventoryItemId,
+              quantity: item.quantity,
+            },
           }),
         ),
       );
@@ -326,7 +399,9 @@ export class InventoryService {
         // If no recipe is defined, auto-deduct 1-to-1 if there's a matching InventoryItem by name
         if (recipeItems.length === 0) {
           const matchItem = await tx.inventoryItem.findFirst({
-            where: { name: { equals: orderItem.product.name, mode: 'insensitive' } },
+            where: {
+              name: { equals: orderItem.product.name, mode: 'insensitive' },
+            },
           });
           if (matchItem) {
             recipeItems = [
@@ -342,43 +417,51 @@ export class InventoryService {
 
         for (const recipe of recipeItems) {
           const totalDeduction = Number(recipe.quantity) * orderItem.quantity;
-          deductions.set(recipe.inventoryItemId, (deductions.get(recipe.inventoryItemId) ?? 0) + totalDeduction);
+          deductions.set(
+            recipe.inventoryItemId,
+            (deductions.get(recipe.inventoryItemId) ?? 0) + totalDeduction,
+          );
         }
       }
 
       for (const [inventoryItemId, totalDeduction] of deductions) {
-          const updatedCount = await tx.inventoryItem.updateMany({
-            where: { id: inventoryItemId, currentStock: { gte: totalDeduction } },
-            data: { currentStock: { decrement: totalDeduction } },
-          });
-          if (updatedCount.count !== 1) throw new BadRequestException('Insufficient inventory stock to deliver this order');
+        const updatedCount = await tx.inventoryItem.updateMany({
+          where: { id: inventoryItemId, currentStock: { gte: totalDeduction } },
+          data: { currentStock: { decrement: totalDeduction } },
+        });
+        if (updatedCount.count !== 1)
+          throw new BadRequestException(
+            'Insufficient inventory stock to deliver this order',
+          );
 
-          const updated = await tx.inventoryItem.findUnique({ where: { id: inventoryItemId } });
-          await tx.inventoryTransaction.create({
-            data: {
-              inventoryItemId,
-              type: 'out',
+        const updated = await tx.inventoryItem.findUnique({
+          where: { id: inventoryItemId },
+        });
+        await tx.inventoryTransaction.create({
+          data: {
+            inventoryItemId,
+            type: 'out',
+            quantity: totalDeduction,
+            reason: `Order: ${order.id.slice(0, 8)}`,
+            referenceId: orderId,
+            performedByUserId: userId,
+          },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            userId,
+            action: 'AUTO_DEDUCT_STOCK',
+            entityType: 'inventory_item',
+            entityId: inventoryItemId,
+            newValue: {
+              orderId,
               quantity: totalDeduction,
-              reason: `Order: ${order.id.slice(0, 8)}`,
-              referenceId: orderId,
-              performedByUserId: userId,
+              currentStock: updated.currentStock,
+              isNegative: false,
             },
-          });
-
-          await tx.auditLog.create({
-            data: {
-              userId,
-              action: 'AUTO_DEDUCT_STOCK',
-              entityType: 'inventory_item',
-              entityId: inventoryItemId,
-              newValue: {
-                orderId,
-                quantity: totalDeduction,
-                currentStock: updated.currentStock,
-                isNegative: false,
-              },
-            },
-          });
+          },
+        });
       }
     }
   }
@@ -388,21 +471,29 @@ export class InventoryService {
       where: itemId ? { inventoryItemId: itemId } : undefined,
       include: {
         inventoryItem: { select: { name: true, unit: true } },
-        performedBy: { select: { firstName: true, lastName: true, email: true } },
+        performedBy: {
+          select: { firstName: true, lastName: true, email: true },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
   }
 
-  async recordWaste(data: { inventoryItemId: string; quantity: number; reason?: string }, userId: string) {
+  async recordWaste(
+    data: { inventoryItemId: string; quantity: number; reason?: string },
+    userId: string,
+  ) {
     if (data.quantity <= 0) {
       throw new BadRequestException('الكمية التالفة يجب أن تكون أكبر من صفر');
     }
     return this.prisma.$transaction(async (tx) => {
-      const item = await tx.inventoryItem.findUnique({ where: { id: data.inventoryItemId } });
+      const item = await tx.inventoryItem.findUnique({
+        where: { id: data.inventoryItemId },
+      });
       if (!item) throw new NotFoundException('Inventory item not found');
-      if (Number(item.currentStock) < data.quantity) throw new BadRequestException('Waste quantity exceeds available stock');
+      if (Number(item.currentStock) < data.quantity)
+        throw new BadRequestException('Waste quantity exceeds available stock');
 
       const waste = await tx.wasteEntry.create({
         data: {
@@ -434,7 +525,11 @@ export class InventoryService {
         action: 'RECORD_WASTE',
         entityType: 'inventory_item',
         entityId: data.inventoryItemId,
-        newValue: { quantity: data.quantity, reason: data.reason, currentStock: updated.currentStock },
+        newValue: {
+          quantity: data.quantity,
+          reason: data.reason,
+          currentStock: updated.currentStock,
+        },
       });
 
       return waste;
@@ -447,7 +542,9 @@ export class InventoryService {
         ? {
             createdAt: {
               ...(fromDate ? { gte: new Date(fromDate) } : {}),
-              ...(toDate ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) } : {}),
+              ...(toDate
+                ? { lte: new Date(new Date(toDate).setHours(23, 59, 59, 999)) }
+                : {}),
             },
           }
         : {};
@@ -494,22 +591,35 @@ export class InventoryService {
     return {
       totalEntries: entries._count,
       totalQuantity: Number(entries._sum.quantity ?? 0),
-      totalEstimatedCost: topItems.reduce((s, i) => s + (i.estimatedCost ?? 0), 0),
+      totalEstimatedCost: topItems.reduce(
+        (s, i) => s + (i.estimatedCost ?? 0),
+        0,
+      ),
       topWastedItems: topItems,
     };
   }
 
-  async performStocktake(items: { inventoryItemId: string; actualStock: number; reason?: string }[], userId: string) {
+  async performStocktake(
+    items: { inventoryItemId: string; actualStock: number; reason?: string }[],
+    userId: string,
+  ) {
     for (const entry of items) {
       if (Number(entry.actualStock) < 0) {
-        throw new BadRequestException('الكمية الفعلية لا يمكن أن تكون أقل من صفر');
+        throw new BadRequestException(
+          'الكمية الفعلية لا يمكن أن تكون أقل من صفر',
+        );
       }
     }
     return this.prisma.$transaction(async (tx) => {
       const results: any[] = [];
       for (const entry of items) {
-        const item = await tx.inventoryItem.findUnique({ where: { id: entry.inventoryItemId } });
-        if (!item) throw new NotFoundException(`Item ${entry.inventoryItemId} not found`);
+        const item = await tx.inventoryItem.findUnique({
+          where: { id: entry.inventoryItemId },
+        });
+        if (!item)
+          throw new NotFoundException(
+            `Item ${entry.inventoryItemId} not found`,
+          );
 
         const current = Number(item.currentStock);
         const actual = Number(entry.actualStock);
@@ -532,7 +642,9 @@ export class InventoryService {
             inventoryItemId: entry.inventoryItemId,
             type: 'adjustment',
             quantity: absDiff,
-            reason: entry.reason || `تسوية جرد: ${diff > 0 ? 'زيادة' : 'عجز'} بقيمة ${absDiff} ${item.unit}`,
+            reason:
+              entry.reason ||
+              `تسوية جرد: ${diff > 0 ? 'زيادة' : 'عجز'} بقيمة ${absDiff} ${item.unit}`,
             performedByUserId: userId,
           },
         });

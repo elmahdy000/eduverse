@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
@@ -24,22 +29,58 @@ export class ProductsService {
 
     if (isFridge === undefined || isBakery === undefined) {
       const nameLower = createProductDto.name.toLowerCase();
-      
+
       const fridgeKeywords = [
-        'بيبسي', 'pepsi', 'كولا', 'cola', 'سفن', 'seven', 'سبرايت', 'sprite',
-        'ريد بول', 'red bull', 'redbull', 'بيريل', 'birell', 'فيروز', 'fayrouz',
-        'شويبس', 'شوويبس', 'schweppes', 'ماء', 'مياه', 'water', 'صودا', 'ساقع', 'كانز', 'can'
+        'بيبسي',
+        'pepsi',
+        'كولا',
+        'cola',
+        'سفن',
+        'seven',
+        'سبرايت',
+        'sprite',
+        'ريد بول',
+        'red bull',
+        'redbull',
+        'بيريل',
+        'birell',
+        'فيروز',
+        'fayrouz',
+        'شويبس',
+        'شوويبس',
+        'schweppes',
+        'ماء',
+        'مياه',
+        'water',
+        'صودا',
+        'ساقع',
+        'كانز',
+        'can',
       ];
       const bakeryKeywords = [
-        'كرواسون', 'croissant', 'باتيه', 'pate', 'مخبوز', 'مخبوزات', 'كيك', 'cake',
-        'كوكيز', 'cookies', 'muffin', 'مافن', 'دونات', 'donut', 'بيكرى', 'bakery'
+        'كرواسون',
+        'croissant',
+        'باتيه',
+        'pate',
+        'مخبوز',
+        'مخبوزات',
+        'كيك',
+        'cake',
+        'كوكيز',
+        'cookies',
+        'muffin',
+        'مافن',
+        'دونات',
+        'donut',
+        'بيكرى',
+        'bakery',
       ];
 
       if (isFridge === undefined) {
-        isFridge = fridgeKeywords.some(kw => nameLower.includes(kw));
+        isFridge = fridgeKeywords.some((kw) => nameLower.includes(kw));
       }
       if (isBakery === undefined) {
-        isBakery = bakeryKeywords.some(kw => nameLower.includes(kw));
+        isBakery = bakeryKeywords.some((kw) => nameLower.includes(kw));
       }
     }
 

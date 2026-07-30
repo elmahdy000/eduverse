@@ -94,7 +94,9 @@ export class BarOrdersService {
 
   async createOrder(createBarOrderDto: CreateBarOrderDto, userId?: string) {
     if (!createBarOrderDto.customerId && !createBarOrderDto.sessionId) {
-      throw new BadRequestException('Either customerId or sessionId is required');
+      throw new BadRequestException(
+        'Either customerId or sessionId is required',
+      );
     }
     if (!createBarOrderDto.items || createBarOrderDto.items.length === 0) {
       throw new BadRequestException('Order must contain at least one item');
@@ -112,13 +114,17 @@ export class BarOrdersService {
         throw new BadRequestException('لا يمكن إضافة طلب على جلسة غير نشطة');
       }
       if (customerId && customerId !== session.customerId) {
-        throw new BadRequestException('Selected customer does not match the selected session');
+        throw new BadRequestException(
+          'Selected customer does not match the selected session',
+        );
       }
       if (!customerId) customerId = session.customerId;
     }
 
     if (!customerId) {
-      throw new BadRequestException('Unable to resolve customer for this order');
+      throw new BadRequestException(
+        'Unable to resolve customer for this order',
+      );
     }
 
     const customer = await this.prisma.customer.findUnique({
@@ -126,7 +132,9 @@ export class BarOrdersService {
     });
     if (!customer) throw new NotFoundException('Customer not found');
     if (customer.status === 'blacklisted') {
-      throw new BadRequestException('هذا العميل في القائمة السوداء، لا يمكن استلام طلبات منه');
+      throw new BadRequestException(
+        'هذا العميل في القائمة السوداء، لا يمكن استلام طلبات منه',
+      );
     }
 
     const productIds = createBarOrderDto.items.map((item) => item.productId);
@@ -138,15 +146,21 @@ export class BarOrdersService {
       throw new NotFoundException('One or more products were not found');
     }
 
-    const productsMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
+    const productsMap = new Map<string, any>(
+      products.map((p: any) => [p.id, p]),
+    );
     const itemsToCreate = createBarOrderDto.items.map((item) => {
       const product = productsMap.get(item.productId);
       if (!product) throw new NotFoundException('Product not found');
       if (!product.active || !product.availability) {
-        throw new BadRequestException(`Product "${product.name}" is not available`);
+        throw new BadRequestException(
+          `Product "${product.name}" is not available`,
+        );
       }
       if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
-        throw new BadRequestException(`Invalid quantity for product "${product.name}"`);
+        throw new BadRequestException(
+          `Invalid quantity for product "${product.name}"`,
+        );
       }
 
       const unitPrice = computeUnitPrice(product, customer.customerType);
@@ -159,7 +173,10 @@ export class BarOrdersService {
       };
     });
 
-    const totalAmount = itemsToCreate.reduce((sum, item) => sum + item.subtotal, 0);
+    const totalAmount = itemsToCreate.reduce(
+      (sum, item) => sum + item.subtotal,
+      0,
+    );
 
     const order = await this.prisma.barOrder.create({
       data: {
@@ -183,84 +200,26 @@ export class BarOrdersService {
   }
 
   async validateGuestCode(guestCode: string) {
-    const OWNER_CODES: Record<string, { name: string; phone: string }> = {
-      '1': { name: 'Mahmoud Elmahdy', phone: '01000000001' },
-      '2': { name: 'Khaled Salah', phone: '01000000002' },
-      '3': { name: 'Mahmoud Ezz', phone: '01000000003' },
-      '4': { name: 'Mahmoud Abd-elrabo', phone: '01000000004' },
-      '5': { name: 'Mohamed Abdelazim', phone: '01000000005' },
-      '6': { name: 'Nada Elbaz', phone: '01000000006' },
-    };
-
-    if (OWNER_CODES[guestCode]) {
-      const ownerInfo = OWNER_CODES[guestCode];
-      // Find or create customer
-      let customer = await this.prisma.customer.findFirst({
-        where: {
-          fullName: { equals: ownerInfo.name, mode: 'insensitive' },
-        },
-      });
-
-      if (!customer) {
-        // Find first active user to be creator
-        const firstUser = await this.prisma.user.findFirst({
-          where: { status: 'active' },
-        });
-        if (!firstUser) throw new BadRequestException('No active user found to create customer');
-
-        customer = await this.prisma.customer.create({
-          data: {
-            fullName: ownerInfo.name,
-            phoneNumber: ownerInfo.phone,
-            customerType: 'owner_discount',
-            createdByUserId: firstUser.id,
-            status: 'active',
-          },
-        });
-      }
-
-      // Check if session is already active
-      let session = await this.prisma.session.findFirst({
-        where: { guestCode, status: 'active' },
-      });
-
-      if (!session) {
-        // Create an active session for the owner
-        const creatorUser = await this.prisma.user.findFirst({
-          where: { status: 'active' },
-        });
-        if (!creatorUser) throw new BadRequestException('No active user found to open session');
-
-        await this.prisma.session.create({
-          data: {
-            customerId: customer.id,
-            sessionType: 'daily',
-            startTime: new Date(),
-            status: 'active',
-            guestCode,
-            openedByUserId: creatorUser.id,
-          },
-        });
-      }
-      return true;
-    }
-
+    if (!/^\d{6}$/.test(guestCode)) return false;
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },
     });
     return !!session;
   }
 
-  async createOrderByGuestCode(guestCode: string, items: { productId: string; quantity: number }[], notes?: string) {
-    // Initialize session if it is a special owner code
-    await this.validateGuestCode(guestCode);
-
+  async createOrderByGuestCode(
+    guestCode: string,
+    items: { productId: string; quantity: number }[],
+    notes?: string,
+  ) {
     const session = await this.prisma.session.findFirst({
       where: { guestCode, status: 'active' },
     });
 
     if (!session) {
-      throw new BadRequestException('Guest code is invalid or session has ended');
+      throw new BadRequestException(
+        'Guest code is invalid or session has ended',
+      );
     }
 
     return this.createOrder({
@@ -268,10 +227,11 @@ export class BarOrdersService {
       customerId: session.customerId,
       items,
       guestCode,
-      notes: notes ? `${notes} (Guest Code: ${guestCode})` : `طلب عبر الجوال (Guest Code: ${guestCode})`,
+      notes: notes
+        ? `${notes} (Guest Code: ${guestCode})`
+        : `طلب عبر الجوال (Guest Code: ${guestCode})`,
     });
   }
-
 
   async getOrder(orderId: string) {
     const order = await this.prisma.barOrder.findUnique({
@@ -292,8 +252,12 @@ export class BarOrdersService {
   async listOrders(
     page = 1,
     limit = 20,
-    filters?: { status?: string; sessionId?: string; customerId?: string; guestCode?: string },
-
+    filters?: {
+      status?: string;
+      sessionId?: string;
+      customerId?: string;
+      guestCode?: string;
+    },
   ) {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     const safePage = Math.max(page, 1);
@@ -307,7 +271,6 @@ export class BarOrdersService {
     if (filters?.sessionId) where.sessionId = filters.sessionId;
     if (filters?.customerId) where.customerId = filters.customerId;
     if (filters?.guestCode) where.guestCode = filters.guestCode;
-
 
     const [orders, total] = await Promise.all([
       this.prisma.barOrder.findMany({
@@ -343,8 +306,18 @@ export class BarOrdersService {
     };
   }
 
-  async updateOrderStatus(orderId: string, updateStatusDto: UpdateBarOrderStatusDto, userId: string) {
+  async updateOrderStatus(
+    orderId: string,
+    updateStatusDto: UpdateBarOrderStatusDto,
+    userId: string,
+  ) {
     const order = await this.getOrder(orderId);
+
+    if (updateStatusDto.status === 'cancelled' && order.invoiceId) {
+      throw new BadRequestException(
+        'Cannot cancel an order that is already linked to an invoice',
+      );
+    }
 
     const allowedTransitions: Record<string, string[]> = {
       new: ['in_preparation', 'cancelled'],
@@ -353,17 +326,31 @@ export class BarOrdersService {
       delivered: [],
       cancelled: [],
     };
-    if (updateStatusDto.status !== order.status && !allowedTransitions[order.status]?.includes(updateStatusDto.status)) {
-      throw new BadRequestException(`Invalid order transition from ${order.status} to ${updateStatusDto.status}`);
+    if (
+      updateStatusDto.status !== order.status &&
+      !allowedTransitions[order.status]?.includes(updateStatusDto.status)
+    ) {
+      throw new BadRequestException(
+        `Invalid order transition from ${order.status} to ${updateStatusDto.status}`,
+      );
     }
 
     // Prevent changing the status of an already delivered order to avoid stock and invoice conflicts
-    if (order.status === 'delivered' && updateStatusDto.status !== 'delivered') {
-      throw new BadRequestException('Cannot change the status of an already delivered order');
+    if (
+      order.status === 'delivered' &&
+      updateStatusDto.status !== 'delivered'
+    ) {
+      throw new BadRequestException(
+        'Cannot change the status of an already delivered order',
+      );
     }
 
-    if (updateStatusDto.status === 'delivered' && order.status !== 'delivered') {
-      if (!order.customerId) throw new BadRequestException('Cannot deliver order without customer');
+    if (
+      updateStatusDto.status === 'delivered' &&
+      order.status !== 'delivered'
+    ) {
+      if (!order.customerId)
+        throw new BadRequestException('Cannot deliver order without customer');
 
       // لو الأوردر متحاسب بالفعل ضمن جلسة نشطة، الفاتورة هتتولّد عند إغلاق الجلسة
       const activeSession = order.sessionId
@@ -385,22 +372,29 @@ export class BarOrdersService {
         });
         if (!lockedOrder) throw new NotFoundException('Order not found');
         if (lockedOrder.status === 'delivered') return;
-        if (lockedOrder.status !== 'ready') throw new BadRequestException('Only ready orders can be delivered');
+        if (lockedOrder.status !== 'ready')
+          throw new BadRequestException('Only ready orders can be delivered');
         const lockedActiveSession = lockedOrder.sessionId
-          ? await tx.session.findFirst({ where: { id: lockedOrder.sessionId, status: 'active' } })
+          ? await tx.session.findFirst({
+              where: { id: lockedOrder.sessionId, status: 'active' },
+            })
           : null;
-        const needsStandaloneInvoice = !lockedActiveSession && !lockedOrder.invoiceId;
+        const needsStandaloneInvoice =
+          !lockedActiveSession && !lockedOrder.invoiceId;
         if (needsStandaloneInvoice) {
           const invoiceNumber = `BAR-${Date.now().toString(36).toUpperCase()}`;
           const invoice = await tx.invoice.create({
             data: {
               customerId: lockedOrder.customerId,
               invoiceNumber,
-              createdByUserId: lockedOrder.createdByUserId || lockedOrder.customer.createdByUserId,
+              createdByUserId:
+                lockedOrder.createdByUserId ||
+                lockedOrder.customer.createdByUserId,
               totalAmount: Number(lockedOrder.totalAmount),
               amountPaid: 0,
               remainingAmount: Number(lockedOrder.totalAmount),
-              paymentStatus: Number(lockedOrder.totalAmount) === 0 ? 'paid' : 'unpaid',
+              paymentStatus:
+                Number(lockedOrder.totalAmount) === 0 ? 'paid' : 'unpaid',
               notes: `طلب بار #${orderId.slice(0, 8)}`,
               items: {
                 create: lockedOrder.items.map((item: any) => ({
@@ -455,6 +449,11 @@ export class BarOrdersService {
     if (order.status === 'delivered') {
       throw new BadRequestException('Cannot cancel a delivered order');
     }
+    if (order.invoiceId) {
+      throw new BadRequestException(
+        'Cannot cancel an order that is already linked to an invoice',
+      );
+    }
     return this.prisma.barOrder.update({
       where: { id: orderId },
       data: { status: 'cancelled' },
@@ -480,7 +479,14 @@ export class BarOrdersService {
     }
 
     if (order.status !== 'new') {
-      throw new BadRequestException('Order is already being prepared and cannot be cancelled');
+      throw new BadRequestException(
+        'Order is already being prepared and cannot be cancelled',
+      );
+    }
+    if (order.invoiceId) {
+      throw new BadRequestException(
+        'Cannot cancel an order that is already linked to an invoice',
+      );
     }
 
     return this.prisma.barOrder.update({
@@ -493,14 +499,19 @@ export class BarOrdersService {
     });
   }
 
-  async updateOrderItems(orderId: string, items: { productId: string; quantity: number }[]) {
+  async updateOrderItems(
+    orderId: string,
+    items: { productId: string; quantity: number }[],
+  ) {
     const order = await this.getOrder(orderId);
     if (order.status === 'delivered') {
       throw new BadRequestException('Cannot edit a delivered order');
     }
     // لو الأوردر اتحاسب بالفعل (متربط بفاتورة) مش مسموح بتعديله لتفادي اختلاف الفاتورة عن الطلب
     if (order.invoiceId) {
-      throw new BadRequestException('لا يمكن تعديل طلب تم إصدار فاتورة له بالفعل');
+      throw new BadRequestException(
+        'لا يمكن تعديل طلب تم إصدار فاتورة له بالفعل',
+      );
     }
     // لو الأوردر مربوط بجلسة، لازم تكون الجلسة لسه نشطة (مش مقفولة/ملغاة)
     if (order.sessionId && order.session && order.session.status !== 'active') {
@@ -516,12 +527,16 @@ export class BarOrdersService {
       where: { id: { in: productIds } },
     });
 
-    const productsMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
+    const productsMap = new Map<string, any>(
+      products.map((p: any) => [p.id, p]),
+    );
     const itemsToCreate = items.map((item) => {
       const product = productsMap.get(item.productId);
       if (!product) throw new NotFoundException('Product not found');
       if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
-        throw new BadRequestException(`Invalid quantity for product "${product.name}"`);
+        throw new BadRequestException(
+          `Invalid quantity for product "${product.name}"`,
+        );
       }
 
       const unitPrice = computeUnitPrice(product, customer.customerType);
@@ -534,7 +549,10 @@ export class BarOrdersService {
       };
     });
 
-    const totalAmount = itemsToCreate.reduce((sum, item) => sum + item.subtotal, 0);
+    const totalAmount = itemsToCreate.reduce(
+      (sum, item) => sum + item.subtotal,
+      0,
+    );
 
     return this.prisma.$transaction(async (tx) => {
       await tx.barOrderItem.deleteMany({ where: { orderId } });
@@ -557,7 +575,13 @@ export class BarOrdersService {
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const [newOrders, inPreparationOrders, readyOrders, deliveredToday, deliveredOrders] = await Promise.all([
+    const [
+      newOrders,
+      inPreparationOrders,
+      readyOrders,
+      deliveredToday,
+      deliveredOrders,
+    ] = await Promise.all([
       this.prisma.barOrder.findMany({
         where: { status: 'new' },
         include: { customer: true, items: { include: { product: true } } },
@@ -587,7 +611,9 @@ export class BarOrdersService {
     const addWait = (orders: any[]) =>
       orders.map((o) => ({
         ...o,
-        waitMinutes: Math.floor((nowMs - new Date(o.createdAt).getTime()) / 60_000),
+        waitMinutes: Math.floor(
+          (nowMs - new Date(o.createdAt).getTime()) / 60_000,
+        ),
       }));
 
     return {

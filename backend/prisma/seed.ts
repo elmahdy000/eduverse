@@ -157,12 +157,23 @@ async function main() {
     },
   });
 
-  const elmahdyHash = passwordHash;
   await prisma.user.create({
     data: {
       email: 'elmahdy@eduvers.com',
       passwordHash: elmahdyHash,
       firstName: 'Elmahdy',
+      lastName: 'Owner',
+      roleId: roles['Owner'].id,
+      status: 'active',
+    },
+  });
+
+  const mainownerHash = await bcrypt.hash('owner123', 10);
+  await prisma.user.create({
+    data: {
+      email: 'mainowner@eduvers.com',
+      passwordHash: mainownerHash,
+      firstName: 'Main',
       lastName: 'Owner',
       roleId: roles['Owner'].id,
       status: 'active',

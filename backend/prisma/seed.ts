@@ -169,12 +169,12 @@ async function main() {
     },
   });
 
-  const mainownerHash = await bcrypt.hash('123456', 10);
+  const adminPasswordHash = await bcrypt.hash('Admin@123456', 10);
   await prisma.user.create({
     data: {
-      email: 'mainowner@eduvers.com',
-      passwordHash: mainownerHash,
-      firstName: 'Main',
+      email: 'admin@edu-vers.com',
+      passwordHash: adminPasswordHash,
+      firstName: 'System',
       lastName: 'Owner',
       roleId: roles['Owner'].id,
       status: 'active',

@@ -23,7 +23,7 @@ import {
 import clsx from "clsx";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
-import { dateShort, dateTime, idShort, money, phoneDisplay } from "../../../lib/format";
+import { dateShort, dateTime, duration, idShort, money, phoneDisplay } from "../../../lib/format";
 import { translateCustomerType, translateSessionType, translateStatus } from "../../../lib/labels";
 import type { BarOrder, Booking, Customer, Invoice, Paginated, Session } from "../../../lib/types";
 import {
@@ -38,8 +38,8 @@ import {
   Panel,
   SectionTitle,
   Select,
-  statusBadgeTone,
   TableSkeleton,
+  statusBadgeTone,
 } from "../../../components/ui";
 
 interface CustomerHistory {
@@ -58,22 +58,25 @@ interface CustomerHistory {
   totalSpent?: number;
 }
 
-/* Badge tones mapped to design tokens — no raw hex classes */
-const ctypeTone: Record<string, "info" | "neutral" | "success" | "warn" | "danger" | "default"> = {
-  student:        "info",
-  employee:       "neutral",
-  trainer:        "success",
-  parent:         "warn",
-  visitor:        "neutral",
-  staff:          "success",
-  owner_discount: "warn",
+const ctypeColors: Record<string, string> = {
+  student:        "bg-blue-100 text-blue-700 border-blue-200",
+  employee:       "bg-violet-100 text-violet-700 border-violet-200",
+  trainer:        "bg-emerald-100 text-emerald-700 border-emerald-200",
+  parent:         "bg-amber-100 text-amber-700 border-amber-200",
+  visitor:        "bg-slate-100 text-slate-600 border-slate-200",
+  staff:          "bg-teal-100 text-teal-700 border-teal-200",
+  owner_discount: "bg-amber-100 text-amber-700 border-amber-200",
 };
+
+/* Shared textarea styling that matches the Input design token */
+const textareaBase =
+  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-right text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 hover:border-slate-300 resize-none";
 
 export default function CustomersPage() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
 
-  // Create form state
+  /* ── Create form state ── */
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberSecondary, setPhoneNumberSecondary] = useState("");
@@ -87,7 +90,7 @@ export default function CustomersPage() {
   const [employerName, setEmployerName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
 
-  // Search/View state
+  /* ── Search / View state ── */
   const [searchName, setSearchName] = useState("");
   const [searchPhone, setSearchPhone] = useState("");
   const [activeTypeTab, setActiveTypeTab] = useState<string>("all");
@@ -105,17 +108,11 @@ export default function CustomersPage() {
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Duplicate-phone confirmation modal state
-  const [dupDialog, setDupDialog] = useState<{ customer: Customer } | null>(null);
+  /* ── Duplicate-phone confirmation modal ── */
+  const [duplicateDialog, setDuplicateDialog] = useState<Customer | null>(null);
+  const pendingCreateRef = useRef(false);
 
-  // Scroll to profile when selected
-  useEffect(() => {
-    if (selectedCustomerId && profileRef.current) {
-      profileRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [selectedCustomerId]);
-
-  // Edit modal state
+  /* ── Edit modal state ── */
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFullName, setEditFullName] = useState("");
   const [editPhoneNumber, setEditPhoneNumber] = useState("");
@@ -130,7 +127,7 @@ export default function CustomersPage() {
   const [editJobTitle, setEditJobTitle] = useState("");
   const [editCustomerType, setEditCustomerType] = useState("visitor");
 
-  // Debounce search inputs to reduce API calls
+  /* ── Debounce search inputs ── */
   const [debouncedSearchName, setDebouncedSearchName] = useState(searchName);
   const [debouncedSearchPhone, setDebouncedSearchPhone] = useState(searchPhone);
 
@@ -142,6 +139,14 @@ export default function CustomersPage() {
     return () => clearTimeout(timer);
   }, [searchName, searchPhone]);
 
+  /* ── Scroll to profile when selected ── */
+  useEffect(() => {
+    if (selectedCustomerId && profileRef.current) {
+      profileRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedCustomerId]);
+
+  /* ── Queries ── */
   const customersQuery = useQuery({
     queryKey: ["customers", debouncedSearchName, debouncedSearchPhone],
     queryFn: async () => {
@@ -191,6 +196,7 @@ export default function CustomersPage() {
     },
   });
 
+  /* ── Mutations ── */
   const createMutation = useMutation({
     mutationFn: async () => {
       const response = await api.post("/customers", {
@@ -286,6 +292,7 @@ export default function CustomersPage() {
     },
   });
 
+  /* ── Derived data ── */
   const customers = useMemo(() => customersQuery.data?.data ?? [], [customersQuery.data]);
   const visibleCustomers = useMemo(() => {
     if (activeTypeTab === "all") return customers;
@@ -294,43 +301,20 @@ export default function CustomersPage() {
 
   const customerTypeTabs = useMemo(
     () => [
-      { key: "all", label: "الكل", count: customers.length },
-      {
-        key: "student",
-        label: "طلاب",
-        count: customers.filter((c) => c.customerType === "student").length,
-      },
-      {
-        key: "employee",
-        label: "موظفين",
-        count: customers.filter((c) => c.customerType === "employee").length,
-      },
-      {
-        key: "trainer",
-        label: "مدربين",
-        count: customers.filter((c) => c.customerType === "trainer").length,
-      },
-      {
-        key: "visitor",
-        label: "زوار",
-        count: customers.filter((c) => c.customerType === "visitor").length,
-      },
-      {
-        key: "staff",
-        label: "طاقم عمل (50%)",
-        count: customers.filter((c) => c.customerType === "staff").length,
-      },
-      {
-        key: "owner_discount",
-        label: "ملاك (70%)",
-        count: customers.filter((c) => c.customerType === "owner_discount").length,
-      },
+      { key: "all",            label: "الكل",             count: customers.length },
+      { key: "student",        label: "طلاب",             count: customers.filter((c) => c.customerType === "student").length },
+      { key: "employee",       label: "موظفين",           count: customers.filter((c) => c.customerType === "employee").length },
+      { key: "trainer",        label: "مدربين",           count: customers.filter((c) => c.customerType === "trainer").length },
+      { key: "visitor",        label: "زوار",             count: customers.filter((c) => c.customerType === "visitor").length },
+      { key: "staff",          label: "طاقم عمل (50%)",  count: customers.filter((c) => c.customerType === "staff").length },
+      { key: "owner_discount", label: "ملاك (70%)",       count: customers.filter((c) => c.customerType === "owner_discount").length },
     ],
     [customers],
   );
 
   const selectedCustomer = customerDetailsQuery.data ?? null;
 
+  /* ── Helpers ── */
   function resetCreateForm() {
     setFullName("");
     setPhoneNumber("");
@@ -349,24 +333,47 @@ export default function CustomersPage() {
   function onCreateSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (duplicateCustomer) {
-      setDupDialog({ customer: duplicateCustomer });
+      setDuplicateDialog(duplicateCustomer);
       return;
     }
     createMutation.mutate();
   }
 
+  function openEditModal(customer: Customer) {
+    setEditFullName(customer.fullName);
+    setEditPhoneNumber(customer.phoneNumber);
+    setEditPhoneNumberSecondary(customer.phoneNumberSecondary || "");
+    setEditEmail(customer.email || "");
+    setEditAddress(customer.address || "");
+    setEditNotes(customer.notes || "");
+    setEditCollege(customer.college || "");
+    setEditStudyLevel(customer.studyLevel || "");
+    setEditSpecialization(customer.specialization || "");
+    setEditEmployerName(customer.employerName || "");
+    setEditJobTitle(customer.jobTitle || "");
+    setEditCustomerType(customer.customerType);
+    setShowEditModal(true);
+  }
+
+  /* ── Table rows ── */
   const rows = useMemo(
     () =>
       visibleCustomers.map((c) => [
         <span key={`name-${c.id}`} className="font-semibold text-slate-900">
           {c.fullName}
         </span>,
-        <span key={`phone-${c.id}`} className="ltr-value font-mono text-xs">
+        <span key={`phone-${c.id}`} className="ltr-value font-mono text-xs text-slate-600">
           {phoneDisplay(c.phoneNumber)}
         </span>,
-        <Badge key={`type-${c.id}`} tone={ctypeTone[c.customerType] ?? "neutral"}>
+        <span
+          key={`type-${c.id}`}
+          className={clsx(
+            "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+            ctypeColors[c.customerType] ?? ctypeColors.visitor,
+          )}
+        >
           {translateCustomerType(c.customerType)}
-        </Badge>,
+        </span>,
         <Badge key={`status-${c.id}`} tone={statusBadgeTone(c.status)}>
           {translateStatus(c.status)}
         </Badge>,
@@ -385,8 +392,9 @@ export default function CustomersPage() {
     [visibleCustomers],
   );
 
+  /* ════════════════════════════════════════════════════════════ RENDER ══ */
   return (
-    <div className="space-y-6" dir="rtl">
+    <div dir="rtl" className="space-y-6">
       <SectionTitle
         title="شاشة العملاء"
         subtitle="إدارة بيانات العملاء والتسجيل السريع."
@@ -397,33 +405,36 @@ export default function CustomersPage() {
         <Alert tone={message.ok ? "success" : "danger"}>{message.text}</Alert>
       )}
 
-      {customersQuery.isError && (
-        <Alert tone="danger">فشل تحميل قائمة العملاء. تحقق من الاتصال وأعد المحاولة.</Alert>
-      )}
-
+      {/* ── Search + Create row ── */}
       <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
-        <Panel title="بحث العملاء" icon={<Search size={15} />}>
-          <div className="grid gap-3 md:grid-cols-2">
-            <FormField label="بالاسم">
-              <Input
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-                placeholder="اسم العميل..."
-              />
-            </FormField>
-            <FormField label="بالموبايل">
-              <Input
-                value={searchPhone}
-                onChange={(e) =>
-                  setSearchPhone(e.target.value.replace(/\D/g, "").slice(0, 11))
-                }
-                placeholder="01xxxxxxxxx"
-                dir="ltr"
-              />
-            </FormField>
-          </div>
-        </Panel>
+        {/* Search panel */}
+        {customersQuery.isError ? (
+          <Alert tone="danger">فشل تحميل قائمة العملاء. تحقق من الاتصال وأعد المحاولة.</Alert>
+        ) : (
+          <Panel title="بحث العملاء" icon={<Search size={15} />}>
+            <div className="grid gap-3 md:grid-cols-2">
+              <FormField label="بالاسم">
+                <Input
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                  placeholder="اسم العميل..."
+                />
+              </FormField>
+              <FormField label="بالموبايل">
+                <Input
+                  value={searchPhone}
+                  onChange={(e) =>
+                    setSearchPhone(e.target.value.replace(/\D/g, "").slice(0, 11))
+                  }
+                  placeholder="01xxxxxxxxx"
+                  dir="ltr"
+                />
+              </FormField>
+            </div>
+          </Panel>
+        )}
 
+        {/* Create panel */}
         <Panel title="تسجيل عميل جديد" icon={<UserPlus size={15} />}>
           {!showCreateForm ? (
             <Btn className="w-full" onClick={() => setShowCreateForm(true)}>
@@ -450,6 +461,7 @@ export default function CustomersPage() {
                   />
                 </FormField>
               </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField label="النوع">
                   <Select
@@ -478,7 +490,7 @@ export default function CustomersPage() {
                 </FormField>
               </div>
 
-              {/* حقول الطالب */}
+              {/* Student-specific fields */}
               {customerType === "student" && (
                 <div className="grid gap-4 md:grid-cols-3 rounded-xl border border-blue-100 bg-blue-50 p-3">
                   <FormField label="الكلية / الجامعة">
@@ -505,7 +517,7 @@ export default function CustomersPage() {
                 </div>
               )}
 
-              {/* حقول الموظف */}
+              {/* Employee-specific fields */}
               {customerType === "employee" && (
                 <div className="grid gap-4 md:grid-cols-2 rounded-xl border border-violet-100 bg-violet-50 p-3">
                   <FormField label="جهة العمل / الشركة">
@@ -545,7 +557,7 @@ export default function CustomersPage() {
 
               <FormField label="ملاحظات">
                 <textarea
-                  className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-right text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+                  className={textareaBase}
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -570,15 +582,15 @@ export default function CustomersPage() {
         </Panel>
       </div>
 
+      {/* ── Customers list ── */}
       <Panel title="قائمة العملاء" icon={<Users size={15} />}>
         {/* Type-filter pills */}
-        <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="تصفية حسب نوع العميل">
+        <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="تصفية حسب النوع">
           {customerTypeTabs.map((tab) => (
             <button
               key={tab.key}
               role="tab"
               aria-selected={activeTypeTab === tab.key}
-              aria-label={`عرض ${tab.label}`}
               onClick={() => setActiveTypeTab(tab.key)}
               className={clsx(
                 "rounded-full border px-3 py-1 text-xs font-medium transition",
@@ -592,13 +604,26 @@ export default function CustomersPage() {
           ))}
         </div>
 
-        {customersQuery.isLoading ? (
+        {customersQuery.isError ? (
+          <Alert tone="danger">فشل تحميل قائمة العملاء. تحقق من الاتصال وأعد المحاولة.</Alert>
+        ) : customersQuery.isLoading ? (
           <TableSkeleton rows={5} cols={6} />
         ) : visibleCustomers.length === 0 ? (
           <EmptyState
             icon={<Users size={28} />}
-            title="لا يوجد عملاء في هذه الفئة"
-            sub="جرب تصفية مختلفة أو قم بتسجيل عميل جديد."
+            title="لا يوجد عملاء"
+            sub={
+              activeTypeTab === "all"
+                ? "لم يتم تسجيل أي عملاء بعد."
+                : `لا يوجد عملاء من نوع "${customerTypeTabs.find((t) => t.key === activeTypeTab)?.label ?? activeTypeTab}".`
+            }
+            action={
+              activeTypeTab !== "all" ? (
+                <Btn variant="secondary" size="sm" onClick={() => setActiveTypeTab("all")}>
+                  عرض الكل
+                </Btn>
+              ) : undefined
+            }
           />
         ) : (
           <DataTable
@@ -608,10 +633,11 @@ export default function CustomersPage() {
         )}
       </Panel>
 
+      {/* ── Customer profile panel ── */}
       {selectedCustomerId && (
         <div ref={profileRef} className="scroll-mt-6">
           <Panel
-            className="border-2 border-slate-900 shadow-xl overflow-hidden"
+            className="overflow-hidden border-2 border-slate-900 shadow-xl"
             title={`ملف العميل: ${selectedCustomer?.fullName ?? "..."}`}
             icon={<UserCheck size={18} className="text-emerald-500" />}
             action={
@@ -630,10 +656,8 @@ export default function CustomersPage() {
               <Alert tone="danger">فشل تحميل ملف العميل. حاول مرة أخرى.</Alert>
             ) : customerDetailsQuery.isLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
-                <RefreshCw size={32} className="animate-spin text-slate-300 mb-4" />
-                <p className="text-sm font-bold text-slate-400">
-                  جاري تحميل الملف الكامل...
-                </p>
+                <RefreshCw size={32} className="mb-4 animate-spin text-slate-300" />
+                <p className="text-sm font-bold text-slate-400">جاري تحميل الملف الكامل...</p>
               </div>
             ) : selectedCustomer ? (
               <div className="space-y-8">
@@ -642,20 +666,25 @@ export default function CustomersPage() {
                   <div className="flex items-center gap-4">
                     <div
                       className={clsx(
-                        "flex h-14 w-14 items-center justify-center rounded-2xl border-2 shadow-inner text-xl font-black",
-                        "bg-slate-100 text-slate-700 border-slate-200",
+                        "flex h-14 w-14 items-center justify-center rounded-2xl border-2 text-xl font-black shadow-inner",
+                        ctypeColors[selectedCustomer.customerType] ?? ctypeColors.visitor,
                       )}
                     >
                       {selectedCustomer.fullName.charAt(0)}
                     </div>
                     <div>
-                      <h2 className="text-xl font-black text-slate-900 leading-tight">
+                      <h2 className="text-xl font-black leading-tight text-slate-900">
                         {selectedCustomer.fullName}
                       </h2>
                       <div className="mt-1 flex items-center gap-2">
-                        <Badge tone={ctypeTone[selectedCustomer.customerType] ?? "neutral"}>
+                        <span
+                          className={clsx(
+                            "rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider",
+                            ctypeColors[selectedCustomer.customerType] ?? ctypeColors.visitor,
+                          )}
+                        >
                           {translateCustomerType(selectedCustomer.customerType)}
-                        </Badge>
+                        </span>
                         <Badge tone={statusBadgeTone(selectedCustomer.status)}>
                           {translateStatus(selectedCustomer.status)}
                         </Badge>
@@ -663,18 +692,19 @@ export default function CustomersPage() {
                     </div>
                   </div>
 
+                  {/* Action buttons */}
                   <div className="flex flex-wrap gap-2">
                     {selectedCustomer.status === "active" && (
                       <>
                         <Link
                           href={`/sessions?customerId=${selectedCustomer.id}`}
-                          className="inline-flex h-8 items-center justify-center rounded-lg bg-emerald-500 px-3 text-xs font-semibold text-white hover:bg-emerald-600 transition"
+                          className="inline-flex h-8 items-center justify-center rounded-lg bg-emerald-500 px-3 text-xs font-semibold text-white hover:bg-emerald-600"
                         >
                           فتح جلسة
                         </Link>
                         <Link
                           href={`/bookings?customerId=${selectedCustomer.id}`}
-                          className="inline-flex h-8 items-center justify-center rounded-lg bg-violet-500 px-3 text-xs font-semibold text-white hover:bg-violet-600 transition"
+                          className="inline-flex h-8 items-center justify-center rounded-lg bg-violet-500 px-3 text-xs font-semibold text-white hover:bg-violet-600"
                         >
                           حجز جديد
                         </Link>
@@ -686,27 +716,10 @@ export default function CustomersPage() {
                       className="h-8 text-xs"
                       icon={<Edit2 size={12} />}
                       aria-label="تعديل بيانات العميل"
-                      onClick={() => {
-                        setEditFullName(selectedCustomer.fullName);
-                        setEditPhoneNumber(selectedCustomer.phoneNumber);
-                        setEditPhoneNumberSecondary(
-                          selectedCustomer.phoneNumberSecondary || "",
-                        );
-                        setEditEmail(selectedCustomer.email || "");
-                        setEditAddress(selectedCustomer.address || "");
-                        setEditNotes(selectedCustomer.notes || "");
-                        setEditCollege(selectedCustomer.college || "");
-                        setEditStudyLevel(selectedCustomer.studyLevel || "");
-                        setEditSpecialization(selectedCustomer.specialization || "");
-                        setEditEmployerName(selectedCustomer.employerName || "");
-                        setEditJobTitle(selectedCustomer.jobTitle || "");
-                        setEditCustomerType(selectedCustomer.customerType);
-                        setShowEditModal(true);
-                      }}
+                      onClick={() => openEditModal(selectedCustomer)}
                     >
                       تعديل البيانات
                     </Btn>
-
                     {selectedCustomer.status === "active" ? (
                       <Btn
                         size="sm"
@@ -729,12 +742,12 @@ export default function CustomersPage() {
                         variant="success"
                         className="h-8 text-xs"
                         icon={<ShieldBan size={12} />}
-                        onClick={() => {
+                        onClick={() =>
                           setStatusDialog({
                             customerId: selectedCustomer.id,
                             action: "reactivate",
-                          });
-                        }}
+                          })
+                        }
                       >
                         إعادة تفعيل العميل
                       </Btn>
@@ -743,9 +756,9 @@ export default function CustomersPage() {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-3">
-                  {/* Side Info */}
+                  {/* ── Side info column ── */}
                   <div className="space-y-6">
-                    {/* Contact card */}
+                    {/* Contact details */}
                     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                       <h4 className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
                         <Phone size={12} /> بيانات التواصل
@@ -782,7 +795,7 @@ export default function CustomersPage() {
                       </div>
                     </div>
 
-                    {/* Student / Employee extra info */}
+                    {/* Student / Employee specific */}
                     {(selectedCustomer.customerType === "student" ||
                       selectedCustomer.customerType === "employee") && (
                       <div
@@ -859,26 +872,26 @@ export default function CustomersPage() {
                         ملاحظات العميل
                       </h4>
                       <p className="text-xs font-medium italic leading-relaxed text-amber-900">
-                        {selectedCustomer.notes ||
-                          "لا توجد ملاحظات مسجلة لهذا العميل."}
+                        {selectedCustomer.notes || "لا توجد ملاحظات مسجلة لهذا العميل."}
                       </p>
                     </div>
                   </div>
 
-                  {/* Timeline & History */}
+                  {/* ── History column ── */}
                   <div className="space-y-6 lg:col-span-2">
-                    {/* Stats row */}
+                    {/* Stats mini-cards */}
                     {historyQuery.isError ? (
-                      <Alert tone="danger">
-                        فشل تحميل سجل العميل. حاول مرة أخرى.
-                      </Alert>
+                      <Alert tone="danger">فشل تحميل سجل العميل. حاول مرة أخرى.</Alert>
                     ) : historyQuery.isLoading ? (
-                      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 animate-pulse">
-                        {Array.from({ length: 4 }).map((_, i) => (
+                      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                        {[...Array(4)].map((_, i) => (
                           <div
                             key={i}
-                            className="h-20 rounded-2xl border border-slate-100 bg-slate-50"
-                          />
+                            className="animate-pulse rounded-2xl border border-slate-100 bg-white p-4"
+                          >
+                            <div className="mb-2 h-2 w-16 rounded bg-slate-100" />
+                            <div className="h-6 w-10 rounded bg-slate-100" />
+                          </div>
                         ))}
                       </div>
                     ) : (
@@ -918,12 +931,11 @@ export default function CustomersPage() {
                       </div>
                     )}
 
-                    {/* Visit Feed */}
+                    {/* Visit timeline */}
                     <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
                       <div className="mb-8 flex items-center justify-between">
                         <h3 className="flex items-center gap-2 text-base font-black text-slate-900">
-                          <Clock3 size={18} className="text-blue-500" />
-                          سجل الزيارات التفصيلي
+                          <Clock3 size={18} className="text-blue-500" /> سجل الزيارات التفصيلي
                         </h3>
                         <Badge tone="success" className="text-[9px]">
                           مكتمل
@@ -931,145 +943,130 @@ export default function CustomersPage() {
                       </div>
 
                       {historyQuery.isLoading ? (
-                        <div className="space-y-6 animate-pulse">
-                          {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="flex gap-4">
-                              <div className="mt-1 h-3 w-3 shrink-0 rounded-full bg-slate-200" />
-                              <div className="flex-1 space-y-2">
-                                <div className="h-3 w-1/4 rounded bg-slate-100" />
-                                <div className="h-16 rounded-xl bg-slate-100" />
-                              </div>
+                        <div className="space-y-6">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="animate-pulse rounded-2xl border border-slate-100 bg-slate-50 p-5"
+                            >
+                              <div className="mb-3 h-3 w-24 rounded bg-slate-200" />
+                              <div className="h-4 w-1/2 rounded bg-slate-100" />
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="relative space-y-12 before:absolute before:right-6 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-50">
-                          {historyQuery.data?.customer?.sessions?.map(
-                            (session: any) => {
-                              const durationHrs = session.durationMinutes
-                                ? Math.floor(session.durationMinutes / 60)
-                                : 0;
-                              const durationMins = session.durationMinutes
-                                ? session.durationMinutes % 60
-                                : 0;
+                        <div className="relative space-y-12 before:absolute before:bottom-0 before:right-6 before:top-0 before:w-0.5 before:bg-slate-50">
+                          {historyQuery.data?.customer?.sessions?.map((session: any) => {
+                            const sessionOrders = historyQuery.data?.customer?.barOrders?.filter(
+                              (o: any) => o.sessionId === session.id,
+                            );
+                            const sessionInvoice = historyQuery.data?.customer?.invoices?.find(
+                              (i: any) => i.sessionId === session.id,
+                            );
 
-                              const sessionOrders =
-                                historyQuery.data?.customer?.barOrders?.filter(
-                                  (o: any) => o.sessionId === session.id,
-                                );
-                              const sessionInvoice =
-                                historyQuery.data?.customer?.invoices?.find(
-                                  (i: any) => i.sessionId === session.id,
-                                );
+                            return (
+                              <div key={session.id} className="group relative pr-14">
+                                {/* Timeline dot */}
+                                <div className="absolute right-[21px] top-0 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-blue-50 transition-transform group-hover:scale-125" />
 
-                              return (
-                                <div
-                                  key={session.id}
-                                  className="group relative pr-14"
-                                >
-                                  {/* Timeline Dot */}
-                                  <div className="absolute right-[21px] top-0 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-blue-50 transition-transform group-hover:scale-125" />
+                                <div className="grid gap-6 md:grid-cols-[1fr_2.5fr]">
+                                  <div className="space-y-1 pt-0.5">
+                                    <p className="text-xs font-black text-slate-900">
+                                      <span className="ltr-value">
+                                        {dateShort(session.startTime)}
+                                      </span>
+                                    </p>
+                                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                                      <span className="ltr-value">
+                                        {new Date(session.startTime).toLocaleTimeString("ar-EG", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                      </span>
+                                    </p>
+                                  </div>
 
-                                  <div className="grid gap-6 md:grid-cols-[1fr_2.5fr]">
-                                    <div className="space-y-1 pt-0.5">
-                                      <p className="text-xs font-black text-slate-900">
-                                        <span className="ltr-value">
-                                          {dateShort(session.startTime)}
-                                        </span>
-                                      </p>
-                                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                                        <span className="ltr-value">
-                                          {new Date(session.startTime).toLocaleTimeString(
-                                            "ar-EG",
-                                            { hour: "2-digit", minute: "2-digit" },
-                                          )}
-                                        </span>
-                                      </p>
-                                    </div>
-
-                                    <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-5 transition-all hover:border-blue-100 hover:bg-white hover:shadow-xl">
-                                      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-3">
-                                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                                            <Clock3 size={16} />
-                                          </div>
-                                          <div>
-                                            <p className="text-[9px] font-black uppercase text-slate-400">
-                                              مدة الزيارة
-                                            </p>
-                                            <p className="mt-0.5 text-xs font-black leading-none text-slate-900">
-                                              {durationHrs} ساعة و {durationMins} دقيقة
-                                            </p>
-                                          </div>
+                                  <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-5 transition-all hover:border-blue-100 hover:bg-white hover:shadow-xl">
+                                    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                                          <Clock3 size={16} />
                                         </div>
-                                        <div className="text-left">
+                                        <div>
                                           <p className="text-[9px] font-black uppercase text-slate-400">
-                                            الحساب الإجمالي
+                                            مدة الزيارة
                                           </p>
-                                          <p className="ltr-value text-sm font-black text-slate-900">
-                                            {sessionInvoice
-                                              ? money(sessionInvoice.totalAmount)
-                                              : money(0)}
+                                          <p className="mt-0.5 text-xs font-black leading-none text-slate-900">
+                                            {duration(session.durationMinutes)}
                                           </p>
                                         </div>
                                       </div>
-
-                                      {sessionOrders && sessionOrders.length > 0 && (
-                                        <div className="mt-4 border-t border-slate-100 pt-4">
-                                          <p className="mb-3 flex items-center gap-1.5 text-[9px] font-black uppercase leading-none text-slate-400">
-                                            <Coffee size={12} className="text-amber-500" />
-                                            طلبات البار
-                                          </p>
-                                          <div className="grid gap-2 sm:grid-cols-2">
-                                            {sessionOrders.map((order: any) =>
-                                              order.items?.map((item: any) => (
-                                                <div
-                                                  key={item.id}
-                                                  className="flex items-center justify-between rounded-lg border border-slate-100 bg-white p-2 text-[11px]"
-                                                >
-                                                  <span className="font-medium text-slate-700">
-                                                    {item.quantity} × {item.product?.name}
-                                                  </span>
-                                                  <span className="ltr-value font-mono text-[9px] font-bold text-slate-400">
-                                                    {money(item.total ?? item.subtotal)}
-                                                  </span>
-                                                </div>
-                                              )),
-                                            )}
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {sessionInvoice && (
-                                        <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-3 text-[9px] font-bold text-slate-400">
-                                          <span>
-                                            رقم الفاتورة:{" "}
-                                            <span className="ltr-value font-mono">
-                                              #{sessionInvoice.invoiceNumber.split("-").pop()}
-                                            </span>
-                                          </span>
-                                          <span
-                                            className={clsx(
-                                              sessionInvoice.paymentStatus === "paid"
-                                                ? "text-emerald-500"
-                                                : "text-amber-500",
-                                            )}
-                                          >
-                                            حالة الدفع:{" "}
-                                            {translateStatus(sessionInvoice.paymentStatus)}
-                                          </span>
-                                        </div>
-                                      )}
+                                      <div className="text-left">
+                                        <p className="text-[9px] font-black uppercase text-slate-400">
+                                          الحساب الإجمالي
+                                        </p>
+                                        <p className="ltr-value text-sm font-black text-slate-900">
+                                          {sessionInvoice
+                                            ? money(sessionInvoice.totalAmount)
+                                            : money(0)}
+                                        </p>
+                                      </div>
                                     </div>
+
+                                    {sessionOrders && sessionOrders.length > 0 && (
+                                      <div className="mt-4 border-t border-slate-100 pt-4">
+                                        <p className="mb-3 flex items-center gap-1.5 text-[9px] font-black uppercase leading-none text-slate-400">
+                                          <Coffee size={12} className="text-amber-500" />
+                                          طلبات البار
+                                        </p>
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                          {sessionOrders.map((order: any) =>
+                                            order.items?.map((item: any) => (
+                                              <div
+                                                key={item.id}
+                                                className="flex items-center justify-between rounded-lg border border-slate-100 bg-white p-2 text-[11px]"
+                                              >
+                                                <span className="font-medium text-slate-700">
+                                                  {item.quantity} × {item.product?.name}
+                                                </span>
+                                                <span className="ltr-value font-mono text-[9px] font-bold text-slate-400">
+                                                  {money(item.total ?? item.subtotal)}
+                                                </span>
+                                              </div>
+                                            )),
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {sessionInvoice && (
+                                      <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-3 text-[9px] font-bold text-slate-400">
+                                        <span>
+                                          رقم الفاتورة:{" "}
+                                          <span className="ltr-value font-mono">
+                                            #{idShort(sessionInvoice.id)}
+                                          </span>
+                                        </span>
+                                        <span
+                                          className={clsx(
+                                            sessionInvoice.paymentStatus === "paid"
+                                              ? "text-emerald-500"
+                                              : "text-amber-500",
+                                          )}
+                                        >
+                                          حالة الدفع: {translateStatus(sessionInvoice.paymentStatus)}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                              );
-                            },
-                          )}
+                              </div>
+                            );
+                          })}
 
                           {!historyQuery.data?.customer?.sessions?.length && (
                             <EmptyState
-                              icon={<History size={32} />}
+                              icon={<History size={28} />}
                               title="لا يوجد سجل جلسات"
                               sub="لا يوجد سجل جلسات سابق لهذا العميل."
                             />
@@ -1087,7 +1084,7 @@ export default function CustomersPage() {
         </div>
       )}
 
-      {/* Edit Customer Modal */}
+      {/* ════════ Edit customer modal ════════ */}
       <Modal
         isOpen={showEditModal && Boolean(selectedCustomer)}
         onClose={() => setShowEditModal(false)}
@@ -1120,6 +1117,7 @@ export default function CustomersPage() {
               />
             </FormField>
           </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <FormField label="الموبايل (بديل)">
               <Input
@@ -1140,6 +1138,7 @@ export default function CustomersPage() {
               />
             </FormField>
           </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <FormField label="النوع">
               <Select
@@ -1204,7 +1203,7 @@ export default function CustomersPage() {
 
           <FormField label="ملاحظات">
             <textarea
-              className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-right text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+              className={textareaBase}
               rows={3}
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
@@ -1222,56 +1221,11 @@ export default function CustomersPage() {
         </form>
       </Modal>
 
-      {/* Duplicate phone confirmation Modal */}
-      <Modal
-        isOpen={Boolean(dupDialog)}
-        onClose={() => setDupDialog(null)}
-        title="رقم موبايل مسجل مسبقاً"
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-slate-700">
-            الرقم ده متسجل باسم:{" "}
-            <span className="font-black text-slate-900">{dupDialog?.customer.fullName}</span>
-            . تحب نفتح ملفه؟
-          </p>
-          <div className="flex gap-2">
-            <Btn
-              variant="primary"
-              className="flex-1"
-              onClick={() => {
-                if (!dupDialog) return;
-                setSelectedCustomerId(dupDialog.customer.id);
-                setShowCreateForm(false);
-                resetCreateForm();
-                setDupDialog(null);
-              }}
-            >
-              فتح الملف
-            </Btn>
-            <Btn
-              variant="secondary"
-              onClick={() => {
-                setDupDialog(null);
-                createMutation.mutate();
-              }}
-            >
-              تسجيل على أي حال
-            </Btn>
-            <Btn variant="ghost" onClick={() => setDupDialog(null)}>
-              إلغاء
-            </Btn>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Status Modal (blacklist / reactivate) */}
+      {/* ════════ Status (blacklist / reactivate) modal ════════ */}
       <Modal
         isOpen={Boolean(statusDialog)}
         onClose={() => setStatusDialog(null)}
-        title={
-          statusDialog?.action === "blacklist" ? "حظر العميل" : "إعادة تفعيل العميل"
-        }
+        title={statusDialog?.action === "blacklist" ? "حظر العميل" : "إعادة تفعيل العميل"}
         size="sm"
       >
         <div className="space-y-4">
@@ -1308,6 +1262,48 @@ export default function CustomersPage() {
             </Btn>
             <Btn variant="ghost" onClick={() => setStatusDialog(null)}>
               رجوع
+            </Btn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ════════ Duplicate-phone confirmation modal ════════ */}
+      <Modal
+        isOpen={Boolean(duplicateDialog)}
+        onClose={() => setDuplicateDialog(null)}
+        title="رقم الموبايل مسجل مسبقاً"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <Alert tone="warn">
+            الرقم ده متسجل باسم:{" "}
+            <span className="font-black text-slate-900">{duplicateDialog?.fullName}</span>
+          </Alert>
+          <p className="text-sm text-slate-600">تحب نفتح ملف العميل الموجود؟</p>
+          <div className="flex gap-2">
+            <Btn
+              variant="primary"
+              onClick={() => {
+                if (!duplicateDialog) return;
+                setSelectedCustomerId(duplicateDialog.id);
+                setShowCreateForm(false);
+                resetCreateForm();
+                setDuplicateDialog(null);
+              }}
+            >
+              فتح الملف
+            </Btn>
+            <Btn
+              variant="secondary"
+              onClick={() => {
+                setDuplicateDialog(null);
+                createMutation.mutate();
+              }}
+            >
+              تسجيل على أي حال
+            </Btn>
+            <Btn variant="ghost" onClick={() => setDuplicateDialog(null)}>
+              إلغاء
             </Btn>
           </div>
         </div>

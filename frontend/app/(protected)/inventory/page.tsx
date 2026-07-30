@@ -76,7 +76,9 @@ type InventoryTransaction = {
 
 const CATEGORIES = [
   { value: "", label: "جميع الأقسام" },
-  { value: "raw", label: "خامات رئيسية (بن، شاي، حليب)" },
+  { value: "coffee", label: "قهوة وبن" },
+  { value: "tea", label: "شاي وأعشاب" },
+  { value: "raw", label: "خامات رئيسية (بودرة، سكر...)" },
   { value: "dairy", label: "ألبان ومنتجات حليب" },
   { value: "drinks", label: "مشروبات ومعلبات" },
   { value: "packaging", label: "تعبئة وتغليف (أكواب، قش)" },
@@ -202,7 +204,7 @@ export default function InventoryPage() {
 
       if (current <= 0) {
         out++;
-      } else if (current <= minLevel) {
+      } else if (minLevel > 0 && current <= minLevel) {
         low++;
       } else {
         ok++;
@@ -226,9 +228,13 @@ export default function InventoryPage() {
       const minLevel = Number(item.minStockLevel) || 0;
 
       let matchesStockLevel = true;
-      if (stockLevelFilter === "ok") matchesStockLevel = current > minLevel;
-      else if (stockLevelFilter === "low") matchesStockLevel = current > 0 && current <= minLevel;
-      else if (stockLevelFilter === "out") matchesStockLevel = current <= 0;
+      if (stockLevelFilter === "ok") {
+        matchesStockLevel = current > 0 && (minLevel === 0 || current > minLevel);
+      } else if (stockLevelFilter === "low") {
+        matchesStockLevel = current > 0 && minLevel > 0 && current <= minLevel;
+      } else if (stockLevelFilter === "out") {
+        matchesStockLevel = current <= 0;
+      }
 
       return matchesSearch && matchesCat && matchesStockLevel;
     });

@@ -3,8 +3,8 @@
 import { useState, FormEvent, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { 
-  ChevronLeft, ChevronRight, Calendar, Calendar as CalendarIcon, Clock, MapPin, 
+import {
+  ChevronLeft, ChevronRight, Calendar, Calendar as CalendarIcon, Clock, MapPin,
   Plus, RefreshCw, X, Search, LayoutGrid, List,
   CheckCircle2, History, Zap, PlayCircle, Filter, DollarSign,
   AlertTriangle, Check, Layers, Users
@@ -14,8 +14,8 @@ import { translateApiError } from "../../../lib/errors";
 import { dateTime, money } from "../../../lib/format";
 import { translateStatus } from "../../../lib/labels";
 import type { Booking, Customer, Paginated, Room } from "../../../lib/types";
-import { 
-  Alert, Badge, Btn, DateTimeInput, EmptyState, Modal, Panel, SectionTitle, StatCard, 
+import {
+  Alert, Badge, Btn, DateTimeInput, EmptyState, Modal, Panel, SectionTitle, StatCard,
   statusBadgeTone, FormField, Input, Select, TableSkeleton
 } from "../../../components/ui";
 import { useAuthStore } from "../../../store/auth-store";
@@ -45,14 +45,14 @@ export default function BookingsPage() {
   const isAllowed = ALLOWED_ROLES.some((r) => roleName.includes(r));
 
   const unauthorizedView = !isAllowed ? (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" dir="rtl">
-        <div className="text-5xl">🚫</div>
-        <h2 className="text-xl font-black text-slate-800">غير مصرح بالدخول</h2>
-        <p className="text-sm text-slate-500 text-center max-w-xs">
-          صفحة الحجوزات مخصصة لموظفي الاستقبال والإدارة فقط.
-        </p>
-      </div>
-    ) : null;
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" dir="rtl">
+      <div className="text-5xl">🚫</div>
+      <h2 className="text-xl font-black text-slate-800">غير مصرح بالدخول</h2>
+      <p className="text-sm text-slate-500 text-center max-w-xs">
+        صفحة الحجوزات مخصصة لموظفي الاستقبال والإدارة فقط.
+      </p>
+    </div>
+  ) : null;
 
   // State Management
   const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");
@@ -386,8 +386,8 @@ export default function BookingsPage() {
   return (
     <div className="min-w-0 space-y-6 animate-in fade-in duration-500" dir="rtl">
       {/* Page Header */}
-      <SectionTitle 
-        title="إدارة وتخطيط الحجوزات" 
+      <SectionTitle
+        title="إدارة وتخطيط الحجوزات"
         subtitle="متابعة وتأكيد حجوزات الغرف والقاعات والعمل على تنظيم جدول التواجد."
         icon={<Calendar size={22} />}
         action={
@@ -400,17 +400,17 @@ export default function BookingsPage() {
             >
               حجز جديد
             </Btn>
-            <button 
+            <button
               onClick={() => { queryClient.invalidateQueries({ queryKey: ["bookings"] }); }}
               className="flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition"
               title="تحديث البيانات"
             >
               <RefreshCw size={15} className={bookingsQuery.isFetching ? "animate-spin" : ""} />
             </button>
-            
+
             {/* View Switcher */}
             <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200/60">
-              <button 
+              <button
                 onClick={() => setViewMode("timeline")}
                 className={clsx(
                   "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition",
@@ -419,7 +419,7 @@ export default function BookingsPage() {
               >
                 <Layers size={14} /> الخط الزمني
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode("calendar")}
                 className={clsx(
                   "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition",
@@ -428,7 +428,7 @@ export default function BookingsPage() {
               >
                 <LayoutGrid size={14} /> التقويم
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode("list")}
                 className={clsx(
                   "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition",
@@ -447,36 +447,36 @@ export default function BookingsPage() {
 
       {/* Top Metrics Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          label="حجوزات اليوم" 
+        <StatCard
+          label="حجوزات اليوم"
           value={todayBookingsCount}
-          icon={<Calendar size={18} />} 
+          icon={<Calendar size={18} />}
           sub="إجمالي المواعيد"
         />
-        <StatCard 
-          label="حجوزات مؤكدة" 
-          value={bookings.filter(b => b.status === 'confirmed').length} 
-          icon={<CheckCircle2 size={18} />} 
+        <StatCard
+          label="حجوزات مؤكدة"
+          value={bookings.filter(b => b.status === 'confirmed').length}
+          icon={<CheckCircle2 size={18} />}
           tone="success"
         />
-        <StatCard 
-          label="إجمالي العربون المحصل" 
-          value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + Number(b.depositAmount || 0), 0))} 
-          icon={<DollarSign size={18} />} 
+        <StatCard
+          label="إجمالي العربون المحصل"
+          value={money(bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + Number(b.depositAmount || 0), 0))}
+          icon={<DollarSign size={18} />}
           tone="warn"
         />
-        <StatCard 
-          label="حجوزات بانتظار التثبيت" 
-          value={bookings.filter(b => b.status === 'draft').length} 
-          icon={<Clock size={18} />} 
+        <StatCard
+          label="حجوزات بانتظار التثبيت"
+          value={bookings.filter(b => b.status === 'draft').length}
+          icon={<Clock size={18} />}
           tone="neutral"
         />
       </div>
 
       {/* Booking Detail Modal / Drawer View */}
       {selectedBookingId && (
-        <Panel 
-          title="تفاصيل الحجز المختار" 
+        <Panel
+          title="تفاصيل الحجز المختار"
           icon={<Zap size={16} className="text-amber-500" />}
           action={
             <button onClick={() => setSelectedBookingId(null)} className="text-xs font-bold text-slate-400 hover:text-slate-700">إغلاق المعاينة</button>
@@ -499,10 +499,10 @@ export default function BookingsPage() {
                       <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-400" /> {dateTime(b.startTime)}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 self-start">
                     {b.status === 'confirmed' && (
-                      <Btn 
+                      <Btn
                         onClick={() => startSessionMutation.mutate(b)}
                         loading={startSessionMutation.isPending}
                         icon={<PlayCircle size={15} />}
@@ -539,21 +539,21 @@ export default function BookingsPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     {b.status === 'confirmed' && (
                       <>
-                        <button 
+                        <button
                           onClick={() => setBookingAction({ bookingId: b.id, action: "complete" })}
                           disabled={bookingStatusMutation.isPending}
                           className="rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-slate-800 transition"
                         >
                           إكمال الحجز
                         </button>
-                        <button 
+                        <button
                           onClick={() => setBookingAction({ bookingId: b.id, action: "no-show" })}
                           disabled={bookingStatusMutation.isPending}
                           className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition"
                         >
                           عدم حضور (No-Show)
                         </button>
-                        <button 
+                        <button
                           onClick={() => { setBookingActionReason(""); setBookingAction({ bookingId: b.id, action: "cancel" }); }}
                           disabled={bookingStatusMutation.isPending}
                           className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition"
@@ -565,12 +565,12 @@ export default function BookingsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Select 
+                    <Select
                       value={newStatus}
                       onChange={(e) => {
                         const s = e.target.value;
                         setNewStatus(s);
-                        if(s) updateBookingMutation.mutate({ bookingId: b.id, status: s });
+                        if (s) updateBookingMutation.mutate({ bookingId: b.id, status: s });
                       }}
                       className="!py-1.5 !text-xs h-9 bg-white"
                     >
@@ -590,14 +590,14 @@ export default function BookingsPage() {
 
       {/* VIEW MODE 1: TIMELINE (Interactive Hours Grid per Room) */}
       {viewMode === "timeline" && (
-        <Panel 
-          title="جدول المواعيد والغرف الشاغرة" 
+        <Panel
+          title="جدول المواعيد والغرف الشاغرة"
           icon={<Layers size={16} />}
           action={
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-bold text-slate-500">التاريخ:</label>
-                <input 
+                <input
                   type="date"
                   value={timelineDate}
                   onChange={(e) => setTimelineDate(e.target.value)}
@@ -626,7 +626,7 @@ export default function BookingsPage() {
                 <EmptyState title="لا توجد غرف مضافة" sub="أضف غرفاً جديدة للتمكن من إدارة الحجوزات" />
               ) : (
                 rooms.map(room => {
-                  const roomBookings = filteredBookings.filter(b => 
+                  const roomBookings = filteredBookings.filter(b =>
                     b.room?.id === room.id && localDateKey(new Date(b.startTime)) === timelineDate
                   );
 
@@ -647,7 +647,7 @@ export default function BookingsPage() {
                           });
 
                           return (
-                            <div 
+                            <div
                               key={hour}
                               onClick={() => {
                                 if (slotBooking) {
@@ -666,7 +666,7 @@ export default function BookingsPage() {
                               className={clsx(
                                 "h-full rounded-lg transition-all flex items-center justify-center cursor-pointer text-[9px] font-bold",
                                 slotBooking
-                                  ? slotBooking.status === 'confirmed' 
+                                  ? slotBooking.status === 'confirmed'
                                     ? "bg-emerald-500 text-white shadow-sm hover:bg-emerald-600"
                                     : "bg-amber-400 text-slate-900 hover:bg-amber-500"
                                   : "hover:bg-slate-200/60 text-transparent"
@@ -706,10 +706,10 @@ export default function BookingsPage() {
               const dateStr = localDateKey(day);
               const dayBookings = bookingsByDay[dateStr] || [];
               const isToday = dateStr === localDateKey(new Date());
-              
+
               return (
-                <div 
-                  key={dateStr} 
+                <div
+                  key={dateStr}
                   onClick={() => setSelectedDate(dateStr)}
                   className={clsx(
                     "group min-h-[140px] flex flex-col rounded-2xl border p-2.5 transition-all cursor-pointer",
@@ -727,11 +727,11 @@ export default function BookingsPage() {
                       {day.getDate()}
                     </span>
                   </div>
-                  
+
                   <div className="flex-1 space-y-1">
                     {dayBookings.slice(0, 3).map(b => (
-                      <div 
-                        key={b.id} 
+                      <div
+                        key={b.id}
                         className={clsx(
                           "truncate rounded-lg px-2 py-1 text-[9px] font-bold shadow-2xs",
                           b.status === 'confirmed' ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-700"
@@ -755,13 +755,13 @@ export default function BookingsPage() {
 
       {/* VIEW MODE 3: LIST VIEW */}
       {viewMode === "list" && (
-        <Panel 
-          title="جدول قائمة الحجوزات" 
+        <Panel
+          title="جدول قائمة الحجوزات"
           icon={<List size={16} />}
           action={
             <div className="flex flex-wrap items-center gap-3">
-              <Select 
-                value={roomFilter} 
+              <Select
+                value={roomFilter}
                 onChange={(e) => setRoomFilter(e.target.value)}
                 className="!py-1 !text-xs h-8 bg-white"
               >
@@ -773,7 +773,7 @@ export default function BookingsPage() {
 
               <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1">
                 {["all", "draft", "confirmed", "completed", "cancelled"].map(t => (
-                  <button 
+                  <button
                     key={t}
                     onClick={() => setStatusFilter(t === "all" ? "" : t)}
                     className={clsx(
@@ -811,8 +811,8 @@ export default function BookingsPage() {
                     </tr>
                   ) : (
                     filteredBookings.map((b: Booking) => (
-                      <tr 
-                        key={b.id} 
+                      <tr
+                        key={b.id}
                         className="group transition-colors hover:bg-slate-50 cursor-pointer"
                         onClick={() => setSelectedBookingId(b.id)}
                       >
@@ -841,12 +841,12 @@ export default function BookingsPage() {
       )}
 
       {/* CREATE BOOKING MODAL — 4-STEP WIZARD */}
-      <Modal 
-        isOpen={isCreateModalOpen} 
+      <Modal
+        isOpen={isCreateModalOpen}
         onClose={() => {
           setIsCreateModalOpen(false);
           setBookingStep(1);
-        }} 
+        }}
         title="إضافة حجز جديد"
         size="lg"
       >
@@ -874,14 +874,14 @@ export default function BookingsPage() {
                       className={clsx(
                         "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
                         isActive ? "bg-amber-500 text-white shadow-sm" :
-                        isDone ? "bg-slate-200 text-slate-800 hover:bg-slate-300 cursor-pointer" :
-                        "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          isDone ? "bg-slate-200 text-slate-800 hover:bg-slate-300 cursor-pointer" :
+                            "bg-slate-100 text-slate-400 cursor-not-allowed"
                       )}
                     >
                       <span className={clsx(
                         "w-5 h-5 rounded-full flex items-center justify-center text-[10px]",
                         isActive ? "bg-white text-amber-600" :
-                        isDone ? "bg-slate-700 text-white" : "bg-slate-200 text-slate-500"
+                          isDone ? "bg-slate-700 text-white" : "bg-slate-200 text-slate-500"
                       )}>
                         {isDone ? "✓" : s.step}
                       </span>
@@ -897,8 +897,8 @@ export default function BookingsPage() {
             <div className="sm:hidden flex items-center justify-between text-xs font-bold text-slate-700">
               <span>الخطوة {bookingStep} من 4 — {
                 bookingStep === 1 ? "العميل" :
-                bookingStep === 2 ? "المكان والموعد" :
-                bookingStep === 3 ? "السعر والدفع" : "المراجعة والتأكيد"
+                  bookingStep === 2 ? "المكان والموعد" :
+                    bookingStep === 3 ? "السعر والدفع" : "المراجعة والتأكيد"
               }</span>
               <span className="text-slate-400">{bookingStep * 25}%</span>
             </div>
@@ -968,7 +968,7 @@ export default function BookingsPage() {
                         className="pr-10 bg-white font-bold text-sm shadow-2xs"
                       />
                       {customerSearchQuery && (
-                        <button 
+                        <button
                           type="button"
                           onClick={() => setCustomerSearchQuery("")}
                           className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
@@ -1069,9 +1069,9 @@ export default function BookingsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField label="نوع الحجز">
-                    <Select 
-                      value={bookingType} 
-                      onChange={(e) => setBookingType(e.target.value)} 
+                    <Select
+                      value={bookingType}
+                      onChange={(e) => setBookingType(e.target.value)}
                       className="bg-white font-bold"
                     >
                       <option value="meeting">اجتماع</option>
@@ -1085,14 +1085,14 @@ export default function BookingsPage() {
                   </FormField>
 
                   <FormField label="الغرفة المطلوبة">
-                    <Select 
-                      value={roomId} 
+                    <Select
+                      value={roomId}
                       onChange={(e) => {
                         const rId = e.target.value;
                         setRoomId(rId);
                         recalculatePrice(rId, bookingHours, manualDiscount, isSelectedCustomerOwner);
-                      }} 
-                      required 
+                      }}
+                      required
                       className="bg-white font-bold"
                     >
                       <option value="">-- اختر الغرفة --</option>
@@ -1107,8 +1107,8 @@ export default function BookingsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField label="تاريخ ووقت البداية">
-                    <DateTimeInput 
-                      value={startTime} 
+                    <DateTimeInput
+                      value={startTime}
                       onChange={(e) => {
                         const newStart = e.target.value;
                         setStartTime(newStart);
@@ -1117,8 +1117,8 @@ export default function BookingsPage() {
                           dt.setHours(dt.getHours() + Number(bookingHours || 1));
                           setEndTime(dt.toISOString().slice(0, 16));
                         }
-                      }} 
-                      required 
+                      }}
+                      required
                     />
                   </FormField>
 
@@ -1155,10 +1155,10 @@ export default function BookingsPage() {
                         ))}
                       </div>
 
-                      <Input 
-                        type="text" 
+                      <Input
+                        type="text"
                         inputMode="decimal"
-                        value={bookingHours} 
+                        value={bookingHours}
                         onChange={(e) => {
                           const hrs = e.target.value;
                           setBookingHours(hrs);
@@ -1168,7 +1168,7 @@ export default function BookingsPage() {
                             setEndTime(dt.toISOString().slice(0, 16));
                           }
                           recalculatePrice(roomId, hrs, manualDiscount, isSelectedCustomerOwner);
-                        }} 
+                        }}
                         placeholder="مدة مخصصة بالساعات..."
                         className="bg-white font-mono text-xs"
                       />
@@ -1222,24 +1222,24 @@ export default function BookingsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField label="خصم مرن إضافي (جنيه)">
-                    <Input 
-                      type="text" 
+                    <Input
+                      type="text"
                       inputMode="decimal"
-                      value={manualDiscount} 
+                      value={manualDiscount}
                       onChange={(e) => {
                         const disc = e.target.value;
                         setManualDiscount(disc);
                         recalculatePrice(roomId, bookingHours, disc, isSelectedCustomerOwner);
-                      }} 
+                      }}
                       placeholder="0"
                       className="bg-white font-mono"
                     />
                   </FormField>
 
                   <FormField label="طريقة الدفع">
-                    <Select 
-                      value={paymentMethod} 
-                      onChange={(e) => setPaymentMethod(e.target.value as any)} 
+                    <Select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value as any)}
                       className="bg-white font-bold"
                     >
                       <option value="cash">نقدي (Cash)</option>
@@ -1252,11 +1252,11 @@ export default function BookingsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField label="مبلغ العربون المدفوع الآن (جنيه)">
-                    <Input 
-                      type="text" 
+                    <Input
+                      type="text"
                       inputMode="decimal"
-                      value={depositAmount} 
-                      onChange={(e) => setDepositAmount(e.target.value)} 
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
                       placeholder="0"
                       className="bg-white font-mono font-bold text-emerald-700"
                     />
@@ -1271,7 +1271,7 @@ export default function BookingsPage() {
                 </div>
 
                 <FormField label="ملاحظات داخلية">
-                  <textarea 
+                  <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-slate-400"
@@ -1302,7 +1302,7 @@ export default function BookingsPage() {
                     <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                       <span className="font-bold text-slate-400">الغرفة والتوقيت:</span>
                       <span className="font-bold text-slate-900">
-                        {rooms.find(r=>r.id===roomId)?.name} | {startTime ? dateTime(startTime) : "—"} ({bookingHours} ساعة)
+                        {rooms.find(r => r.id === roomId)?.name} | {startTime ? dateTime(startTime) : "—"} ({bookingHours} ساعة)
                       </span>
                     </div>
                     <div className="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -1347,12 +1347,12 @@ export default function BookingsPage() {
                 التالي ←
               </Btn>
             ) : (
-              <Btn 
-                type="submit" 
-                loading={createMutation.isPending} 
-                loadingText="جاري تسجيل الحجز..." 
-                disabled={!customerId || !roomId || conflictsQuery.isPending || conflictsQuery.isError || Boolean(conflictsQuery.data?.hasConflict)} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-8 shadow-md" 
+              <Btn
+                type="submit"
+                loading={createMutation.isPending}
+                loadingText="جاري تسجيل الحجز..."
+                disabled={!customerId || !roomId || conflictsQuery.isPending || conflictsQuery.isError || Boolean(conflictsQuery.data?.hasConflict)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-8 shadow-md"
                 icon={<Check size={16} />}
               >
                 تأكيد وتسجيل الحجز النهائي
@@ -1363,10 +1363,10 @@ export default function BookingsPage() {
       </Modal>
 
       {/* CONFIRMATION / REASON ACTION MODAL */}
-      <Modal 
-        isOpen={Boolean(bookingAction)} 
-        onClose={() => setBookingAction(null)} 
-        title={bookingAction?.action === "cancel" ? "إلغاء الحجز" : bookingAction?.action === "no-show" ? "تسجيل عدم حضور" : "إنهاء وإكمال الحجز"} 
+      <Modal
+        isOpen={Boolean(bookingAction)}
+        onClose={() => setBookingAction(null)}
+        title={bookingAction?.action === "cancel" ? "إلغاء الحجز" : bookingAction?.action === "no-show" ? "تسجيل عدم حضور" : "إنهاء وإكمال الحجز"}
         size="sm"
       >
         <div className="space-y-4">
@@ -1375,19 +1375,19 @@ export default function BookingsPage() {
           </p>
           {bookingAction?.action === "cancel" && (
             <FormField label="سبب الإلغاء">
-              <Input 
-                value={bookingActionReason} 
-                onChange={(e) => setBookingActionReason(e.target.value)} 
-                placeholder="ادخل سبب الإلغاء..." 
+              <Input
+                value={bookingActionReason}
+                onChange={(e) => setBookingActionReason(e.target.value)}
+                placeholder="ادخل سبب الإلغاء..."
                 className="bg-white"
               />
             </FormField>
           )}
           <div className="flex gap-2 pt-2">
-            <Btn 
-              variant={bookingAction?.action === "cancel" ? "danger" : "warn"} 
-              loading={bookingStatusMutation.isPending} 
-              disabled={bookingAction?.action === "cancel" && !bookingActionReason.trim()} 
+            <Btn
+              variant={bookingAction?.action === "cancel" ? "danger" : "warn"}
+              loading={bookingStatusMutation.isPending}
+              disabled={bookingAction?.action === "cancel" && !bookingActionReason.trim()}
               onClick={() => {
                 if (!bookingAction) return;
                 bookingStatusMutation.mutate({ ...bookingAction, reason: bookingActionReason.trim() || undefined }, { onSuccess: () => setBookingAction(null) });
@@ -1415,8 +1415,8 @@ export default function BookingsPage() {
             </div>
             <div className="p-5 max-h-[60vh] overflow-y-auto space-y-2.5">
               {bookingsByDay[selectedDate]?.map(b => (
-                <button 
-                  key={b.id} 
+                <button
+                  key={b.id}
                   onClick={() => { setSelectedBookingId(b.id); setSelectedDate(null); }}
                   className="w-full text-right rounded-2xl border border-slate-100 bg-slate-50 p-3.5 hover:border-amber-300 hover:bg-amber-50/30 transition"
                 >

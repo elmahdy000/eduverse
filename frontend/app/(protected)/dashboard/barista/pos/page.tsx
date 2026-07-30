@@ -936,7 +936,9 @@ export default function BaristaPOSPage() {
                       {selectedCustomer?.fullName || (sessionId ? "العميل من الجلسة" : "لم يتم اختيار عميل")}
                     </span>
                     {selectedCustomer?.customerType === 'owner_discount' && (
-                      <span className="bg-amber-100 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded-md">مالك 70%</span>
+                      <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                        👑 OWNER • خصم 70%
+                      </span>
                     )}
                     {selectedCustomer?.customerType === 'staff' && (
                       <span className="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded-md">موظف 50%</span>
@@ -971,19 +973,31 @@ export default function BaristaPOSPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 border border-slate-200 bg-slate-50/50 p-3 rounded-2xl transition-all">
+              <div className="space-y-3 border border-amber-200/80 bg-amber-50/30 p-3 rounded-2xl transition-all">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">تحديد العميل أو الجلسة</p>
+                  <p className="text-[10px] font-black uppercase text-amber-700 tracking-tighter">تحديد العميل أو المالك (خصم 70%)</p>
                   <button
                     type="button"
                     onClick={() => setIsSelectingCustomer(false)}
                     className="text-[10px] font-black text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-xs"
                   >
-                    تم
+                    إغلاق
                   </button>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/40">
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/40">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerTab("owners" as any)}
+                    className={clsx(
+                      "flex-1 rounded-lg py-1.5 text-[10px] font-black transition-all",
+                      customerTab === ("owners" as any) || customerTab === "staff"
+                        ? "bg-amber-500 text-slate-950 shadow-xs"
+                        : "text-slate-500 hover:text-slate-900"
+                    )}
+                  >
+                    👑 المالكين (70%)
+                  </button>
                   <button
                     type="button"
                     onClick={() => setCustomerTab("active")}
@@ -1008,19 +1022,61 @@ export default function BaristaPOSPage() {
                   >
                     البحث
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setCustomerTab("staff")}
-                    className={clsx(
-                      "flex-1 rounded-lg py-1.5 text-[10px] font-black transition-all",
-                      customerTab === "staff"
-                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/20"
-                        : "text-slate-500 hover:text-slate-900"
-                    )}
-                  >
-                    الخصومات
-                  </button>
                 </div>
+
+                {(customerTab === ("owners" as any) || customerTab === "staff") && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-amber-800 tracking-tight">قائمة أصحاب المكان (اختيار سريع بنقرة واحدة):</p>
+                    <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto rounded-xl border border-amber-200/60 bg-white p-2">
+                      {staffQuery.data?.filter(c => c.customerType === 'owner_discount').map((ownerCust) => {
+                        const isSelected = selectedCustomer?.id === ownerCust.id;
+                        return (
+                          <button
+                            key={ownerCust.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCustomer(ownerCust);
+                              setSessionId("");
+                              setIsSelectingCustomer(false);
+                            }}
+                            className={clsx(
+                              "flex flex-col items-start p-2 rounded-xl text-right transition-all border",
+                              isSelected
+                                ? "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-sm"
+                                : "bg-amber-50/60 text-slate-900 border-amber-200/70 hover:bg-amber-100 hover:border-amber-400"
+                            )}
+                          >
+                            <span className="text-[11px] font-black leading-snug truncate w-full">{ownerCust.fullName}</span>
+                            <span className="text-[9px] font-bold opacity-80 mt-0.5">👑 مالك • خصم 70%</span>
+                          </button>
+                        );
+                      })}
+                      {staffQuery.data?.filter(c => c.customerType === 'staff').map((staffCust) => {
+                        const isSelected = selectedCustomer?.id === staffCust.id;
+                        return (
+                          <button
+                            key={staffCust.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCustomer(staffCust);
+                              setSessionId("");
+                              setIsSelectingCustomer(false);
+                            }}
+                            className={clsx(
+                              "flex flex-col items-start p-2 rounded-xl text-right transition-all border",
+                              isSelected
+                                ? "bg-slate-900 text-white border-slate-900 font-black shadow-sm"
+                                : "bg-slate-50 text-slate-800 border-slate-200/70 hover:bg-slate-100"
+                            )}
+                          >
+                            <span className="text-[11px] font-bold truncate w-full">{staffCust.fullName}</span>
+                            <span className="text-[9px] font-bold text-blue-600 mt-0.5">موظف • خصم 50%</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {customerTab === "active" && (
                   <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5">

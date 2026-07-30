@@ -281,7 +281,14 @@ export default function BarOrdersPage() {
                                 <p className="text-xs font-bold text-slate-900">
                                   #<span className="ltr-value font-mono">{idShort(order.id)}</span>
                                 </p>
-                                <p className="text-xs text-slate-600">{order.customer?.fullName || "ضيف"}</p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <p className="text-xs font-bold text-slate-800">{order.customer?.fullName || "ضيف"}</p>
+                                  {order.customer?.customerType === "owner_discount" && (
+                                    <span className="inline-flex items-center gap-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-xs">
+                                      👑 OWNER
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className="ltr-value text-xs font-bold text-slate-900">{money(order.totalAmount ?? 0)}</span>

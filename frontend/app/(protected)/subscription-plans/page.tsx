@@ -7,13 +7,17 @@ import {
   Archive,
   CalendarDays,
   CheckCircle2,
+  Clock,
   Edit3,
   PackagePlus,
   Plus,
   Search,
+  Sparkles,
   Tag,
   Trash2,
+  X,
   XCircle,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../lib/api";
@@ -22,12 +26,9 @@ import { useAuthStore } from "../../../store/auth-store";
 import {
   Badge,
   Btn,
-  EmptyState,
   FormField,
   Input,
   Modal,
-  Panel,
-  SectionTitle,
   Spinner,
 } from "../../../components/ui";
 
@@ -57,7 +58,7 @@ type StatusFilter = "all" | "active" | "archived";
 const EMPTY_FORM: PlanForm = {
   name: "",
   packageType: "",
-  durationDays: 1,
+  durationDays: 30,
   price: 0,
   description: "",
   isActive: true,
@@ -110,7 +111,7 @@ export default function SubscriptionPlansPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subscription-plans"] });
       setModalOpen(false);
-      toast.success(editingPlan ? "تم تحديث الباقة" : "تمت إضافة الباقة أو العرض");
+      toast.success(editingPlan ? "تم تحديث الباقة بنجاح" : "تمت إضافة الباقة أو العرض بنجاح");
     },
     onError: (error: ApiError) => toast.error(errorMessage(error, "تعذر حفظ الباقة")),
   });
@@ -165,74 +166,354 @@ export default function SubscriptionPlansPage() {
 
   if (!canManage) {
     return (
-      <Panel className="mx-auto max-w-xl py-14 text-center">
-        <Archive className="mx-auto text-slate-300" size={52} />
-        <h1 className="mt-4 text-xl font-black text-slate-900">إدارة الباقات غير متاحة لهذا الحساب</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">تغيير الأسعار والعروض متاح للمالك ومدير العمليات وموظف الاستقبال فقط.</p>
-        <Link href="/subscriptions" className="mt-6 inline-flex rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-white">العودة للاشتراكات</Link>
-      </Panel>
+      <div className="mx-auto max-w-xl py-16 text-center" dir="rtl">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-100 text-slate-400 mb-4">
+          <Archive size={40} />
+        </div>
+        <h1 className="text-xl font-black text-slate-900">إدارة الباقات غير متاحة لهذا الحساب</h1>
+        <p className="mt-2 text-sm text-slate-500">تغيير الأسعار والعروض متاح للمالك ومدير العمليات وموظف الاستقبال فقط.</p>
+        <Link href="/subscriptions" className="mt-6 inline-flex rounded-2xl bg-amber-500 px-6 py-3 text-sm font-bold text-slate-950 hover:bg-amber-400 transition shadow-sm">
+          العودة للاشتراكات
+        </Link>
+      </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <SectionTitle
-        title="إدارة الباقات والعروض"
-        subtitle="أنشئ أي باقة أو عرض وحدد مدته وسعره، ثم فعّله ليظهر لموظف الاستقبال."
-        icon={<PackagePlus size={22} />}
-        action={<Btn onClick={openCreate} icon={<Plus size={17} />}>إضافة باقة أو عرض</Btn>}
-      />
+  const activeCount = plans.filter((p) => p.isActive).length;
+  const archivedCount = plans.filter((p) => !p.isActive).length;
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Panel className="flex items-center gap-3 p-4"><Tag className="text-blue-600" /><div><p className="text-xs text-slate-500">إجمالي الباقات</p><p className="text-2xl font-black">{plans.length}</p></div></Panel>
-        <Panel className="flex items-center gap-3 p-4"><CheckCircle2 className="text-emerald-600" /><div><p className="text-xs text-slate-500">المفعّلة</p><p className="text-2xl font-black">{plans.filter((plan) => plan.isActive).length}</p></div></Panel>
-        <Panel className="flex items-center gap-3 p-4"><Archive className="text-slate-500" /><div><p className="text-xs text-slate-500">المؤرشفة</p><p className="text-2xl font-black">{plans.filter((plan) => !plan.isActive).length}</p></div></Panel>
+  return (
+    <div className="space-y-6" dir="rtl">
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20">
+            <PackagePlus size={28} />
+          </div>
+          <div>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">إدارة الباقات والعروض</h1>
+            <p className="text-xs text-slate-500 mt-1 font-medium">أنشئ أي باقة أو عرض وحدد مدته وسعره، ثم فعّله ليظهر لموظف الاستقبال.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={openCreate}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/25 hover:from-amber-400 hover:to-amber-500 active:scale-95 transition-all cursor-pointer"
+        >
+          <Plus size={18} />
+          إضافة باقة أو عرض
+        </button>
       </div>
 
-      <Panel className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="ابحث بالاسم أو الكود..." className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-10 text-sm outline-none focus:border-amber-400" />
+      {/* Metric Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-slate-500">إجمالي الباقات والعروض</p>
+            <p className="text-3xl font-black text-slate-900 font-mono">{plans.length}</p>
+          </div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <Tag size={22} />
+          </div>
         </div>
-        <div className="flex gap-2">
-          {([['all', 'الكل'], ['active', 'المفعّلة'], ['archived', 'المؤرشفة']] as const).map(([value, label]) => (
-            <button key={value} onClick={() => setStatusFilter(value)} className={`rounded-xl px-4 py-2 text-xs font-bold transition ${statusFilter === value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{label}</button>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-slate-500">الباقات المفعّلة</p>
+            <p className="text-3xl font-black text-emerald-600 font-mono">{activeCount}</p>
+          </div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+            <CheckCircle2 size={22} />
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-slate-500">الباقات المؤرشفة</p>
+            <p className="text-3xl font-black text-slate-400 font-mono">{archivedCount}</p>
+          </div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+            <Archive size={22} />
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar: Search & Segmented Filter */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center gap-3">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="ابحث باسم الباقة أو العرض أو الكود..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-4 pr-10 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all"
+          />
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/60 w-full sm:w-auto">
+          {([
+            ["all", "الكل"],
+            ["active", "المفعّلة ⚡"],
+            ["archived", "المؤرشفة 📦"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setStatusFilter(value)}
+              className={`flex-1 sm:flex-none rounded-lg px-4 py-1.5 text-xs font-black transition-all cursor-pointer ${
+                statusFilter === value
+                  ? "bg-white text-slate-950 shadow-xs border border-slate-200/40"
+                  : "text-slate-600 hover:text-slate-950"
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
-      </Panel>
+      </div>
 
+      {/* Content Grid / Loading / Empty */}
       {plansQuery.isLoading ? (
-        <div className="flex justify-center py-20"><Spinner size={34} /></div>
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
+          <Spinner size={34} />
+          <p className="mt-3 text-xs font-bold text-slate-400">جاري تحميل الباقات والعروض...</p>
+        </div>
       ) : filteredPlans.length === 0 ? (
-        <Panel><EmptyState icon={<PackagePlus size={44} className="text-slate-300" />} title="لا توجد باقات أو عروض" sub="اضغط على إضافة باقة أو عرض لإنشاء أول باقة." /></Panel>
+        <div className="bg-white p-12 rounded-3xl border border-slate-200/80 shadow-xs text-center space-y-4">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-50 text-amber-500">
+            <PackagePlus size={38} />
+          </div>
+          <div className="max-w-sm mx-auto space-y-1">
+            <h3 className="text-base font-black text-slate-900">لا توجد باقات أو عروض مطابقة</h3>
+            <p className="text-xs font-bold text-slate-400">
+              {search ? "لم يتم العثور على أي باقة تطابق كلمة البحث الحالية." : "لم تقم بإنشاء أي باقة أو عرض حتى الآن."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openCreate}
+            className="inline-flex items-center gap-2 rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-slate-950 hover:bg-amber-400 transition shadow-sm cursor-pointer"
+          >
+            <Plus size={16} />
+            إضافة أول باقة أو عرض
+          </button>
+        </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filteredPlans.map((plan) => (
-            <Panel key={plan.id} className={`relative overflow-hidden p-5 ${plan.isActive ? 'border-slate-200' : 'border-slate-200 bg-slate-50 opacity-75'}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div><Badge tone={plan.isActive ? "success" : "neutral"}>{plan.isActive ? "مفعّلة" : "مؤرشفة"}</Badge><h2 className="mt-3 text-lg font-black text-slate-950">{plan.name}</h2><p className="mt-1 font-mono text-[11px] text-slate-400">{plan.packageType}</p></div>
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700"><CalendarDays size={21} /></span>
+            <div
+              key={plan.id}
+              className={`group relative overflow-hidden rounded-3xl border transition-all duration-200 ${
+                plan.isActive
+                  ? "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-amber-300"
+                  : "bg-slate-50/70 border-slate-200 opacity-80"
+              }`}
+            >
+              {/* Card Header */}
+              <div className="p-6 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-black ${
+                          plan.isActive
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                            : "bg-slate-200/70 text-slate-600 border border-slate-300/60"
+                        }`}
+                      >
+                        {plan.isActive ? (
+                          <>
+                            <Zap size={11} /> مفعّلة ومتاحة
+                          </>
+                        ) : (
+                          <>
+                            <Archive size={11} /> غير مفعّلة
+                          </>
+                        )}
+                      </span>
+                      {plan.packageType && (
+                        <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-mono font-bold">
+                          {plan.packageType}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-amber-600 transition-colors leading-tight">
+                      {plan.name}
+                    </h3>
+                  </div>
+
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 border border-amber-100">
+                    <Sparkles size={22} />
+                  </div>
+                </div>
+
+                {/* Price & Duration Box */}
+                <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <div>
+                    <span className="text-[10px] font-black text-slate-400 block uppercase tracking-wider">السعر المستحق</span>
+                    <span className="text-2xl font-black text-slate-900 ltr-value font-mono">{money(plan.price)}</span>
+                  </div>
+
+                  <div className="text-left">
+                    <span className="text-[10px] font-black text-slate-400 block uppercase tracking-wider">مدة الاشتراك</span>
+                    <span className="inline-flex items-center gap-1 text-sm font-black text-amber-700 bg-amber-100/70 px-2.5 py-1 rounded-xl">
+                      <Clock size={13} />
+                      {plan.durationDays} يوم
+                    </span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-xs text-slate-500 leading-relaxed min-h-[36px] line-clamp-2">
+                  {plan.description || "لا يوجد وصف إضافي مكتوب لهذا العرض."}
+                </p>
               </div>
-              <div className="mt-5 flex items-end justify-between border-y border-slate-100 py-4"><div><p className="text-xs text-slate-500">السعر</p><p className="text-2xl font-black">{money(plan.price)}</p></div><div className="text-left"><p className="text-xs text-slate-500">المدة</p><p className="font-black">{plan.durationDays} يوم</p></div></div>
-              <p className="mt-4 min-h-10 text-sm leading-5 text-slate-500">{plan.description || "لا يوجد وصف لهذا العرض."}</p>
-              <div className="mt-5 flex gap-2">
-                <Btn variant="secondary" size="sm" className="flex-1" onClick={() => openEdit(plan)} icon={<Edit3 size={14} />}>تعديل</Btn>
-                <Btn variant={plan.isActive ? "warn" : "success"} size="sm" className="flex-1" onClick={() => toggleMutation.mutate({ id: plan.id, isActive: !plan.isActive })} icon={plan.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}>{plan.isActive ? "إيقاف" : "تفعيل"}</Btn>
-                <button type="button" onClick={() => { if (confirm(`حذف الباقة «${plan.name}»؟ إذا كانت مستخدمة سابقًا سيتم أرشفتها بدل حذف السجلات.`)) deleteMutation.mutate(plan.id); }} className="rounded-xl border border-rose-200 p-2.5 text-rose-600 transition hover:bg-rose-50" aria-label={`حذف ${plan.name}`}><Trash2 size={16} /></button>
+
+              {/* Card Footer Actions */}
+              <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-6 py-3.5">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(plan)}
+                    className="flex items-center gap-1 rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs"
+                  >
+                    <Edit3 size={13} /> تعديل
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleMutation.mutate({ id: plan.id, isActive: !plan.isActive })}
+                    disabled={toggleMutation.isPending}
+                    className={`flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-bold transition-colors shadow-2xs ${
+                      plan.isActive
+                        ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {plan.isActive ? (
+                      <>
+                        <XCircle size={13} /> إيقاف
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={13} /> تفعيل
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(`حذف الباقة «${plan.name}»؟ إذا كانت مستخدمة سابقًا سيتم أرشفتها بدلاً من حذف سجلات العملاء.`)) {
+                      deleteMutation.mutate(plan.id);
+                    }
+                  }}
+                  className="rounded-xl border border-slate-200 bg-white p-2 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-all cursor-pointer"
+                  title={`حذف ${plan.name}`}
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
-            </Panel>
+            </div>
           ))}
         </div>
       )}
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingPlan ? "تعديل الباقة أو العرض" : "إضافة باقة أو عرض"} size="lg">
-        <form onSubmit={(event) => { event.preventDefault(); const packageType = editingPlan ? form.packageType : (form.packageType.trim() || suggestedCode(form.name)); saveMutation.mutate({ ...form, name: form.name.trim(), packageType }); }} className="space-y-4">
-          <FormField label="اسم الباقة أو العرض"><Input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="مثال: عرض طلبة الجامعة" /></FormField>
-          <FormField label="كود فريد (اختياري)"><Input value={form.packageType} disabled={Boolean(editingPlan)} onChange={(event) => setForm({ ...form, packageType: event.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') })} placeholder="يُنشأ تلقائيًا إذا تركته فارغًا" /><p className="mt-1 text-[11px] text-slate-400">الكود داخلي ولا يمكن تغييره بعد إنشاء الباقة.</p></FormField>
-          <div className="grid grid-cols-2 gap-3"><FormField label="المدة بالأيام"><Input required type="text" inputMode="numeric" value={form.durationDays} onChange={(event) => setForm({ ...form, durationDays: event.target.value === "" ? 0 : Number(event.target.value) || 0 })} /></FormField><FormField label="السعر"><Input required type="text" inputMode="decimal" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value === "" ? 0 : Number(event.target.value) || 0 })} /></FormField></div>
-          <FormField label="الوصف"><textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={4} placeholder="اكتب تفاصيل ومميزات العرض..." className="w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-amber-400" /></FormField>
-          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4"><div><p className="text-sm font-black text-slate-900">متاحة للاشتراك</p><p className="text-xs text-slate-500">ستظهر لموظف الاستقبال عند اختيار باقة للعميل.</p></div><input type="checkbox" checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-5 w-5 accent-amber-500" /></label>
-          <Btn type="submit" className="h-13 w-full" loading={saveMutation.isPending}>{editingPlan ? "حفظ التعديلات" : "إضافة الباقة أو العرض"}</Btn>
+      {/* Modal: Create / Edit Subscription Plan */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingPlan ? "تعديل بيانات الباقة أو العرض" : "إضافة باقة أو عرض جديد"}
+        size="lg"
+      >
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const packageType = editingPlan ? form.packageType : form.packageType.trim() || suggestedCode(form.name);
+            saveMutation.mutate({ ...form, name: form.name.trim(), packageType });
+          }}
+          className="space-y-4"
+          dir="rtl"
+        >
+          <FormField label="اسم الباقة أو العرض *">
+            <Input
+              required
+              value={form.name}
+              onChange={(event) => setForm({ ...form, name: event.target.value })}
+              placeholder="مثال: عرض طلبة الجامعة - شهر كامل"
+            />
+          </FormField>
+
+          <FormField label="كود فريد مخصص (اختياري)">
+            <Input
+              value={form.packageType}
+              disabled={Boolean(editingPlan)}
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  packageType: event.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+                })
+              }
+              placeholder="يُنشأ تلقائيًا إذا تركته فارغًا (مثال: student-offer)"
+            />
+            <p className="mt-1 text-[11px] text-slate-400">الكود معرف داخلي في السيستم ولا يمكن تغييره بعد الإنشاء.</p>
+          </FormField>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="المدة بالأيام *">
+              <Input
+                required
+                type="text"
+                inputMode="numeric"
+                value={form.durationDays}
+                onChange={(event) => setForm({ ...form, durationDays: event.target.value === "" ? 0 : Number(event.target.value) || 0 })}
+                placeholder="30"
+              />
+            </FormField>
+
+            <FormField label="السعر النهائي (ج.م) *">
+              <Input
+                required
+                type="text"
+                inputMode="decimal"
+                value={form.price}
+                onChange={(event) => setForm({ ...form, price: event.target.value === "" ? 0 : Number(event.target.value) || 0 })}
+                placeholder="0.00"
+              />
+            </FormField>
+          </div>
+
+          <FormField label="الوصف والتفاصيل">
+            <textarea
+              value={form.description}
+              onChange={(event) => setForm({ ...form, description: event.target.value })}
+              rows={3}
+              placeholder="اكتب تفاصيل ومميزات العرض السريعة (الساعات المتاحة، الخصم...)"
+              className="w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-amber-500 transition-all font-semibold"
+            />
+          </FormField>
+
+          <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition-all hover:bg-slate-100">
+            <div>
+              <p className="text-sm font-black text-slate-900">متاحة للاشتراك والتفعيل</p>
+              <p className="text-xs font-bold text-slate-500 mt-0.5">ستظهر لموظف الاستقبال فوراً عند اختيار باقة لعميل جديد.</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
+              className="h-5 w-5 rounded border-slate-300 text-amber-500 focus:ring-amber-500 accent-amber-500"
+            />
+          </label>
+
+          <Btn
+            type="submit"
+            className="h-14 w-full rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base transition-all shadow-md shadow-amber-500/20"
+            loading={saveMutation.isPending}
+          >
+            {editingPlan ? "حفظ التعديلات" : "إضافة الباقة أو العرض الآن"}
+          </Btn>
         </form>
       </Modal>
     </div>

@@ -201,6 +201,47 @@ function ProductThumbnail({
   );
 }
 
+const CATEGORY_MAP: Record<string, string[]> = {
+  coffee: ["coffee", "قهوة", "قهوه"],
+  tea: ["tea", "شاي"],
+  frappe: ["frappe", "فرابيه"],
+  "cold-coffee": ["cold-coffee", "قهوة مثلجة", "آيس كوفي", "ايس كوفي"],
+  "hot-drinks": ["hot-drinks", "مشروبات ساخنة", "مشروبات ساخنه", "ساخن"],
+  frappuccino: ["frappuccino", "فرابوتشينو"],
+  "milk-shake": ["milk-shake", "ميلك شيك", "ميلكشيك"],
+  smoothies: ["smoothies", "سموذي"],
+  yougert: ["yougert", "زبادي"],
+  cans: ["cans", "كانز", "معلبات", "كانز (معلبات)"],
+  water: ["water", "مياه"],
+  juice: ["juice", "عصير"],
+  mocktails: ["mocktails", "موكتيل"],
+  indomy: ["indomy", "إندومي", "اندومي"],
+  "boba-drinks": ["boba-drinks", "بوبا"],
+  snack: ["snack", "سناكس", "سناكس/مأكولات"],
+  dessert: ["dessert", "حلويات"],
+  sandwich: ["sandwich", "ساندويتش", "ساندوتش"],
+  additions: ["additions", "إضافات", "اضافات"],
+};
+
+function matchesCategory(prodCat: string, filterVal: string): boolean {
+  if (!filterVal) return true;
+  if (!prodCat) return false;
+
+  const pCat = prodCat.trim().toLowerCase();
+  const fVal = filterVal.trim().toLowerCase();
+
+  if (pCat === fVal) return true;
+
+  const equivalents = CATEGORY_MAP[fVal];
+  if (equivalents) {
+    return equivalents.some(
+      (eq) => eq.toLowerCase() === pCat || pCat.includes(eq.toLowerCase()) || eq.toLowerCase().includes(pCat)
+    );
+  }
+
+  return pCat.includes(fVal) || fVal.includes(pCat);
+}
+
 export default function ProductsPage() {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -296,7 +337,7 @@ export default function ProductsPage() {
 
     // Category Filter
     if (categoryFilter) {
-      list = list.filter((p) => p.category === categoryFilter);
+      list = list.filter((p) => matchesCategory(p.category, categoryFilter));
     }
 
     // Status Filter

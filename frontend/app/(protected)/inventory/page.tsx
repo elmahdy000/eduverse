@@ -730,8 +730,8 @@ export default function InventoryPage() {
                       <td className="p-4">
                         <div className="relative max-w-[120px]">
                           <input
-                            type="number"
-                            step={0.01}
+                            type="text"
+                            inputMode="decimal"
                             value={actualValStr}
                             onChange={e => setStocktakeValues(prev => ({ ...prev, [item.id]: e.target.value }))}
                             className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-right text-sm outline-none focus:border-slate-950"
@@ -811,9 +811,8 @@ export default function InventoryPage() {
                   <label className="mb-1.5 block text-xs font-bold text-slate-700">الكمية المسحوبة</label>
                   <div className="relative">
                     <input
-                      type="number"
-                      min={0.01}
-                      step={0.01}
+                      type="text"
+                      inputMode="decimal"
                       value={withdrawQty}
                       onChange={e => setWithdrawQty(e.target.value)}
                       placeholder="0.00"
@@ -1088,7 +1087,7 @@ export default function InventoryPage() {
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">الرصيد الابتدائي</label>
                   <input
-                    type="number" min={0} value={newItemData.initialStock}
+                    type="text" inputMode="decimal" value={newItemData.initialStock}
                     onChange={e => setNewItemData(p => ({ ...p, initialStock: e.target.value }))}
                     placeholder="0"
                     className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
@@ -1097,7 +1096,7 @@ export default function InventoryPage() {
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">حد أدنى للمخزون</label>
                   <input
-                    type="number" min={0} value={newItemData.minStockLevel}
+                    type="text" inputMode="decimal" value={newItemData.minStockLevel}
                     onChange={e => setNewItemData(p => ({ ...p, minStockLevel: e.target.value }))}
                     placeholder="0"
                     className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
@@ -1106,7 +1105,7 @@ export default function InventoryPage() {
                 <div>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">التكلفة للوحدة</label>
                   <input
-                    type="number" min={0} step={0.01} value={newItemData.costPerUnit}
+                    type="text" inputMode="decimal" value={newItemData.costPerUnit}
                     onChange={e => setNewItemData(p => ({ ...p, costPerUnit: e.target.value }))}
                     placeholder="0.00"
                     className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15 outline-none"
@@ -1173,7 +1172,7 @@ export default function InventoryPage() {
                   الكمية ({selectedStockItem?.unit})
                 </label>
                 <input
-                  type="number" min={0.01} step={0.01}
+                  type="text" inputMode="decimal"
                   value={addStockData.quantity}
                   onChange={e => setAddStockData(p => ({ ...p, quantity: e.target.value }))}
                   placeholder="أدخل الكمية..."
@@ -1233,7 +1232,7 @@ export default function InventoryPage() {
                   الكمية ({items.find(i => i.id === showWasteModal)?.unit})
                 </label>
                 <input
-                  type="number" min={0.01} step={0.01}
+                  type="text" inputMode="decimal"
                   value={wasteData.quantity}
                   onChange={e => setWasteData(p => ({ ...p, quantity: e.target.value }))}
                   placeholder="أدخل الكمية..."

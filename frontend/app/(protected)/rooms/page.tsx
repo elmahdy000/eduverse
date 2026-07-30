@@ -317,19 +317,19 @@ export default function RoomsPage() {
               </Select>
             </FormField>
             <FormField label="السعة (شخص)">
-              <Input type="number" min="1" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+              <Input type="text" inputMode="numeric" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             </FormField>
             <FormField label="سعر ساعة الفرد (اختياري)">
-              <Input type="number" min="0" step="0.01" value={individualHourlyRate} onChange={(e) => setIndividualHourlyRate(e.target.value)} placeholder="مثال: 40" />
+              <Input type="text" inputMode="decimal" value={individualHourlyRate} onChange={(e) => setIndividualHourlyRate(e.target.value)} placeholder="مثال: 40" />
             </FormField>
             <FormField label="سعر ساعة الغرفة كاملاً للميتنج (اختياري)">
-              <Input type="number" min="0" step="0.01" value={wholeRoomHourlyRate} onChange={(e) => setWholeRoomHourlyRate(e.target.value)} placeholder="مثال: 200" />
+              <Input type="text" inputMode="decimal" value={wholeRoomHourlyRate} onChange={(e) => setWholeRoomHourlyRate(e.target.value)} placeholder="مثال: 200" />
             </FormField>
             <FormField label="السعر الثابت للمحاضرة/الحدث (اختياري)">
-              <Input type="number" min="0" step="0.01" value={fixedEventRate} onChange={(e) => setFixedEventRate(e.target.value)} placeholder="مثال: 500" />
+              <Input type="text" inputMode="decimal" value={fixedEventRate} onChange={(e) => setFixedEventRate(e.target.value)} placeholder="مثال: 500" />
             </FormField>
             <FormField label="سعر اليوم (Day Pass اختياري)">
-              <Input type="number" min="0" step="0.01" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} placeholder="مثال: 150" />
+              <Input type="text" inputMode="decimal" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} placeholder="مثال: 150" />
             </FormField>
             <FormField label="المميزات (مفصولة بفاصلة)">
               <Input value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="واي فاي، تكييف، بروجيكتور" />
@@ -360,7 +360,7 @@ export default function RoomsPage() {
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} required />
             </FormField>
             <FormField label="السعة">
-              <Input type="number" min="1" value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} required />
+              <Input type="text" inputMode="numeric" value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} required />
             </FormField>
             <FormField label="الحالة">
               <Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>

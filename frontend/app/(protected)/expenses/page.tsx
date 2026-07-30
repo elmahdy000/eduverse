@@ -335,7 +335,7 @@ export default function ExpensesPage() {
             createExpenseMutation.mutate({ amount: Number(rawData.amount), date: new Date(rawData.date as string).toISOString(), description: rawData.description as string, categoryId: formCategory, vendorId: formVendor || undefined, paymentMethod: formPaymentMethod, linkedUserId: formLinkedUser || undefined, isRecurring: rawData.isRecurring === 'on', status: formStatus });
          }} className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
-              <FormField label="المبلغ (ج.م)"><Input name="amount" type="number" step="0.01" required defaultValue={editingExpense?.amount} placeholder="0.00" className="h-16 text-3xl font-black text-blue-600 text-center bg-blue-50/30 border-blue-100 rounded-2xl" /></FormField>
+              <FormField label="المبلغ (ج.م)"><Input name="amount" type="text" inputMode="decimal" required defaultValue={editingExpense?.amount} placeholder="0.00" className="h-16 text-3xl font-black text-blue-600 text-center bg-blue-50/30 border-blue-100 rounded-2xl" /></FormField>
               <FormField label="تاريخ المعاملة"><Input name="date" type="date" required defaultValue={editingExpense?.date.split('T')[0] || new Date().toISOString().split('T')[0]} className="h-16 rounded-2xl font-bold" /></FormField>
             </div>
             <FormField label="البيان التفصيلي"><Input name="description" required defaultValue={editingExpense?.description} placeholder="مثلاً: شراء بن برازيلي، فاتورة الكهرباء..." className="h-14 rounded-2xl font-bold" /></FormField>

@@ -632,7 +632,8 @@ export default function SessionsPage() {
 
               <FormField label="مبلغ الخدمة (اختياري)">
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={chargeAmount}
                   onChange={(e) => setChargeAmount(e.target.value)}
                   placeholder="0.00"
@@ -688,9 +689,8 @@ export default function SessionsPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField label="المبلغ المستلم">
                       <Input
-                        type="number"
-                        min={0.01}
-                        step={0.01}
+                        type="text"
+                        inputMode="decimal"
                         value={payAmount}
                         onChange={(e) => setPayAmount(e.target.value)}
                         placeholder={String(selectedInvoice.remainingAmount)}

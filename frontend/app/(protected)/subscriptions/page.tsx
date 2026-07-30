@@ -587,8 +587,8 @@ export default function SubscriptionsPage() {
             </Select>
           </FormField>
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="السعر (ج.م)"><Input name="price" type="number" step="0.01" required defaultValue={editingPlan?.price} className="h-12 rounded-xl font-bold text-emerald-600" /></FormField>
-            <FormField label="المدة (بالأيام)"><Input name="durationDays" type="number" required defaultValue={editingPlan?.durationDays || PLAN_PERIODS.find((period) => period.value === draftPlanPeriod)?.days || 30} className="h-12 rounded-xl font-bold" /></FormField>
+            <FormField label="السعر (ج.م)"><Input name="price" type="text" inputMode="decimal" required defaultValue={editingPlan?.price} className="h-12 rounded-xl font-bold text-emerald-600" /></FormField>
+            <FormField label="المدة (بالأيام)"><Input name="durationDays" type="text" inputMode="numeric" required defaultValue={editingPlan?.durationDays || PLAN_PERIODS.find((period) => period.value === draftPlanPeriod)?.days || 30} className="h-12 rounded-xl font-bold" /></FormField>
           </div>
           <FormField label="وصف أو ملاحظات"><Input name="description" defaultValue={editingPlan?.description || ""} placeholder="مميزات الباقة أو الساعات المتاحة..." className="h-12 rounded-xl" /></FormField>
           <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">

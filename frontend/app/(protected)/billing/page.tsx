@@ -448,7 +448,7 @@ export default function BillingPage() {
                         </FormField>
                         <FormField label="المبلغ (جنيه)">
                           <Input 
-                            type="number" min={0.01} step={0.01} 
+                            type="text" inputMode="decimal" 
                             value={amount} onChange={e => setAmount(e.target.value)} 
                             placeholder={String(selectedInvoiceQuery.data?.remainingAmount)}
                             required 
@@ -482,7 +482,7 @@ export default function BillingPage() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormField label="المبلغ">
                         <Input 
-                          type="number" min={0.01} step={0.01} 
+                          type="text" inputMode="decimal" 
                           value={refundAmount} onChange={e => setRefundAmount(e.target.value)} 
                           placeholder="مبلغ المرتجع..."
                         />

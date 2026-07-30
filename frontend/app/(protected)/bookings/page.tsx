@@ -731,7 +731,8 @@ export default function BookingsPage() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 <FormField label="إجمالي المبلغ">
                   <Input 
-                    type="number" 
+                    type="text" 
+                    inputMode="decimal"
                     value={totalAmount} 
                     onChange={(e) => setTotalAmount(e.target.value)} 
                     required 
@@ -739,7 +740,8 @@ export default function BookingsPage() {
                 </FormField>
                 <FormField label="العربون">
                   <Input 
-                    type="number" 
+                    type="text" 
+                    inputMode="decimal"
                     value={depositAmount} 
                     onChange={(e) => setDepositAmount(e.target.value)} 
                   />

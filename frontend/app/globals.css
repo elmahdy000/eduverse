@@ -1,6 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800;900&display=swap');
 @import "tailwindcss";
 
+/* Disable HTML5 number input spinner arrows globally for smooth text entry */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
 /* ============================================================
    Design Tokens
    ============================================================ */

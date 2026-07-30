@@ -407,9 +407,8 @@ export default function ShiftsPage() {
 
           <FormField label="كاش البداية بالدرج (ج.م) *">
             <Input
-              type="number"
-              step="1"
-              min="0"
+              type="text"
+              inputMode="decimal"
               autoFocus
               placeholder="مثال: 500"
               value={startCash}
@@ -468,9 +467,8 @@ export default function ShiftsPage() {
 
           <FormField label="الكاش الفعلي الموجود في الدرج الآن (ج.م) *">
             <Input
-              type="number"
-              step="1"
-              min="0"
+              type="text"
+              inputMode="decimal"
               autoFocus
               placeholder="قم بعد النقدية الفعلية بالدرج وأدخل المبلغ"
               value={actualCash}

@@ -398,11 +398,11 @@ export default function ProductsPage() {
                 </select>
               </FormField>
               <FormField label="السعر (جنيه)">
-                <input type="number" min={0} step={0.5} value={price} onChange={e => setPrice(e.target.value)} required
+                <input type="text" inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
               <FormField label="سعر التكلفة (الوارد)">
-                <input type="number" min={0} step={0.5} value={costPrice} onChange={e => setCostPrice(e.target.value)}
+                <input type="text" inputMode="decimal" value={costPrice} onChange={e => setCostPrice(e.target.value)}
                   placeholder="لحساب الربحية"
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
@@ -462,11 +462,11 @@ export default function ProductsPage() {
                 </select>
               </FormField>
               <FormField label="السعر">
-                <input type="number" min={0} step={0.5} value={editPrice} onChange={e => setEditPrice(e.target.value)} required
+                <input type="text" inputMode="decimal" value={editPrice} onChange={e => setEditPrice(e.target.value)} required
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
               <FormField label="سعر التكلفة (الوارد)">
-                <input type="number" min={0} step={0.5} value={editCostPrice} onChange={e => setEditCostPrice(e.target.value)}
+                <input type="text" inputMode="decimal" value={editCostPrice} onChange={e => setEditCostPrice(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-right text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10" />
               </FormField>
               <FormField label="الإتاحة">
@@ -543,7 +543,7 @@ export default function ProductsPage() {
                   </FormField>
                   <FormField label="الكمية المطلوبة (لكل منتج)">
                     <div className="relative">
-                      <input type="number" min={0.01} step={0.01} value={selectedQty} onChange={e => setSelectedQty(e.target.value)} placeholder="0.00"
+                      <input type="text" inputMode="decimal" value={selectedQty} onChange={e => setSelectedQty(e.target.value)} placeholder="0.00"
                         className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 py-2.5 text-right text-sm outline-none focus:border-slate-900" />
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
                         {inventoryItems.find(i => i.id === selectedItemId)?.unit || ""}

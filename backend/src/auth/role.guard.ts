@@ -186,7 +186,7 @@ export class RoleGuard implements CanActivate {
         invoices: ['read', 'generate'],
         payments: ['read', 'record'],
         expenses: ['read', 'create', 'update', 'delete'],
-        inventory: ['read'],
+        inventory: ['read', 'create', 'update', 'delete'],
         shifts: ['read', 'create', 'close'],
         users: ['read', 'manage'],
         subscriptions: ['read', 'create', 'update', 'delete', 'cancel'],

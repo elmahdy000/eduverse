@@ -100,7 +100,10 @@ const EMPTY_NEW_ITEM = {
 
 export default function InventoryPage() {
   const roleName = useAuthStore((state) => state.user?.role?.name);
-  const canManageInventory = roleName === "Owner" || roleName === "Operations Manager";
+  const canManageInventory =
+    roleName === "Owner" ||
+    roleName === "Operations Manager" ||
+    roleName === "Receptionist";
 
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);

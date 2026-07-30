@@ -28,14 +28,12 @@ export class InventoryController {
   }
 
   @Post('items')
-  @UseGuards(OpsManagerGuard)
-  @ApiOperation({ summary: 'Create new inventory item (Admin/Ops only)' })
+  @ApiOperation({ summary: 'Create new inventory item' })
   async createItem(@Body() data: any, @Request() req: any) {
     return this.inventoryService.createItem(data, req?.user?.userId);
   }
 
   @Post('items/:id/add-stock')
-  @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'Add stock to item' })
   async addStock(
     @Param('id') itemId: string,
@@ -51,7 +49,6 @@ export class InventoryController {
   }
 
   @Post('items/:id/withdraw')
-  @UseGuards(OpsManagerGuard)
   @ApiOperation({ summary: 'Withdraw/consume stock from item directly' })
   async withdrawStock(
     @Param('id') itemId: string,
@@ -142,7 +139,6 @@ export class InventoryController {
   }
 
   @Post('stocktake')
-  @UseGuards(OpsManagerGuard)
   @ApiOperation({
     summary: 'Perform a batch stocktake and adjust inventory items',
   })

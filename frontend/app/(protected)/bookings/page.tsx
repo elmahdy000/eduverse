@@ -152,9 +152,45 @@ export default function BookingsPage() {
     return selectedCustomerObj || (customersQuery.data?.data ?? []).find((c) => c.id === customerId) || null;
   }, [customerId, selectedCustomerObj, customersQuery.data]);
 
+  const FIXED_OWNER_NAMES = [
+    "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
+    "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+  ];
+
   const filteredCustomers = useMemo(() => {
-    return customersQuery.data?.data ?? [];
-  }, [customersQuery.data]);
+    const list = customersQuery.data?.data ?? [];
+    const q = customerSearchQuery.trim().toLowerCase();
+
+    // Helper to check if customer is owner
+    const isOwnerCustomer = (c: Customer) => {
+      const name = (c.fullName || "").toLowerCase();
+      const notes = (c.notes || "").toLowerCase();
+      return FIXED_OWNER_NAMES.some(o => name.includes(o)) || c.customerType === "owner" || notes.includes("owner_discount");
+    };
+
+    let results = list;
+
+    if (q) {
+      const tokens = q.split(/\s+/).filter(Boolean);
+      results = list.filter(c => {
+        const fullName = (c.fullName || "").toLowerCase();
+        const phone = (c.phoneNumber || "").toLowerCase();
+        const phone2 = (c.phoneNumberSecondary || "").toLowerCase();
+        const notes = (c.notes || "").toLowerCase();
+        const combined = `${fullName} ${phone} ${phone2} ${notes}`;
+        // Match all search tokens against combined string
+        return tokens.every(token => combined.includes(token));
+      });
+    }
+
+    // Sort: Owners first, then by matching relevance
+    return [...results].sort((a, b) => {
+      const aOwner = isOwnerCustomer(a) ? 1 : 0;
+      const bOwner = isOwnerCustomer(b) ? 1 : 0;
+      if (aOwner !== bOwner) return bOwner - aOwner;
+      return a.fullName.localeCompare(b.fullName, "ar");
+    });
+  }, [customersQuery.data, customerSearchQuery]);
 
   const bookings = bookingsQuery.data?.data ?? [];
   const rooms = roomsQuery.data?.data ?? [];
@@ -854,27 +890,46 @@ export default function BookingsPage() {
                           لا يوجد عملاء يطابقون البحث
                         </div>
                       ) : (
-                        filteredCustomers.map((c) => (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => {
-                              setCustomerId(c.id);
-                              setSelectedCustomerObj(c);
-                              setIsCustomerDropdownOpen(false);
-                              setCustomerSearchQuery("");
-                            }}
-                            className="w-full text-right px-3 py-2.5 text-sm transition hover:bg-slate-50 flex items-center justify-between"
-                          >
-                            <div className="space-y-0.5">
-                              <div className="font-bold text-slate-800">{c.fullName}</div>
-                              <div className="text-xs text-slate-400">{c.phoneNumber}</div>
-                            </div>
-                            <Badge tone={c.customerType === "student" ? "info" : "default"}>
-                              {c.customerType}
-                            </Badge>
-                          </button>
-                        ))
+                        filteredCustomers.map((c) => {
+                          const nameLower = (c.fullName || "").toLowerCase();
+                          const notesLower = (c.notes || "").toLowerCase();
+                          const isOwner = FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || c.customerType === "owner" || notesLower.includes("owner_discount");
+
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setCustomerId(c.id);
+                                setSelectedCustomerObj(c);
+                                setIsCustomerDropdownOpen(false);
+                                setCustomerSearchQuery("");
+                              }}
+                              className={clsx(
+                                "w-full text-right px-3.5 py-2.5 text-sm transition flex items-center justify-between",
+                                isOwner ? "bg-purple-50/50 hover:bg-purple-100/60" : "hover:bg-slate-50"
+                              )}
+                            >
+                              <div className="space-y-0.5">
+                                <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                                  {c.fullName}
+                                  {isOwner && <span className="text-xs">👑</span>}
+                                </div>
+                                <div className="text-xs text-slate-400">{c.phoneNumber || "بدون رقم"}</div>
+                              </div>
+                              <Badge tone={
+                                isOwner ? "warn" :
+                                c.customerType === "student" ? "info" :
+                                c.customerType === "employee" ? "success" : "default"
+                              }>
+                                {isOwner ? "مالك المكان 👑" :
+                                 c.customerType === "student" ? "طالب" :
+                                 c.customerType === "employee" ? "موظف" :
+                                 c.customerType === "trainer" ? "مدرب" : "عميل"}
+                              </Badge>
+                            </button>
+                          );
+                        })
                       )}
                     </div>
                   </>

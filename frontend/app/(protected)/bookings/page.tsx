@@ -848,19 +848,46 @@ export default function BookingsPage() {
       >
         <form className="space-y-4" onSubmit={onSubmit}>
           <FormField label="العميل صاحب الحجز">
+            {/* Quick Owners Select Chips */}
+            {!selectedCustomer && (
+              <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] font-bold text-purple-700 ml-1">اختيار مالك فوري 👑:</span>
+                {(customersQuery.data?.data ?? []).filter(c => {
+                  const nameLower = (c.fullName || "").toLowerCase();
+                  const notesLower = (c.notes || "").toLowerCase();
+                  const typeLower = (c.customerType || "").toLowerCase();
+                  return FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || typeLower === "owner" || typeLower === "owner_discount" || notesLower.includes("owner_discount") || notesLower.includes("مالك");
+                }).slice(0, 7).map(owner => (
+                  <button
+                    key={owner.id}
+                    type="button"
+                    onClick={() => {
+                      setCustomerId(owner.id);
+                      setSelectedCustomerObj(owner);
+                      setIsCustomerDropdownOpen(false);
+                      setCustomerSearchQuery("");
+                    }}
+                    className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-bold text-purple-900 transition hover:bg-purple-100 hover:scale-105 flex items-center gap-1 shadow-2xs"
+                  >
+                    👑 {owner.fullName.split(' ')[0]}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {selectedCustomer ? (
               <div className="relative rounded-2xl border border-blue-200 bg-blue-50/30 p-3 flex items-center justify-between transition-all">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-900">{selectedCustomer.fullName}</span>
                     <Badge tone={
+                      selectedCustomer.customerType === "owner_discount" ? "warn" :
                       selectedCustomer.customerType === "student" ? "info" :
-                      selectedCustomer.customerType === "employee" ? "success" :
-                      selectedCustomer.customerType === "trainer" ? "warn" : "default"
+                      selectedCustomer.customerType === "employee" ? "success" : "default"
                     }>
-                      {selectedCustomer.customerType === "student" ? "طالب" :
-                       selectedCustomer.customerType === "employee" ? "موظف" :
-                       selectedCustomer.customerType === "trainer" ? "مدرب" : "زائر"}
+                      {selectedCustomer.customerType === "owner_discount" ? "مالك المكان 👑" :
+                       selectedCustomer.customerType === "student" ? "طالب" :
+                       selectedCustomer.customerType === "employee" ? "موظف" : "عميل"}
                     </Badge>
                   </div>
                   <div className="text-xs text-slate-500 flex items-center gap-2">
@@ -885,15 +912,24 @@ export default function BookingsPage() {
                   <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <Input
                     type="text"
-                    placeholder="ابحث باسم العميل أو رقم الهاتف..."
+                    placeholder="ابحث فوراً بالاسم أو رقم الهاتف..."
                     value={customerSearchQuery}
                     onChange={(e) => {
                       setCustomerSearchQuery(e.target.value);
                       setIsCustomerDropdownOpen(true);
                     }}
                     onFocus={() => setIsCustomerDropdownOpen(true)}
-                    className="pr-10 bg-white"
+                    className="pr-10 bg-white font-bold"
                   />
+                  {customerSearchQuery && (
+                    <button 
+                      type="button"
+                      onClick={() => setCustomerSearchQuery("")}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                    >
+                      مسح
+                    </button>
+                  )}
                 </div>
                 
                 {isCustomerDropdownOpen && (
@@ -902,16 +938,22 @@ export default function BookingsPage() {
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsCustomerDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl divide-y divide-slate-100">
+                    <div className="absolute right-0 top-full z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="bg-slate-50 px-3 py-1.5 text-[10px] font-bold text-slate-400 flex justify-between items-center">
+                        <span>نتائج البحث ({filteredCustomers.length})</span>
+                        {customerSearchQuery && <span>جارٍ الفلترة المباشرة...</span>}
+                      </div>
+
                       {filteredCustomers.length === 0 ? (
-                        <div className="p-3 text-center text-xs text-slate-400">
-                          لا يوجد عملاء يطابقون البحث
+                        <div className="p-4 text-center text-xs text-slate-400">
+                          لا يوجد عملاء يطابقون "{customerSearchQuery}"
                         </div>
                       ) : (
                         filteredCustomers.map((c) => {
                           const nameLower = (c.fullName || "").toLowerCase();
                           const notesLower = (c.notes || "").toLowerCase();
-                          const isOwner = FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || c.customerType === "owner" || notesLower.includes("owner_discount");
+                          const typeLower = (c.customerType || "").toLowerCase();
+                          const isOwner = FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || typeLower === "owner" || typeLower === "owner_discount" || notesLower.includes("owner_discount") || notesLower.includes("مالك");
 
                           return (
                             <button

@@ -154,7 +154,7 @@ export default function BookingsPage() {
 
   const FIXED_OWNER_NAMES = [
     "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
-    "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+    "nada elbaz", "mahmoud abd rabou", "eng.mohamed", "eng mohamed", "elmahdy", "ezz", "abdelazim", "elbaz", "abd rabou"
   ];
 
   const filteredCustomers = useMemo(() => {
@@ -165,7 +165,14 @@ export default function BookingsPage() {
     const isOwnerCustomer = (c: Customer) => {
       const name = (c.fullName || "").toLowerCase();
       const notes = (c.notes || "").toLowerCase();
-      return FIXED_OWNER_NAMES.some(o => name.includes(o)) || c.customerType === "owner" || notes.includes("owner_discount");
+      const type = (c.customerType || "").toLowerCase();
+      return (
+        FIXED_OWNER_NAMES.some((o) => name.includes(o)) ||
+        type === "owner" ||
+        type === "owner_discount" ||
+        notes.includes("owner_discount") ||
+        notes.includes("مالك")
+      );
     };
 
     let results = list;
@@ -214,10 +221,16 @@ export default function BookingsPage() {
     // Owner check for 50% discount
     const FIXED_OWNERS = [
       "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
-      "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+      "nada elbaz", "mahmoud abd rabou", "eng.mohamed", "eng mohamed", "elmahdy", "ezz", "abdelazim", "elbaz", "abd rabou"
     ];
     const nameLower = selectedCustomer?.fullName?.toLowerCase() || "";
-    const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) || selectedCustomer?.customerType === "owner" || selectedCustomer?.notes?.includes("owner_discount");
+    const notesLower = selectedCustomer?.notes?.toLowerCase() || "";
+    const typeLower = selectedCustomer?.customerType?.toLowerCase() || "";
+    const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) ||
+      typeLower === "owner" ||
+      typeLower === "owner_discount" ||
+      notesLower.includes("owner_discount") ||
+      notesLower.includes("مالك");
 
     if (isOwner) {
       rawTotal = rawTotal * 0.5; // 50% owner discount
@@ -960,10 +973,16 @@ export default function BookingsPage() {
           {selectedCustomer && (() => {
             const FIXED_OWNERS = [
               "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
-              "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+              "nada elbaz", "mahmoud abd rabou", "eng.mohamed", "eng mohamed", "elmahdy", "ezz", "abdelazim", "elbaz", "abd rabou"
             ];
             const nameLower = selectedCustomer.fullName.toLowerCase();
-            const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) || selectedCustomer.customerType === "owner" || selectedCustomer.notes?.includes("owner_discount");
+            const notesLower = (selectedCustomer.notes || "").toLowerCase();
+            const typeLower = (selectedCustomer.customerType || "").toLowerCase();
+            const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) ||
+              typeLower === "owner" ||
+              typeLower === "owner_discount" ||
+              notesLower.includes("owner_discount") ||
+              notesLower.includes("مالك");
 
             return isOwner ? (
               <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3 text-xs font-bold text-purple-900 flex items-center justify-between animate-in fade-in duration-300">

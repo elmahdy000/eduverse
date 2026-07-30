@@ -4,10 +4,10 @@ import { useState, FormEvent, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { 
-  ChevronLeft, ChevronRight, Calendar, Clock, MapPin, 
+  ChevronLeft, ChevronRight, Calendar, Calendar as CalendarIcon, Clock, MapPin, 
   Plus, RefreshCw, X, Search, LayoutGrid, List,
   CheckCircle2, History, Zap, PlayCircle, Filter, DollarSign,
-  AlertTriangle, Check, Layers
+  AlertTriangle, Check, Layers, Users
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { translateApiError } from "../../../lib/errors";
@@ -844,54 +844,15 @@ export default function BookingsPage() {
         title="إضافة حجز جديد"
         size="lg"
       >
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <FormField label="العميل صاحب الحجز">
-            {/* Quick Owners Select Chips */}
-            {!selectedCustomer && (
-              <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-[10px] font-bold text-purple-700 ml-1">اختيار مالك فوري 👑:</span>
-                {(customersQuery.data?.data ?? []).filter(c => {
-                  const nameLower = (c.fullName || "").toLowerCase();
-                  const notesLower = (c.notes || "").toLowerCase();
-                  const typeLower = (c.customerType || "").toLowerCase();
-                  return FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || typeLower === "owner" || typeLower === "owner_discount" || notesLower.includes("owner_discount") || notesLower.includes("مالك");
-                }).slice(0, 7).map(owner => (
-                  <button
-                    key={owner.id}
-                    type="button"
-                    onClick={() => {
-                      setCustomerId(owner.id);
-                      setSelectedCustomerObj(owner);
-                      setIsCustomerDropdownOpen(false);
-                      setCustomerSearchQuery("");
-                    }}
-                    className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-bold text-purple-900 transition hover:bg-purple-100 hover:scale-105 flex items-center gap-1 shadow-2xs"
-                  >
-                    👑 {owner.fullName.split(' ')[0]}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {selectedCustomer ? (
-              <div className="relative rounded-2xl border border-blue-200 bg-blue-50/30 p-3 flex items-center justify-between transition-all">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900">{selectedCustomer.fullName}</span>
-                    <Badge tone={
-                      selectedCustomer.customerType === "owner_discount" ? "warn" :
-                      selectedCustomer.customerType === "student" ? "info" :
-                      selectedCustomer.customerType === "employee" ? "success" : "default"
-                    }>
-                      {selectedCustomer.customerType === "owner_discount" ? "مالك المكان 👑" :
-                       selectedCustomer.customerType === "student" ? "طالب" :
-                       selectedCustomer.customerType === "employee" ? "موظف" : "عميل"}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-slate-500 flex items-center gap-2">
-                    <span>{selectedCustomer.phoneNumber}</span>
-                  </div>
-                </div>
+        <form className="space-y-5" onSubmit={onSubmit}>
+          {/* SECTION 1: CUSTOMER SELECTION */}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Users size={15} className="text-purple-600" />
+                الخطوة 1: اختيار صاحب الحجز
+              </span>
+              {selectedCustomer && (
                 <button
                   type="button"
                   onClick={() => {
@@ -899,227 +860,300 @@ export default function BookingsPage() {
                     setSelectedCustomerObj(null);
                     setCustomerSearchQuery("");
                   }}
-                  className="rounded-xl bg-white border border-slate-200 px-3 py-1 text-xs font-bold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                  className="text-xs text-rose-600 font-bold hover:underline"
                 >
-                  تغيير
+                  إعادة الاختيار ✕
                 </button>
-              </div>
-            ) : (
-              <div className="relative">
+              )}
+            </div>
+
+            {!selectedCustomer ? (
+              <div className="space-y-3">
+                {/* Quick Arabic Owners Grid */}
+                <div>
+                  <div className="text-[11px] font-bold text-purple-900 mb-2 flex items-center gap-1">
+                    <span>👑 اختيار مالك المكان (خصم 50% تلقائي):</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {[
+                      { match: "elmahdy", label: "د. محمود المهدي" },
+                      { match: "khaled", label: "أ. خالد صلاح" },
+                      { match: "ezz", label: "أ. محمود عز" },
+                      { match: "abdelazim", label: "أ. محمد عبد العظيم" },
+                      { match: "elbaz", label: "أ. ندى الباز" },
+                      { match: "abd rabou", label: "أ. محمود عبد ربه" },
+                      { match: "eng.mohamed", label: "م. محمد" }
+                    ].map(o => {
+                      const foundOwner = (customersQuery.data?.data ?? []).find(c => {
+                        const nameLower = (c.fullName || "").toLowerCase();
+                        return nameLower.includes(o.match);
+                      });
+
+                      return (
+                        <button
+                          key={o.match}
+                          type="button"
+                          onClick={() => {
+                            if (foundOwner) {
+                              setCustomerId(foundOwner.id);
+                              setSelectedCustomerObj(foundOwner);
+                              setIsCustomerDropdownOpen(false);
+                              setCustomerSearchQuery("");
+                              recalculatePrice(roomId, bookingHours, manualDiscount, true);
+                            }
+                          }}
+                          className="rounded-xl border border-purple-200 bg-white px-2.5 py-2 text-right text-xs font-bold text-purple-900 transition hover:bg-purple-100 hover:border-purple-300 flex items-center justify-between shadow-2xs group"
+                        >
+                          <span className="truncate">{o.label}</span>
+                          <span className="text-[10px] text-purple-600 group-hover:scale-110">👑</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="relative flex items-center my-2">
+                  <div className="grow border-t border-slate-200"></div>
+                  <span className="shrink mx-3 text-[11px] text-slate-400 font-bold">أو ابحث عن عميل آخر</span>
+                  <div className="grow border-t border-slate-200"></div>
+                </div>
+
+                {/* Customer Search Dropdown */}
                 <div className="relative">
-                  <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    type="text"
-                    placeholder="ابحث فوراً بالاسم أو رقم الهاتف..."
-                    value={customerSearchQuery}
-                    onChange={(e) => {
-                      setCustomerSearchQuery(e.target.value);
-                      setIsCustomerDropdownOpen(true);
-                    }}
-                    onFocus={() => setIsCustomerDropdownOpen(true)}
-                    className="pr-10 bg-white font-bold"
-                  />
-                  {customerSearchQuery && (
-                    <button 
-                      type="button"
-                      onClick={() => setCustomerSearchQuery("")}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
-                    >
-                      مسح
-                    </button>
+                  <div className="relative">
+                    <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      type="text"
+                      placeholder="اكتب اسم العميل أو رقم الهاتف للبحث الفوري..."
+                      value={customerSearchQuery}
+                      onChange={(e) => {
+                        setCustomerSearchQuery(e.target.value);
+                        setIsCustomerDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsCustomerDropdownOpen(true)}
+                      className="pr-10 bg-white font-bold text-sm"
+                    />
+                    {customerSearchQuery && (
+                      <button 
+                        type="button"
+                        onClick={() => setCustomerSearchQuery("")}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                      >
+                        مسح
+                      </button>
+                    )}
+                  </div>
+                  
+                  {isCustomerDropdownOpen && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setIsCustomerDropdownOpen(false)}
+                      />
+                      <div className="absolute right-0 top-full z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl divide-y divide-slate-100 animate-in fade-in duration-150">
+                        <div className="bg-slate-50 px-3 py-1.5 text-[10px] font-bold text-slate-400 flex justify-between items-center">
+                          <span>نتائج المطابقة ({filteredCustomers.length})</span>
+                        </div>
+
+                        {filteredCustomers.length === 0 ? (
+                          <div className="p-4 text-center text-xs text-slate-400">
+                            لا يوجد عملاء يطابقون البحث
+                          </div>
+                        ) : (
+                          filteredCustomers.map((c) => {
+                            const nameLower = (c.fullName || "").toLowerCase();
+                            const notesLower = (c.notes || "").toLowerCase();
+                            const typeLower = (c.customerType || "").toLowerCase();
+                            const isOwner = FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || typeLower === "owner" || typeLower === "owner_discount" || notesLower.includes("owner_discount") || notesLower.includes("مالك");
+
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setCustomerId(c.id);
+                                  setSelectedCustomerObj(c);
+                                  setIsCustomerDropdownOpen(false);
+                                  setCustomerSearchQuery("");
+                                  recalculatePrice(roomId, bookingHours, manualDiscount, isOwner);
+                                }}
+                                className={clsx(
+                                  "w-full text-right px-3.5 py-2.5 text-sm transition flex items-center justify-between",
+                                  isOwner ? "bg-purple-50/60 hover:bg-purple-100/70" : "hover:bg-slate-50"
+                                )}
+                              >
+                                <div className="space-y-0.5">
+                                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                                    {c.fullName}
+                                    {isOwner && <span className="text-xs">👑</span>}
+                                  </div>
+                                  <div className="text-xs text-slate-400">{c.phoneNumber || "بدون رقم"}</div>
+                                </div>
+                                <Badge tone={
+                                  isOwner ? "warn" :
+                                  c.customerType === "student" ? "info" :
+                                  c.customerType === "employee" ? "success" : "default"
+                                }>
+                                  {isOwner ? "مالك المكان 👑" :
+                                   c.customerType === "student" ? "طالب" :
+                                   c.customerType === "employee" ? "موظف" :
+                                   c.customerType === "trainer" ? "مدرب" : "عميل"}
+                                </Badge>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
-                
-                {isCustomerDropdownOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setIsCustomerDropdownOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
-                      <div className="bg-slate-50 px-3 py-1.5 text-[10px] font-bold text-slate-400 flex justify-between items-center">
-                        <span>نتائج البحث ({filteredCustomers.length})</span>
-                        {customerSearchQuery && <span>جارٍ الفلترة المباشرة...</span>}
-                      </div>
-
-                      {filteredCustomers.length === 0 ? (
-                        <div className="p-4 text-center text-xs text-slate-400">
-                          لا يوجد عملاء يطابقون "{customerSearchQuery}"
-                        </div>
-                      ) : (
-                        filteredCustomers.map((c) => {
-                          const nameLower = (c.fullName || "").toLowerCase();
-                          const notesLower = (c.notes || "").toLowerCase();
-                          const typeLower = (c.customerType || "").toLowerCase();
-                          const isOwner = FIXED_OWNER_NAMES.some(o => nameLower.includes(o)) || typeLower === "owner" || typeLower === "owner_discount" || notesLower.includes("owner_discount") || notesLower.includes("مالك");
-
-                          return (
-                            <button
-                              key={c.id}
-                              type="button"
-                              onClick={() => {
-                                setCustomerId(c.id);
-                                setSelectedCustomerObj(c);
-                                setIsCustomerDropdownOpen(false);
-                                setCustomerSearchQuery("");
-                              }}
-                              className={clsx(
-                                "w-full text-right px-3.5 py-2.5 text-sm transition flex items-center justify-between",
-                                isOwner ? "bg-purple-50/50 hover:bg-purple-100/60" : "hover:bg-slate-50"
-                              )}
-                            >
-                              <div className="space-y-0.5">
-                                <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                                  {c.fullName}
-                                  {isOwner && <span className="text-xs">👑</span>}
-                                </div>
-                                <div className="text-xs text-slate-400">{c.phoneNumber || "بدون رقم"}</div>
-                              </div>
-                              <Badge tone={
-                                isOwner ? "warn" :
-                                c.customerType === "student" ? "info" :
-                                c.customerType === "employee" ? "success" : "default"
-                              }>
-                                {isOwner ? "مالك المكان 👑" :
-                                 c.customerType === "student" ? "طالب" :
-                                 c.customerType === "employee" ? "موظف" :
-                                 c.customerType === "trainer" ? "مدرب" : "عميل"}
-                              </Badge>
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
-                  </>
-                )}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-purple-200 bg-white p-3 flex items-center justify-between shadow-2xs">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-900">{selectedCustomer.fullName}</span>
+                    <Badge tone={isSelectedCustomerOwner ? "warn" : "info"}>
+                      {isSelectedCustomerOwner ? "مالك المكان 👑 (خصم 50%)" : "عميل مسجل"}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-slate-500">{selectedCustomer.phoneNumber}</div>
+                </div>
               </div>
             )}
-          </FormField>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="الغرفة المطلوبة">
-              <Select 
-                value={roomId} 
-                onChange={(e) => {
-                  const rId = e.target.value;
-                  setRoomId(rId);
-                  recalculatePrice(rId, bookingHours, manualDiscount, isSelectedCustomerOwner);
-                }} 
-                required 
-                className="bg-white"
-              >
-                <option value="">-- اختر الغرفة --</option>
-                {rooms.map((r) => (
-                  <option key={r.id} value={r.id}>{r.name} (سعة {r.capacity})</option>
-                ))}
-              </Select>
-            </FormField>
-            <FormField label="نوع الحجز">
-              <Select value={bookingType} onChange={(e) => setBookingType(e.target.value)} className="bg-white">
-                <option value="meeting">اجتماع (Meeting)</option>
-                <option value="training">تدريب (Training)</option>
-                <option value="event">فعالية (Event)</option>
-              </Select>
-            </FormField>
           </div>
 
-          {/* Check Owner Discount Status */}
-          {isSelectedCustomerOwner && (
-            <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3 text-xs font-bold text-purple-900 flex items-center justify-between animate-in fade-in duration-300">
-              <span className="flex items-center gap-1.5">
-                👑 العميل من الإدارة / الملاك — يتم تطبيق **خصم 50%** تلقائياً
-              </span>
-              <Badge tone="warn">خصم 50%</Badge>
+          {/* SECTION 2: ROOM & TIMING */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3 shadow-2xs">
+            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <CalendarIcon size={15} className="text-blue-600" />
+              الخطوة 2: الغرفة وتوقيت الحجز
+            </span>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormField label="الغرفة المطلوبة">
+                <Select 
+                  value={roomId} 
+                  onChange={(e) => {
+                    const rId = e.target.value;
+                    setRoomId(rId);
+                    recalculatePrice(rId, bookingHours, manualDiscount, isSelectedCustomerOwner);
+                  }} 
+                  required 
+                  className="bg-slate-50 font-bold"
+                >
+                  <option value="">-- اختر الغرفة --</option>
+                  {rooms.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name} (سعة {r.capacity})</option>
+                  ))}
+                </Select>
+              </FormField>
+
+              <FormField label="نوع الحجز">
+                <Select value={bookingType} onChange={(e) => setBookingType(e.target.value)} className="bg-slate-50 font-bold">
+                  <option value="meeting">اجتماع (Meeting)</option>
+                  <option value="training">تدريب (Training)</option>
+                  <option value="event">فعالية (Event)</option>
+                </Select>
+              </FormField>
             </div>
-          )}
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="وقت البداية">
-              <DateTimeInput 
-                value={startTime} 
-                onChange={(e) => {
-                  const newStart = e.target.value;
-                  setStartTime(newStart);
-                  if (newStart && bookingHours) {
-                    const dt = new Date(newStart);
-                    dt.setHours(dt.getHours() + Number(bookingHours || 1));
-                    setEndTime(dt.toISOString().slice(0, 16));
-                  }
-                }} 
-                required 
-              />
-            </FormField>
-            
-            <FormField label="مدة الحجز (بالساعات)">
-              <Input 
-                type="text" 
-                inputMode="numeric"
-                value={bookingHours} 
-                onChange={(e) => {
-                  const hrs = e.target.value;
-                  setBookingHours(hrs);
-                  if (startTime && hrs) {
-                    const dt = new Date(startTime);
-                    dt.setHours(dt.getHours() + Number(hrs || 1));
-                    setEndTime(dt.toISOString().slice(0, 16));
-                  }
-                  recalculatePrice(roomId, hrs, manualDiscount, isSelectedCustomerOwner);
-                }} 
-                placeholder="مثلاً: 2"
-                className="bg-white font-mono font-bold"
-              />
-            </FormField>
-          </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormField label="وقت البداية">
+                <DateTimeInput 
+                  value={startTime} 
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    setStartTime(newStart);
+                    if (newStart && bookingHours) {
+                      const dt = new Date(newStart);
+                      dt.setHours(dt.getHours() + Number(bookingHours || 1));
+                      setEndTime(dt.toISOString().slice(0, 16));
+                    }
+                  }} 
+                  required 
+                />
+              </FormField>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+              <FormField label="مدة الحجز (بالساعات)">
+                <Input 
+                  type="text" 
+                  inputMode="numeric"
+                  value={bookingHours} 
+                  onChange={(e) => {
+                    const hrs = e.target.value;
+                    setBookingHours(hrs);
+                    if (startTime && hrs) {
+                      const dt = new Date(startTime);
+                      dt.setHours(dt.getHours() + Number(hrs || 1));
+                      setEndTime(dt.toISOString().slice(0, 16));
+                    }
+                    recalculatePrice(roomId, hrs, manualDiscount, isSelectedCustomerOwner);
+                  }} 
+                  placeholder="1"
+                  className="bg-slate-50 font-mono font-bold"
+                />
+              </FormField>
+            </div>
+
             <FormField label="وقت النهاية المحسوب تلقائياً">
               <DateTimeInput value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
             </FormField>
 
-            <FormField label="خصم مرن إضافي (جنيه)">
-              <Input 
-                type="text" 
-                inputMode="decimal"
-                value={manualDiscount} 
-                onChange={(e) => {
-                  const disc = e.target.value;
-                  setManualDiscount(disc);
-                  recalculatePrice(roomId, bookingHours, disc, isSelectedCustomerOwner);
-                }} 
-                placeholder="0"
-                className="bg-white font-mono"
-              />
-            </FormField>
+            {conflictsQuery.data?.hasConflict && (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 flex items-center gap-2">
+                <AlertTriangle size={16} className="text-rose-600 shrink-0" />
+                <span>تنبيه: الغرفة محجوزة بالفعل في هذه الفترة أو تحتوي جلسة نشطة. اختر توقيتاً آخر.</span>
+              </div>
+            )}
           </div>
 
-          {conflictsQuery.data?.hasConflict && (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 flex items-center gap-2">
-              <AlertTriangle size={16} className="text-rose-600 shrink-0" />
-              <span>تنبيه: الغرفة محجوزة بالفعل في هذه الفترة أو تحتوي جلسة نشطة. اختر توقيتاً آخر.</span>
-            </div>
-          )}
+          {/* SECTION 3: FINANCIAL SUMMARY */}
+          <div className="rounded-2xl border border-slate-200 bg-slate-900 text-white p-4 space-y-3 shadow-md">
+            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <Clock size={15} className="text-emerald-400" />
+              الخطوة 3: الحساب المالي والعربون
+            </span>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="إجمالي مبلغ الحجز النهائي (جنيه)">
-              <Input 
-                type="text" 
-                inputMode="decimal"
-                value={totalAmount} 
-                onChange={(e) => setTotalAmount(e.target.value)} 
-                required 
-                className="bg-white font-mono font-bold text-emerald-700"
-              />
-            </FormField>
-            <FormField label="مبلغ العربون المدفوع (جنيه)">
-              <Input 
-                type="text" 
-                inputMode="decimal"
-                value={depositAmount} 
-                onChange={(e) => setDepositAmount(e.target.value)} 
-                placeholder="0"
-                className="bg-white font-mono"
-              />
-            </FormField>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <FormField label="خصم إضافي (جنيه)">
+                <Input 
+                  type="text" 
+                  inputMode="decimal"
+                  value={manualDiscount} 
+                  onChange={(e) => {
+                    const disc = e.target.value;
+                    setManualDiscount(disc);
+                    recalculatePrice(roomId, bookingHours, disc, isSelectedCustomerOwner);
+                  }} 
+                  placeholder="0"
+                  className="bg-slate-800 border-slate-700 text-white font-mono"
+                />
+              </FormField>
+
+              <FormField label="مبلغ العربون (جنيه)">
+                <Input 
+                  type="text" 
+                  inputMode="decimal"
+                  value={depositAmount} 
+                  onChange={(e) => setDepositAmount(e.target.value)} 
+                  placeholder="0"
+                  className="bg-slate-800 border-slate-700 text-white font-mono"
+                />
+              </FormField>
+
+              <FormField label="المبلغ النهائي (جنيه)">
+                <Input 
+                  type="text" 
+                  inputMode="decimal"
+                  value={totalAmount} 
+                  onChange={(e) => setTotalAmount(e.target.value)} 
+                  required 
+                  className="bg-emerald-950 border-emerald-700 text-emerald-300 font-mono font-bold text-base"
+                />
+              </FormField>
+            </div>
           </div>
 
           <FormField label="ملاحظات تفصيلية">
@@ -1137,8 +1171,8 @@ export default function BookingsPage() {
             loading={createMutation.isPending} 
             loadingText="جاري تسجيل الحجز..." 
             disabled={!customerId || !roomId || conflictsQuery.isPending || conflictsQuery.isError || Boolean(conflictsQuery.data?.hasConflict)} 
-            className="w-full shadow-md" 
-            icon={<Check size={16} />}
+            className="w-full shadow-md py-3 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white" 
+            icon={<Check size={18} />}
           >
             تأكيد وتسجيل الحجز
           </Btn>

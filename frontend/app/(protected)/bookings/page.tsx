@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useMemo } from "react";
+import { useState, FormEvent, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { 
@@ -44,8 +44,7 @@ export default function BookingsPage() {
   const ALLOWED_ROLES = ["owner", "operations manager", "receptionist", "reception"];
   const isAllowed = ALLOWED_ROLES.some((r) => roleName.includes(r));
 
-  if (!isAllowed) {
-    return (
+  const unauthorizedView = !isAllowed ? (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" dir="rtl">
         <div className="text-5xl">🚫</div>
         <h2 className="text-xl font-black text-slate-800">غير مصرح بالدخول</h2>
@@ -53,8 +52,7 @@ export default function BookingsPage() {
           صفحة الحجوزات مخصصة لموظفي الاستقبال والإدارة فقط.
         </p>
       </div>
-    );
-  }
+    ) : null;
 
   // State Management
   const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");
@@ -62,6 +60,8 @@ export default function BookingsPage() {
   const [bookingType, setBookingType] = useState("meeting");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [bookingHours, setBookingHours] = useState("1");
+  const [manualDiscount, setManualDiscount] = useState("0");
   const [participantCount, setParticipantCount] = useState("");
   const [totalAmount, setTotalAmount] = useState("0");
   const [depositAmount, setDepositAmount] = useState("");
@@ -93,6 +93,7 @@ export default function BookingsPage() {
   // Queries
   const bookingsQuery = useQuery({
     queryKey: ["bookings", statusFilter],
+    enabled: isAllowed,
     queryFn: async () => {
       const response = await api.get("/bookings", {
         params: { page: 1, limit: 200, status: statusFilter || undefined },
@@ -103,6 +104,7 @@ export default function BookingsPage() {
 
   const customersQuery = useQuery({
     queryKey: ["customers", "for-bookings", customerSearchQuery],
+    enabled: isAllowed,
     queryFn: async () => {
       const params: Record<string, any> = { page: 1, limit: 100 };
       if (customerSearchQuery.trim()) {
@@ -115,6 +117,7 @@ export default function BookingsPage() {
 
   const roomsQuery = useQuery({
     queryKey: ["rooms", "for-bookings"],
+    enabled: isAllowed,
     retry: 0,
     queryFn: async () => {
       const response = await api.get("/rooms", { params: { page: 1, limit: 100 } });
@@ -140,7 +143,7 @@ export default function BookingsPage() {
         throw err;
       }
     },
-    enabled: Boolean(roomId && startTime && endTime),
+    enabled: Boolean(isAllowed && roomId && startTime && endTime),
   });
 
   // Derived Data
@@ -155,6 +158,40 @@ export default function BookingsPage() {
 
   const bookings = bookingsQuery.data?.data ?? [];
   const rooms = roomsQuery.data?.data ?? [];
+
+  // Auto-calculate total price
+  useEffect(() => {
+    if (!roomId) return;
+    const selectedRoom = rooms.find(r => r.id === roomId);
+    if (!selectedRoom) return;
+
+    // Is Meeting or Lecture room -> default rate = 200 EGP/hr
+    const isMeetingOrLecture = selectedRoom.name?.toLowerCase().includes("lecture") ||
+      selectedRoom.name?.toLowerCase().includes("ميتنج") ||
+      selectedRoom.name?.toLowerCase().includes("meeting") ||
+      selectedRoom.roomType === "meeting";
+
+    const hourlyRate = isMeetingOrLecture ? 200 : Number(selectedRoom.hourlyRate || 20);
+    const hrs = Math.max(1, Number(bookingHours) || 1);
+    let rawTotal = hrs * hourlyRate;
+
+    // Owner check for 50% discount
+    const FIXED_OWNERS = [
+      "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
+      "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+    ];
+    const nameLower = selectedCustomer?.fullName?.toLowerCase() || "";
+    const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) || selectedCustomer?.customerType === "owner" || selectedCustomer?.notes?.includes("owner_discount");
+
+    if (isOwner) {
+      rawTotal = rawTotal * 0.5; // 50% owner discount
+    }
+
+    const disc = Number(manualDiscount) || 0;
+    const finalTotal = Math.max(0, rawTotal - disc);
+
+    setTotalAmount(String(finalTotal));
+  }, [roomId, bookingHours, manualDiscount, selectedCustomer, rooms]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => {
@@ -288,6 +325,8 @@ export default function BookingsPage() {
     const todayStr = localDateKey(new Date());
     return bookings.filter(b => localDateKey(new Date(b.startTime)) === todayStr).length;
   }, [bookings]);
+
+  if (unauthorizedView) return unauthorizedView;
 
   return (
     <div className="min-w-0 space-y-6 animate-in fade-in duration-500" dir="rtl">
@@ -862,12 +901,76 @@ export default function BookingsPage() {
             </FormField>
           </div>
 
+          {/* Check Owner Discount Status */}
+          {selectedCustomer && (() => {
+            const FIXED_OWNERS = [
+              "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
+              "nada elbaz", "mahmoud abd rabou", "eng.mohamed"
+            ];
+            const nameLower = selectedCustomer.fullName.toLowerCase();
+            const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) || selectedCustomer.customerType === "owner" || selectedCustomer.notes?.includes("owner_discount");
+
+            return isOwner ? (
+              <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3 text-xs font-bold text-purple-900 flex items-center justify-between animate-in fade-in duration-300">
+                <span className="flex items-center gap-1.5">
+                  👑 العميل من الإدارة / الملاك — يتم تطبيق **خصم 50%** تلقائياً
+                </span>
+                <Badge tone="warn">خصم 50%</Badge>
+              </div>
+            ) : null;
+          })()}
+
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="وقت البداية">
-              <DateTimeInput value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
+              <DateTimeInput 
+                value={startTime} 
+                onChange={(e) => {
+                  const newStart = e.target.value;
+                  setStartTime(newStart);
+                  if (newStart && bookingHours) {
+                    const dt = new Date(newStart);
+                    dt.setHours(dt.getHours() + Number(bookingHours || 1));
+                    setEndTime(dt.toISOString().slice(0, 16));
+                  }
+                }} 
+                required 
+              />
             </FormField>
-            <FormField label="وقت النهاية">
+            
+            <FormField label="مدة الحجز (بالساعات)">
+              <Input 
+                type="text" 
+                inputMode="numeric"
+                value={bookingHours} 
+                onChange={(e) => {
+                  const hrs = e.target.value;
+                  setBookingHours(hrs);
+                  if (startTime && hrs) {
+                    const dt = new Date(startTime);
+                    dt.setHours(dt.getHours() + Number(hrs || 1));
+                    setEndTime(dt.toISOString().slice(0, 16));
+                  }
+                }} 
+                placeholder="مثلاً: 2"
+                className="bg-white font-mono font-bold"
+              />
+            </FormField>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="وقت النهاية المحسوب تلقائياً">
               <DateTimeInput value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
+            </FormField>
+
+            <FormField label="خصم مرن إضافي (جنيه)">
+              <Input 
+                type="text" 
+                inputMode="decimal"
+                value={manualDiscount} 
+                onChange={(e) => setManualDiscount(e.target.value)} 
+                placeholder="0"
+                className="bg-white font-mono"
+              />
             </FormField>
           </div>
 
@@ -879,14 +982,14 @@ export default function BookingsPage() {
           )}
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="إجمالي مبلغ الحجز (جنيه)">
+            <FormField label="إجمالي مبلغ الحجز النهائي (جنيه)">
               <Input 
                 type="text" 
                 inputMode="decimal"
                 value={totalAmount} 
                 onChange={(e) => setTotalAmount(e.target.value)} 
                 required 
-                className="bg-white"
+                className="bg-white font-mono font-bold text-emerald-700"
               />
             </FormField>
             <FormField label="مبلغ العربون المدفوع (جنيه)">
@@ -896,7 +999,7 @@ export default function BookingsPage() {
                 value={depositAmount} 
                 onChange={(e) => setDepositAmount(e.target.value)} 
                 placeholder="0"
-                className="bg-white"
+                className="bg-white font-mono"
               />
             </FormField>
           </div>

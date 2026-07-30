@@ -7,15 +7,25 @@ import {
   IsDateString,
   Min,
   IsEnum,
+  IsNotEmpty,
+  MaxLength,
+  Matches,
 } from 'class-validator';
 
 // ── Subscription Plans (الباقات) ──
 
 export class CreatePlanDto {
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
   name: string; // "باقة يومية", "باقة أسبوعية", "باقة شهرية"
 
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(80)
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'packageType must contain lowercase letters, numbers and hyphens only',
+  })
   packageType: string; // daily, weekly, monthly
 
   @IsNumber()
@@ -28,12 +38,18 @@ export class CreatePlanDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }
 
 export class UpdatePlanDto {
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   name?: string;
 
   @IsOptional()
@@ -48,6 +64,7 @@ export class UpdatePlanDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   description?: string;
 
   @IsOptional()

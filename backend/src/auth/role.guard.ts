@@ -182,7 +182,7 @@ export class RoleGuard implements CanActivate {
         expenses: ['read', 'create', 'update', 'delete'],
         shifts: ['read', 'create', 'close'],
         users: ['read', 'manage'],
-        subscriptions: ['read', 'create', 'update', 'cancel'],
+        subscriptions: ['read', 'create', 'update', 'delete', 'cancel'],
         dashboards: ['view_reception', 'read'],
       };
       const normalizedModule = moduleName.endsWith('s')
@@ -353,6 +353,40 @@ export class OpsManagerGuard implements CanActivate {
     if (!role || (rName !== 'owner' && rName !== 'operations manager')) {
       throw new ForbiddenException(
         'Only Owner or Operations Manager can access this resource',
+      );
+    }
+
+    return true;
+  }
+}
+
+/** Allows the operational roles that may manage subscription plans and offers. */
+@Injectable()
+export class SubscriptionPlanManagerGuard implements CanActivate {
+  constructor(private prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user?.roleId) {
+      throw new ForbiddenException('User not authenticated');
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: user.roleId },
+      select: { name: true },
+    });
+    const roleName = role?.name.toLowerCase().trim();
+    const allowedRoles = new Set([
+      'owner',
+      'operations manager',
+      'receptionist',
+    ]);
+
+    if (!roleName || !allowedRoles.has(roleName)) {
+      throw new ForbiddenException(
+        'Only Owner, Operations Manager or Receptionist can manage subscription plans',
       );
     }
 

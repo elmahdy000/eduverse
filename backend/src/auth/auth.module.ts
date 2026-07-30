@@ -22,7 +22,12 @@ import { JwtStrategy } from './jwt.strategy';
       }),
     }),
   ],
-  providers: [AuthService, JwtConfigService, PasswordService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtConfigService,
+    PasswordService,
+    JwtStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService, JwtConfigService, PasswordService, PassportModule],
 })

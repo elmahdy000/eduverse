@@ -12,6 +12,7 @@ import {
   Receipt,
   Wallet,
   Package,
+  PackagePlus,
   DoorOpen,
   Warehouse,
   Timer,
@@ -39,6 +40,7 @@ type NavItem = {
   href: string;
   icon: React.ElementType;
   ownerOnly?: boolean;
+  planManagerOnly?: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -58,11 +60,13 @@ const NAV_ITEMS: NavItem[] = [
   { label: "المخزون",      href: "/inventory",     icon: Warehouse       },
   { label: "الورديات",     href: "/shifts",        icon: Timer           },
   { label: "الاشتراكات",   href: "/subscriptions", icon: CreditCard      },
+  { label: "إدارة الباقات", href: "/subscription-plans", icon: PackagePlus, planManagerOnly: true },
   { label: "المستخدمين",   href: "/users",         icon: UserCog,        ownerOnly: true },
   { label: "الإعدادات",    href: "/settings",      icon: Settings        },
 ];
 
 const PRIVILEGED_ROLES = new Set(["Owner", "Operations Manager", "owner", "operations manager"]);
+const PLAN_MANAGER_ROLES = new Set(["Owner", "Operations Manager", "Receptionist", "owner", "operations manager", "receptionist"]);
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -122,6 +126,7 @@ function getPageTitle(pathname: string): string {
     "/inventory":     "المخزون",
     "/shifts":        "الورديات",
     "/subscriptions": "الاشتراكات",
+    "/subscription-plans": "إدارة الباقات والعروض",
     "/users":         "المستخدمين",
     "/settings":      "الإعدادات",
   };
@@ -250,9 +255,10 @@ function SidebarContent({
   const roleName = user?.role?.name;
   const rc = roleColor(roleName);
   const canSeeUsers = PRIVILEGED_ROLES.has(roleName ?? "");
+  const canManagePlans = PLAN_MANAGER_ROLES.has(roleName ?? "");
 
   const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.ownerOnly || canSeeUsers
+    (item) => (!item.ownerOnly || canSeeUsers) && (!item.planManagerOnly || canManagePlans)
   );
 
   return (

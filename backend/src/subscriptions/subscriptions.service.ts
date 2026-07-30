@@ -37,6 +37,7 @@ export class SubscriptionsService {
         durationDays: dto.durationDays,
         price: dto.price,
         description: dto.description,
+        isActive: dto.isActive ?? true,
       },
     });
   }
@@ -74,19 +75,19 @@ export class SubscriptionsService {
 
   async deletePlan(id: string) {
     await this.findPlan(id);
-    // Check if there are active subscriptions using this plan
-    const activeCount = await this.prisma.customerSubscription.count({
-      where: { planId: id, status: 'active' },
+    const usageCount = await this.prisma.customerSubscription.count({
+      where: { planId: id },
     });
-    if (activeCount > 0) {
-      throw new BadRequestException(
-        `لا يمكن حذف الباقة — يوجد ${activeCount} اشتراك نشط مرتبط بها`,
-      );
+    if (usageCount === 0) {
+      await this.prisma.subscriptionPlan.delete({ where: { id } });
+      return { deleted: true, archived: false };
     }
-    return this.prisma.subscriptionPlan.update({
+
+    await this.prisma.subscriptionPlan.update({
       where: { id },
       data: { isActive: false },
     });
+    return { deleted: false, archived: true, usageCount };
   }
 
   // ════════════════════════════════════════════════════════════════════════════

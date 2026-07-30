@@ -1,15 +1,13 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
     container_name: eduvers-postgres
     environment:
       POSTGRES_USER: eduvers
-      POSTGRES_PASSWORD: eduvers_dev_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a local .env file}
       POSTGRES_DB: eduvers
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,8 +25,9 @@ services:
       - "3001:3001"
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://eduvers:eduvers_dev_password@postgres:5432/eduvers
-      JWT_SECRET: your_jwt_secret_change_in_production
+      PORT: 3001
+      DATABASE_URL: postgresql://eduvers:${POSTGRES_PASSWORD}@postgres:5432/eduvers
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in a local .env file}
       JWT_EXPIRY: 15m
       REFRESH_TOKEN_EXPIRY: 7d
     depends_on:

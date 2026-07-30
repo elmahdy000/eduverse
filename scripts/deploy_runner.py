@@ -1,129 +1,129 @@
-"""
-Eduverse - Git Commit + Remote Deploy Script
-Server: 72.62.27.196
-"""
+"""Safely commit selected Eduverse files, push them, and deploy over SSH."""
+
+from __future__ import annotations
+
+import argparse
+import os
+from pathlib import Path
+import shlex
 import subprocess
 import sys
+
 import paramiko
-import os
 
-# ─── Config ──────────────────────────────────────────────
-SERVER_HOST = "72.62.27.196"
-SERVER_PORT = 22
-SERVER_USER = "root"
-# Password will be read from env or prompted
-SERVER_PASS = os.environ.get("DEPLOY_PASSWORD", "")
 
-APP_DIR = "/root/eduverse"
-DEPLOY_CMD = f"cd {APP_DIR} && bash deploy.sh 2>&1"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_PATHS = [
+    "backend",
+    "frontend",
+    "owner-portal",
+    "deploy.sh",
+    "docker-compose.yml",
+    ".gitattributes",
+    "compose.env.example",
+    "ecosystem.config.js",
+    "requirements-deploy.txt",
+    "scripts",
+    "README.md",
+    "PROJECT_REPORT.md",
+]
 
-# ─── Step 1: Git commit & push locally ───────────────────
-def git_commit_push():
-    project_root = os.path.dirname(os.path.abspath(__file__))
 
-    print("=" * 55)
-    print("  STEP 1: Git Commit & Push")
-    print("=" * 55)
-
-    # Stage all changes
-    result = subprocess.run(
-        ["git", "add", "-A"],
-        cwd=project_root,
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"[ERROR] git add failed:\n{result.stderr}")
-        sys.exit(1)
-    print("[OK] git add -A")
-
-    # Check if there's anything to commit
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
-        cwd=project_root,
-        capture_output=True, text=True
+def run_git(
+    *args: str, capture: bool = False, check: bool = True
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args],
+        cwd=PROJECT_ROOT,
+        check=check,
+        text=True,
+        capture_output=capture,
     )
 
-    if not status.stdout.strip():
-        print("[INFO] Nothing to commit, working tree is clean.")
-    else:
-        result = subprocess.run(
-            ["git", "commit", "-m",
-             "fix: raise product limit to 500 (show Tea), add Indomy varieties, add indomy-addons category UI"],
-            cwd=project_root,
-            capture_output=True, text=True
+
+def commit_and_push(message: str, paths: list[str], branch: str | None) -> str:
+    invalid = [path for path in paths if path.startswith(".claude")]
+    if invalid:
+        raise ValueError("Refusing to stage .claude worktrees")
+
+    run_git("add", "--", *paths)
+    staged = run_git("diff", "--cached", "--quiet", capture=True, check=False)
+    if staged.returncode != 0:
+        run_git("commit", "-m", message)
+
+    current_branch = run_git("branch", "--show-current", capture=True).stdout.strip()
+    target_branch = branch or current_branch
+    if target_branch != current_branch:
+        raise ValueError(
+            f"Current branch is {current_branch!r}, not requested branch {target_branch!r}"
         )
-        if result.returncode != 0:
-            print(f"[ERROR] git commit failed:\n{result.stderr}")
-            sys.exit(1)
-        print(f"[OK] git commit done")
-        print(result.stdout.strip())
+    run_git("push", "--set-upstream", "origin", target_branch)
+    return target_branch
 
-    # Push
-    result = subprocess.run(
-        ["git", "push"],
-        cwd=project_root,
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"[ERROR] git push failed:\n{result.stderr}")
-        sys.exit(1)
-    print("[OK] git push done")
-    print(result.stdout.strip() or result.stderr.strip())
 
-# ─── Step 2: SSH deploy on server ────────────────────────
-def ssh_deploy(password: str):
-    print("\n" + "=" * 55)
-    print("  STEP 2: SSH Deploy on Server")
-    print("=" * 55)
-    print(f"  Connecting to {SERVER_USER}@{SERVER_HOST}...")
+def deploy(branch: str) -> None:
+    host = os.environ.get("DEPLOY_HOST")
+    user = os.environ.get("DEPLOY_USER", "deploy")
+    port = int(os.environ.get("DEPLOY_PORT", "22"))
+    app_dir = os.environ.get("DEPLOY_APP_DIR", "/srv/eduverse")
+    key_path = Path(
+        os.environ.get("DEPLOY_SSH_KEY", str(Path.home() / ".ssh" / "id_ed25519"))
+    ).expanduser()
+
+    if not host:
+        raise RuntimeError("DEPLOY_HOST is required")
+    if not key_path.is_file():
+        raise RuntimeError(f"SSH private key not found: {key_path}")
 
     client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.RejectPolicy())
+    client.connect(
+        hostname=host,
+        port=port,
+        username=user,
+        key_filename=str(key_path),
+        look_for_keys=False,
+        allow_agent=True,
+        timeout=30,
+    )
     try:
-        client.connect(
-            SERVER_HOST,
-            port=SERVER_PORT,
-            username=SERVER_USER,
-            password=password,
-            timeout=30,
+        command = (
+            f"cd {shlex.quote(app_dir)} && "
+            f"APP_DIR={shlex.quote(app_dir)} "
+            f"DEPLOY_BRANCH={shlex.quote(branch)} bash deploy.sh"
         )
-        print(f"[OK] SSH connected to {SERVER_HOST}")
-
-        print(f"\n[RUN] {DEPLOY_CMD}\n")
-        stdin, stdout, stderr = client.exec_command(DEPLOY_CMD, get_pty=True, timeout=600)
-
-        # Stream output
+        _, stdout, stderr = client.exec_command(command, get_pty=True, timeout=1800)
         for line in iter(stdout.readline, ""):
             print(line, end="", flush=True)
-
         exit_code = stdout.channel.recv_exit_status()
-        print(f"\n[EXIT CODE] {exit_code}")
-
+        error_output = stderr.read().decode("utf-8", errors="replace")
         if exit_code != 0:
-            err = stderr.read().decode()
-            if err:
-                print(f"[STDERR]\n{err}")
-            print("\n[FAIL] Deploy script returned non-zero exit code.")
-            sys.exit(1)
-
-        print("\n[OK] Deploy completed successfully!")
-
-    except Exception as e:
-        print(f"[ERROR] SSH failed: {e}")
-        sys.exit(1)
+            raise RuntimeError(error_output or f"Deploy failed with exit code {exit_code}")
     finally:
         client.close()
 
 
-# ─── Main ────────────────────────────────────────────────
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--message", required=True, help="Commit message")
+    parser.add_argument("--path", action="append", dest="paths")
+    parser.add_argument("--branch")
+    parser.add_argument("--push-only", action="store_true")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    try:
+        branch = commit_and_push(args.message, args.paths or DEFAULT_PATHS, args.branch)
+        if not args.push_only:
+            deploy(branch)
+        return 0
+    except (subprocess.CalledProcessError, RuntimeError, ValueError) as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+
+
 if __name__ == "__main__":
-    git_commit_push()
-
-    password = SERVER_PASS
-    if not password:
-        import getpass
-        password = getpass.getpass(f"\nEnter SSH password for {SERVER_USER}@{SERVER_HOST}: ")
-
-    ssh_deploy(password)
-    print("\n✅ All done! Site is live at https://edu-vers.com")
+    raise SystemExit(main())

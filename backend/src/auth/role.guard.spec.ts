@@ -1,6 +1,10 @@
 import { ForbiddenException } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common/interfaces';
-import { OwnerGuard, RoleGuard } from './role.guard';
+import {
+  OwnerGuard,
+  RoleGuard,
+  SubscriptionPlanManagerGuard,
+} from './role.guard';
 
 function contextFor(roleId = 'role-1'): ExecutionContext {
   const request = {
@@ -36,6 +40,28 @@ describe('role guards', () => {
       rolePermission: { findUnique: jest.fn().mockResolvedValue(null) },
     };
     const guard = new RoleGuard(prisma as never);
+
+    await expect(guard.canActivate(contextFor())).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+
+  it('allows Receptionist to manage subscription plans', async () => {
+    const prisma = {
+      role: {
+        findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }),
+      },
+    };
+    const guard = new SubscriptionPlanManagerGuard(prisma as never);
+
+    await expect(guard.canActivate(contextFor())).resolves.toBe(true);
+  });
+
+  it('denies Barista from managing subscription plans', async () => {
+    const prisma = {
+      role: { findUnique: jest.fn().mockResolvedValue({ name: 'Barista' }) },
+    };
+    const guard = new SubscriptionPlanManagerGuard(prisma as never);
 
     await expect(guard.canActivate(contextFor())).rejects.toBeInstanceOf(
       ForbiddenException,

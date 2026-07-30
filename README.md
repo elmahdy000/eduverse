@@ -6,32 +6,34 @@ A professional web application for managing daily venue operations including cus
 
 ### Prerequisites
 - Docker & Docker Compose
-- Node.js 18+ (for local development)
+- Node.js 20.9+ (for local development and production)
 - PostgreSQL 16+ (if running locally)
 
 ### Start with Docker Compose
 ```bash
+cp compose.env.example .env
+# Replace both placeholder values before continuing.
 docker-compose up -d
 ```
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:3001/api
 - **Swagger Docs**: http://localhost:3001/api/docs
-- **Database**: localhost:5432 (eduvers / eduvers_dev_password)
+- **Database**: localhost:5432 (user: `eduvers`; password: the value in `.env`)
 
 ### Local Development
 
 **Backend:**
 ```bash
 cd backend
-npm install --legacy-peer-deps
+npm ci
 npm run start:dev
 ```
 
 **Frontend:**
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -58,6 +60,22 @@ npm run dev
 
 Set `SEED_DEFAULT_PASSWORD` to a strong value (12+ characters) before running the seed. No default password is stored in the repository.
 
+## Production deployment
+
+The server checkout is expected at `/srv/eduverse` and should be owned by a limited `deploy` user. Add the server's SSH host key to `known_hosts`, then create these untracked files before the first deployment:
+
+- `backend/.env` with `DATABASE_URL`, a strong `JWT_SECRET`, and production settings.
+- `frontend/.env.production` with an HTTPS `NEXT_PUBLIC_API_URL`.
+- `owner-portal/.env.production` with an HTTPS `NEXT_PUBLIC_API_URL`.
+
+Install the local deployment helper with `python -m pip install -r requirements-deploy.txt`, configure `DEPLOY_HOST`, `DEPLOY_USER`, and optionally `DEPLOY_SSH_KEY`, then run:
+
+```bash
+python scripts/deploy_runner.py --message "fix: describe the release"
+```
+
+The server deploy uses `npm ci`, applies committed Prisma migrations, builds all three applications, reloads PM2, and fails if any health check does not pass.
+
 ## Project Structure
 
 ```
@@ -77,7 +95,7 @@ eduvers/
 
 | Layer | Technology |
 |-------|------------|
-| Backend | NestJS 10, PostgreSQL 16, Prisma 5 |
+| Backend | NestJS 11, PostgreSQL 16, Prisma 5 |
 | Frontend | Next.js 16, TypeScript, Tailwind CSS |
 | Auth | JWT with access/refresh tokens |
 | Data Fetching | React Query |

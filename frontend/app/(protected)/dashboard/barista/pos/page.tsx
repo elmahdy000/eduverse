@@ -531,14 +531,14 @@ export default function BaristaPOSPage() {
       >
 
       {/* Categories Sidebar */}
-      <aside className="hidden lg:flex w-16 lg:w-56 border-l border-slate-100 flex-col bg-slate-50/50 shrink-0">
+      <aside className="hidden xl:flex w-20 2xl:w-52 border-l border-slate-100 flex-col bg-slate-50/50 shrink-0">
         <div className="h-16 px-4 flex items-center border-b border-slate-100">
           <Link
             href="/dashboard/barista"
             className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <ChevronRight size={20} />
-            <span className="hidden lg:inline text-xs font-bold tracking-tight">الرئيسية</span>
+            <span className="hidden 2xl:inline text-xs font-bold tracking-tight">الرئيسية</span>
           </Link>
         </div>
 
@@ -553,7 +553,7 @@ export default function BaristaPOSPage() {
             )}
           >
             <Heart size={18} className={showFavorites ? "fill-white" : ""} />
-            <span className="hidden lg:inline text-xs font-bold">المفضلة</span>
+            <span className="hidden 2xl:inline text-xs font-bold">المفضلة</span>
           </button>
 
           <div className="my-2 mx-2 h-px bg-slate-200/60" />
@@ -566,6 +566,7 @@ export default function BaristaPOSPage() {
               <button
                 key={cat}
                 onClick={() => selectCategoryAndFlip(cat)}
+                title={cat === "all" ? "كل القائمة" : translateProductCategory(cat)}
                 className={clsx(
                   "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all group",
                   isActive
@@ -581,7 +582,7 @@ export default function BaristaPOSPage() {
                 >
                   <IconComp size={16} />
                 </div>
-                <span className="hidden lg:inline text-xs font-bold truncate">
+                <span className="hidden 2xl:inline text-xs font-bold truncate">
                   {cat === "all" ? "كل القائمة" : translateProductCategory(cat)}
                 </span>
               </button>
@@ -592,15 +593,15 @@ export default function BaristaPOSPage() {
 
       {/* Product Grid */}
       <main className="flex-1 flex flex-col min-w-0 bg-white relative">
-        <header className="h-16 px-4 lg:px-6 flex items-center gap-3 lg:gap-4 border-b border-slate-100 shrink-0">
+        <header className="min-h-16 px-3 sm:px-4 flex items-center gap-2 sm:gap-3 border-b border-slate-100 shrink-0">
           {/* Mobile Back Button */}
           <Link
             href="/dashboard/barista"
-            className="lg:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400"
+            className="xl:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 shrink-0"
           >
             <ChevronRight size={20} />
           </Link>
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative min-w-24 flex-1 max-w-md">
             <Search size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -620,7 +621,7 @@ export default function BaristaPOSPage() {
               )}
             >
               <LayoutGrid size={12} />
-              <span>شبكة (Grid)</span>
+              <span className="hidden xl:inline">شبكة (Grid)</span>
             </button>
             <button
               onClick={() => setViewMode("vintage")}
@@ -630,13 +631,13 @@ export default function BaristaPOSPage() {
               )}
             >
               <Sparkles size={12} />
-              <span>منيو مميز</span>
+              <span className="hidden xl:inline">منيو مميز</span>
             </button>
           </div>
 
           <button
             onClick={() => setShowQRCode(true)}
-            className="h-10 px-3 lg:px-4 flex items-center gap-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50 transition-colors"
+            className="hidden sm:flex h-10 px-3 items-center gap-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50 transition-colors shrink-0"
           >
             <QrCode size={14} />
             <span className="hidden sm:inline text-[10px] font-black">كود الطلب</span>
@@ -644,7 +645,7 @@ export default function BaristaPOSPage() {
 
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["products", "pos"] })}
-            className="h-10 px-3 lg:px-4 flex items-center gap-2 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors"
+            className="hidden md:flex h-10 px-3 items-center gap-2 rounded-xl bg-slate-50 text-slate-500 hover:text-slate-900 transition-colors shrink-0"
           >
             <RefreshCw size={14} className={productsQuery.isLoading ? "animate-spin" : ""} />
             <span className="hidden sm:inline text-[10px] font-bold">تحديث</span>
@@ -652,7 +653,7 @@ export default function BaristaPOSPage() {
         </header>
 
         {/* Mobile Categories Scroll */}
-        <div className="lg:hidden flex overflow-x-auto px-4 py-3 gap-2 border-b border-slate-50 bg-slate-50/30 scrollbar-none">
+        <div className="xl:hidden flex overflow-x-auto px-4 py-3 gap-2 border-b border-slate-50 bg-slate-50/30 scrollbar-none">
           <button
             onClick={() => setShowFavorites(!showFavorites)}
             className={clsx(
@@ -692,10 +693,10 @@ export default function BaristaPOSPage() {
 
         <div className={clsx(
           "flex-1 overflow-y-auto scroll-smooth",
-          viewMode === "vintage" ? "bg-slate-50 p-4 lg:p-6" : "px-6 py-6"
+          viewMode === "vintage" ? "bg-slate-50 p-4 lg:p-6" : "p-4 lg:p-5"
         )}>
           {productsQuery.isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <CardSkeleton key={i} />
               ))}
@@ -774,7 +775,7 @@ export default function BaristaPOSPage() {
                       <div className="flex-1 h-px bg-slate-100" />
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3">
                       {items.map((product) => {
                         const inCart = cart.find((i) => i.productId === product.id);
                         const isFav = favorites.has(product.id);
@@ -784,7 +785,7 @@ export default function BaristaPOSPage() {
                             key={product.id}
                             onClick={() => addToCart(product)}
                             className={clsx(
-                              "relative flex flex-col p-3 rounded-2xl border transition-all select-none",
+                              "relative flex min-h-36 flex-col justify-between p-3.5 rounded-2xl border transition-all select-none",
                               outOfStock
                                 ? "border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed"
                                 : "cursor-pointer active:scale-95 " + (inCart ? "border-slate-900 bg-white shadow-xl ring-1 ring-slate-900" : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-lg")
@@ -813,12 +814,12 @@ export default function BaristaPOSPage() {
                               </div>
                             )}
 
-                            <div className={clsx("h-10 w-10 mb-3 rounded-xl flex items-center justify-center", meta.bgColor, meta.iconColor)}>
+                            <div className={clsx("h-11 w-11 mb-4 rounded-xl flex items-center justify-center", meta.bgColor, meta.iconColor)}>
                               <IconComp size={20} />
                             </div>
 
                             <div className="space-y-2">
-                              <p className="text-[11px] font-bold text-slate-800 leading-tight line-clamp-2 min-h-[2.2rem]">
+                              <p className="text-xs font-bold text-slate-800 leading-5 line-clamp-2 min-h-10">
                                 {translateProductName(product.name)}
                               </p>
                               <p className={clsx("text-xs font-black", inCart ? "text-slate-900" : "text-slate-400")}>
@@ -840,7 +841,7 @@ export default function BaristaPOSPage() {
         {cartCount > 0 && (
           <button
             onClick={() => setIsMobileCartOpen(true)}
-            className="lg:hidden fixed bottom-6 left-6 z-40 h-16 w-16 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90"
+            className="xl:hidden fixed bottom-6 left-6 z-40 h-16 w-16 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90"
           >
             <div className="relative">
               <ShoppingCart size={24} />
@@ -854,8 +855,8 @@ export default function BaristaPOSPage() {
 
       {/* Checkout Section - Responsive Drawer */}
       <aside className={clsx(
-        "fixed inset-y-0 left-0 z-50 w-full sm:w-[24rem] lg:relative lg:inset-auto lg:z-auto lg:w-[26rem] xl:w-[28rem] lg:flex flex-col bg-slate-50 border-r border-slate-200/80 transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-[0_0_30px_rgba(0,0,0,0.03)] shrink-0",
-        isMobileCartOpen ? "flex translate-x-0" : "-translate-x-full lg:translate-x-0"
+        "fixed inset-y-0 left-0 z-50 w-full sm:w-96 xl:relative xl:inset-auto xl:z-auto xl:w-80 2xl:w-[22rem] xl:flex flex-col bg-slate-50 border-r border-slate-200/80 transition-transform duration-300 xl:translate-x-0 shadow-2xl xl:shadow-[0_0_30px_rgba(0,0,0,0.03)] shrink-0",
+        isMobileCartOpen ? "flex translate-x-0" : "-translate-x-full xl:translate-x-0"
       )}>
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-200 bg-white shrink-0">
           <div className="flex items-center gap-2">
@@ -868,7 +869,7 @@ export default function BaristaPOSPage() {
                 <Trash2 size={16} />
               </button>
             )}
-            <button onClick={() => setIsMobileCartOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
+            <button onClick={() => setIsMobileCartOpen(false)} className="xl:hidden p-2 text-slate-400 hover:text-slate-900">
               <X size={20} />
             </button>
           </div>

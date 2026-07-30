@@ -18,7 +18,11 @@ import {
   UpdateSubscriptionDto,
 } from './dto/subscription.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { RoleGuard, OpsManagerGuard } from '../auth/role.guard';
+import {
+  RoleGuard,
+  OpsManagerGuard,
+  SubscriptionPlanManagerGuard,
+} from '../auth/role.guard';
 
 @Controller('subscriptions')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -38,19 +42,19 @@ export class SubscriptionsController {
   }
 
   @Post('plans')
-  @UseGuards(OpsManagerGuard)
+  @UseGuards(SubscriptionPlanManagerGuard)
   createPlan(@Body() dto: CreatePlanDto) {
     return this.subscriptionsService.createPlan(dto);
   }
 
   @Patch('plans/:id')
-  @UseGuards(OpsManagerGuard)
+  @UseGuards(SubscriptionPlanManagerGuard)
   updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.subscriptionsService.updatePlan(id, dto);
   }
 
   @Delete('plans/:id')
-  @UseGuards(OpsManagerGuard)
+  @UseGuards(SubscriptionPlanManagerGuard)
   deletePlan(@Param('id') id: string) {
     return this.subscriptionsService.deletePlan(id);
   }

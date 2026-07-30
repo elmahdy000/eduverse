@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   CreditCard, Plus, Search, Tag, Users,
-  RefreshCw, Sparkles, Pencil,
+  RefreshCw, Sparkles, Pencil, Clock3, CalendarDays, CalendarRange,
+  Check, ArrowLeft, WalletCards,
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { money, dateTime } from "../../../lib/format";
@@ -35,6 +36,30 @@ function planPeriod(plan: Pick<Plan, "packageType" | "durationDays">): Exclude<P
 function planPeriodLabel(plan: Pick<Plan, "packageType" | "durationDays">) {
   return PLAN_PERIODS.find((period) => period.value === planPeriod(plan))?.label ?? plan.packageType;
 }
+
+const PLAN_THEMES = {
+  daily: {
+    icon: Clock3,
+    accent: "text-sky-700",
+    iconBg: "bg-sky-100",
+    border: "border-sky-200 hover:border-sky-400",
+    glow: "from-sky-500/10",
+  },
+  weekly: {
+    icon: CalendarDays,
+    accent: "text-violet-700",
+    iconBg: "bg-violet-100",
+    border: "border-violet-200 hover:border-violet-400",
+    glow: "from-violet-500/10",
+  },
+  monthly: {
+    icon: CalendarRange,
+    accent: "text-amber-700",
+    iconBg: "bg-amber-100",
+    border: "border-amber-200 hover:border-amber-400",
+    glow: "from-amber-500/10",
+  },
+} as const;
 
 interface Plan {
   id: string;
@@ -75,7 +100,7 @@ type ApiError = { response?: { data?: { message?: string } } };
 export default function SubscriptionsPage() {
   const queryClient = useQueryClient();
   const roleName = useAuthStore((state) => state.user?.role?.name);
-  const canManagePlans = roleName === "Owner" || roleName === "Operations Manager";
+  const canManagePlans = roleName === "Owner" || roleName === "Operations Manager" || roleName === "Receptionist";
   const [activeTab, setActiveTab] = useState<"subscriptions" | "plans">("plans");
   const [planPeriodFilter, setPlanPeriodFilter] = useState<PlanPeriod>("all");
   const [isSubscribeModalOpen, setSubscribeModalOpen] = useState(false);
@@ -184,6 +209,13 @@ export default function SubscriptionsPage() {
       (planPeriodFilter === "all" || period.value === planPeriodFilter) &&
       !(plans ?? []).some((plan) => planPeriod(plan) === period.value),
   );
+  const activePlans = (plans ?? []).filter((plan) => plan.isActive);
+  const selectedPlan = activePlans.find((plan) => plan.id === selectedPlanId);
+
+  function openSubscription(planId = "") {
+    setSelectedPlanId(planId);
+    setSubscribeModalOpen(true);
+  }
 
   const subHeaders = ["العميل", "الباقة / النوع", "تاريخ البدء", "تاريخ الانتهاء", "المبلغ", "الحالة", ""];
   const subRows = filteredSubscriptions.map((s) => [
@@ -227,11 +259,17 @@ export default function SubscriptionsPage() {
         action={
           <div className="flex gap-2">
             {canManagePlans && (
-              <Btn variant="secondary" size="sm" onClick={() => { setEditingPlan(null); setDraftPlanPeriod("monthly"); setPlanModalOpen(true); }} icon={<Tag size={16} />}>
+              <Btn variant="secondary" size="sm" onClick={() => { window.location.href = "/subscription-plans"; }} icon={<Tag size={16} />}>
                 إدارة الباقات
               </Btn>
             )}
-            <Btn variant="primary" size="sm" onClick={() => setSubscribeModalOpen(true)} icon={<Plus size={18} />}>
+            <Btn
+              variant="primary"
+              size="sm"
+              onClick={() => openSubscription()}
+              icon={<Plus size={18} />}
+              disabled={!isLoadingPlans && activePlans.length === 0}
+            >
               اشتراك جديد
             </Btn>
           </div>
@@ -256,7 +294,7 @@ export default function SubscriptionsPage() {
             activeTab === "plans" ? "bg-blue-600 text-white shadow-md shadow-blue-500/20" : "text-slate-600 hover:bg-slate-100"
           )}
         >
-          <Sparkles size={16} /> الباقات المتاحة ({plans?.length || 0})
+          <Sparkles size={16} /> الباقات المتاحة ({activePlans.length})
         </button>
       </div>
 
@@ -332,63 +370,81 @@ export default function SubscriptionsPage() {
             <div className="col-span-full flex justify-center py-20"><Spinner size={32} /></div>
           ) : (
             <>
-            {missingPeriods.map((period) => (
-              <div key={period.value} className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-6">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">باقة {period.label}</span>
-                <h3 className="mt-1 text-xl font-bold text-slate-800">غير مُعدّة بعد</h3>
-                <p className="mt-3 text-sm text-slate-500">مدة مقترحة: {period.days} {period.days === 1 ? "يوم" : "أيام"}</p>
-                {canManagePlans && (
-                  <Btn
-                    variant="secondary"
-                    size="sm"
-                    className="mt-6 w-full"
-                    onClick={() => { setEditingPlan(null); setDraftPlanPeriod(period.value); setPlanModalOpen(true); }}
-                    icon={<Plus size={14} />}
-                  >
-                    إعداد الباقة {period.label}
-                  </Btn>
-                )}
-              </div>
+            {canManagePlans && missingPeriods.map((period) => (
+              <button
+                type="button"
+                key={period.value}
+                onClick={() => { setEditingPlan(null); setDraftPlanPeriod(period.value); setPlanModalOpen(true); }}
+                className="group min-h-64 rounded-3xl border-2 border-dashed border-slate-200 bg-white/60 p-6 text-right transition hover:border-amber-400 hover:bg-amber-50/40"
+              >
+                <span className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 transition group-hover:bg-amber-100 group-hover:text-amber-700">
+                  <Plus size={24} />
+                </span>
+                <span className="text-xs font-black text-slate-400">باقة {period.label}</span>
+                <h3 className="mt-1 text-lg font-black text-slate-800">إضافة وتسعير الباقة</h3>
+                <p className="mt-2 text-sm text-slate-500">المدة المقترحة: {period.days} {period.days === 1 ? "يوم" : "أيام"}</p>
+              </button>
             ))}
             {visiblePlans.map((plan) => (
-              <div
+              <article
                 key={plan.id}
                 className={clsx(
-                  "rounded-2xl border bg-white p-6 shadow-sm relative overflow-hidden transition-all hover:shadow-md",
-                  plan.isActive ? "border-slate-200" : "border-slate-100 opacity-60"
+                  "group relative min-h-64 overflow-hidden rounded-3xl border bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl",
+                  PLAN_THEMES[planPeriod(plan)].border,
+                  !plan.isActive && "opacity-55 grayscale"
                 )}
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider">
-                      باقة {planPeriodLabel(plan)}
-                    </span>
-                    <h3 className="text-xl font-bold text-slate-900 mt-0.5">{plan.name}</h3>
-                  </div>
+                <div className={clsx("pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b to-transparent", PLAN_THEMES[planPeriod(plan)].glow)} />
+                <div className="relative flex items-start justify-between">
+                  {(() => {
+                    const ThemeIcon = PLAN_THEMES[planPeriod(plan)].icon;
+                    return <span className={clsx("flex h-12 w-12 items-center justify-center rounded-2xl", PLAN_THEMES[planPeriod(plan)].iconBg, PLAN_THEMES[planPeriod(plan)].accent)}><ThemeIcon size={23} /></span>;
+                  })()}
                   <Badge tone={plan.isActive ? "success" : "neutral"} className="text-xs">
                     {plan.isActive ? "نشط" : "متوقف"}
                   </Badge>
                 </div>
-                <div className="mb-4">
-                  <span className="text-3xl font-black text-slate-900">{money(plan.price)}</span>
-                  <span className="text-xs text-slate-400 font-bold mr-1">/ {plan.durationDays} يوم</span>
+                <div className="relative mt-5">
+                  <span className={clsx("text-xs font-black", PLAN_THEMES[planPeriod(plan)].accent)}>باقة {planPeriodLabel(plan)}</span>
+                  <h3 className="mt-1 text-xl font-black text-slate-950">{plan.name}</h3>
+                  <div className="mt-3 flex items-end gap-2">
+                    <span className="text-3xl font-black text-slate-950">{money(plan.price)}</span>
+                    <span className="pb-1 text-xs font-bold text-slate-400">لمدة {plan.durationDays} يوم</span>
+                  </div>
                 </div>
-                {plan.description && <p className="text-xs text-slate-500 mb-6">{plan.description}</p>}
-                <div className="flex gap-2 pt-4 border-t border-slate-100">
+                {plan.description && <p className="relative mt-3 line-clamp-2 text-sm text-slate-500">{plan.description}</p>}
+                <div className="relative mt-5 flex gap-2 border-t border-slate-100 pt-4">
+                  {plan.isActive && (
+                    <Btn
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => openSubscription(plan.id)}
+                      icon={<ArrowLeft size={15} />}
+                    >
+                      اختيار للعميل
+                    </Btn>
+                  )}
                   {canManagePlans && (
                     <Btn
                       variant="secondary"
                       size="sm"
-                      className="w-full"
+                      className={plan.isActive ? "px-3" : "w-full"}
                       onClick={() => { setEditingPlan(plan); setPlanModalOpen(true); }}
                       icon={<Pencil size={14} />}
                     >
-                      تعديل الباقة
+                      {plan.isActive ? "" : "تعديل الباقة"}
                     </Btn>
                   )}
                 </div>
-              </div>
+              </article>
             ))}
+            {!canManagePlans && !isLoadingPlans && visiblePlans.length === 0 && (
+              <div className="col-span-full rounded-3xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
+                <WalletCards className="mx-auto text-slate-300" size={48} />
+                <h3 className="mt-4 text-xl font-black text-slate-900">لا توجد باقات مفعلة حاليًا</h3>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">يجب أن يضيف المالك أو مدير العمليات أسعار الباقات أولًا، وبعدها ستظهر هنا ويمكن اختيارها للعميل مباشرة.</p>
+              </div>
+            )}
             </>
           )}
           </div>
@@ -396,7 +452,7 @@ export default function SubscriptionsPage() {
       )}
 
       {/* Modal Subscribe */}
-      <Modal isOpen={isSubscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} title="اشتراك عميل في باقة جديدة">
+      <Modal isOpen={isSubscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} title="تسجيل اشتراك جديد" size="xl">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -408,7 +464,50 @@ export default function SubscriptionsPage() {
           }}
           className="space-y-4"
         >
-          <FormField label="اختر العميل">
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-black text-slate-900">1. اختر الباقة</p>
+                <p className="mt-0.5 text-xs text-slate-500">اضغط على الباقة المناسبة للعميل</p>
+              </div>
+              {selectedPlan && <Badge tone="success"><Check size={12} /> تم الاختيار</Badge>}
+            </div>
+            {activePlans.length === 0 ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+                لا توجد باقات مفعلة. يجب إعداد الباقات أولًا بواسطة المالك أو مدير العمليات.
+              </div>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-3">
+                {activePlans.map((plan) => {
+                  const period = planPeriod(plan);
+                  const ThemeIcon = PLAN_THEMES[period].icon;
+                  const isSelected = selectedPlanId === plan.id;
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => setSelectedPlanId(plan.id)}
+                      className={clsx(
+                        "relative rounded-2xl border-2 p-4 text-right transition",
+                        isSelected
+                          ? "border-amber-500 bg-amber-50 shadow-sm ring-2 ring-amber-500/15"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
+                      )}
+                    >
+                      {isSelected && <span className="absolute left-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-white"><Check size={14} /></span>}
+                      <span className={clsx("flex h-9 w-9 items-center justify-center rounded-xl", PLAN_THEMES[period].iconBg, PLAN_THEMES[period].accent)}><ThemeIcon size={18} /></span>
+                      <p className="mt-3 text-sm font-black text-slate-900">{plan.name}</p>
+                      <p className="mt-1 text-xs font-bold text-slate-500">{planPeriodLabel(plan)} · {plan.durationDays} يوم</p>
+                      <p className="mt-3 text-lg font-black text-slate-950">{money(plan.price)}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-slate-100 pt-4">
+          <FormField label="2. اختر العميل">
             <select
               required
               className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm font-bold bg-white text-slate-800"
@@ -424,7 +523,20 @@ export default function SubscriptionsPage() {
             </select>
           </FormField>
 
-          <FormField label="طريقة الدفع">
+          {selectedCustomerId && selectedPlan && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-xs font-black text-emerald-700">ملخص الاشتراك</p>
+              <div className="mt-2 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-black text-slate-900">{customers?.find((customer) => customer.id === selectedCustomerId)?.fullName}</p>
+                  <p className="text-xs text-slate-500">{selectedPlan.name} · {selectedPlan.durationDays} يوم</p>
+                </div>
+                <p className="text-xl font-black text-emerald-700">{money(selectedPlan.price)}</p>
+              </div>
+            </div>
+          )}
+
+          <FormField label="3. طريقة الدفع">
             <select
               required
               className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm font-bold bg-white text-slate-800"
@@ -437,24 +549,9 @@ export default function SubscriptionsPage() {
               <option value="mixed">متعدد</option>
             </select>
           </FormField>
+          </div>
 
-          <FormField label="اختر الباقة">
-            <select
-              required
-              className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm font-bold bg-white text-slate-800"
-              value={selectedPlanId}
-              onChange={(e) => setSelectedPlanId(e.target.value)}
-            >
-              <option value="">-- اختر الباقة --</option>
-              {plans?.filter(p => p.isActive).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} — {money(p.price)} ({p.durationDays} يوم)
-                </option>
-              ))}
-            </select>
-          </FormField>
-
-          <Btn type="submit" className="w-full h-14 rounded-2xl font-bold bg-blue-600 hover:bg-blue-700" loading={subscribeMutation.isPending}>
+          <Btn type="submit" className="w-full h-14 rounded-2xl font-bold" loading={subscribeMutation.isPending} disabled={!selectedCustomerId || !selectedPlanId || activePlans.length === 0}>
             تأكيد الاشتراك وتفعيل الباقة
           </Btn>
         </form>
@@ -472,7 +569,7 @@ export default function SubscriptionsPage() {
             const formData = new FormData(e.currentTarget);
             savePlanMutation.mutate({
               name: formData.get("name") as string,
-              packageType: formData.get("packageType") as string,
+              packageType: editingPlan?.packageType || (formData.get("packageType") as string),
               durationDays: Number(formData.get("durationDays")),
               price: Number(formData.get("price")),
               description: formData.get("description") as string,

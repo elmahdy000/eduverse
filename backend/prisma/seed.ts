@@ -145,7 +145,8 @@ async function main() {
 
   // 5. Create Default Users
   console.log('👤 Creating default users...');
-  const passwordHash = await bcrypt.hash(seedPassword, 10);
+  const defaultPassword = process.env.SEED_DEFAULT_PASSWORD || '123456';
+  const passwordHash = await bcrypt.hash(defaultPassword, 10);
   const owner = await prisma.user.create({
     data: {
       email: 'owner@eduvers.com',
@@ -160,7 +161,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'elmahdy@eduvers.com',
-      passwordHash: elmahdyHash,
+      passwordHash,
       firstName: 'Elmahdy',
       lastName: 'Owner',
       roleId: roles['Owner'].id,
@@ -168,7 +169,7 @@ async function main() {
     },
   });
 
-  const mainownerHash = await bcrypt.hash('owner123', 10);
+  const mainownerHash = await bcrypt.hash('123456', 10);
   await prisma.user.create({
     data: {
       email: 'mainowner@eduvers.com',

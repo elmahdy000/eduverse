@@ -207,45 +207,43 @@ export default function BookingsPage() {
   const bookings = bookingsQuery.data?.data ?? [];
   const rooms = roomsQuery.data?.data ?? [];
 
-  // Auto-calculate total price
-  useEffect(() => {
-    if (!roomId) return;
-    const selectedRoom = rooms.find(r => r.id === roomId);
+  const isSelectedCustomerOwner = useMemo(() => {
+    if (!selectedCustomer) return false;
+    const nameLower = (selectedCustomer.fullName || "").toLowerCase();
+    const notesLower = (selectedCustomer.notes || "").toLowerCase();
+    const typeLower = (selectedCustomer.customerType || "").toLowerCase();
+    return (
+      FIXED_OWNER_NAMES.some((o) => nameLower.includes(o)) ||
+      typeLower === "owner" ||
+      typeLower === "owner_discount" ||
+      notesLower.includes("owner_discount") ||
+      notesLower.includes("مالك")
+    );
+  }, [selectedCustomer]);
+
+  const recalculatePrice = (rId: string, hrsStr: string, discStr: string, isOwner: boolean) => {
+    if (!rId) return;
+    const selectedRoom = rooms.find((r) => r.id === rId);
     if (!selectedRoom) return;
 
-    // Is Meeting or Lecture room -> default rate = 200 EGP/hr
-    const isMeetingOrLecture = selectedRoom.name?.toLowerCase().includes("lecture") ||
+    const isMeetingOrLecture =
+      selectedRoom.name?.toLowerCase().includes("lecture") ||
       selectedRoom.name?.toLowerCase().includes("ميتنج") ||
       selectedRoom.name?.toLowerCase().includes("meeting") ||
       selectedRoom.roomType === "meeting";
 
     const hourlyRate = isMeetingOrLecture ? 200 : Number(selectedRoom.hourlyRate || 20);
-    const hrs = Math.max(1, Number(bookingHours) || 1);
+    const hrs = Math.max(1, Number(hrsStr) || 1);
     let rawTotal = hrs * hourlyRate;
-
-    // Owner check for 50% discount
-    const FIXED_OWNERS = [
-      "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
-      "nada elbaz", "mahmoud abd rabou", "eng.mohamed", "eng mohamed", "elmahdy", "ezz", "abdelazim", "elbaz", "abd rabou"
-    ];
-    const nameLower = selectedCustomer?.fullName?.toLowerCase() || "";
-    const notesLower = selectedCustomer?.notes?.toLowerCase() || "";
-    const typeLower = selectedCustomer?.customerType?.toLowerCase() || "";
-    const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) ||
-      typeLower === "owner" ||
-      typeLower === "owner_discount" ||
-      notesLower.includes("owner_discount") ||
-      notesLower.includes("مالك");
 
     if (isOwner) {
       rawTotal = rawTotal * 0.5; // 50% owner discount
     }
 
-    const disc = Number(manualDiscount) || 0;
+    const disc = Number(discStr) || 0;
     const finalTotal = Math.max(0, rawTotal - disc);
-
     setTotalAmount(String(finalTotal));
-  }, [roomId, bookingHours, manualDiscount, selectedCustomer, rooms]);
+  };
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => {
@@ -1000,7 +998,16 @@ export default function BookingsPage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="الغرفة المطلوبة">
-              <Select value={roomId} onChange={(e) => setRoomId(e.target.value)} required className="bg-white">
+              <Select 
+                value={roomId} 
+                onChange={(e) => {
+                  const rId = e.target.value;
+                  setRoomId(rId);
+                  recalculatePrice(rId, bookingHours, manualDiscount, isSelectedCustomerOwner);
+                }} 
+                required 
+                className="bg-white"
+              >
                 <option value="">-- اختر الغرفة --</option>
                 {rooms.map((r) => (
                   <option key={r.id} value={r.id}>{r.name} (سعة {r.capacity})</option>
@@ -1017,29 +1024,14 @@ export default function BookingsPage() {
           </div>
 
           {/* Check Owner Discount Status */}
-          {selectedCustomer && (() => {
-            const FIXED_OWNERS = [
-              "mahmoud elmahdy", "khaled salah", "mahmoud ezz", "mohamed abdelazim",
-              "nada elbaz", "mahmoud abd rabou", "eng.mohamed", "eng mohamed", "elmahdy", "ezz", "abdelazim", "elbaz", "abd rabou"
-            ];
-            const nameLower = selectedCustomer.fullName.toLowerCase();
-            const notesLower = (selectedCustomer.notes || "").toLowerCase();
-            const typeLower = (selectedCustomer.customerType || "").toLowerCase();
-            const isOwner = FIXED_OWNERS.some(o => nameLower.includes(o)) ||
-              typeLower === "owner" ||
-              typeLower === "owner_discount" ||
-              notesLower.includes("owner_discount") ||
-              notesLower.includes("مالك");
-
-            return isOwner ? (
-              <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3 text-xs font-bold text-purple-900 flex items-center justify-between animate-in fade-in duration-300">
-                <span className="flex items-center gap-1.5">
-                  👑 العميل من الإدارة / الملاك — يتم تطبيق **خصم 50%** تلقائياً
-                </span>
-                <Badge tone="warn">خصم 50%</Badge>
-              </div>
-            ) : null;
-          })()}
+          {isSelectedCustomerOwner && (
+            <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-3 text-xs font-bold text-purple-900 flex items-center justify-between animate-in fade-in duration-300">
+              <span className="flex items-center gap-1.5">
+                👑 العميل من الإدارة / الملاك — يتم تطبيق **خصم 50%** تلقائياً
+              </span>
+              <Badge tone="warn">خصم 50%</Badge>
+            </div>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="وقت البداية">
@@ -1071,6 +1063,7 @@ export default function BookingsPage() {
                     dt.setHours(dt.getHours() + Number(hrs || 1));
                     setEndTime(dt.toISOString().slice(0, 16));
                   }
+                  recalculatePrice(roomId, hrs, manualDiscount, isSelectedCustomerOwner);
                 }} 
                 placeholder="مثلاً: 2"
                 className="bg-white font-mono font-bold"
@@ -1088,7 +1081,11 @@ export default function BookingsPage() {
                 type="text" 
                 inputMode="decimal"
                 value={manualDiscount} 
-                onChange={(e) => setManualDiscount(e.target.value)} 
+                onChange={(e) => {
+                  const disc = e.target.value;
+                  setManualDiscount(disc);
+                  recalculatePrice(roomId, bookingHours, disc, isSelectedCustomerOwner);
+                }} 
                 placeholder="0"
                 className="bg-white font-mono"
               />

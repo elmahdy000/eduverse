@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   CreditCard, Plus, Search, Tag, Users, Calendar, CheckCircle2, 
-  XCircle, Clock, RefreshCw, AlertCircle, Sparkles, Pencil, Trash2, Banner
+  XCircle, Clock, RefreshCw, AlertCircle, Sparkles, Pencil, Trash2, Flag
 } from "lucide-react";
 import { api } from "../../../lib/api";
 import { money, dateTime } from "../../../lib/format";
@@ -146,7 +146,7 @@ export default function SubscriptionsPage() {
     <div key={s.id + "amt"} className="font-black text-emerald-600">{money(s.paidAmount)}</div>,
     <Badge
       key={s.id + "st"}
-      tone={s.status === "active" ? "success" : s.status === "expired" ? "warning" : "danger"}
+      tone={s.status === "active" ? "success" : s.status === "expired" ? "warn" : "danger"}
       className="px-3 py-1 text-xs font-black"
     >
       {s.status === "active" ? "نشط" : s.status === "expired" ? "منتهي" : "ملغى"}

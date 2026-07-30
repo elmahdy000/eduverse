@@ -1,18 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   Design Tokens
+   ============================================================ */
 :root {
-  --bg: #f4f6f8;
-  --fg: #0f172a;
+  --color-page-bg: #F6F8FC;
+  --color-surface: #FFFFFF;
+  --color-navy: #101A33;
+  --color-brand: #F79400;
+  --color-brand-hover: #DC8100;
+  --color-success: #059669;
+  --color-danger: #DC2626;
+  --color-warning: #D97706;
+  --color-info: #2563EB;
+  --color-text: #111827;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+
+  --radius-input: 12px;
+  --radius-card: 16px;
+  --input-height: 46px;
+  --btn-height: 44px;
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 76px;
+
+  /* Menu palette */
+  --menu-purple: #5a3e85;
+  --menu-purple-deep: #47316b;
+  --menu-purple-soft: #efe9f5;
+  --menu-cream: #f6f1ea;
+  --menu-ink: #3d2f57;
+  --menu-line: #d9cbe8;
 }
 
+/* ============================================================
+   Tailwind v4 theme mapping
+   ============================================================ */
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--fg);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --color-page-bg: var(--color-page-bg);
+  --color-surface: var(--color-surface);
+  --color-navy: var(--color-navy);
+  --color-brand: var(--color-brand);
+  --color-brand-hover: var(--color-brand-hover);
+  --color-success: var(--color-success);
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-info: var(--color-info);
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border: var(--color-border);
 }
 
+/* ============================================================
+   Base reset
+   ============================================================ */
 * {
   box-sizing: border-box;
 }
@@ -20,9 +62,9 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #fff6da 0%, #eff3f7 45%, #e4edf6 100%);
-  color: var(--fg);
-  font-family: 'Cairo', sans-serif;
+  background: var(--color-page-bg);
+  color: var(--color-text);
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-weight: 400;
   direction: rtl;
   text-align: right;
@@ -30,9 +72,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Almarai weight helpers */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 800;
+  font-weight: 700;
 }
 
 p, li, span {
@@ -40,7 +81,7 @@ p, li, span {
 }
 
 strong, b {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 input,
@@ -51,17 +92,65 @@ button {
 }
 
 /* ============================================================
+   Focus-visible ring — applied globally to interactive elements
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Global utility classes
+   ============================================================ */
+
+/* LTR inline values: phone numbers, IDs, dates, prices */
+.ltr-value {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+/* Tabular number alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Surface card */
+.surface-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+}
+
+/* ============================================================
+   Print styles — 80mm thermal receipt
+   ============================================================ */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 2mm;
+  }
+
+  body {
+    background: white;
+    font-size: 11px;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* ============================================================
    وضع المنيو المميز (Eduverse Menu Style) — مشترك بين POS والعميل
    Responsive بالكامل
    ============================================================ */
-:root {
-  --menu-purple: #5a3e85;
-  --menu-purple-deep: #47316b;
-  --menu-purple-soft: #efe9f5;
-  --menu-cream: #f6f1ea;
-  --menu-ink: #3d2f57;
-  --menu-line: #d9cbe8;
-}
 
 .menu-serif { font-family: 'Playfair Display', serif; }
 

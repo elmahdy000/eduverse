@@ -640,17 +640,21 @@ export function Modal({
 
   useEffect(() => {
     if (!isOpen) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    panelRef.current?.focus();
+
+    // Only set initial focus to modal panel if focus is currently outside the modal container
+    const isFocusInside = panelRef.current?.contains(document.activeElement);
+    if (!isFocusInside) {
+      panelRef.current?.focus({ preventScroll: true });
+    }
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      previouslyFocused?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
   const sizes: Record<string, string> = {

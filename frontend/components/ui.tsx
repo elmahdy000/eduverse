@@ -536,6 +536,98 @@ export function DataTable({
   );
 }
 
+/* ── Drawer (Slide-Over Panel) ── */
+export function Drawer({
+  isOpen, onClose, title, children, size = "md",
+}: {
+  isOpen: boolean; onClose: () => void; title?: string;
+  children: ReactNode; size?: "sm" | "md" | "lg" | "xl";
+}) {
+  const sizes: Record<string, string> = {
+    sm: "max-w-md", md: "max-w-lg", lg: "max-w-xl", xl: "max-w-2xl",
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 260 }}
+            className={clsx(
+              "relative mr-auto flex h-full w-full flex-col bg-white shadow-2xl ring-1 ring-slate-200",
+              sizes[size]
+            )}
+            dir="rtl"
+          >
+            {title && (
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+                <h3 className="text-base font-black text-slate-900">{title}</h3>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-200/60 hover:text-slate-600 transition"
+                >
+                  <XCircle size={18} />
+                </button>
+              </div>
+            )}
+            <div className="flex-1 overflow-y-auto p-6">{children}</div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ── SegmentedControl ── */
+export function SegmentedControl<T extends string>({
+  options, value, onChange, className,
+}: {
+  options: Array<{ id: T; label: string; count?: number; icon?: ReactNode }>;
+  value: T;
+  onChange: (val: T) => void;
+  className?: string;
+}) {
+  return (
+    <div className={clsx("flex items-center gap-1.5 overflow-x-auto no-scrollbar rounded-xl bg-slate-100 p-1.5 border border-slate-200/70", className)}>
+      {options.map((opt) => {
+        const isSelected = value === opt.id;
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => onChange(opt.id)}
+            className={clsx(
+              "flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all",
+              isSelected
+                ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+            )}
+          >
+            {opt.icon && <span className={clsx("shrink-0", isSelected ? "text-amber-600" : "text-slate-400")}>{opt.icon}</span>}
+            <span>{opt.label}</span>
+            {opt.count !== undefined && (
+              <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-black", isSelected ? "bg-amber-100 text-amber-700" : "bg-slate-200/70 text-slate-500")}>
+                {opt.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ── Modal ── */
 export function Modal({
   isOpen, onClose, title, children, size = "md",

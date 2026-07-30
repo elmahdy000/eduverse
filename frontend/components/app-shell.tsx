@@ -41,6 +41,7 @@ type NavItem = {
   icon: React.ElementType;
   ownerOnly?: boolean;
   planManagerOnly?: boolean;
+  receptionOnly?: boolean;  // hidden from Barista — reception + owner roles only
 };
 
 // ---------------------------------------------------------------------------
@@ -50,7 +51,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "لوحة التحكم", href: "/dashboard",     icon: LayoutDashboard },
   { label: "الجلسات",      href: "/sessions",      icon: Clock           },
-  { label: "الحجوزات",     href: "/bookings",      icon: CalendarCheck   },
+  { label: "الحجوزات",     href: "/bookings",      icon: CalendarCheck,  receptionOnly: true },
   { label: "العملاء",      href: "/customers",     icon: Users           },
   { label: "طلبات البار",  href: "/bar-orders",    icon: Coffee          },
   { label: "الفواتير",     href: "/billing",       icon: Receipt         },
@@ -65,8 +66,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: "الإعدادات",    href: "/settings",      icon: Settings        },
 ];
 
-const PRIVILEGED_ROLES = new Set(["Owner", "Operations Manager", "owner", "operations manager"]);
-const PLAN_MANAGER_ROLES = new Set(["Owner", "Operations Manager", "Receptionist", "owner", "operations manager", "receptionist"]);
+const PRIVILEGED_ROLES    = new Set(["Owner", "Operations Manager", "owner", "operations manager"]);
+const PLAN_MANAGER_ROLES  = new Set(["Owner", "Operations Manager", "Receptionist", "owner", "operations manager", "receptionist"]);
+const RECEPTION_ROLES     = new Set(["Owner", "Operations Manager", "Receptionist", "owner", "operations manager", "receptionist"]);
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -254,11 +256,15 @@ function SidebarContent({
     .join("");
   const roleName = user?.role?.name;
   const rc = roleColor(roleName);
-  const canSeeUsers = PRIVILEGED_ROLES.has(roleName ?? "");
+  const canSeeUsers    = PRIVILEGED_ROLES.has(roleName ?? "");
   const canManagePlans = PLAN_MANAGER_ROLES.has(roleName ?? "");
+  const canSeeBookings = RECEPTION_ROLES.has(roleName ?? "");
 
   const visibleItems = NAV_ITEMS.filter(
-    (item) => (!item.ownerOnly || canSeeUsers) && (!item.planManagerOnly || canManagePlans)
+    (item) =>
+      (!item.ownerOnly      || canSeeUsers) &&
+      (!item.planManagerOnly || canManagePlans) &&
+      (!item.receptionOnly  || canSeeBookings)
   );
 
   return (

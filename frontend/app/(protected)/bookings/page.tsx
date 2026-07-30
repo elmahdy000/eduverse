@@ -34,6 +34,26 @@ function localDateKey(date: Date) {
 
 export default function BookingsPage() {
   const queryClient = useQueryClient();
+  const authUser = (typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem("auth-user") || "{}")
+    : {}) as { role?: { name?: string } };
+  const roleName = authUser?.role?.name?.toLowerCase() ?? "";
+  const ALLOWED_ROLES = ["owner", "operations manager", "receptionist"];
+  const isAllowed = ALLOWED_ROLES.some((r) => roleName.includes(r));
+
+  if (!isAllowed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" dir="rtl">
+        <div className="text-5xl">🚫</div>
+        <h2 className="text-xl font-black text-slate-800">غير مصرح بالدخول</h2>
+        <p className="text-sm text-slate-500 text-center max-w-xs">
+          صفحة الحجوزات مخصصة لموظفي الاستقبال والإدارة فقط.
+          <br />الباريستا ملوش دعوة بحجز الغرف 😄
+        </p>
+      </div>
+    );
+  }
+
 
   const searchParams = useSearchParams();
   const [customerId, setCustomerId] = useState(() => searchParams.get("customerId") ?? "");

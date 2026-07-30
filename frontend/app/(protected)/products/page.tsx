@@ -261,22 +261,20 @@ export default function ProductsPage() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [search, categoryFilter, statusFilter, stockFilter, sortBy, viewMode, page, pageSize, pathname, router]);
 
-  // Fetch Products Query
+  // Fetch Products Query - Load all products for full instant filtering
   const productsQuery = useQuery({
-    queryKey: ["products", search, categoryFilter, statusFilter, stockFilter],
+    queryKey: ["products"],
     queryFn: async () => {
       const res = await api.get("/products", {
         params: {
           page: 1,
-          limit: 300,
-          q: search.trim() || undefined,
-          category: categoryFilter !== "" ? categoryFilter : undefined,
-          active: statusFilter === "all" ? undefined : statusFilter === "active",
+          limit: 500,
+          all: "true",
         },
       });
       return res.data.data as Paginated<Product>;
     },
-    staleTime: 0,
+    staleTime: 5000,
   });
 
   const rawProducts = useMemo(() => productsQuery.data?.data ?? [], [productsQuery.data?.data]);
@@ -284,6 +282,22 @@ export default function ProductsPage() {
   // Filter & Sort Products locally for immediate UI responsiveness
   const filteredAndSortedProducts = useMemo(() => {
     let list = [...rawProducts];
+
+    // Search Query Filter
+    if (search.trim()) {
+      const term = search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(term) ||
+          p.category.toLowerCase().includes(term) ||
+          (p.description && p.description.toLowerCase().includes(term))
+      );
+    }
+
+    // Category Filter
+    if (categoryFilter) {
+      list = list.filter((p) => p.category === categoryFilter);
+    }
 
     // Status Filter
     if (statusFilter === "active") {
@@ -304,12 +318,12 @@ export default function ProductsPage() {
       if (sortBy === "name") return a.name.localeCompare(b.name, "ar");
       if (sortBy === "price_asc") return Number(a.price) - Number(b.price);
       if (sortBy === "price_desc") return Number(b.price) - Number(a.price);
-      if (sortBy === "oldest") return (a.id > b.id ? 1 : -1);
+      if (sortBy === "oldest") return a.id > b.id ? 1 : -1;
       return 0; // default newest
     });
 
     return list;
-  }, [rawProducts, statusFilter, stockFilter, sortBy]);
+  }, [rawProducts, search, categoryFilter, statusFilter, stockFilter, sortBy]);
 
   // Client Pagination
   const totalItems = filteredAndSortedProducts.length;

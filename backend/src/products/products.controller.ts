@@ -64,17 +64,25 @@ export class ProductsController {
     @Query('category') category?: string,
     @Query('availability') availability?: string,
     @Query('active') active?: string,
+    @Query('all') all?: string,
     @Query('q') q?: string,
   ) {
     try {
+      const isAll = all === 'true' || active === 'all';
       const result = await this.productsService.listProducts(
         Number(page),
         Number(limit),
         {
-          category,
+          category: category && category !== '' ? category : undefined,
           availability:
-            availability === undefined ? undefined : availability === 'true',
-          active: active === undefined ? true : active === 'true',
+            availability === undefined || availability === 'all'
+              ? undefined
+              : availability === 'true',
+          active: isAll
+            ? undefined
+            : active === undefined
+              ? true
+              : active === 'true',
           q,
         },
       );

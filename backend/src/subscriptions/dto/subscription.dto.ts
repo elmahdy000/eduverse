@@ -24,7 +24,8 @@ export class CreatePlanDto {
   @IsNotEmpty()
   @MaxLength(80)
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-    message: 'packageType must contain lowercase letters, numbers and hyphens only',
+    message:
+      'packageType must contain lowercase letters, numbers and hyphens only',
   })
   packageType: string; // daily, weekly, monthly
 

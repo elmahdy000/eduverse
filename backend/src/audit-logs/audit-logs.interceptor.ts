@@ -50,7 +50,7 @@ export class AuditLogsInterceptor implements NestInterceptor {
       return pathId;
     }
 
-    const bodyId = responseBody?.data?.id;
+    const bodyId = responseBody?.data?.id ?? responseBody?.id;
     if (this.isUuid(bodyId)) {
       return bodyId;
     }
@@ -92,7 +92,7 @@ export class AuditLogsInterceptor implements NestInterceptor {
           action,
           entityType,
           entityId,
-          newValue: responseBody?.data ?? null,
+          newValue: responseBody?.data ?? responseBody ?? null,
           ipAddress: request?.ip || null,
           userAgent: request?.headers?.['user-agent'] || null,
         });

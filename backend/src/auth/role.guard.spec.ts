@@ -63,7 +63,9 @@ describe('role guards', () => {
 
   it('allows Receptionist to read inventory items', async () => {
     const prisma = {
-      role: { findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }) },
+      role: {
+        findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }),
+      },
     };
     const guard = new RoleGuard(prisma as never);
     const context = contextFor('role-1', {
@@ -78,7 +80,9 @@ describe('role guards', () => {
 
   it('does not allow Receptionist to modify inventory', async () => {
     const prisma = {
-      role: { findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }) },
+      role: {
+        findUnique: jest.fn().mockResolvedValue({ name: 'Receptionist' }),
+      },
     };
     const guard = new RoleGuard(prisma as never);
     const context = contextFor('role-1', {

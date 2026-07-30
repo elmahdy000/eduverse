@@ -68,4 +68,13 @@ export class OwnerReportsController {
   ) {
     return this.service.getInventoryReport(fromDate, toDate);
   }
+
+  @Get('activity')
+  @ApiOperation({ summary: 'سجل موحّد لكل الحركات التشغيلية والمالية' })
+  async getActivity(
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
+    return this.service.getActivityReport(fromDate, toDate);
+  }
 }

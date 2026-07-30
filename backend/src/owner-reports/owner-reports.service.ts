@@ -332,20 +332,16 @@ export class OwnerReportsService {
   async getExpensesReport(fromDate?: string, toDate?: string) {
     const { start, end } = this.parseRange(fromDate, toDate);
 
-    const [expenses, categories, vendors] = await Promise.all([
-      this.prisma.expense.findMany({
-        where: { status: 'paid', date: { gte: start, lte: end } },
-        include: {
-          category: { select: { id: true, name: true } },
-          vendor: { select: { id: true, name: true } },
-          recordedByUser: { select: { firstName: true, lastName: true } },
-          linkedUser: { select: { firstName: true, lastName: true } },
-        },
-        orderBy: { date: 'desc' },
-      }),
-      this.prisma.expenseCategory.findMany(),
-      this.prisma.vendor.findMany(),
-    ]);
+    const expenses = await this.prisma.expense.findMany({
+      where: { status: 'paid', date: { gte: start, lte: end } },
+      include: {
+        category: { select: { id: true, name: true } },
+        vendor: { select: { id: true, name: true } },
+        recordedByUser: { select: { firstName: true, lastName: true } },
+        linkedUser: { select: { firstName: true, lastName: true } },
+      },
+      orderBy: { date: 'desc' },
+    });
 
     const totalAmount = this.round2(
       expenses.reduce((s, e) => s + Number(e.amount), 0),
@@ -836,6 +832,273 @@ export class OwnerReportsService {
           : null,
         createdAt: m.createdAt,
       })),
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 7) سجل النشاط الشامل: كل ما يحدث داخل المكان في خط زمني واحد
+  // ---------------------------------------------------------------------------
+
+  async getActivityReport(fromDate?: string, toDate?: string) {
+    const { start, end } = this.parseRange(fromDate, toDate);
+
+    const [
+      sessions,
+      bookings,
+      orders,
+      payments,
+      expenses,
+      shifts,
+      subscriptions,
+      auditLogs,
+    ] = await Promise.all([
+      this.prisma.session.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          status: true,
+          sessionType: true,
+          startTime: true,
+          endTime: true,
+          chargeAmount: true,
+          createdAt: true,
+          customer: { select: { fullName: true } },
+          room: { select: { name: true } },
+          openedByUser: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.booking.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          status: true,
+          bookingType: true,
+          startTime: true,
+          totalAmount: true,
+          createdAt: true,
+          customer: { select: { fullName: true } },
+          room: { select: { name: true } },
+          createdByUser: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.barOrder.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          status: true,
+          totalAmount: true,
+          createdAt: true,
+          updatedAt: true,
+          customer: { select: { fullName: true } },
+          createdByUser: { select: { firstName: true, lastName: true } },
+          _count: { select: { items: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.payment.findMany({
+        where: { paidAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          amount: true,
+          paymentMethod: true,
+          paidAt: true,
+          invoice: {
+            select: {
+              invoiceNumber: true,
+              customer: { select: { fullName: true } },
+            },
+          },
+          recordedByUser: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { paidAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.expense.findMany({
+        where: { date: { gte: start, lte: end } },
+        select: {
+          id: true,
+          amount: true,
+          description: true,
+          status: true,
+          date: true,
+          category: { select: { name: true } },
+          recordedByUser: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { date: 'desc' },
+        take: 500,
+      }),
+      this.prisma.shift.findMany({
+        where: { startTime: { gte: start, lte: end } },
+        select: {
+          id: true,
+          status: true,
+          startTime: true,
+          endTime: true,
+          startCash: true,
+          actualCash: true,
+          totalSales: true,
+          totalExpenses: true,
+          user: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { startTime: 'desc' },
+        take: 500,
+      }),
+      this.prisma.customerSubscription.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          packageType: true,
+          status: true,
+          pricePaid: true,
+          createdAt: true,
+          customer: { select: { fullName: true } },
+          plan: { select: { name: true } },
+          createdByUser: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.auditLog.findMany({
+        where: { timestamp: { gte: start, lte: end } },
+        select: {
+          id: true,
+          action: true,
+          entityType: true,
+          entityId: true,
+          timestamp: true,
+          ipAddress: true,
+          user: { select: { firstName: true, lastName: true, email: true } },
+        },
+        orderBy: { timestamp: 'desc' },
+        take: 500,
+      }),
+    ]);
+
+    const person = (
+      user?: { firstName: string | null; lastName: string | null } | null,
+    ) =>
+      user
+        ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'مستخدم'
+        : 'النظام';
+
+    const events = [
+      ...sessions.map((x) => ({
+        id: `session-${x.id}`,
+        entityId: x.id,
+        type: 'session',
+        timestamp: x.createdAt,
+        title: 'فتح جلسة',
+        description: `${x.customer.fullName}${x.room ? ` — ${x.room.name}` : ''}`,
+        status: x.status,
+        amount: x.chargeAmount == null ? null : Number(x.chargeAmount),
+        actor: person(x.openedByUser),
+        meta: x.sessionType,
+      })),
+      ...bookings.map((x) => ({
+        id: `booking-${x.id}`,
+        entityId: x.id,
+        type: 'booking',
+        timestamp: x.createdAt,
+        title: 'إنشاء حجز',
+        description: `${x.customer.fullName} — ${x.room.name}`,
+        status: x.status,
+        amount: Number(x.totalAmount),
+        actor: person(x.createdByUser),
+        meta: x.bookingType,
+      })),
+      ...orders.map((x) => ({
+        id: `order-${x.id}`,
+        entityId: x.id,
+        type: 'bar_order',
+        timestamp: x.createdAt,
+        title: 'طلب بار',
+        description: `${x.customer.fullName} — ${x._count.items} صنف`,
+        status: x.status,
+        amount: Number(x.totalAmount || 0),
+        actor: person(x.createdByUser),
+        meta: null,
+      })),
+      ...payments.map((x) => ({
+        id: `payment-${x.id}`,
+        entityId: x.id,
+        type: 'payment',
+        timestamp: x.paidAt,
+        title: Number(x.amount) < 0 ? 'استرداد دفعة' : 'تسجيل دفعة',
+        description: `${x.invoice.customer.fullName} — ${x.invoice.invoiceNumber}`,
+        status: Number(x.amount) < 0 ? 'refunded' : 'paid',
+        amount: Number(x.amount),
+        actor: person(x.recordedByUser),
+        meta: x.paymentMethod,
+      })),
+      ...expenses.map((x) => ({
+        id: `expense-${x.id}`,
+        entityId: x.id,
+        type: 'expense',
+        timestamp: x.date,
+        title: 'تسجيل مصروف',
+        description: `${x.description} — ${x.category.name}`,
+        status: x.status,
+        amount: Number(x.amount),
+        actor: person(x.recordedByUser),
+        meta: null,
+      })),
+      ...shifts.map((x) => ({
+        id: `shift-${x.id}`,
+        entityId: x.id,
+        type: 'shift',
+        timestamp: x.startTime,
+        title: x.status === 'closed' ? 'وردية مغلقة' : 'فتح وردية',
+        description: person(x.user),
+        status: x.status,
+        amount:
+          x.status === 'closed' ? Number(x.totalSales) : Number(x.startCash),
+        actor: person(x.user),
+        meta: x.endTime ? `انتهت ${x.endTime.toISOString()}` : null,
+      })),
+      ...subscriptions.map((x) => ({
+        id: `subscription-${x.id}`,
+        entityId: x.id,
+        type: 'subscription',
+        timestamp: x.createdAt,
+        title: 'اشتراك جديد',
+        description: `${x.customer.fullName} — ${x.plan?.name || x.packageType}`,
+        status: x.status,
+        amount: Number(x.pricePaid),
+        actor: person(x.createdByUser),
+        meta: x.packageType,
+      })),
+      ...auditLogs.map((x) => ({
+        id: `audit-${x.id}`,
+        entityId: x.entityId,
+        type: 'audit',
+        timestamp: x.timestamp,
+        title: 'تغيير بالنظام',
+        description: `${x.action} — ${x.entityType}`,
+        status: 'recorded',
+        amount: null,
+        actor: person(x.user),
+        meta: x.ipAddress,
+      })),
+    ].sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
+
+    const counts = events.reduce<Record<string, number>>((acc, event) => {
+      acc[event.type] = (acc[event.type] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      range: { start: start.toISOString(), end: end.toISOString() },
+      summary: { totalEvents: events.length, counts },
+      events: events.slice(0, 1000),
+      truncated: events.length > 1000,
     };
   }
 }

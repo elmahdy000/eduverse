@@ -165,7 +165,7 @@ export default function SessionsPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   // معلومات الجلسة المقفولة للملخص (المدة + عدد أصناف البار)
   const [closedInfo, setClosedInfo] = useState<{ durationMinutes?: number | null } | null>(null);
-  const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string; session?: Session } | null>(null);
+  const [pendingSessionAction, setPendingSessionAction] = useState<{ id: string; action: "close" | "cancel"; customerName?: string; session?: Session; previewAt?: number } | null>(null);
   const [closeDiscount, setCloseDiscount] = useState("");
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
@@ -372,7 +372,7 @@ export default function SessionsPage() {
                   <ActiveSessionCard
                     key={s.id}
                     session={s}
-                    onClose={(id) => setPendingSessionAction({ id, action: "close", customerName: s.customer?.fullName, session: s })}
+                    onClose={(id) => setPendingSessionAction({ id, action: "close", customerName: s.customer?.fullName, session: s, previewAt: Date.now() })}
                     onCancel={(id) => setPendingSessionAction({ id, action: "cancel", customerName: s.customer?.fullName })}
                     isClosing={closeMutation.isPending}
                     isCancelling={cancelMutation.isPending}
@@ -459,7 +459,7 @@ export default function SessionsPage() {
                         <td className="py-3">
                           {session.status === "active" && (
                             <button
-                              onClick={() => setPendingSessionAction({ id: session.id, action: "close", customerName: session.customer?.fullName, session })}
+                              onClick={() => setPendingSessionAction({ id: session.id, action: "close", customerName: session.customer?.fullName, session, previewAt: Date.now() })}
                               disabled={closeMutation.isPending}
                               className="rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold text-slate-600 opacity-0 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 disabled:opacity-50"
                             >
@@ -762,7 +762,7 @@ export default function SessionsPage() {
 
           // Live elapsed hours (from startTime to now)
           const elapsedMinutes = sess?.startTime
-            ? Math.ceil((Date.now() - new Date(sess.startTime).getTime()) / 60000)
+            ? Math.ceil(((pendingSessionAction.previewAt ?? new Date(sess.startTime).getTime()) - new Date(sess.startTime).getTime()) / 60000)
             : 0;
           const elapsedHours = Math.max(1, Math.ceil(elapsedMinutes / 60));
           const baseAmount = isMeetingOrLecture ? elapsedHours * MEETING_RATE : null;

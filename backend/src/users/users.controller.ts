@@ -62,8 +62,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(OwnerGuard)
-  @ApiOperation({ summary: 'Get user by ID (Owner only)' })
+  @UseGuards(OpsManagerGuard)
+  @ApiOperation({ summary: 'Get user by ID (Owner or Operations Manager)' })
   async getUser(@Param('id') userId: string) {
     try {
       const user = await this.usersService.getUser(userId);

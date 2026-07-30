@@ -48,10 +48,11 @@ export class BarOrdersController {
       throw new ForbiddenException('User role not found');
     }
 
-    const allowedRoles = ['Barista', 'Receptionist', 'Owner'];
-    if (!allowedRoles.includes(role.name)) {
+    const allowedRoles = ['barista', 'receptionist', 'owner', 'operations manager'];
+    const roleName = (role.name || '').toLowerCase().trim();
+    if (!allowedRoles.some(r => roleName.includes(r) || roleName === r)) {
       throw new ForbiddenException(
-        'Only Barista, Receptionist, or Owner can modify bar orders',
+        'Only Barista, Receptionist, Owner, or Operations Manager can modify bar orders',
       );
     }
   }

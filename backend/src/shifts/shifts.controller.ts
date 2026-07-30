@@ -2,12 +2,12 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Put } fr
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ShiftsService } from './shifts.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { OpsManagerGuard } from '../auth/role.guard';
+import { OpsManagerGuard, RoleGuard } from '../auth/role.guard';
 import { CloseShiftDto, StartShiftDto } from './dto/shift.dto';
 
 @ApiTags('shifts')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('shifts')
 export class ShiftsController {
   constructor(private shiftsService: ShiftsService) {}

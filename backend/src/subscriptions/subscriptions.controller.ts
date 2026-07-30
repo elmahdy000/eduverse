@@ -2,7 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } f
 import { SubscriptionsService } from './subscriptions.service';
 import { CreatePlanDto, UpdatePlanDto, CreateSubscriptionDto, UpdateSubscriptionDto } from './dto/subscription.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { RoleGuard } from '../auth/role.guard';
+import { RoleGuard, OpsManagerGuard } from '../auth/role.guard';
 
 @Controller('subscriptions')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -81,6 +81,7 @@ export class SubscriptionsController {
   }
 
   @Post('expire')
+  @UseGuards(OpsManagerGuard)
   expireOverdue() {
     return this.subscriptionsService.expireOverdue();
   }

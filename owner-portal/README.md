@@ -8,24 +8,25 @@
 - كل مسارات الـ backend تحت `/api/owner-portal/*` محمية بـ `JwtAuthGuard + OwnerPortalGuard`.
 - **حسابات Owner العادية لا يمكنها الوصول لهذه البوابة** — العزل مضمون على مستوى الـ Guard.
 - كل التقارير للقراءة فقط (`GET`).
-- **غيّر كلمات المرور الافتراضية فور تشغيل البوابة على الإنتاج.**
+- استخدم كلمة مرور قوية مستقلة للبوابة ولا تشاركها مع حسابات التشغيل اليومية.
 
 ## التشغيل الأول
 
 ### 1) إنشاء الـ role والحسابات الافتراضية في الـ backend
 
-من مجلد `backend/`:
+من مجلد `backend/` عيّن كلمة مرور قوية في متغير البيئة، ثم شغّل الـ seed:
 
 ```bash
+export OWNER_PORTAL_SEED_PASSWORD='ضع-كلمة-مرور-قوية-هنا'
 npx ts-node prisma/seed_owner_portal.ts
 ```
 
-هذا ينشئ role `OwnerPortal` وحسابين افتراضيين:
+هذا ينشئ role `OwnerPortal` وحسابين مستقلين:
 
 | البريد | كلمة المرور |
 |---|---|
-| owner-portal@eduvers.com | OwnersOnly@2026 |
-| elmahdy-portal@eduvers.com | OwnersOnly@2026 |
+| owner-portal@eduvers.com | القيمة الآمنة في `OWNER_PORTAL_SEED_PASSWORD` |
+| elmahdy-portal@eduvers.com | القيمة الآمنة في `OWNER_PORTAL_SEED_PASSWORD` |
 
 ### 2) تشغيل تطبيق الـ owner-portal
 
@@ -45,6 +46,7 @@ npm run dev
 ## الشاشات المتاحة
 
 - `/dashboard` — لوحة KPI بأهم المؤشرات ومقارنة بالفترة السابقة.
+- `/reports/activity` — سجل موحّد لكل الجلسات والحجوزات والطلبات والمدفوعات والمصروفات والورديات والاشتراكات وتغييرات النظام.
 - `/reports/revenue` — تقرير الدخل الكامل (فواتير، مدفوعات، طرق دفع، فواتير معلّقة).
 - `/reports/expenses` — تقرير المصروفات تفصيلي بالتصنيف والمورد.
 - `/reports/profit` — صافي الربح مع مقارنة الفترات ومخطط اتجاه.

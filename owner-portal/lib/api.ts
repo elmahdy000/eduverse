@@ -192,4 +192,6 @@ export const reports = {
     api.get(`/owner-portal/bar${qs({ fromDate, toDate })}`),
   inventory: (fromDate?: string, toDate?: string) =>
     api.get(`/owner-portal/inventory${qs({ fromDate, toDate })}`),
+  activity: (fromDate?: string, toDate?: string) =>
+    api.get(`/owner-portal/activity${qs({ fromDate, toDate })}`),
 };

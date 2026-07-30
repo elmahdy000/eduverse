@@ -18,6 +18,7 @@ import {
   Alert, Badge, Btn, DateTimeInput, EmptyState, Modal, Panel, SectionTitle, StatCard, 
   statusBadgeTone, FormField, Input, Select, TableSkeleton
 } from "../../../components/ui";
+import { useAuthStore } from "../../../store/auth-store";
 import clsx from "clsx";
 
 function toIso(datetimeLocal: string) {
@@ -38,11 +39,9 @@ export default function BookingsPage() {
   const searchParams = useSearchParams();
 
   // Role Security Check
-  const authUser = (typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem("auth-user") || "{}")
-    : {}) as { role?: { name?: string } };
-  const roleName = authUser?.role?.name?.toLowerCase() ?? "";
-  const ALLOWED_ROLES = ["owner", "operations manager", "receptionist"];
+  const { user } = useAuthStore();
+  const roleName = user?.role?.name?.toLowerCase() ?? "";
+  const ALLOWED_ROLES = ["owner", "operations manager", "receptionist", "reception"];
   const isAllowed = ALLOWED_ROLES.some((r) => roleName.includes(r));
 
   if (!isAllowed) {

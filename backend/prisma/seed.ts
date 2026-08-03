@@ -154,7 +154,7 @@ async function main() {
       firstName: 'Owner',
       lastName: 'User',
       roleId: roles['Owner'].id,
-      status: 'active',
+      status: 'inactive',
     },
   });
 
@@ -177,7 +177,7 @@ async function main() {
       firstName: 'System',
       lastName: 'Owner',
       roleId: roles['Owner'].id,
-      status: 'active',
+      status: 'inactive',
     },
   });
 
@@ -188,7 +188,7 @@ async function main() {
       firstName: 'Barista',
       lastName: 'One',
       roleId: roles['Barista'].id,
-      status: 'active',
+      status: 'inactive',
     },
   });
 
